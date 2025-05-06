@@ -1,0 +1,1 @@
+import{c as s}from"./index-C0ii1eey.js";const c=c=>s("/v1/access/get_list",c),a=c=>s("/v1/access/add_access",c),e=c=>s("/v1/access/upd_access",c),d=c=>s("/v1/access/del_access",c),t=c=>s("/v1/access/get_all",c);export{a,t as b,d,c as g,e as u};

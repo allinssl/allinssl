@@ -1,0 +1,1 @@
+import{c as t}from"./index-C0ii1eey.js";const e=e=>t("/v1/setting/get_setting",e),r=e=>t("/v1/setting/save_setting",e),s=e=>t("/v1/report/add_report",e),o=e=>t("/v1/report/upd_report",e),a=e=>t("/v1/report/del_report",e),p=e=>t("/v1/report/get_list",e);export{p as a,s as b,a as d,e as g,r as s,o as u};
