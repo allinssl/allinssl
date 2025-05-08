@@ -41,9 +41,6 @@ func RequestBt(data *url.Values, method, providerID, requestUrl string) (map[str
 	}
 	timestamp := time.Now().Unix()
 	token := generateSignature(fmt.Sprintf("%d", timestamp), providerConfig["api_key"])
-	if providerConfig["url"][len(providerConfig["url"])-1:] != "/" {
-		providerConfig["url"] += "/"
-	}
 	
 	data.Set("request_time", fmt.Sprintf("%d", timestamp))
 	data.Set("request_token", token)
@@ -52,7 +49,7 @@ func RequestBt(data *url.Values, method, providerID, requestUrl string) (map[str
 	if err != nil {
 		return nil, err
 	}
-	baseURL := fmt.Sprintf("%s://%s", parsedURL.Scheme, parsedURL.Host)
+	baseURL := fmt.Sprintf("%s://%s/", parsedURL.Scheme, parsedURL.Host)
 	
 	req, err := http.NewRequest(method, baseURL+requestUrl, strings.NewReader(data.Encode()))
 	if err != nil {
