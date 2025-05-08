@@ -15,7 +15,7 @@ func GetWorkflowCount() (map[string]any, error) {
 	s.Connect()
 	defer s.Close()
 	workflow, err := s.Query(`select count(*) as count,
-       count(case when active=1 then 1 end ) as active,
+       count(case when exec_type='auto' then 1 end ) as active,
        count(case when last_run_status='fail' then 1 end ) as failure
        from workflow
 `)
@@ -126,7 +126,7 @@ func GetWorkflowHistory() ([]map[string]any, error) {
 		} else {
 			name = "未知"
 		}
-
+		
 		result = append(result, map[string]any{
 			"name":      name,
 			"state":     state,

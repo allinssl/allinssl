@@ -93,37 +93,3 @@ func (s *Scheduler) loop() {
 		}
 	}
 }
-
-// package scheduler
-//
-// import (
-// 	"sync"
-// 	"time"
-// )
-//
-// var funcs = []func(){
-// 	SiteMonitor,
-// 	RunWorkflows,
-// }
-//
-// func Scheduler() {
-// 	for {
-// 		start := time.Now()
-//
-// 		var wg sync.WaitGroup
-// 		wg.Add(len(funcs))
-//
-// 		for _, f := range funcs {
-// 			go func(fn func()) {
-// 				defer wg.Done()
-// 				fn()
-// 			}(f)
-// 		}
-// 		wg.Wait()
-// 		// 保证每轮间隔至少10秒
-// 		elapsed := time.Since(start)
-// 		if elapsed < 10*time.Second {
-// 			time.Sleep(10*time.Second - elapsed)
-// 		}
-// 	}
-// }

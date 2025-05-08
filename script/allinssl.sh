@@ -134,6 +134,57 @@ function update_allinssl() {
     fi
 }
 
+function get_pack_manager(){
+	if [ -f "/usr/bin/yum" ] && [ -d "/etc/yum.repos.d" ]; then
+		PM="yum"
+	elif [ -f "/usr/bin/apt-get" ] && [ -f "/usr/bin/dpkg" ]; then
+		PM="apt-get"
+	fi
+}
+
+function set_firewall(){
+	sshPort=$(cat /etc/ssh/sshd_config | grep 'Port '|awk '{print $2}')
+	if [ "${PM}" = "apt-get" ]; then
+		apt-get install -y ufw
+		if [ -f "/usr/sbin/ufw" ];then
+			ufw allow 22/tcp
+			ufw allow ${panelPort}/tcp
+			ufw allow ${sshPort}/tcp
+			ufw status
+			echo y|ufw enable
+			ufw default deny
+			ufw reload
+		fi
+	else
+		if [ -f "/etc/init.d/iptables" ];then
+			iptables -I INPUT -p tcp -m state --state NEW -m tcp --dport 22 -j ACCEPT
+			iptables -I INPUT -p tcp -m state --state NEW -m tcp --dport ${panelPort} -j ACCEPT
+			iptables -I INPUT -p tcp -m state --state NEW -m tcp --dport ${sshPort} -j ACCEPT
+			iptables -A INPUT -p icmp --icmp-type any -j ACCEPT
+			iptables -A INPUT -s localhost -d localhost -j ACCEPT
+			iptables -A INPUT -m state --state ESTABLISHED,RELATED -j ACCEPT
+			iptables -P INPUT DROP
+			service iptables save
+			sed -i "s#IPTABLES_MODULES=\"\"#IPTABLES_MODULES=\"ip_conntrack_netbios_ns ip_conntrack_ftp ip_nat_ftp\"#" /etc/sysconfig/iptables-config
+			iptables_status=$(service iptables status | grep 'not running')
+			if [ "${iptables_status}" == '' ];then
+				service iptables restart
+			fi
+		else
+			AliyunCheck=$(cat /etc/redhat-release|grep "Aliyun Linux")
+			[ "${AliyunCheck}" ] && return
+			yum install firewalld -y
+			systemctl enable firewalld
+			systemctl start firewalld
+			firewall-cmd --set-default-zone=public > /dev/null 2>&1
+			firewall-cmd --permanent --zone=public --add-port=22/tcp > /dev/null 2>&1
+			firewall-cmd --permanent --zone=public --add-port=${panelPort}/tcp > /dev/null 2>&1
+			firewall-cmd --permanent --zone=public --add-port=${sshPort}/tcp > /dev/null 2>&1
+			firewall-cmd --reload
+		fi
+	fi
+}
+
 # 判断特殊操作
 if [ "$1" == "16" ]; then
   echo "⚠️ 正在准备执行 ALLinSSL 更新操作..."
@@ -159,6 +210,24 @@ elif [ "$1" == "17" ]; then
   echo "✅ 已确认，执行卸载操作..."
   # 删除工作目录
   rm -rf "$WORK_DIR"
+  exit 0
+elif [ "$1" == "7" ]; then
+  # 先调用二进制程序修改端口
+  "./$BINARY_FILE" "$@"
+  
+  # 获取修改后的端口
+  panelPort=$("./$BINARY_FILE" 15 | grep -o ":[0-9]\+" | grep -o "[0-9]\+" | head -n 1)
+  echo "检测到新的端口: ${panelPort}"
+  
+  # 放行新端口
+  get_pack_manager
+  echo "正在放行端口 ${panelPort}..."
+  set_firewall
+  
+  echo "✅ 端口修改并放行完成！"
+  exit 0
+elif [ "$1" == "status" ]; then
+  # 检查服务状态
   exit 0
 fi
 
