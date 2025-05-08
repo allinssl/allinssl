@@ -11,7 +11,7 @@ import (
 
 func init() {
 	os.MkdirAll("data", os.ModePerm)
-
+	
 	dbPath := "data/data.db"
 	_, _ = filepath.Abs(dbPath)
 	// fmt.Println("数据库路径:", absPath)
@@ -176,15 +176,15 @@ func init() {
 	INSERT INTO access_type (name, type) VALUES ('ssh', 'host');
 	INSERT INTO access_type (name, type) VALUES ('btpanel', 'host');
 	INSERT INTO access_type (name, type) VALUES ('1panel', 'host');`)
-
+	
 	uuidStr := public.GenerateUUID()
 	randomStr := public.RandomString(8)
-
+	
 	port, err := public.GetFreePort()
 	if err != nil {
 		port = 20773
 	}
-
+	
 	Isql := fmt.Sprintf(
 		`INSERT INTO settings (key, value, create_time, update_time, active, type) VALUES ('log_path', 'logs/ALLinSSL.log', '2025-04-15 15:58', '2025-04-15 15:58', 1, null);
 INSERT INTO settings (key, value, create_time, update_time, active, type) VALUES ( 'workflow_log_path', 'logs/workflows/', '2025-04-15 15:58', '2025-04-15 15:58', 1, null);
@@ -194,7 +194,7 @@ INSERT INTO settings (key, value, create_time, update_time, active, type) VALUES
 INSERT INTO settings (key, value, create_time, update_time, active, type) VALUES ('session_key', '%s', '2025-04-15 15:58', '2025-04-15 15:58', 1, null);
 INSERT INTO settings (key, value, create_time, update_time, active, type) VALUES ('secure', '/%s', '2025-04-15 15:58', '2025-04-15 15:58', 1, null);
 INSERT INTO settings (key, value, create_time, update_time, active, type) VALUES ('port', '%d', '2025-04-15 15:58', '2025-04-15 15:58', 1, null);`, uuidStr, uuidStr, randomStr, port)
-
+	
 	insertDefaultData(db, "settings", Isql)
 }
 
@@ -206,7 +206,7 @@ func insertDefaultData(db *sql.DB, table, insertSQL string) {
 		// fmt.Println("检查数据行数失败:", err)
 		return
 	}
-
+	
 	// 如果表为空，则插入默认数据
 	if count == 0 {
 		// fmt.Println("表为空，插入默认数据...")
