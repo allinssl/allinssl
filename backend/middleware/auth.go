@@ -27,7 +27,7 @@ func SessionAuthMiddleware() gin.HandlerFunc {
 		now := time.Now()
 		gob.Register(time.Time{})
 		last := session.Get("lastRequestTime")
-		
+
 		if routePath == public.Secure {
 			if session.Get("secure") == nil {
 				// 访问安全入口，设置 session
@@ -88,9 +88,10 @@ func SessionAuthMiddleware() gin.HandlerFunc {
 							return
 						} else {
 							if session.Get("__login_key") != public.GetSettingIgnoreError("login_key") {
-								session.Clear()
+								session.Set("login", nil)
 								session.Save()
-								c.JSON(http.StatusUnauthorized, gin.H{"message": "登录信息发生变化，请重新登录"})
+								// c.JSON(http.StatusUnauthorized, gin.H{"message": "登录信息发生变化，请重新登录"})
+								c.Redirect(http.StatusFound, "/login")
 								c.Abort()
 							} else {
 								// 访问正常，更新最后请求时间
