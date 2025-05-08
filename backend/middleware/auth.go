@@ -88,6 +88,7 @@ func SessionAuthMiddleware() gin.HandlerFunc {
 							return
 						} else {
 							if session.Get("__login_key") != public.GetSettingIgnoreError("login_key") {
+								session.Set("secure", true)
 								session.Set("login", nil)
 								session.Save()
 								// c.JSON(http.StatusUnauthorized, gin.H{"message": "登录信息发生变化，请重新登录"})
