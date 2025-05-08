@@ -91,8 +91,8 @@ func SessionAuthMiddleware() gin.HandlerFunc {
 								session.Set("secure", true)
 								session.Set("login", nil)
 								session.Save()
-								// c.JSON(http.StatusUnauthorized, gin.H{"message": "登录信息发生变化，请重新登录"})
-								c.Redirect(http.StatusFound, "/login")
+								c.JSON(http.StatusUnauthorized, gin.H{"message": "登录信息发生变化，请重新登录"})
+								// c.Redirect(http.StatusFound, "/login")
 								c.Abort()
 							} else {
 								// 访问正常，更新最后请求时间
