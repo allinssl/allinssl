@@ -36,9 +36,6 @@ func SessionAuthMiddleware() gin.HandlerFunc {
 				// 一定要保存 session BEFORE redirect
 				session.Save()
 			}
-			if paths[0] == "login" || paths[0] == "home" {
-				return
-			}
 			// 返回登录页
 			c.Redirect(http.StatusFound, "/login")
 			// c.Abort()
@@ -100,7 +97,7 @@ func SessionAuthMiddleware() gin.HandlerFunc {
 								session.Set("lastRequestTime", now)
 								session.Save()
 								if paths[0] == "login" {
-									c.Redirect(http.StatusFound, "/home")
+									c.Redirect(http.StatusFound, "/")
 									c.Abort()
 									return
 								}
