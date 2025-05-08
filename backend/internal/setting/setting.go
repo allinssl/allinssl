@@ -27,7 +27,7 @@ func Get() (Setting, error) {
 		Timeout: public.TimeOut,
 		Secure:  public.Secure,
 	}
-	
+
 	setting.Https = public.GetSettingIgnoreError("https")
 	key, err := os.ReadFile("data/https/key.pem")
 	if err != nil {
@@ -60,7 +60,7 @@ func Get() (Setting, error) {
 func Save(setting *Setting) error {
 	var restart bool
 	var reload bool
-	
+
 	s, err := public.NewSqlite("data/data.db", "")
 	if err != nil {
 		return err
@@ -79,7 +79,7 @@ func Save(setting *Setting) error {
 		if setting.Username != "" {
 			data["username"] = setting.Username
 		}
-		
+
 		salt := user[0]["salt"].(string)
 		passwd := setting.Password + salt
 		// fmt.Println(passwd)
@@ -95,17 +95,17 @@ func Save(setting *Setting) error {
 		reload = true
 	}
 	s.TableName = "settings"
-	if setting.Timeout != 0 {
+	if setting.Timeout != 0 && setting.Timeout != public.TimeOut {
 		s.Where("key = 'timeout'", []interface{}{}).Update(map[string]interface{}{"value": setting.Timeout})
 		public.TimeOut = setting.Timeout
 		restart = true
 	}
-	if setting.Secure != "" {
+	if setting.Secure != "" && setting.Secure != public.Secure {
 		s.Where("key = 'secure'", []interface{}{}).Update(map[string]interface{}{"value": setting.Secure})
 		public.TimeOut = setting.Timeout
 		restart = true
 	}
-	if setting.Https == "1" {
+	if setting.Https == "1" && setting.Https != public.GetSettingIgnoreError("https") {
 		if setting.Key == "" || setting.Cert == "" {
 			return fmt.Errorf("key or cert is empty")
 		}
