@@ -113,9 +113,9 @@ func GetWorkflowHistory() ([]map[string]any, error) {
 		}
 		switch v["exec_type"] {
 		case "manual":
-			mode = "手动触发"
+			mode = "手动"
 		case "auto":
-			mode = "定时触发"
+			mode = "自动"
 		}
 		wk, err := s.Where("id=?", []interface{}{v["workflow_id"]}).Select()
 		if err != nil {

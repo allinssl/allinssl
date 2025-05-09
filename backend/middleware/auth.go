@@ -131,6 +131,7 @@ func checkApiKey(c *gin.Context) bool {
 	err := c.Bind(&form)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid request"})
+		c.Abort()
 		return false
 	}
 	if form.ApiToken == "" || form.Timestamp == "" {
@@ -139,12 +140,14 @@ func checkApiKey(c *gin.Context) bool {
 	apiKey := public.GetSettingIgnoreError("api_key")
 	if apiKey == "" {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "未开启api"})
+		c.Abort()
 		return false
 	}
 	// timestamp := time.Now().Unix()
 	ApiToken := generateSignature(form.Timestamp, apiKey)
 	if form.ApiToken != ApiToken {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "invalid token"})
+		c.Abort()
 		return false
 	}
 	// 这里可以添加其他的验证逻辑，比如检查时间戳是否过期等
