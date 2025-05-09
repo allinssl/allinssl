@@ -4,7 +4,6 @@ import (
 	"ALLinSSL/backend/public"
 	"encoding/json"
 	"fmt"
-	"strings"
 	"sync"
 	"time"
 )
@@ -27,7 +26,7 @@ func GetList(search string, p, limit int64) ([]map[string]any, int, error) {
 		return data, 0, err
 	}
 	defer s.Close()
-
+	
 	var limits []int64
 	if p >= 0 && limit >= 0 {
 		limits = []int64{0, limit}
@@ -36,7 +35,7 @@ func GetList(search string, p, limit int64) ([]map[string]any, int, error) {
 			limits[1] = p * limit
 		}
 	}
-
+	
 	if search != "" {
 		count, err = s.Where("name like ?", []interface{}{"%" + search + "%"}).Count()
 		data, err = s.Where("name like ?", []interface{}{"%" + search + "%"}).Order("update_time", "desc").Limit(limits).Select()
@@ -56,7 +55,7 @@ func AddWorkflow(name, content, execType, active, execTime string) error {
 	if err != nil {
 		return fmt.Errorf("检测到工作流配置有问题：%v", err)
 	}
-
+	
 	s, err := GetSqlite()
 	if err != nil {
 		return err
@@ -161,7 +160,7 @@ func ExecuteWorkflow(id string) error {
 		return fmt.Errorf("工作流正在执行中")
 	}
 	content := data[0]["content"].(string)
-
+	
 	go func(id, c string) {
 		// defer wg.Done()
 		// WorkflowID := strconv.FormatInt(id, 10)
@@ -192,13 +191,15 @@ func resolveInputs(inputs []WorkflowNodeParams, ctx *ExecutionContext) map[strin
 	for _, input := range inputs {
 		if input.FromNodeID != "" {
 			if val, ok := ctx.GetOutput(input.FromNodeID); ok {
-				switch strings.Split(strings.TrimPrefix(input.FromNodeID, "-"), "-")[0] {
-				case "apply":
-					input.Name = "certificate"
-				case "upload":
-					input.Name = "certificate"
-				}
-				resolved[input.Name] = val
+				// 暂时没有新的类型可以先写死
+				// switch strings.Split(strings.TrimPrefix(input.FromNodeID, "-"), "-")[0] {
+				// case "apply":
+				// 	input.Name = "certificate"
+				// case "upload":
+				// 	input.Name = "certificate"
+				// }
+				// resolved[input.Name] = val
+				resolved["certificate"] = val
 			}
 		}
 	}
@@ -217,10 +218,10 @@ func RunNode(node *WorkflowNode, ctx *ExecutionContext) error {
 	}
 	node.Config["_runId"] = ctx.RunID
 	node.Config["logger"] = ctx.Logger
-
+	
 	// 执行当前节点
 	result, err := Executors(node.Type, node.Config)
-
+	
 	var status ExecutionStatus
 	if err != nil {
 		status = StatusFailed
@@ -230,9 +231,9 @@ func RunNode(node *WorkflowNode, ctx *ExecutionContext) error {
 	} else {
 		status = StatusSuccess
 	}
-
+	
 	ctx.SetOutput(node.Id, result, status)
-
+	
 	// 普通的并行
 	if node.Type == "branch" {
 		if len(node.ConditionNodes) > 0 {
@@ -268,7 +269,7 @@ func RunNode(node *WorkflowNode, ctx *ExecutionContext) error {
 			}
 		}
 	}
-
+	
 	if node.ChildNode != nil {
 		return RunNode(node.ChildNode, ctx)
 	}
