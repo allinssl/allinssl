@@ -76,7 +76,7 @@ func Register(r *gin.Engine) {
 	r.StaticFS("/auto-deploy/static", http.Dir("./frontend/static")) // 静态资源路径
 	// 返回 favicon.ico
 	r.GET("/favicon.ico", func(c *gin.Context) {
-		c.File("./static/favicon.ico")
+		c.File("./frontend/favicon.ico")
 	})
 	
 	// 3. 前端路由托管：匹配所有其他路由并返回 index.html
