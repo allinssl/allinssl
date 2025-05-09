@@ -50,7 +50,16 @@ if [ $# -eq 0 ]; then
 fi
 
 function update_allinssl() {
-    local url="https://download.allinssl.com/bin/allinssl.tar.gz"
+    ARCH=$(uname -m)
+    if [[ "$ARCH" == "x86_64" ]]; then
+        local url="https://download.allinssl.com/bin/allinssl-Linux-x86_64.tar.gz"
+    elif [[ "$ARCH" == "aarch64" ]]; then
+        local url="https://download.allinssl.com/bin/allinssl-Linux-aarch64.tar.gz"
+    else
+        echo "不支持$ARCH"
+        exit 1
+    fi
+#    local url="https://download.allinssl.com/bin/allinssl.tar.gz"
     local target_dir="${WORK_DIR}"
     local temp_file=$(mktemp)
     local original_filename temp_file
