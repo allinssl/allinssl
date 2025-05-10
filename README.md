@@ -26,6 +26,15 @@
 curl -sSO http://download.allinssl.com/install_allinssl.sh && bash install_allinssl.sh allinssl
 ```
 
+### 编译安装
+  - 编译安装时需要注意可执行文件的名称和运行目录，在`allinssl.sh`中需要修改为对应的名称和路径否则可能导致脚本不可用
+  - 推荐安装路径为`/www/allinssl/`，可执行文件名为`allinssl`，建议将`allinssl.sh`软链到`/usr/bin/`目录下
+  - 安装：
+    1. 下载最新版本的release包并解压
+    2. 编译go程序（allinssl）
+    3. 运行可执行文件启动服务
+       - Linux: 执行 `./allinssl start`
+
 ### 首次配置
 1. 访问 `http://your-server-ip:port/安全入口`
 2. 添加DNS提供商和主机提供商凭证 ☁️
@@ -90,6 +99,7 @@ allinssl 14: 关闭https 🔓
 allinssl 15: 获取面板地址 📋
 allinssl 16: 更新ALLinSSL到最新版本（文件覆盖安装） 🔄⬆️
 allinssl 17: 卸载ALLinSSL 🗑️
+```
 
 ## 🤝 参与贡献
 欢迎通过以下方式参与项目：
