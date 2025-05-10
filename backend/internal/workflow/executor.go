@@ -102,6 +102,7 @@ func upload(params map[string]any) (any, error) {
 			logger.Info("=============上传证书获取失败=============")
 			return nil, errors.New("证书 ID 类型错误")
 		}
+		result := map[string]any{}
 		certObj, err := cert.GetCert(certId)
 		if err != nil {
 			logger.Error(err.Error())
@@ -114,7 +115,9 @@ func upload(params map[string]any) (any, error) {
 			return nil, errors.New("证书不存在")
 		}
 		logger.Debug(fmt.Sprintf("证书 ID: %s", certId))
-		return certObj, nil
+		result["cert"] = certObj["cert"]
+		result["key"] = certObj["key"]
+		return result, nil
 	}
 }
 
