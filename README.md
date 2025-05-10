@@ -3,11 +3,11 @@
 ![GitHub License](https://img.shields.io/github/license/allinssl/allinssl)
 ![GitHub Stars](https://img.shields.io/github/stars/allinssl/allinssl?style=social)
 
+> 🚀 一站式SSL证书生命周期管理解决方案 | 支持Let's Encrypt | 多平台部署 | 自动化运维
+
 <p align="center">
   <img src=".github/img/main.gif" alt="控制台预览" width="600">
 </p>
-
-> 🚀 一站式SSL证书生命周期管理解决方案 | 支持Let's Encrypt | 多平台部署 | 自动化运维
 
 ## 📌 项目亮点
 - ✅ 全自动证书申请/续期
