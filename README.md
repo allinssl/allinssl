@@ -4,7 +4,7 @@
 ![GitHub Stars](https://img.shields.io/github/stars/allinssl/allinssl?style=social)
 
 <p align="center">
-  <img src="https://allinssl.com/images/main.png" alt="控制台预览" width="600">
+  <img src=".github/images/main.png" alt="控制台预览" width="600">
 </p>
 
 > 🚀 一站式SSL证书生命周期管理解决方案 | 支持Let's Encrypt | 多平台部署 | 自动化运维
