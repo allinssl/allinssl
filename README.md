@@ -130,6 +130,10 @@ allinssl 17: 卸载ALLinSSL 🗑️
 ## 📜 许可证
 本项目采用 [AGPL-3.0 license](./LICENSE) 开源协议
 
+## 🌟Star History
+
+[![Star History Chart](https://api.star-history.com/svg?repos=allinssl/allinssl&type=Date)](https://www.star-history.com/#allinssl/allinssl&Date)
+
 ---
 
 > 🌟 **Star本项目以支持开发** | 推荐用于：中小型网站运维、多证书管理场景、自动化HTTPS部署
