@@ -127,6 +127,26 @@ allinssl 17: 卸载ALLinSSL 🗑️
 - 邮箱：support@allinssl.com 📧
 - 问题反馈：[GitHub Issues](https://github.com/allinssl/allinssl/issues)
 
+## 🙏 致谢
+**感谢在SSL证书管理领域做出贡献的开源项目的社区和服务商：**
+- [Certbot](https://certbot.eff.org/)
+- [acme.sh](https://github.com/acmesh-official/acme.sh)
+- [Caddy](https://caddyserver.com/)
+- [Let's Encrypt](https://letsencrypt.org/)
+- [certimate](https://github.com/usual2970/certimate)
+- [certd](https://github.com/certd/certd)
+- [SSL.com](https://www.ssl.com/)
+- [Racent](https://www.racent.com/)
+- [TrustAsia](https://www.trustasia.com/)
+- [阿里云](https://www.aliyun.com/)
+- [腾讯云 DNSPod](https://cloud.tencent.com/)
+- [Cloudflare](https://www.cloudflare.com/)
+- [宝塔面板](https://www.bt.cn/)
+
+**感谢以下用户对本项目的支持和贡献：**
+- [@寒雨馨](https://www.hanyuxin.cn/)
+
+
 ## 📜 许可证
 本项目采用 [AGPL-3.0 license](./LICENSE) 开源协议
 
