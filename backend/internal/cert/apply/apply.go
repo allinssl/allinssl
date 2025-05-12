@@ -233,14 +233,15 @@ func Apply(cfg map[string]any, logger *public.Logger) (map[string]any, error) {
 	}
 	
 	err = client.Challenge.SetDNS01Provider(provider,
-		dns01.WrapPreCheck(func(domain, fqdn, value string, check dns01.PreCheckFunc) (bool, error) {
-			// 跳过预检查
-			return true, nil
-		}),
+		// dns01.WrapPreCheck(func(domain, fqdn, value string, check dns01.PreCheckFunc) (bool, error) {
+		// 	// 跳过预检查
+		// 	return true, nil
+		// }),
 		dns01.AddRecursiveNameservers([]string{
 			"8.8.8.8:53",
 			"1.1.1.1:53",
-		}))
+		}),
+	)
 	if err != nil {
 		return nil, err
 	}

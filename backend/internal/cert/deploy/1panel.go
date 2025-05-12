@@ -40,12 +40,12 @@ func Request1panel(data *map[string]any, method, providerID, requestUrl string) 
 	}
 	timestamp := fmt.Sprintf("%d", time.Now().Unix())
 	token := generateToken(timestamp, providerConfig["api_key"])
-
+	
 	// data, requestUrl, method := GetDeploy1PBody(cfg, Type)
 	if requestUrl == "" || data == nil {
 		return nil, fmt.Errorf("不支持的部署类型")
 	}
-
+	
 	// 编码为 JSON
 	jsonData, err := json.Marshal(data)
 	if err != nil {
@@ -61,12 +61,12 @@ func Request1panel(data *map[string]any, method, providerID, requestUrl string) 
 		// fmt.Println(err)
 		return nil, err
 	}
-
+	
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("user-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36")
 	req.Header.Set("1Panel-Timestamp", timestamp)
 	req.Header.Set("1Panel-Token", token)
-
+	
 	// 自定义 Transport，跳过 SSL 证书验证
 	ignoreSsl := false
 	if providerConfig["ignore_ssl"] == "1" {
@@ -75,7 +75,7 @@ func Request1panel(data *map[string]any, method, providerID, requestUrl string) 
 	tr := &http.Transport{
 		TLSClientConfig: &tls.Config{InsecureSkipVerify: ignoreSsl},
 	}
-
+	
 	client := &http.Client{Transport: tr}
 	resp, err := client.Do(req)
 	if err != nil {
@@ -84,7 +84,7 @@ func Request1panel(data *map[string]any, method, providerID, requestUrl string) 
 	}
 	body, _ := io.ReadAll(resp.Body)
 	defer resp.Body.Close()
-
+	
 	var res map[string]interface{}
 	err = json.Unmarshal(body, &res)
 	if err != nil {
@@ -102,7 +102,7 @@ func Request1panel(data *map[string]any, method, providerID, requestUrl string) 
 		return nil, fmt.Errorf("证书部署失败: %s", msg)
 	}
 	return res, nil
-
+	
 }
 
 func Deploy1panel(cfg map[string]any) error {
@@ -128,7 +128,7 @@ func Deploy1panel(cfg map[string]any) error {
 	if !ok {
 		return fmt.Errorf("证书错误：cert")
 	}
-
+	
 	data := map[string]interface{}{
 		"cert":    certPem,
 		"key":     keyPem,
@@ -179,14 +179,14 @@ func Deploy1panelSite(cfg map[string]any) error {
 	if err != nil {
 		return fmt.Errorf("获取网站参数失败: %v", err)
 	}
-
+	
 	siteData, ok = siteData["data"].(map[string]any)
 	if !ok {
 		return fmt.Errorf("获取网站参数失败: data")
 	}
-	SSLProtocol, ok := siteData["ssl_protocol"].(string)
+	SSLProtocol, ok := siteData["SSLProtocol"].(string)
 	if !ok {
-		return fmt.Errorf("获取网站参数失败: data.ssl_protocol")
+		return fmt.Errorf("获取网站参数失败: data.SSLProtocol")
 	}
 	algorithm, ok := siteData["algorithm"].(string)
 	if !ok {
@@ -200,11 +200,11 @@ func Deploy1panelSite(cfg map[string]any) error {
 	if !ok {
 		return fmt.Errorf("获取网站参数失败: data.hsts")
 	}
-	httpConfig, ok := siteData["http_config"].(string)
+	httpConfig, ok := siteData["httpConfig"].(string)
 	if !ok {
-		return fmt.Errorf("获取网站参数失败: data.http_config")
+		return fmt.Errorf("获取网站参数失败: data.httpConfig")
 	}
-
+	
 	data := map[string]any{
 		"SSLProtocol": SSLProtocol,
 		// "acmeAccountId":   siteData["SSL"].(map[string]any)["acmeAccountId"].(float64),
