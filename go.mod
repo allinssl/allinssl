@@ -30,10 +30,12 @@ require (
 	github.com/alibabacloud-go/tea-utils/v2 v2.0.7 // indirect
 	github.com/aliyun/alibaba-cloud-sdk-go v1.63.100 // indirect
 	github.com/aliyun/credentials-go v1.4.6 // indirect
+	github.com/baidubce/bce-sdk-go v0.9.223 // indirect
 	github.com/bytedance/sonic v1.13.2 // indirect
 	github.com/bytedance/sonic/loader v0.2.4 // indirect
 	github.com/cenkalti/backoff/v4 v4.3.0 // indirect
 	github.com/clbanning/mxj/v2 v2.7.0 // indirect
+	github.com/cloudflare/cloudflare-go v0.115.0 // indirect
 	github.com/cloudwego/base64x v0.1.5 // indirect
 	github.com/dustin/go-humanize v1.0.1 // indirect
 	github.com/gabriel-vasile/mimetype v1.4.8 // indirect
@@ -44,9 +46,11 @@ require (
 	github.com/go-playground/validator/v10 v10.26.0 // indirect
 	github.com/goccy/go-json v0.10.5 // indirect
 	github.com/golang/freetype v0.0.0-20170609003504-e2365dfdc4a0 // indirect
+	github.com/google/go-querystring v1.1.0 // indirect
 	github.com/gorilla/context v1.1.2 // indirect
 	github.com/gorilla/securecookie v1.1.2 // indirect
 	github.com/gorilla/sessions v1.4.0 // indirect
+	github.com/huaweicloud/huaweicloud-sdk-go-v3 v0.1.141 // indirect
 	github.com/jmespath/go-jmespath v0.4.0 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
 	github.com/klauspost/cpuid/v2 v2.2.10 // indirect
@@ -64,6 +68,7 @@ require (
 	github.com/tjfoc/gmsm v1.4.1 // indirect
 	github.com/twitchyliquid64/golang-asm v0.15.1 // indirect
 	github.com/ugorji/go/codec v1.2.12 // indirect
+	go.mongodb.org/mongo-driver v1.17.3 // indirect
 	golang.org/x/arch v0.16.0 // indirect
 	golang.org/x/exp v0.0.0-20250305212735-054e65f0b394 // indirect
 	golang.org/x/image v0.23.0 // indirect
