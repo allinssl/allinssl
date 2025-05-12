@@ -12,6 +12,7 @@ import (
 	"github.com/go-acme/lego/v4/certcrypto"
 	"github.com/go-acme/lego/v4/certificate"
 	"github.com/go-acme/lego/v4/challenge"
+	"github.com/go-acme/lego/v4/challenge/dns01"
 	"github.com/go-acme/lego/v4/lego"
 	"github.com/go-acme/lego/v4/providers/dns/alidns"
 	"github.com/go-acme/lego/v4/providers/dns/baiducloud"
@@ -236,10 +237,10 @@ func Apply(cfg map[string]any, logger *public.Logger) (map[string]any, error) {
 		// 	// 跳过预检查
 		// 	return true, nil
 		// }),
-		// dns01.AddRecursiveNameservers([]string{
-		// 	"8.8.8.8:53",
-		// 	"1.1.1.1:53",
-		// }),
+		dns01.AddRecursiveNameservers([]string{
+			"google-public-dns-a.google.com:53",
+			"google-public-dns-b.google.com:53",
+		}),
 	)
 	if err != nil {
 		return nil, err
