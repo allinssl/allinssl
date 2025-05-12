@@ -17,11 +17,11 @@ func init() {
 		os.Exit(1)
 	}
 	
-	exePath, err = filepath.EvalSymlinks(exePath) // 解决 macOS/Linux 下软链接问题
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "解析软链接失败: %v\n", err)
-		os.Exit(1)
-	}
+	// exePath, err = filepath.EvalSymlinks(exePath) // 解决 macOS/Linux 下软链接问题
+	// if err != nil {
+	// 	fmt.Fprintf(os.Stderr, "解析软链接失败: %v\n", err)
+	// 	os.Exit(1)
+	// }
 	
 	exeDir := filepath.Dir(exePath)
 	
