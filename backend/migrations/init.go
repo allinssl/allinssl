@@ -16,20 +16,30 @@ func init() {
 		fmt.Fprintf(os.Stderr, "获取可执行文件路径失败: %v\n", err)
 		os.Exit(1)
 	}
+	fmt.Println("exePath:", exePath)
 	
-	// exePath, err = filepath.EvalSymlinks(exePath) // 解决 macOS/Linux 下软链接问题
-	// if err != nil {
-	// 	fmt.Fprintf(os.Stderr, "解析软链接失败: %v\n", err)
-	// 	os.Exit(1)
-	// }
+	exePath, err = filepath.EvalSymlinks(exePath) // 解决 macOS/Linux 下软链接问题
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "解析软链接失败: %v\n", err)
+		os.Exit(1)
+	}
+	fmt.Println("exePath:", exePath)
 	
 	exeDir := filepath.Dir(exePath)
+	fmt.Println("exeDir:", exeDir)
 	
 	err = os.Chdir(exeDir)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "切换目录失败: %v\n", err)
 		os.Exit(1)
 	}
+	
+	dir, err := os.Getwd()
+	if err != nil {
+		fmt.Println("获取工作目录失败:", err)
+		return
+	}
+	fmt.Println("当前运行目录是:", dir)
 	
 	os.MkdirAll("data", os.ModePerm)
 	
