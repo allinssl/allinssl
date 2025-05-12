@@ -10,6 +10,12 @@ import (
 )
 
 func init() {
+	dir, err := os.Getwd()
+	if err != nil {
+		fmt.Println("获取工作目录失败:", err)
+		return
+	}
+	fmt.Println("当前运行目录是:", dir)
 	// 指定运行目录为当前目录
 	exePath, err := os.Executable()
 	if err != nil {
@@ -34,7 +40,7 @@ func init() {
 		os.Exit(1)
 	}
 	
-	dir, err := os.Getwd()
+	dir, err = os.Getwd()
 	if err != nil {
 		fmt.Println("获取工作目录失败:", err)
 		return
