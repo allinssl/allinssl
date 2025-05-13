@@ -103,6 +103,43 @@ func Apply(cfg map[string]any, logger *public.Logger) (map[string]any, error) {
 	default:
 		return nil, fmt.Errorf("参数错误：provider_id")
 	}
+	var NameServers []string
+	if cfg["name_server"] == nil {
+		NameServers = []string{
+			"8.8.8.8:53",
+			"1.1.1.1:53",
+		}
+	} else {
+		if nameServerStr, ok := cfg["name_server"].(string); ok {
+			NameServers = strings.Split(nameServerStr, ",")
+			for i := range NameServers {
+				NameServers[i] = strings.TrimSpace(NameServers[i])
+			}
+		} else {
+			return nil, fmt.Errorf("参数错误：name_server")
+		}
+	}
+	
+	var skipCheck int
+	if cfg["skip_check"] == nil {
+		skipCheck = 1
+	} else {
+		switch v := cfg["skip_check"].(type) {
+		case int:
+			skipCheck = v
+		case float64:
+			skipCheck = int(v)
+		case string:
+			skipCheckStr := v
+			skipCheck, err = strconv.Atoi(skipCheckStr)
+			if err != nil {
+				return nil, fmt.Errorf("参数错误：skip_check")
+			}
+		default:
+			return nil, fmt.Errorf("参数错误：skip_check")
+		}
+	}
+	
 	domainArr := strings.Split(domains, ",")
 	for i := range domainArr {
 		domainArr[i] = strings.TrimSpace(domainArr[i])
@@ -232,16 +269,19 @@ func Apply(cfg map[string]any, logger *public.Logger) (map[string]any, error) {
 		return nil, fmt.Errorf("创建 DNS provider 失败: %v", err)
 	}
 	
-	err = client.Challenge.SetDNS01Provider(provider,
-		dns01.WrapPreCheck(func(domain, fqdn, value string, check dns01.PreCheckFunc) (bool, error) {
-			// 跳过预检查
-			return true, nil
-		}),
-		dns01.AddRecursiveNameservers([]string{
-			"8.8.8.8:53",
-			"1.1.1.1:53",
-		}),
-	)
+	if skipCheck == 1 {
+		// 跳过预检查
+		err = client.Challenge.SetDNS01Provider(provider,
+			dns01.WrapPreCheck(func(domain, fqdn, value string, check dns01.PreCheckFunc) (bool, error) {
+				return true, nil
+			}),
+			dns01.AddRecursiveNameservers(NameServers),
+		)
+	} else {
+		err = client.Challenge.SetDNS01Provider(provider,
+			dns01.AddRecursiveNameservers(NameServers),
+		)
+	}
 	if err != nil {
 		return nil, err
 	}
