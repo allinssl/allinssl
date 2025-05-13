@@ -1,10 +1,10 @@
 # ALLinSSL - SSL证书全流程管理工具 🔒
 
-![GitHub License](https://img.shields.io/github/license/allinssl/allinssl)
+[![GitHub License](https://img.shields.io/github/license/allinssl/allinssl)](https://github.com/allinssl/allinssl?tab=readme-ov-file#AGPL-3.0-1-ov-file)
 ![GitHub Stars](https://img.shields.io/github/stars/allinssl/allinssl?style=social)
-![GitHub Issues](https://img.shields.io/github/issues/allinssl/allinssl)
-![GitHub Release](https://img.shields.io/github/v/release/allinssl/allinssl)
-![Docker Pulls](https://img.shields.io/docker/pulls/allinssl/allinssl)
+[![GitHub Issues](https://img.shields.io/github/issues/allinssl/allinssl)](https://github.com/allinssl/allinssl/issues)
+[![GitHub Release](https://img.shields.io/github/v/release/allinssl/allinssl)](https://github.com/allinssl/allinssl/releases)
+[![Docker Pulls](https://img.shields.io/docker/pulls/allinssl/allinssl)](https://hub.docker.com/r/allinssl/allinssl)
 
 
 > 🚀 一站式SSL证书生命周期管理解决方案 | 支持Let's Encrypt | 多平台部署 | 自动化运维
