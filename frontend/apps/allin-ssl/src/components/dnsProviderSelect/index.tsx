@@ -129,6 +129,8 @@ export default defineComponent({
 		// 错误信息
 		const errorMessage = ref('')
 
+		console.log(props.type)
+
 		/**
 		 * @description 跳转到DNS提供商授权页面
 		 */
@@ -145,12 +147,11 @@ export default defineComponent({
 			return (
 				<div class="flex items-center">
 					{option.label ? (
-						<NFlex>
-							<SvgIcon icon={`resources-${option.type}`} size="2rem" />
-							<NText>{option.label}</NText>
-						</NFlex>
+						renderLabel(option)
 					) : (
-						<NText>{props.type === 'dns' ? $t('t_3_1745490735059') : $t('t_19_1745735766810')}</NText>
+						<NText class="text-[#aaa]">
+							{props.type === 'dns' ? $t('t_0_1747019621052', []) : $t('t_0_1746858920894')}
+						</NText>
 					)}
 				</div>
 			)
@@ -247,18 +248,22 @@ export default defineComponent({
 		watch(
 			() => props.value,
 			() => {
-				loadDnsProviders(props.type)
+				// loadDnsProviders(props.type)
 				handleUpdateValue(props.value)
 			},
 			{ immediate: true },
 		)
+
+		onMounted(() => {
+			loadDnsProviders(props.type)
+		})
 
 		return () => (
 			<NSpin show={isLoading.value}>
 				<NGrid cols={24} class={props.customClass}>
 					<NFormItemGi
 						span={props.isAddMode ? 13 : 24}
-						label={props.type === 'dns' ? $t('t_3_1745735765112') : $t('t_0_1745744902975')}
+						label={props.type === 'dns' ? $t('t_3_1745735765112') : $t('t_0_1746754500246')}
 						path={props.path}
 					>
 						<NSelect
@@ -268,7 +273,7 @@ export default defineComponent({
 							renderTag={renderSingleSelectTag}
 							filterable
 							filter={handleFilter}
-							placeholder={props.type === 'dns' ? $t('t_3_1745490735059') : $t('t_1_1745744905566')}
+							placeholder={props.type === 'dns' ? $t('t_3_1745490735059') : $t('t_0_1746858920894')}
 							v-model:value={param.value.value}
 							onUpdateValue={handleUpdateValue}
 							disabled={props.disabled}
@@ -276,7 +281,7 @@ export default defineComponent({
 								empty: () => {
 									return (
 										<span class="text-[1.4rem]">
-											{errorMessage.value || (props.type === 'dns' ? $t('t_3_1745490735059') : $t('t_1_1745744905566'))}
+											{errorMessage.value || (props.type === 'dns' ? $t('t_1_1746858922914') : $t('t_2_1746858923964'))}
 										</span>
 									)
 								},
@@ -286,7 +291,7 @@ export default defineComponent({
 					{props.isAddMode && (
 						<NFormItemGi span={11}>
 							<NButton class="mx-[8px]" onClick={goToAddDnsProvider} disabled={props.disabled}>
-								{props.type === 'dns' ? $t('t_1_1746004861166') : $t('t_0_1745748292337')}
+								{props.type === 'dns' ? $t('t_1_1746004861166') : $t('t_3_1746858920060')}
 							</NButton>
 							<NButton onClick={() => loadDnsProviders(props.type)} loading={isLoading.value} disabled={props.disabled}>
 								{$t('t_0_1746497662220')}

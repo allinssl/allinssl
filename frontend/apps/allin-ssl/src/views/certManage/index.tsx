@@ -6,6 +6,7 @@ import { $t } from '@locales/index'
 import { useController } from './useController'
 
 import BaseComponent from '@components/baseComponent'
+import EmptyState from '@components/emptyState'
 
 /**
  * 证书管理组件
@@ -50,8 +51,12 @@ export default defineComponent({
 								></NInput>
 							),
 							content: () => (
-								<div class="rounded-lg bg-white">
-									<CertTable size="medium" />
+								<div class="rounded-lg">
+									<CertTable size="medium">
+										{{
+											empty: () => <EmptyState addButtonText={$t('t_1_1747047213009')} onAddClick={openUploadModal} />,
+										}}
+									</CertTable>
 								</div>
 							),
 							footerRight: () => (

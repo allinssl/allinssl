@@ -10,6 +10,7 @@ import type { FormConfig } from '@baota/naive-ui/types/form'
 // 类型
 import type { VNode } from 'vue'
 import { useError } from '@baota/hooks/error'
+import { deepClone } from '@baota/utils/data'
 
 export default defineComponent({
 	name: 'StartNodeDrawer',
@@ -17,7 +18,12 @@ export default defineComponent({
 		// 节点配置数据
 		node: {
 			type: Object as PropType<{ id: string; config: StartNodeConfig }>,
-			default: () => ({}),
+			default: () => ({
+				id: '',
+				config: {
+					exec_type: 'auto',
+				},
+			}),
 		},
 	},
 	setup(props) {
@@ -29,9 +35,7 @@ export default defineComponent({
 		// 获取表单助手函数
 		const { useFormRadio, useFormCustom } = useFormHooks()
 		// 表单参数
-		const param = ref<StartNodeConfig>(
-			Object.values(props.node.config).length > 0 ? props.node.config : { exec_type: 'manual' },
-		)
+		const param = ref(deepClone(props.node.config))
 
 		// 周期类型选项
 		const cycleTypeOptions = [
@@ -57,9 +61,6 @@ export default defineComponent({
 			week: { exec_type: 'auto', type: 'week', hour: 1, minute: 0, week: 1 },
 			month: { exec_type: 'auto', type: 'month', hour: 1, minute: 0, month: 1 },
 		}
-
-		// 节点配置
-		const { config } = toRefs(props.node)
 
 		// 创建时间输入input
 		const createTimeInput = (value: number, updateFn: (val: number) => void, max: number, label: string): VNode => (
@@ -115,7 +116,7 @@ export default defineComponent({
 									</NFormItemGi>
 								)}
 
-								<NFormItemGi span={config.value.type === 'day' ? 7 : 5} path="hour">
+								<NFormItemGi span={param.value.type === 'day' ? 7 : 5} path="hour">
 									{createTimeInput(
 										param.value.hour || 0,
 										(val: number) => (param.value.hour = val),
@@ -124,7 +125,7 @@ export default defineComponent({
 									)}
 								</NFormItemGi>
 
-								<NFormItemGi span={config.value.type === 'day' ? 7 : 5} path="minute">
+								<NFormItemGi span={param.value.type === 'day' ? 7 : 5} path="minute">
 									{createTimeInput(
 										param.value.minute || 0,
 										(val: number) => (param.value.minute = val),

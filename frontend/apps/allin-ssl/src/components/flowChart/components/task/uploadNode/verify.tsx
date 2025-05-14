@@ -3,7 +3,7 @@ import type { FormItemRule, FormRules } from 'naive-ui'
 export default {
 	key: {
 		required: true,
-		trigger: 'input',
+		trigger: ['input', 'blur', 'focus'],
 		validator: (rule: FormItemRule, value: string) => {
 			return new Promise<void>((resolve, reject) => {
 				if (!value) {
@@ -16,7 +16,7 @@ export default {
 	},
 	cert: {
 		required: true,
-		trigger: 'input',
+		trigger: ['input', 'blur', 'focus'],
 		validator: (rule: FormItemRule, value: string) => {
 			return new Promise<void>((resolve, reject) => {
 				if (!value) {

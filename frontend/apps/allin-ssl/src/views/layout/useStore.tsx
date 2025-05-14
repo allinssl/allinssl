@@ -4,6 +4,7 @@ import type { RouteName } from './types'
 import { DnsProviderOption, NotifyProviderOption } from '@/types/setting'
 import { getReportList } from '@api/setting'
 import { getAccessAllList } from '@api/index'
+import { $t } from '@locales/index'
 
 /**
  * @description 布局相关的状态管理
@@ -34,7 +35,7 @@ export const useLayoutStore = defineStore('layout-store', () => {
 	/**
 	 * @description 导航状态
 	 */
-	const menuActive = useLocalStorage<RouteName>('menu-active', 'home')
+	const menuActive = useSessionStorage<RouteName>('menu-active', 'home')
 
 	/**
 	 * @description 布局内边距
@@ -48,6 +49,47 @@ export const useLayoutStore = defineStore('layout-store', () => {
 	 */
 	const locales = useLocalStorage<string>('locales-active', 'zhCN')
 
+	/**
+	 * @description 主机提供商
+	 */
+	const sourceTypes = ref({
+		// 主机提供商
+		ssh: { name: 'SSH', access: ['host'] },
+		btpanel: { name: $t('t_10_1745735765165'), access: ['host'] },
+		'1panel': { name: '1Panel', access: ['host'] },
+		aliyun: { name: $t('t_2_1747019616224'), access: ['dns', 'host'] },
+		tencentcloud: { name: $t('t_3_1747019616129'), access: ['dns', 'host'] },
+		huaweicloud: { name: '华为云', access: ['dns'] },
+		cloudflare: { name: 'Cloudflare', access: ['dns'] },
+	})
+
+	/**
+	 * @description 主机提供商衍生类型
+	 */
+	const sourceDerivationTypes = ref({
+		// 网站
+		'btpanel-site': { name: $t('t_11_1745735766456') },
+		'1panel-site': { name: $t('t_13_1745735766084') },
+		// 云服务
+		'aliyun-cdn': { name: $t('t_16_1745735766712') },
+		'aliyun-oss': { name: $t('t_2_1746697487164') },
+		'tencentcloud-cdn': { name: $t('t_14_1745735766121') },
+		'tencentcloud-cos': { name: $t('t_15_1745735768976') },
+	})
+
+	/**
+	 * @description 消息通知提供商
+	 */
+	const pushSourceType = ref({
+		mail: { name: $t('t_68_1745289354676') },
+		dingtalk: { name: $t('t_32_1746773348993') },
+		wecom: { name: $t('t_33_1746773350932') },
+		feishu: { name: $t('t_34_1746773350153') },
+		webhook: { name: 'WebHook' },
+	})
+
+	// ==============================
+	// UI 交互方法
 	// ==============================
 	// UI 交互方法
 	// ==============================
@@ -88,7 +130,7 @@ export const useLayoutStore = defineStore('layout-store', () => {
 	 */
 	const resetDataInfo = (): void => {
 		menuActive.value = 'home'
-		localStorage.removeItem('menu-active')
+		sessionStorage.removeItem('menu-active')
 	}
 
 	// ==============================
@@ -126,14 +168,12 @@ export const useLayoutStore = defineStore('layout-store', () => {
 		try {
 			dnsProvider.value = []
 			const { data } = await getAccessAllList({ type }).fetch()
-			console.timeEnd('loadDnsProviders')
 			dnsProvider.value =
 				data?.map((item) => ({
 					label: item.name,
 					value: item.id.toString(),
 					type: item.type,
 				})) || []
-			console.timeEnd('loadDnsProviders')
 		} catch (error) {
 			handleError(error)
 		}
@@ -151,6 +191,9 @@ export const useLayoutStore = defineStore('layout-store', () => {
 		isCollapsed,
 		layoutPadding,
 		menuActive,
+		sourceTypes,
+		sourceDerivationTypes,
+		pushSourceType,
 
 		// 方法
 		resetDataInfo,

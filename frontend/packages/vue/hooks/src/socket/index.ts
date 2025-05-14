@@ -74,6 +74,7 @@ export default function useSocket(url: string, options?: SocketOptions) {
 
 		// 连接成功的回调
 		socket.value.onopen = () => {
+			console.log(4123432)
 			connected.value = true
 			reconnectAttempts = 0 // 重置重连计数
 			// 如果配置了心跳包，启动心跳定时器

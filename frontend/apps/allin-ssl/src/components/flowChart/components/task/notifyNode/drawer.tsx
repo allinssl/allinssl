@@ -9,6 +9,7 @@ import NotifyProviderSelect from '@components/notifyProviderSelect'
 import verify from './verify'
 
 import { NotifyNodeConfig } from '@components/flowChart/types'
+import { deepClone } from '@baota/utils/data'
 
 export default defineComponent({
 	name: 'NotifyNodeDrawer',
@@ -32,25 +33,18 @@ export default defineComponent({
 		const { useFormInput, useFormTextarea, useFormCustom } = useFormHooks()
 		const { confirm } = useModalHooks()
 		const { handleError } = useError()
-		const param = ref(
-			Object.keys(props.node.config).length > 0
-				? props.node.config
-				: {
-						provider: '',
-						provider_id: '',
-						subject: '',
-						body: '',
-					},
-		)
+		const param = ref(deepClone(props.node.config))
 
 		// 表单渲染配置
 		const formConfig: FormConfig = [
 			useFormInput($t('t_0_1745920566646'), 'subject', {
 				placeholder: $t('t_3_1745887835089'),
+				onInput: (val: string) => (param.value.subject = val.trim()),
 			}),
 			useFormTextarea($t('t_1_1745920567200'), 'body', {
 				placeholder: $t('t_4_1745887835265'),
 				rows: 4,
+				onInput: (val: string) => (param.value.body = val.trim()),
 			}),
 			useFormCustom(() => (
 				<NotifyProviderSelect

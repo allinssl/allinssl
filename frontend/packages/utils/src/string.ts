@@ -111,3 +111,5 @@ export const bigCamelToSmallCamel = (str: string): string => {
 		return char.toLowerCase()
 	})
 }
+
+

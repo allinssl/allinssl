@@ -1,0 +1,11 @@
+{
+  "i18n-ally.enabledParsers": ["json", "yaml", "js"],
+  "i18n-ally.keystyle": "flat",
+  "i18n-ally.sourceLanguage": "zhCN", // 设置源语言为中文
+  "i18n-ally.displayLanguage": "zhCN", // 设置显示语言为中文
+  "i18n-ally.enabledFrameworks": ["vue"],
+  "i18n-ally.localesPaths": [
+    "apps/cloud-control/src/locales/model",
+    "apps/allin-ssl/src/locales/model"
+  ]
+}

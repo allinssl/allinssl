@@ -23,6 +23,8 @@ declare module 'vue' {
     DeployNodeConfig: typeof import('../../vueFlow/components/configs/DeployNodeConfig.jsx')['default']
     DnsProviderSelect: typeof import('./../src/components/dnsProviderSelect/index.tsx')['default']
     Drawer: typeof import('./../src/components/flowChart/components/other/drawer.tsx')['default']
+    EmptyActionPrompt: typeof import('../src/components/emptyState/index.jsx')['default']
+    EmptyState: typeof import('./../src/components/emptyState/index.tsx')['default']
     EndNode: typeof import('./../src/components/flowChart/components/base/endNode.tsx')['default']
     EndNodeConfig: typeof import('../../vueFlow/components/configs/EndNodeConfig.jsx')['default']
     ErrorNode: typeof import('./../src/components/flowChart/components/base/errorNode/index.tsx')['default']

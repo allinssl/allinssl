@@ -7,4 +7,9 @@
 	--n-content-margin: 1.2rem; /* 内容区内边距 */
 	--n-content-padding: 1.2rem; /* 内容区内边距 */
 	--n-dialog-title-padding: 0; /* 对话框标题内边距 */
+	--n-layout-content-background-color: #f8fafc; /* 内容区背景颜色 */
+}
+
+:root.dark {
+	--n-layout-content-background-color: transparent; /* 内容区背景颜色 */
 }

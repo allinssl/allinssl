@@ -10,7 +10,7 @@ import DnsProviderSelect from '@/components/dnsProviderSelect'
 
 import styles from './index.module.css'
 import verifyRules from './verify'
-import { isArray } from '@baota/utils/type'
+import { deepClone } from '@baota/utils/data'
 
 type StepStatus = 'process' | 'wait' | 'finish' | 'error'
 
@@ -26,6 +26,10 @@ export default defineComponent({
 				config: {
 					provider: '',
 					provider_id: '',
+					inputs: {
+						fromNodeId: '',
+						name: '',
+					},
 				},
 			}),
 		},
@@ -61,20 +65,13 @@ export default defineComponent({
 		const current = ref(1) // 当前步骤
 		const next = ref(true) // 是否是下一步
 		const currentStatus = ref<StepStatus>('process') // 当前步骤状态
-		// 表单参数
-		const param = ref(
-			Object.keys(props.node.config).length > 0
-				? props.node.config
-				: {
-						provider: '',
-						provider_id: '',
-						inputs: {
-							fromNodeId: '',
-							name: '',
-						},
-					},
-		) as Ref<DeployNodeConfig & { inputs: DeployNodeInputsConfig }>
 
+		const param = ref(deepClone(props.node.config)) // 表单参数
+		const provider = computed(() => {
+			return param.value.provider
+				? $t('t_4_1746858917773') + '：' + deployTypeOptions.find((item) => item.value === param.value.provider)?.label
+				: $t('t_19_1745735766810')
+		})
 		// 表单配置
 		const formConfig = computed(() => {
 			const config = []
@@ -107,8 +104,14 @@ export default defineComponent({
 				case 'ssh':
 					config.push(
 						...[
-							useFormInput('证书文件路径（仅支持PEM格式）', 'certPath', { placeholder: $t('t_30_1746667591892') }),
-							useFormInput('私钥文件路径', 'keyPath', { placeholder: $t('t_31_1746667593074') }),
+							useFormInput('证书文件路径（仅支持PEM格式）', 'certPath', {
+								placeholder: $t('t_30_1746667591892'),
+								onInput: (val: string) => (param.value.certPath = val.trim()),
+							}),
+							useFormInput('私钥文件路径', 'keyPath', {
+								placeholder: $t('t_31_1746667593074'),
+								onInput: (val: string) => (param.value.keyPath = val.trim()),
+							}),
 							useFormTextarea(
 								'前置命令',
 								'beforeCmd',
@@ -125,20 +128,62 @@ export default defineComponent({
 					)
 					break
 				case 'btpanel-site':
-					config.push(...[useFormInput('站点名称', 'siteName', { placeholder: $t('t_23_1745735766455') })])
+					config.push(
+						...[
+							useFormInput('站点名称', 'siteName', {
+								placeholder: $t('t_23_1745735766455'),
+								onInput: (val: string) => (param.value.siteName = val.trim()),
+							}),
+						],
+					)
 					break
 				case '1panel-site':
-					config.push(...[useFormInput('站点ID', 'site_id', { placeholder: $t('t_24_1745735766826') })])
+					config.push(
+						...[
+							useFormInput('站点ID', 'site_id', {
+								placeholder: $t('t_24_1745735766826'),
+								onInput: (val: string) => (param.value.site_id = val.trim()),
+							}),
+						],
+					)
 					break
 				case 'tencentcloud-cdn':
 				case 'aliyun-cdn':
-					config.push(...[useFormInput('域名', 'domain', { placeholder: $t('t_0_1744958839535') })])
+					config.push(
+						...[
+							useFormInput('域名', 'domain', {
+								placeholder: $t('t_0_1744958839535'),
+								onInput: (val: string) => (param.value.domain = val.trim()),
+							}),
+						],
+					)
 					break
 				case 'tencentcloud-cos':
 				case 'aliyun-oss':
-					config.push(...[useFormInput('域名', 'domain', { placeholder: $t('t_0_1744958839535') })])
-					config.push(...[useFormInput('区域', 'region', { placeholder: $t('t_25_1745735766651') })])
-					config.push(...[useFormInput('存储桶', 'bucket', { placeholder: $t('t_26_1745735767144') })])
+					config.push(
+						...[
+							useFormInput('域名', 'domain', {
+								placeholder: $t('t_0_1744958839535'),
+								onInput: (val: string) => (param.value.domain = val.trim()),
+							}),
+						],
+					)
+					config.push(
+						...[
+							useFormInput('区域', 'region', {
+								placeholder: $t('t_25_1745735766651'),
+								onInput: (val: string) => (param.value.region = val.trim()),
+							}),
+						],
+					)
+					config.push(
+						...[
+							useFormInput('存储桶', 'bucket', {
+								placeholder: $t('t_26_1745735767144'),
+								onInput: (val: string) => (param.value.bucket = val.trim()),
+							}),
+						],
+					)
 					break
 			}
 			return config
@@ -149,7 +194,7 @@ export default defineComponent({
 		 * @returns
 		 */
 		const nextStep = async () => {
-			if (!props.node.config.provider) return message.error($t('t_19_1745735766810'))
+			if (!param.value.provider) return message.error($t('t_0_1746858920894'))
 
 			// 加载证书来源选项
 			certOptions.value = findApplyUploadNodesUp(props.node.id).map((item) => {
@@ -158,7 +203,7 @@ export default defineComponent({
 
 			if (!certOptions.value.length) {
 				message.warning($t('t_3_1745748298161'))
-			} else if (!props.node.config.inputs?.fromNodeId) {
+			} else if (!param.value.inputs?.fromNodeId) {
 				param.value.inputs = {
 					name: certOptions.value[0]?.label || '',
 					fromNodeId: certOptions.value[0]?.value || '',
@@ -221,7 +266,7 @@ export default defineComponent({
 		return () => (
 			<div class={styles.container} style={cssVar.value}>
 				<NSteps size="small" current={current.value} status={currentStatus.value}>
-					<NStep title={$t('t_28_1745735766626')} description={$t('t_19_1745735766810')}></NStep>
+					<NStep title={$t('t_28_1745735766626')} description={provider.value}></NStep>
 					<NStep title={$t('t_29_1745735768933')} description={$t('t_2_1745738969878')}></NStep>
 				</NSteps>
 				{current.value === 1 && (

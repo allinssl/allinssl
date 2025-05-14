@@ -25,7 +25,7 @@ export default {
 				id: 'deploy-1',
 				name: '部署',
 				type: 'deploy',
-				inputs: {},
+				inputs: [],
 				config: {
 					provider: '',
 					provider_id: '',

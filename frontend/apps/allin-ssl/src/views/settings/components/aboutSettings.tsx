@@ -14,7 +14,7 @@ export default defineComponent({
 						<NDescriptions bordered>
 							<NDescriptionsItem label={$t('t_5_1745833933241')}>
 								<div class="flex items-center">
-									<span class="text-[2rem] font-medium">v1.0.0</span>
+									<span class="text-[2rem] font-medium">v1.0.1</span>
 								</div>
 							</NDescriptionsItem>
 							<NDescriptionsItem label={$t('t_29_1746667589773')}>
@@ -34,7 +34,7 @@ export default defineComponent({
 				<NCard title={$t('t_13_1745833933630')} class="mb-4">
 					<div class="about-content">
 						<p class="text-gray-700 leading-relaxed">
-							<p class="text-[3rem] font-medium">ALLinSSL</p>
+							<p class="text-[3rem] font-medium">AllinSSL</p>
 							<br />
 							<p class="text-[1.6rem] text-primary mb-[2rem]">{$t('t_35_1746773362992')}</p>
 							<span class="text-[1.4rem] mb-[1rem] text-gray-500">

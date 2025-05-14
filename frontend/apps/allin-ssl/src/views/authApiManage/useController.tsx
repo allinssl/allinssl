@@ -25,7 +25,7 @@ import {
 	useLoadingMask,
 } from '@baota/naive-ui/hooks'
 import { useError } from '@baota/hooks/error'
-import { isIp, isPort, isUrl } from '@baota/utils/business'
+import { isEmail, isIp, isPort, isUrl } from '@baota/utils/business'
 import { $t } from '@locales/index'
 import { useStore } from './useStore'
 
@@ -35,10 +35,20 @@ import type { FormConfig } from '@baota/naive-ui/types/form'
 import ApiManageForm from './components/apiManageForm'
 import SvgIcon from '@components/svgIcon'
 import TypeIcon from '@components/typeIcon'
+import { useStore as useLayoutStore } from '@layout/useStore'
 
+const { sourceTypes } = useLayoutStore()
 // 状态和方法
-const { accessTypes, apiFormProps, fetchAccessList, deleteExistingAccess, addNewAccess, updateExistingAccess } =
-	useStore()
+const {
+	accessTypeMap,
+	apiFormProps,
+	fetchAccessList,
+	deleteExistingAccess,
+	addNewAccess,
+	updateExistingAccess,
+	resetApiForm,
+} = useStore()
+
 // 消息和对话框
 const { handleError } = useError()
 
@@ -47,12 +57,6 @@ const { handleError } = useError()
  * @returns {Object} 返回授权API相关的状态数据和处理方法
  */
 export const useController = () => {
-	// 表格列配置
-	const accessTypeMap = {
-		dns: $t('t_3_1745735765112'),
-		host: $t('t_0_1746754500246'),
-	}
-
 	/**
 	 * @description 创建表格列配置
 	 * @returns {DataTableColumns<AccessItem>} 返回表格列配置数组
@@ -69,7 +73,7 @@ export const useController = () => {
 		{
 			title: $t('t_1_1746754499371'),
 			key: 'type',
-			width: 180,
+			width: 120,
 			render: (row) => <TypeIcon icon={row.type} type="success" />,
 		},
 		{
@@ -78,10 +82,10 @@ export const useController = () => {
 			width: 180,
 			render: (row) => (
 				<NSpace>
-					{row.access_type.map((type) => {
+					{row.access_type?.map((type) => {
 						return (
-							<NTag type="default" size="small">
-								{accessTypeMap[type]}
+							<NTag key={type} type={type === 'dns' ? 'success' : 'info'} size="small">
+								{accessTypeMap[type as keyof typeof accessTypeMap]}
 							</NTag>
 						)
 					})}
@@ -159,6 +163,7 @@ export const useController = () => {
 			footer: true,
 			onUpdateShow: (show) => {
 				if (!show) fetch()
+				resetApiForm()
 			},
 		})
 	}
@@ -176,6 +181,7 @@ export const useController = () => {
 			footer: true,
 			onUpdateShow: (show) => {
 				if (!show) fetch()
+				resetApiForm()
 			},
 		})
 	}
@@ -207,7 +213,6 @@ export const useController = () => {
 		ApiTablePage,
 		param,
 		data,
-		accessTypes,
 		openAddForm,
 	}
 }
@@ -282,9 +287,17 @@ export const useApiFormController = (props: { data: AccessItem }) => {
 				},
 			},
 			api_key: {
-				required: true,
-				message: $t('t_3_1745317313561'),
 				trigger: 'input',
+				validator: (rule: FormItemRule, value: string, callback: (error?: Error) => void) => {
+					if (!value.length) {
+						if (param.value.type === 'cloudflare') {
+							return callback(new Error($t('t_0_1747042966820')))
+						} else if (param.value.type === 'btpanel') {
+							return callback(new Error($t('t_1_1747042969705')))
+						}
+					}
+					callback()
+				},
 			},
 			access_key_id: {
 				required: true,
@@ -302,15 +315,41 @@ export const useApiFormController = (props: { data: AccessItem }) => {
 				trigger: 'input',
 			},
 			secret_key: {
-				required: true,
-				message: $t('t_7_1745317313831'),
 				trigger: 'input',
+				validator: (rule: FormItemRule, value: string, callback: (error?: Error) => void) => {
+					if (!value.length) {
+						if (param.value.type === 'tencentcloud') {
+							return callback(new Error($t('t_2_1747042967277')))
+						} else if (param.value.type === 'huaweicloud') {
+							return callback(new Error($t('t_3_1747042967608')))
+						}
+					}
+					callback()
+				},
+			},
+			access_key: {
+				required: true,
+				message: $t('t_4_1747042966254'),
+				trigger: 'input',
+			},
+			email: {
+				trigger: 'input',
+				validator: (rule: FormItemRule, value: string, callback: (error?: Error) => void) => {
+					if (!isEmail(value)) {
+						return callback(new Error($t('t_5_1747042965911')))
+					}
+					callback()
+				},
 			},
 		},
 	}
 
 	// 类型列表
-	const typeList = Object.entries(accessTypes.value).map(([key, value]) => ({ label: value, value: key }))
+	const typeList = Object.entries(sourceTypes.value).map(([key, value]) => ({
+		label: value.name,
+		value: key,
+		access: value.access,
+	}))
 
 	// 表单配置
 	const config = computed(() => {
@@ -394,6 +433,12 @@ export const useApiFormController = (props: { data: AccessItem }) => {
 			case 'tencentcloud':
 				items.push(useFormInput('SecretId', 'config.secret_id'), useFormInput('SecretKey', 'config.secret_key'))
 				break
+			case 'huaweicloud':
+				items.push(useFormInput('AccessKey', 'config.access_key'), useFormInput('SecretKey', 'config.secret_key'))
+				break
+			case 'cloudflare':
+				items.push(useFormInput('邮箱', 'config.email'), useFormInput('APIKey', 'config.api_key'))
+				break
 			default:
 				break
 		}
@@ -445,16 +490,13 @@ export const useApiFormController = (props: { data: AccessItem }) => {
 	 */
 	const renderSingleSelectTag = ({ option }: Record<string, any>): VNode => {
 		return (
-			<div class="flex items-center">
+			<NFlex class="w-full">
 				{option.label ? (
-					<NFlex>
-						<SvgIcon icon={`resources-${option.value}`} size="2rem" />
-						<NText>{option.label}</NText>
-					</NFlex>
+					renderLabel(option)
 				) : (
 					<span class="text-[1.4rem] text-gray-400">{$t('t_0_1745833934390')}</span>
 				)}
-			</div>
+			</NFlex>
 		)
 	}
 
@@ -463,11 +505,22 @@ export const useApiFormController = (props: { data: AccessItem }) => {
 	 * @param {Record<string, any>} option - 选项
 	 * @returns {VNode} 渲染后的VNode
 	 */
-	const renderLabel = (option: { value: string; label: string }): VNode => {
+	const renderLabel = (option: { value: string; label: string; access: string[] }): VNode => {
 		return (
-			<NFlex>
-				<SvgIcon icon={`resources-${option.value}`} size="2rem" />
-				<NText>{option.label}</NText>
+			<NFlex justify="space-between" class="w-[38rem]">
+				<NFlex align="center" size="small">
+					<SvgIcon icon={`resources-${option.value}`} size="1.6rem" />
+					<NText>{option.label}</NText>
+				</NFlex>
+				<NFlex class="pr-[1rem]">
+					{option.access.map((item: string) => {
+						return (
+							<NTag type={item === 'dns' ? 'success' : 'info'} size="small" key={item}>
+								{accessTypeMap[item as keyof typeof accessTypeMap]}
+							</NTag>
+						)
+					})}
+				</NFlex>
 			</NFlex>
 		)
 	}
@@ -504,6 +557,7 @@ export const useApiFormController = (props: { data: AccessItem }) => {
 		try {
 			openLoad()
 			await fetch()
+			resetApiForm()
 			close()
 		} catch (error) {
 			return handleError(error)

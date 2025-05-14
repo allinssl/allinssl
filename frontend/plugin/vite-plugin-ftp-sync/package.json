@@ -1,0 +1,26 @@
+{
+  "name": "@baota/vite-plugin-ftp-sync",
+  "version": "1.0.0",
+  "description": "FTP/SFTP sync plugin for build process",
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc -w"
+  },
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "require": "./dist/index.js"
+    }
+  },
+  "dependencies": {
+    "ssh2-sftp-client": "^12.0.0",
+    "@types/ssh2-sftp-client": "^9.0.4"
+  },
+  "devDependencies": {
+    "typescript": "^5.0.0",
+    "@types/node": "^20.0.0",
+    "vite": "^5.0.0"
+  }
+}

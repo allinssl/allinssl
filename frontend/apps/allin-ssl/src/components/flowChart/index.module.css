@@ -4,7 +4,7 @@
 }
 
 .flowContainer {
-  @apply flex relative box-border w-full h-[calc(100vh-19rem)] overflow-x-auto overflow-y-auto bg-slate-50 dark:bg-gray-900 ;
+  @apply flex relative box-border w-full h-[calc(100vh-19rem)] overflow-x-auto overflow-y-auto bg-slate-50  ;
 }
 
 .flowProcess {
@@ -33,11 +33,11 @@
 
 /* 右侧配置区样式 */
 .configPanel {
-  @apply flex flex-col w-[360px] min-w-[360px]  bg-white dark:bg-gray-800  dark:border-gray-700 z-10 rounded-lg;
+  @apply flex flex-col w-[360px] min-w-[360px]  bg-white z-10 rounded-lg;
 }
 
 .configHeader {
-  @apply flex items-center justify-between px-4 py-3 border-b border-gray-200 dark:border-gray-700;
+  @apply flex items-center justify-between px-4 py-3 border-b border-gray-200 ;
 }
 
 .configContent {
@@ -45,5 +45,5 @@
 }
 
 .emptyTip {
-  @apply flex items-center justify-center h-full text-gray-400 dark:text-gray-500;
+  @apply flex items-center justify-center h-full text-gray-400 ;
 }

@@ -5,12 +5,12 @@
 
 /* 侧边栏样式 */
 .sider {
-	@apply h-screen dark:bg-gray-800 shadow-lg z-10 transition-all duration-300 ease-in-out;
+	@apply h-screen  shadow-lg z-10 transition-all duration-300 ease-in-out;
 }
 
 /* Logo容器样式 */
 .logoContainer {
-	@apply flex items-center px-[2rem] h-[var(--n-sider-login-height)] border-b dark:border-gray-700 relative;
+	@apply flex items-center px-[2rem] h-[var(--n-sider-login-height)] border-b  relative;
 	border-color: var(--n-border-color);
 }
 
@@ -36,42 +36,42 @@
 
 /* 折叠按钮样式 */
 .collapsedIcon {
-	@apply w-[4.2rem] h-[3.6rem] hover:bg-gray-200 hover:text-gray-500 hover:dark:bg-gray-500 absolute right-[1rem] rounded-[.4rem] flex items-center justify-center cursor-pointer  transition-all duration-300;
+	@apply w-[4.2rem] h-[3.6rem] hover:bg-gray-200 hover:text-gray-500  absolute right-[1rem] rounded-[.4rem] flex items-center justify-center cursor-pointer  transition-all duration-300;
 }
 
 /* 头部样式 */
 .header {
-	@apply h-[var(--n-header-height)] bg-[var(--n-header-color)] border-b dark:border-gray-700 shadow-sm z-10 transition-all duration-300 ease-in-out flex items-center justify-end px-6;
+	@apply h-[var(--n-header-height)] bg-[var(--n-header-color)] border-b  shadow-sm z-10 transition-all duration-300 ease-in-out flex items-center justify-end px-6;
 	border-color: var(--n-border-color);
 }
 
 /* 系统信息样式 */
 .systemInfo {
-	@apply flex items-center space-x-4 text-[1.2rem] text-gray-600 dark:text-gray-300;
+	@apply flex items-center space-x-4 text-[1.2rem] text-gray-600 ;
 }
 
 /* 内容区域样式 */
 .content {
-	@apply flex-1 transition-all duration-300 ease-in-out bg-slate-50 dark:bg-gray-900 p-[var(--n-content-padding)] h-[calc(100vh-var(--n-main-diff-height))] overflow-y-auto;
+	@apply flex-1 transition-all duration-300 ease-in-out p-[var(--n-content-padding)] h-[calc(100vh-var(--n-main-diff-height))] bg-[var(--n-layout-content-background-color)] overflow-y-auto;
 	transition: padding 0s;
 }
 
 /* 折叠按钮样式 */
 .collapseButton {
-	@apply absolute right-0 top-1/2 -translate-y-1/2 translate-x-1/2 dark:bg-gray-800 rounded-full p-2 shadow-lg cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 transition-all duration-300;
+	@apply absolute right-0 top-1/2 -translate-y-1/2 translate-x-1/2  rounded-full p-2 shadow-lg cursor-pointer hover:bg-gray-100  transition-all duration-300;
 }
 
 /* 子路由导航样式 */
 .subRouteNav {
-	@apply mb-4 p-4 bg-white dark:bg-gray-800 rounded-lg shadow-sm;
+	@apply mb-4 p-4 bg-white  rounded-lg shadow-sm;
 }
 
 /* 子路由标题样式 */
 .subRouteTitle {
-	@apply text-lg font-medium mb-2 text-gray-700 dark:text-gray-300;
+	@apply text-lg font-medium mb-2 text-gray-700 ;
 }
 
 /* 子路由面包屑样式 */
 .breadcrumb {
-	@apply bg-white dark:bg-gray-800 p-3 rounded-lg shadow-sm mb-4;
+	@apply bg-white  p-3 rounded-lg shadow-sm mb-4;
 }

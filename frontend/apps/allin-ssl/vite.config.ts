@@ -6,13 +6,15 @@ import VueJsx from '@vitejs/plugin-vue-jsx' // jsx处理
 import legacy from '@vitejs/plugin-legacy' // 浏览器兼容
 import VueDevTools from 'vite-plugin-vue-devtools' // vue3调试工具
 import { createSvgIconsPlugin } from 'vite-plugin-svg-icons'
-// import { VueMcp } from 'vite-plugin-vue-mcp' // vite mcp 引入，解决数据构建文件
+import { VueMcp } from 'vite-plugin-vue-mcp' // vite mcp 引入，解决数据构建文件
 import AutoImport from 'unplugin-auto-import/vite' // 方法自动引入
 import { NaiveUiResolver } from 'unplugin-vue-components/resolvers' // 引入naive-ui组件
 import Components from 'unplugin-vue-components/vite' // 组件自动引入
 // import { compression } from 'vite-plugin-compression2'
-import pluginI18n from '@baota/plugin-i18n' // i18n生成器
-import { ftpSync } from '@baota/project-ftp-sync'
+import { ftpSync } from '@baota/vite-plugin-ftp-sync' // ftp同步
+import pluginI18n from '@baota/vite-plugin-i18n' // i18n生成器
+import pluginProjectSyncGit from '@baota/vite-plugin-turborepo-deploy' // 项目同步git
+// import
 
 const packPath = 'static/' // 打包后的vite目录
 const isDev = process.env.NODE_ENV === 'development' // 开发环境
@@ -29,8 +31,7 @@ export default defineConfig({
 				defineModel: true,
 			},
 		}),
-		// i18n生成器
-		pluginI18n(),
+
 		// jsx处理
 		VueJsx(),
 		// 压缩gzip
@@ -72,9 +73,11 @@ export default defineConfig({
 			iconDirs: [path.resolve(process.cwd(), 'src/assets/icons/svg/')],
 			symbolId: 'icon-[dir]-[name]',
 		}),
-
 		// vite mcp 引入，解决数据构建文件
-		// VueMcp(),
+		VueMcp(),
+		// i18n生成器
+		pluginI18n(),
+		// ftp同步
 		ftpSync([
 			{
 				host: '192.168.168.121',
@@ -93,6 +96,54 @@ export default defineConfig({
 				clearRemote: true,
 			},
 		]),
+		// 项目同步git
+		pluginProjectSyncGit({
+			gitProjects: [
+				{
+					repo: 'ssh://git@git.bt.cn:30001/wzz/allinssl.git',
+					branch: '1.0.1',
+					targetDir: 'allinssl-gitlab',
+					discardChanges: true,
+				},
+				{
+					repo: 'https://github.com/allinssl/allinssl.git',
+					branch: '1.0.1',
+					targetDir: 'allinssl-github',
+					discardChanges: true,
+				},
+			],
+			localSync: [
+				{
+					source: 'apps/allin-ssl/dist',
+					target: ['.sync-git/allinssl-gitlab/build', '.sync-git/allinssl-github/build'],
+					mode: 'copy',
+					clearTarget: true,
+					exclude: ['node_modules'],
+				},
+				{
+					source: '/',
+					target: ['.sync-git/allinssl-gitlab/frontend', '.sync-git/allinssl-github/frontend'],
+					mode: 'copy',
+					clearTarget: true,
+					excludeDirs: [
+						'node_modules',
+						'dist',
+						'.sync-git',
+						'.sync-log',
+						'.cursor',
+						'.devcontainer',
+						'.github',
+						'.test',
+						'.vascode',
+						'.turbo',
+						'apps/cloud-control',
+						'apps/monorepo-docs',
+						'apps/naive-template',
+						'apps/vueFlow',
+					],
+				},
+			],
+		}),
 	],
 	resolve: {
 		// 别名配置
@@ -117,6 +168,7 @@ export default defineConfig({
 			'@config': path.resolve(__dirname, 'src/config'),
 			'@styles': path.resolve(__dirname, 'src/styles'),
 			'@types': path.resolve(__dirname, 'src/types'),
+			'@lib': path.resolve(__dirname, 'src/lib'),
 			'@': path.resolve(__dirname, 'src'),
 		},
 	},

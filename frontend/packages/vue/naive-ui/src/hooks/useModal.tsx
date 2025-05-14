@@ -10,6 +10,7 @@ import {
 	App,
 	Ref,
 	computed,
+	ComputedRef,
 } from 'vue'
 import {
 	useModal as useNaiveModal,
@@ -19,7 +20,7 @@ import {
 	NButton,
 	ModalOptions,
 } from 'naive-ui'
-import { isBoolean, isFunction } from '@baota/utils/type'
+import { isBoolean } from '@baota/utils/type'
 import { useTheme } from '../theme'
 import { translation } from '../locals/translation'
 
@@ -43,8 +44,8 @@ export interface CustomModalOptions {
 	draggable?: boolean // 是否可拖拽
 	closable?: boolean // 是否显示关闭按钮
 	footer?: boolean | (() => VNodeChild) // 是否显示底部按钮
-	confirmText?: string // 确认按钮文本
-	cancelText?: string // 取消按钮文本
+	confirmText?: string | Ref<string> | ComputedRef<string> // 确认按钮文本
+	cancelText?: string | Ref<string> | ComputedRef<string> // 取消按钮文本
 	modalStyle?: Record<string, any> // 弹窗样式
 	confirmButtonProps?: ButtonProps // 确认按钮props
 	cancelButtonProps?: ButtonProps // 取消按钮props
@@ -184,7 +185,7 @@ const useModal = (options: CustomModalOptions) => {
 				cancelHandler.value?.()
 				// 调用外部传入的取消回调
 				onCancel?.(() => {})
-				// unmount() // 卸载
+				unmount() // 卸载
 				return true
 			},
 			content: () => {

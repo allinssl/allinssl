@@ -5,7 +5,7 @@ import { isDomain } from '@baota/utils/business'
 export default {
 	provider: {
 		required: true,
-		message: $t('t_19_1745735766810'),
+		message: $t('t_0_1746858920894'),
 		type: 'string',
 		trigger: 'change',
 	},
@@ -15,7 +15,7 @@ export default {
 		type: 'string',
 		validator: (rule: FormItemRule, value: number) => {
 			if (!value) {
-				return new Error($t('t_1_1745744905566'))
+				return new Error($t('t_0_1746858920894'))
 			}
 		},
 	},

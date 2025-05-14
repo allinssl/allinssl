@@ -69,7 +69,7 @@ export const useController = () => {
 				const [_, type, text] = config.find((item) => item[0]) ?? ['default', 'error', '获取失败']
 				console.log(config)
 				return (
-					<NTag type={type} size="small" bordered={false}>
+					<NTag type={type} size="small">
 						{text}
 					</NTag>
 				)

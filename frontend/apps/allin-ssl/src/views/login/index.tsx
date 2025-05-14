@@ -3,11 +3,10 @@ import { UserOutlined, LockOutlined, CodeOutlined } from '@vicons/antd'
 import { useTheme, useThemeCssVar } from '@baota/naive-ui/theme'
 import { $t } from '@locales/index'
 import { useController } from './useController'
-
 import styles from './index.module.css'
 
-// import LocalesTips from '@baota/naive-ui/components/localesTips'
-// import ThemeTips from '@baota/naive-ui/components/themeTips'
+import LocalesTips from '@baota/naive-ui/components/localesTips'
+import ThemeTips from '@baota/naive-ui/components/themeTips'
 
 export default defineComponent({
 	setup() {
@@ -27,15 +26,15 @@ export default defineComponent({
 					class={styles.container}
 					style={`background-image:${isDark.value ? 'url(/static/images/login-bg-dark.svg)' : 'url(/static/images/login-bg.svg)'};`}
 				>
-					{/* <div class="absolute z-[99] top-0 right-0 p-[2rem] flex w-[120px] justify-between">
+					<div class="absolute z-[99] top-0 right-0 p-[2rem] flex w-[120px] justify-between">
 						<LocalesTips />
 						<ThemeTips />
-					</div> */}
+					</div>
 					<div class={styles.loginBox}>
 						<div class={styles.leftSection}>
 							<h2 class={styles.leftTitle}>
 								<img src="/static/images/logo.png" alt="logo" class={styles.logo} />
-								<span>{$t('t_0_1744164843238')}</span>
+								<span>{$t('t_2_1747047214975')}</span>
 							</h2>
 							<div class={styles.leftImageWrapper}>
 								<img src="/static/images/login-display.svg" alt={$t('t_1_1744164835667')} class={styles.leftImage} />

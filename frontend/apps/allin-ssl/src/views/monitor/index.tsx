@@ -7,6 +7,7 @@ import { useThemeCssVar } from '@baota/naive-ui/theme'
 import { useController } from './useController'
 
 import BaseComponent from '@components/baseComponent'
+import EmptyState from '@components/emptyState'
 
 /**
  * 监控管理组件
@@ -52,8 +53,12 @@ export default defineComponent({
 								></NInput>
 							),
 							content: () => (
-								<div class="rounded-lg bg-white">
-									<MonitorTable size="medium" />
+								<div class="rounded-lg">
+									<MonitorTable size="medium">
+										{{
+											empty: () => <EmptyState addButtonText={$t('t_11_1745289354516')} onAddClick={openAddForm} />,
+										}}
+									</MonitorTable>
 								</div>
 							),
 							footerRight: () => (

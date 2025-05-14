@@ -15,6 +15,9 @@ export interface CertItem {
 	issuer: string
 	create_time: string
 	expire_time: string
+	sha256: string
+	cert: string
+	key: string
 	status: number
 	source: 'upload' | 'apply'
 	end_day: string
@@ -41,16 +44,14 @@ export interface ApplyCertResponse extends AxiosResponseData {
 
 /** 上传证书请求参数 */
 export interface UploadCertParams {
-	// name: string
+	cert_id: string
 	cert: string
 	key: string
 }
 
 /** 上传证书响应 */
 export interface UploadCertResponse extends AxiosResponseData {
-	data: {
-		id: string
-	}
+	data: string
 }
 
 /** 删除证书请求参数 */

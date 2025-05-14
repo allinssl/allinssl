@@ -55,7 +55,7 @@ const statusCol = <T,>(key: string, title: string): TableColumn<T> => ({
 			text: $t('t_1_1746773348701'),
 		}
 		return (
-			<NTag type={status.type as any} size="small" bordered={false}>
+			<NTag type={status.type as any} size="small">
 				{status.text}
 			</NTag>
 		)

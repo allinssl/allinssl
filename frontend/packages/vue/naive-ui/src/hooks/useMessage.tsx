@@ -38,18 +38,48 @@ export function useMessage(): MessageApiExtended {
 	}))
 
 	// 创建discreteMessage实例
-	const { message } = createDiscreteApi(['message'], { configProviderProps })
+	const { message, unmount } = createDiscreteApi(['message'], { configProviderProps })
 
-	return {
+	// 创建包装函数，添加unmount到onAfterLeave
+	const wrapMethod =
+		(method: any) =>
+		(content: string, options: MessageOptions = {}) => {
+			const newOptions = {
+				...options,
+				onAfterLeave: () => {
+					options.onAfterLeave?.()
+					unmount()
+				},
+			}
+			return method(content, newOptions)
+		}
+
+	// 包装所有消息方法
+	const wrappedMessage = {
 		...message,
-		request: (data: { status: boolean; message: string }, options?: MessageOptions) => {
+		info: wrapMethod(message.info),
+		success: wrapMethod(message.success),
+		warning: wrapMethod(message.warning),
+		error: wrapMethod(message.error),
+		loading: wrapMethod(message.loading),
+		request: (data: { status: boolean; message: string }, options: MessageOptions = {}) => {
+			const newOptions = {
+				...options,
+				onAfterLeave: () => {
+					options.onAfterLeave?.()
+					unmount()
+				},
+			}
+
 			if (data.status) {
-				return message.success(data.message, options)
+				return wrapMethod(message.success)(data.message, newOptions)
 			} else {
-				return message.error(data.message, options)
+				return wrapMethod(message.error)(data.message, newOptions)
 			}
 		},
-	}
+	} as MessageApiExtended
+
+	return wrappedMessage
 }
 
 export default useMessage

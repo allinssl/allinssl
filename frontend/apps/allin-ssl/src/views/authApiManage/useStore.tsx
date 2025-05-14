@@ -15,13 +15,6 @@ const message = useMessage() // 导入消息钩子
  */
 export const useAuthApiManageStore = defineStore('auth-api-manage-store', () => {
 	// -------------------- 状态定义 --------------------
-	const accessTypes = ref({
-		ssh: 'SSH',
-		aliyun: '阿里云',
-		tencentcloud: '腾讯云',
-		btpanel: '宝塔',
-		'1panel': '1Panel',
-	})
 
 	/** 添加/编辑API表单 */
 	const apiFormProps = ref({
@@ -33,6 +26,12 @@ export const useAuthApiManageStore = defineStore('auth-api-manage-store', () => 
 			ignore_ssl: '0',
 		},
 	})
+
+	// 表格列配置
+	const accessTypeMap = {
+		dns: $t('t_3_1745735765112'),
+		host: $t('t_0_1746754500246'),
+	}
 
 	// -------------------- 请求方法 --------------------
 	/**
@@ -123,8 +122,8 @@ export const useAuthApiManageStore = defineStore('auth-api-manage-store', () => 
 
 	return {
 		// 状态
-		accessTypes,
 		apiFormProps,
+		accessTypeMap,
 
 		// 方法
 		fetchAccessList,

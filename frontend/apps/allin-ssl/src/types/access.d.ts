@@ -36,7 +36,13 @@ export interface AccessTypesResponse extends AxiosResponseData {
 
 /** 新增授权请求参数 */
 export interface AddAccessParams<
-	T = SshAccessConfig | AliyunAccessConfig | TencentCloudAccessConfig | PanelAccessConfig,
+	T =
+		| SshAccessConfig
+		| AliyunAccessConfig
+		| TencentCloudAccessConfig
+		| PanelAccessConfig
+		| HuaWeiCloudAccessConfig
+		| CloudflareAccessConfig,
 > {
 	name: string
 	type: string
@@ -45,12 +51,15 @@ export interface AddAccessParams<
 
 /** 修改授权请求参数 */
 export interface UpdateAccessParams<
-	T = SshAccessConfig | AliyunAccessConfig | TencentCloudAccessConfig | PanelAccessConfig,
-> {
+	T =
+		| SshAccessConfig
+		| AliyunAccessConfig
+		| TencentCloudAccessConfig
+		| PanelAccessConfig
+		| HuaWeiCloudAccessConfig
+		| CloudflareAccessConfig,
+> extends AddAccessParams<T> {
 	id: string
-	type: string
-	name: string
-	config: T
 }
 
 /**
@@ -86,6 +95,25 @@ export interface PanelAccessConfig {
 	api_key: string
 	ignore_ssl: '0' | '1'
 }
+
+/**
+ * 华为云授权配置
+ */
+export interface HuaWeiCloudAccessConfig {
+	secret_key: string
+	access_key: string
+}
+
+/**
+ *  cloudflare 授权配置
+ */
+export interface CloudflareAccessConfig {
+	api_key: string
+	email: string
+}
+
+
+
 
 /** 删除授权请求参数 */
 export interface DeleteAccessParams {

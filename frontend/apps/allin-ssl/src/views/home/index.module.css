@@ -1,72 +1,10 @@
-/* 主题颜色变量 */
-:root {
-  --text-primary: #1a1a1a;
-  --text-secondary: #666666;
-  --text-success: #22c55e;
-  --text-warning: #eab308;
-  --text-error: #ef4444;
-  --text-info: #3b82f6;
-  --text-default: #6b7280;
-  
-  --bg-primary: #ffffff;
-  --bg-secondary: #f3f4f6;
-  --bg-success-light: #dcfce7;
-  --bg-warning-light: #fef9c3;
-  --bg-error-light: #fee2e2;
-  --bg-info-light: #dbeafe;
-
-  /* 快捷入口卡片颜色 */
-  --workflow-bg: rgba(16, 185, 129, 0.08);
-  --workflow-icon-bg: rgba(16, 185, 129, 0.15);
-  --workflow-color: #10B981;
-
-  --cert-bg: rgba(245, 158, 11, 0.08);
-  --cert-icon-bg: rgba(245, 158, 11, 0.15);
-  --cert-color: #F59E0B;
-
-  --monitor-bg: rgba(139, 92, 246, 0.08);
-  --monitor-icon-bg: rgba(139, 92, 246, 0.15);
-  --monitor-color: #8B5CF6;
-}
-
-/* 暗色模式 */
-:root[data-theme='dark'] {
-  --text-primary: #ffffff;
-  --text-secondary: #9ca3af;
-  --text-success: #4ade80;
-  --text-warning: #facc15;
-  --text-error: #f87171;
-  --text-info: #60a5fa;
-  --text-default: #9ca3af;
-  
-  --bg-primary: #1a1a1a;
-  --bg-secondary: #262626;
-  --bg-success-light: rgba(34, 197, 94, 0.2);
-  --bg-warning-light: rgba(234, 179, 8, 0.2);
-  --bg-error-light: rgba(239, 68, 68, 0.2);
-  --bg-info-light: rgba(59, 130, 246, 0.2);
-
-  /* 暗色模式下的快捷入口卡片颜色 */
-  --workflow-bg: rgba(16, 185, 129, 0.12);
-  --workflow-icon-bg: rgba(16, 185, 129, 0.2);
-  --workflow-color: #34D399;
-
-  --cert-bg: rgba(245, 158, 11, 0.12);
-  --cert-icon-bg: rgba(245, 158, 11, 0.2);
-  --cert-color: #FCD34D;
-
-  --monitor-bg: rgba(139, 92, 246, 0.12);
-  --monitor-icon-bg: rgba(139, 92, 246, 0.2);
-  --monitor-color: #A78BFA;
-}
-
 /* 状态文本颜色 */
 .stateText {
-  &.success { color: var(--text-success); }
-  &.warning { color: var(--text-warning); }
-  &.error { color: var(--text-error); }
-  &.info { color: var(--text-info); }
-  &.default { color: var(--text-default); }
+  &.success { color: #22c55e; }
+  &.warning { color: #eab308; }
+  &.error { color: #ef4444; }
+  &.info { color: #3b82f6; }
+  &.default { color: #6b7280; }
 }
 
 /* 卡片样式 */
@@ -145,15 +83,3 @@
   font-weight: 500;
   margin-bottom: 0.75rem;
 }
-
-/* 表格样式 */
-.tableText {
-  color: var(--text-secondary);
-}
-
-.viewAllButton {
-  color: var(--text-info);
-  &:hover {
-    color: var(--text-primary);
-  }
-} 

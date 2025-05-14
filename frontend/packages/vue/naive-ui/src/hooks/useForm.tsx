@@ -555,8 +555,10 @@ const useFormGroup = <T extends Record<string, any>>(group: Record<string, any>[
 								{children.map((child: BaseFormElement | RenderFormElement | SlotFormElement) => {
 									if (child.type === 'render' || child.type === 'custom')
 										return (child as RenderFormElement).render(formData, formRef)
+									let type = child.type
+									if (['textarea', 'password'].includes(child.type)) type = 'input'
 									// 获取对应的 Naive UI 组件
-									const Component = componentMap[child.type as keyof typeof componentMap]
+									const Component = componentMap[type as keyof typeof componentMap]
 									if (!Component) return null
 									// 解构出组件属性，分离类型和字段名
 									const { field, ...componentProps } = child as BaseFormElement
@@ -769,8 +771,8 @@ const useFormHelp = (
 		type: 'custom',
 		render: () => (
 			<ul
-				class={`text-[#777] mt-[2px] leading-[2rem] text-[12px] ml-[20px] list-${other?.listStyle || 'disc'}`}
-				style="color: var(--n-close-icon-color);"
+				class={`mt-[2px] leading-[2rem] text-[1.4rem] list-${other?.listStyle || 'disc'}`}
+				style="color: var(--n-close-icon-color);margin-left: 1.6rem; line-height:2.2rem;"
 				{...other}
 			>
 				{helpList.value.map(

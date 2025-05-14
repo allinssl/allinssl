@@ -83,7 +83,7 @@ export const useController = () => {
 			...routeMenuItems,
 			{
 				key: 'logout',
-				label: () => <a onClick={handleLogout}>{$t('t_0_1744168657526')}</a>,
+				label: () => <a onClick={handleLogout}>{$t('t_15_1745457484292')}</a>,
 				icon: renderIcon('logout'),
 			},
 		]

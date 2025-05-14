@@ -16,7 +16,7 @@ export default defineComponent({
 			useController()
 
 		// 获取主题变量
-		const cssVars = useThemeCssVar(['cardColor', 'headerColor'])
+		const cssVars = useThemeCssVar(['cardColor', 'headerColor', 'contentColor'])
 
 		return () => (
 			<NLayout class={styles.layoutContainer} hasSider style={cssVars.value}>
@@ -66,7 +66,7 @@ export default defineComponent({
 					<NLayoutHeader class={styles.header}>
 						<div class={styles.systemInfo}>
 							<NBadge value={1} show={false} dot>
-								<span class="px-[.5rem] cursor-pointer">v1.0</span>
+								<span class="px-[.5rem] cursor-pointer">v1.0.1</span>
 							</NBadge>
 						</div>
 					</NLayoutHeader>

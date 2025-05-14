@@ -5,8 +5,10 @@ import { RouterView } from '@baota/router'
 import { PlusOutlined } from '@vicons/antd'
 import { Search } from '@vicons/carbon'
 import { useController } from './useController'
-import BaseComponent from '@components/baseComponent'
 import { useRouter } from 'vue-router'
+
+import BaseComponent from '@components/baseComponent'
+import EmptyState from '@components/emptyState/index'
 
 /**
  * 工作流页面组件
@@ -52,7 +54,7 @@ export default defineComponent({
 								headerLeft: () => (
 									<NButton type="primary" size="large" class="px-5" onClick={handleAddWorkflow}>
 										<PlusOutlined class="text-[var(--text-color-3)] w-[1.6rem]" />
-										<span class="px-2">{$t('t_0_1745227838699')}</span>
+										<span class="px-2">{$t('t_0_1747047213730')}</span>
 									</NButton>
 								),
 								headerRight: () => (
@@ -76,8 +78,14 @@ export default defineComponent({
 									></NInput>
 								),
 								content: () => (
-									<div class="rounded-lg bg-white">
-										<WorkflowTable size="medium" />
+									<div class="rounded-lg ">
+										<WorkflowTable size="medium">
+											{{
+												empty: () => (
+													<EmptyState addButtonText={$t('t_0_1747047213730')} onAddClick={handleAddWorkflow} />
+												),
+											}}
+										</WorkflowTable>
 									</div>
 								),
 								footerRight: () => (

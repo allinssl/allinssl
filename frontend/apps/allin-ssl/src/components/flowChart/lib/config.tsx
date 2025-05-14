@@ -106,9 +106,9 @@ nodeOptions[APPLY] = () =>
 			config: {
 				domains: '',
 				email: '',
+				end_day: 30,
 				provider: '',
 				provider_id: '',
-				end_day: 30,
 			},
 			childNode: null,
 		},
@@ -125,6 +125,7 @@ nodeOptions[UPLOAD] = () =>
 			name: '上传',
 			type: UPLOAD,
 			config: {
+				cert_id: '',
 				cert: '',
 				key: '',
 			},
@@ -146,6 +147,10 @@ nodeOptions[DEPLOY] = () =>
 			config: {
 				provider: '',
 				provider_id: '',
+				inputs: {
+					fromNodeId: '',
+					name: '',
+				},
 			},
 			childNode: null,
 		},

@@ -267,7 +267,7 @@ export const objectToQueryString = (obj: Record<string, any>) => {
  * @returns {Record<string, any>} 合并后的对象
  */
 export const deepMerge = <T extends Record<string, any>>(target: T, source: T, isMergeArray: boolean = true): T => {
-	const result = { ...target }
+	const result = { ...target } as T
 
 	for (const key in source) {
 		if (source.hasOwnProperty(key)) {
@@ -276,13 +276,13 @@ export const deepMerge = <T extends Record<string, any>>(target: T, source: T, i
 
 			if (Array.isArray(sourceValue) && Array.isArray(targetValue)) {
 				// 如果是数组，则合并数组
-				result[key] = isMergeArray ? [...targetValue, ...sourceValue] : sourceValue
+				result[key] = (isMergeArray ? [...targetValue, ...sourceValue] : sourceValue) as T[Extract<keyof T, string>]
 			} else if (isObject(sourceValue) && isObject(targetValue)) {
 				// 如果是对象，则递归合并
-				result[key] = deepMerge(targetValue, sourceValue)
+				result[key] = deepMerge(targetValue, sourceValue) as T[Extract<keyof T, string>]
 			} else {
 				// 其他情况直接覆盖
-				result[key] = sourceValue
+				result[key] = sourceValue as T[Extract<keyof T, string>]
 			}
 		}
 	}
@@ -298,3 +298,28 @@ export const deepMerge = <T extends Record<string, any>>(target: T, source: T, i
 const isObject = (value: any): boolean => {
 	return value !== null && typeof value === 'object' && !Array.isArray(value)
 }
+
+
+/**
+ * @description 清理对象前后字符串
+ * @param {Record<string, any>} obj - 要清理的对象
+ * @returns {Record<string, any>} 清理后的对象
+ */
+export const trimObject = (obj: Record<string, any>) => {
+	return Object.entries(obj).reduce<Record<string, any>>((acc, [key, value]) => {
+		acc[key.trim()] = value.trim()
+		return acc
+	}, {})
+}
+
+
+/**
+ * 深拷贝对象（简单版）
+ * @param {any} obj - 要拷贝的对象
+ * @returns {any} 拷贝后的对象
+ */
+export const deepClone = <T>(obj: T): T => {
+	return JSON.parse(JSON.stringify(obj))
+}
+
+

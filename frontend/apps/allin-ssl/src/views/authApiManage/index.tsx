@@ -5,6 +5,7 @@ import { $t } from '@locales/index'
 import { useThemeCssVar } from '@baota/naive-ui/theme'
 import { useController } from './useController'
 
+import EmptyState from '@components/emptyState/index'
 import BaseComponent from '@components/baseComponent'
 
 /**
@@ -48,8 +49,13 @@ export default defineComponent({
 								></NInput>
 							),
 							content: () => (
-								<div class="rounded-lg bg-white">
-									<ApiTable size="medium" />
+								<div class="rounded-lg">
+									<ApiTable
+										size="medium"
+										v-slots={{
+											empty: () => <EmptyState addButtonText={$t('t_0_1745289355714')} onAddClick={openAddForm} />,
+										}}
+									/>
 								</div>
 							),
 							footerRight: () => (

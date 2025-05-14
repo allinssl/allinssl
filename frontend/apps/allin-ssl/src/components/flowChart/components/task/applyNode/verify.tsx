@@ -9,9 +9,9 @@ export default {
 		validator: (rule: FormItemRule, value: string) => {
 			return new Promise<void>((resolve, reject) => {
 				if (!isDomainGroup(value)) {
-					reject(new Error($t('t_0_1745553910661')))
+					reject(new Error($t('t_3_1747047218669')))
 				} else if (!value) {
-					reject(new Error($t('t_0_1746697487119')))
+					reject(new Error($t('t_0_1744958839535')))
 				} else {
 					resolve()
 				}

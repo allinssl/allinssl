@@ -16,6 +16,10 @@ const defaultLight: ThemeTemplate = {
 	themeOverrides: {
 		common: {
 			borderRadius: '0.6rem', // 圆角
+			primaryColor: '#4caf50', // 主色
+			primaryColorHover: '#20a53a', // 主色悬停
+			primaryColorPressed: '#157f3a', // 主色按下
+			primaryColorSuppl: '#4caf50', // 主色补充
 		},
 	}, // 主题变量
 	presetsOverrides: presets, // 预设变量

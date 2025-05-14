@@ -23,7 +23,7 @@ export default defineComponent({
 						<div class="grid grid-cols-1 md:grid-cols-3 gap-4">
 							{/* 自动化工作流概览卡片 */}
 							<div onClick={() => pushToWorkflow()} class="cursor-pointer relative">
-								<div class="absolute right-0 top-0 w-24 h-24 rounded-full bg-blue-50 dark:bg-blue-900/30 opacity-70 -z-10"></div>
+								<div class="absolute right-0 top-0 w-24 h-24 rounded-full bg-blue-50 opacity-70 -z-10"></div>
 								<NCard class="transition-all duration-300 rounded-[0.6rem]" hoverable={true} bordered={false}>
 									<div class="flex items-center justify-center">
 										<div class="flex-1">
@@ -33,7 +33,7 @@ export default defineComponent({
 													<span class="text-[2.4rem] font-bold">{overviewData.value.workflow.count}</span>
 													<p class={styles.tableText}>{$t('t_3_1746773348798')}</p>
 												</div>
-												<div class="border-l-2 dark:border-gray-600 pl-[2rem] ml-[3rem]">
+												<div class="border-l-2 pl-[2rem] ml-[3rem] h-[5rem] lining-[5rem]">
 													<div class="flex items-center space-x-1">
 														<span class="w-4 h-4 rounded-full mr-[.6rem] bg-green-500"></span>
 														<span class={styles.tableText}>
@@ -60,7 +60,7 @@ export default defineComponent({
 
 							{/* 证书管理概览卡片 */}
 							<div onClick={() => pushToCertManage()} class="cursor-pointer relative">
-								<div class="absolute right-0 top-0 w-24 h-24 rounded-full bg-blue-50 dark:bg-blue-900/30 opacity-70 -z-10"></div>
+								<div class="absolute right-0 top-0 w-24 h-24 rounded-full bg-blue-50 opacity-70 -z-10"></div>
 								<NCard class="transition-all duration-300 rounded-[0.6rem]" hoverable={true} bordered={false}>
 									<div class="flex items-center justify-center">
 										<div class="flex-1">
@@ -70,7 +70,7 @@ export default defineComponent({
 													<span class="text-[2.4rem] font-bold">{overviewData.value.cert.count}</span>
 													<p class={styles.tableText}>{$t('t_3_1746773348798')}</p>
 												</div>
-												<div class="border-l-2 dark:border-gray-600 pl-[2rem] ml-[3rem]">
+												<div class="border-l-2 pl-[2rem] ml-[3rem] h-[5rem] lining-[5rem]">
 													<div class="flex items-center space-x-1">
 														<span class="w-4 h-4 rounded-full mr-[.6rem] bg-yellow-500"></span>
 														<span class={styles.tableText}>
@@ -97,7 +97,7 @@ export default defineComponent({
 
 							{/* 实时监控概览卡片 */}
 							<div onClick={() => pushToMonitor()} class="cursor-pointer relative">
-								<div class="absolute right-0 top-0 w-24 h-24 rounded-full bg-blue-50 dark:bg-blue-900/30 opacity-70 -z-10"></div>
+								<div class="absolute right-0 top-0 w-24 h-24 rounded-full bg-blue-50 opacity-70 -z-10"></div>
 								<NCard class="transition-all duration-300 rounded-[0.6rem]" hoverable={true} bordered={false}>
 									<div class="flex items-center justify-center">
 										<div class="flex-1">
@@ -107,7 +107,7 @@ export default defineComponent({
 													<span class="text-[2.4rem] font-bold">{overviewData.value.site_monitor.count}</span>
 													<p class={styles.tableText}>{$t('t_3_1746773348798')}</p>
 												</div>
-												<div class="border-l-2 dark:border-gray-600 pl-[2rem] ml-[3rem]">
+												<div class="border-l-2 pl-[2rem] ml-[3rem]  h-[5rem] lining-[5rem]">
 													<div class="flex items-center space-x-1">
 														<span class="w-4 h-4 rounded-full mr-[.6rem] bg-red-500"></span>
 														<span class={styles.tableText}>
@@ -131,7 +131,7 @@ export default defineComponent({
 						<NCard class="rounded-[0.6rem] transition-all duration-300" hoverable={true} bordered={false}>
 							<div class="flex justify-between items-center mb-4">
 								<div class={styles.tableText}>{$t('t_8_1746773351524')}</div>
-								<NButton text onClick={() => pushToWorkflow()} class={styles.viewAllButton}>
+								<NButton text type="primary" onClick={() => pushToWorkflow()} class={styles.viewAllButton}>
 									{$t('t_9_1746773348221')}
 									<NIcon class="ml-1">
 										<ArrowRight />
@@ -216,7 +216,7 @@ export default defineComponent({
 										</div>
 										<div class="flex-1">
 											<div class={`${styles.title} text-[1.8rem] font-medium mb-3`}>{$t('t_11_1745289354516')}</div>
-											<div class={styles.tableText}>{$t('t_15_1746773358151')}</div>
+											<div class={styles.tableText}>{$t('t_1_1747019624067')}</div>
 										</div>
 									</div>
 								</NCard>

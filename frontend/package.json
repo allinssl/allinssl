@@ -9,10 +9,11 @@
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
     "check-types": "turbo run check-types",
     "test": "vitest",
-    "clear": "sh ./scripts/clear.sh",
+    "clear": "sh ./scripts/clear-temp.sh",
     "cursor:backup": "sh ./scripts/cursor_backup.sh",
     "devcloud": "turbo run dev --filter cloud-control",
-    "buildcloud": "turbo run build --filter cloud-control"
+    "buildcloud": "turbo run build --filter cloud-control",
+    "sync": "sh ./scripts/sync-project.sh"
   },
   "devDependencies": {
     "@testing-library/jest-dom": "^6.6.3",
@@ -33,5 +34,8 @@
   "workspaces": [
     "apps/*",
     "packages/*"
-  ]
+  ],
+  "dependencies": {
+    "pre-commit": "^1.2.2"
+  }
 }

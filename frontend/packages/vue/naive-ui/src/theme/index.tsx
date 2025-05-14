@@ -39,7 +39,11 @@ export const useTheme = (name?: ThemeName) => {
 	const themeActiveOverrides = ref<ThemeTemplate | null>(null)
 
 	// 是否暗黑
-	const isDark = useDark()
+	
+	// const isDark = useDark()
+
+	// 禁用自动切换暗色模式避免错误
+	const isDark = ref(false)
 
 	// 主题
 	const theme = computed(() => {

@@ -203,6 +203,8 @@ export interface ApplyNodeConfig {
 	provider_id: string // DNS提供商授权ID
 	provider: string // DNS提供商
 	end_day: number // 续签间隔
+	name_server: string // DNS递归服务器
+	skip_check: number // 跳过检查
 	// 高级功能
 	// algorithm: 'RSA2048' | 'RSA3072' | 'RSA4096' | 'RSA8192' | 'EC256' | 'EC384' // 数字证书算法
 	// dnsServer?: string // 指定DNS解析服务器
@@ -229,11 +231,10 @@ export interface DeployConfig<
 > {
 	provider: T
 	provider_id: string
-	[key: string]:  Z
+	[key: string]: Z
 }
 
-export interface DeployPanelConfig {
-}
+export interface DeployPanelConfig {}
 
 // 部署节点配置（ssh）
 export interface DeploySSHConfig {
@@ -265,20 +266,16 @@ export interface DeployStorageConfig {
 	bucket: string
 }
 
-
 // 部署节点配置
 export type DeployNodeConfig = DeployConfig<
 	DeploySSHConfig | DeployBTPanelConfig | Deploy1PanelConfig | DeployCDNConfig | DeployStorageConfig
 >
-
 
 // 部署节点输入配置
 export interface DeployNodeInputsConfig {
 	name: string
 	fromNodeId: string
 }
-
-
 
 // 定义通知节点配置类型
 interface NotifyNodeConfig {
@@ -288,10 +285,9 @@ interface NotifyNodeConfig {
 	body: string
 }
 
-
-
 // 定义上传节点配置类型
 interface UploadNodeConfig {
+	cert_id: string
 	cert: string
 	key: string
 }

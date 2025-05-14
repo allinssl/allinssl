@@ -9,6 +9,8 @@ const types = {
 	tencentcloud: '腾讯云',
 	btpanel: '宝塔面板',
 	'1panel': '1Panel',
+	huaweicloud: '华为云',
+	cloudflare: 'Cloudflare',
 	mail: '邮件',
 	dingtalk: '钉钉',
 	wecom: '企业微信',
@@ -59,6 +61,8 @@ export const AuthApiTypeIcon = defineComponent({
 				tencentcloud: 'tencentcloud',
 				btpanel: 'btpanel',
 				'1panel': '1panel',
+				huaweicloud: 'huaweicloud',
+				cloudflare: 'cloudflare',
 				mail: 'mail',
 				dingtalk: 'dingtalk',
 				wecom: 'wecom',
@@ -92,15 +96,9 @@ export const AuthApiTypeIcon = defineComponent({
 		)
 
 		return () => (
-			<NTag
-				bordered={false}
-				class="cursor-pointer"
-				type={props.type}
-				v-slots={{
-					avatar: () => <SvgIcon icon={iconPath.value} size="1.4rem" />,
-				}}
-			>
-				<NText class="text-[12px]">{props.text && <span>{typeName.value}</span>}</NText>
+			<NTag type={props.type} size="small">
+				<SvgIcon icon={iconPath.value} size="1.2rem" class="mr-[0.4rem]" />
+				<span class="text-[12px]">{props.text && <span>{typeName.value}</span>}</span>
 			</NTag>
 		)
 	},

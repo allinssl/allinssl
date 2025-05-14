@@ -4,8 +4,8 @@ import { useStore } from '@components/flowChart/useStore'
 import { $t } from '@locales/index'
 import rules from './verify'
 import DnsProviderSelect from '@components/dnsProviderSelect'
-
 import type { ApplyNodeConfig } from '@components/flowChart/types'
+import { deepClone } from '@baota/utils/data'
 
 export default defineComponent({
 	name: 'ApplyNodeDrawer',
@@ -15,7 +15,15 @@ export default defineComponent({
 			type: Object as PropType<{ id: string; config: ApplyNodeConfig }>,
 			default: () => ({
 				id: '',
-				config: {},
+				config: {
+					domains: '',
+					email: '',
+					provider_id: '',
+					provider: '',
+					end_day: 30,
+					name_server: '',
+					skip_check: 1,
+				},
 			}),
 		},
 	},
@@ -24,14 +32,9 @@ export default defineComponent({
 		// 弹窗辅助
 		const { confirm } = useModalHooks()
 		// 获取表单助手函数
-		const { useFormInput } = useFormHooks()
-
+		const { useFormInput, useFormHelp, useFormSwitch } = useFormHooks()
 		// 表单参数
-		const param = ref<ApplyNodeConfig>(
-			Object.keys(props.node.config).length > 0
-				? props.node.config
-				: { domains: '', email: '', provider_id: '', provider: '', end_day: 30 },
-		)
+		const param = ref(deepClone(props.node.config))
 
 		// 表单渲染配置
 		const config = computed(() => {
@@ -39,9 +42,18 @@ export default defineComponent({
 			return [
 				useFormInput($t('t_17_1745227838561'), 'domains', {
 					placeholder: $t('t_0_1745735774005'),
+					onInput: (val: string) => {
+						param.value.domains = val.trim() // 去除空格
+						param.value.domains = param.value.domains.replace(/，/g, ',') // 中文逗号分隔
+						param.value.domains = param.value.domains.replace(/;/g, ',') // 去除分号
+					},
+					onFocus: () => {
+						param.value.domains = param.value.domains.replace(/,^/g, '') // 中文逗号分隔
+					},
 				}),
 				useFormInput($t('t_1_1745735764953'), 'email', {
 					placeholder: $t('t_2_1745735773668'),
+					onInput: (val: string) => (param.value.email = val.trim()),
 				}),
 				{
 					type: 'custom' as const,
@@ -76,6 +88,33 @@ export default defineComponent({
 						)
 					},
 				},
+				useFormInput(
+					$t('t_0_1747106957037'),
+					'name_server',
+					{
+						placeholder: $t('t_1_1747106961747'),
+						onInput: (val: string) => {
+							param.value.name_server = val.trim() // 去除空格
+							param.value.name_server = param.value.name_server.replace(/，/g, ',') // 中文逗号分隔
+							param.value.name_server = param.value.name_server.replace(/;/g, ',') // 去除分号
+						},
+						onFocus: () => {
+							param.value.name_server = param.value.name_server.replace(/,^/g, '') // 中文逗号分隔
+						},
+					},
+					{ showRequireMark: false },
+				),
+				useFormSwitch($t('t_2_1747106957037'), 'skip_check', {}, { showRequireMark: false }),
+				useFormHelp([
+					{
+						content: $t('t_0_1747040228657'),
+						isHtml: false,
+					},
+					{
+						content: $t('t_1_1747040226143'),
+						isHtml: false,
+					},
+				]),
 			]
 		})
 
