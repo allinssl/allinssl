@@ -55,7 +55,13 @@ func deploy(params map[string]any) (any, error) {
 		logger.Info("=============部署失败=============")
 		return nil, errors.New("证书不存在")
 	}
-	certStr, ok := certificate.(string)
+	certificateMap, ok := params["certificate"].(map[string]any)
+	if !ok {
+		logger.Error("证书不存在")
+		logger.Info("=============部署失败=============")
+		return nil, errors.New("证书不存在")
+	}
+	certStr, ok := certificateMap["cert"].(string)
 	if !ok {
 		logger.Error("证书格式错误")
 		logger.Info("=============部署失败=============")
