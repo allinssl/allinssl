@@ -218,6 +218,7 @@ func RunNode(node *WorkflowNode, ctx *ExecutionContext) error {
 	}
 	node.Config["_runId"] = ctx.RunID
 	node.Config["logger"] = ctx.Logger
+	node.Config["NodeId"] = node.Id
 	
 	// 执行当前节点
 	result, err := Executors(node.Type, node.Config)

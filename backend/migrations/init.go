@@ -185,14 +185,14 @@ func init() {
 	    workflow_id TEXT not null
 	);
 
-	create table IF NOT EXISTS workflow_deploy
+	create table workflow_deploy
 	(
-		id          TEXT
-			constraint workflow_deploy_pk
-				primary key,
+		id          TEXT,
 		workflow_id TEXT,
 		cert_hash   TEXT,
-		status      TEXT
+		status      TEXT,
+		constraint workflow_deploy_pk
+			primary key (id, workflow_id)
 	);
 
 	`)

@@ -55,12 +55,83 @@ func deploy(params map[string]any) (any, error) {
 		logger.Info("=============部署失败=============")
 		return nil, errors.New("证书不存在")
 	}
-	err := certDeploy.Deploy(params, logger)
+	certStr, ok := certificate.(string)
+	if !ok {
+		logger.Error("证书格式错误")
+		logger.Info("=============部署失败=============")
+		return nil, errors.New("证书格式错误")
+	}
+	nowSha256, err := public.GetSHA256(certStr)
 	if err != nil {
+		logger.Error("解析证书sha256失败：" + err.Error())
+		logger.Info("=============部署失败=============")
+		return nil, err
+	}
+	
+	s, err := public.NewSqlite("data/data.db", "")
+	if err != nil {
+		logger.Error("新建数据库连接失败" + err.Error())
+		logger.Info("=============部署失败=============")
+		return nil, err
+	}
+	defer s.Close()
+	s.TableName = "workflow_history"
+	historyData, err := s.Where("id=?", []any{params["_runId"]}).Find()
+	if err != nil {
+		logger.Error("查询表workflow_history失败" + err.Error())
+		logger.Info("=============部署失败=============")
+		return nil, err
+	}
+	workflowId := historyData["workflow_id"]
+	s.TableName = "workflow_deploy"
+	deployData, err := s.Where("workflow_id=? and id=?", []any{workflowId, params["NodeId"]}).Select()
+	if err != nil {
+		logger.Error("查询表workflow_deploy失败" + err.Error())
+		logger.Info("=============部署失败=============")
+		return nil, err
+	}
+	
+	if params["skip"] != nil {
+		var skip int
+		switch v := params["skip"].(type) {
+		case int:
+			skip = v
+		case float64:
+			skip = int(v)
+		case string:
+			skip, _ = strconv.Atoi(v)
+		}
+		if skip == 1 {
+			if len(deployData) > 0 {
+				beSha256, ok := deployData[0]["cert_hash"].(string)
+				if !ok {
+					logger.Error("证书hash格式错误")
+					logger.Info("=============部署失败=============")
+					return nil, errors.New("证书hash格式错误")
+				}
+				if beSha256 == nowSha256 && deployData[0]["status"].(string) == "success" {
+					logger.Info("与上次部署的证书sha256相同且上次部署成功，跳过重复部署")
+					logger.Info("=============部署成功=============")
+					return nil, nil
+				}
+			}
+		}
+	}
+	
+	err = certDeploy.Deploy(params, logger)
+	var status string
+	if err != nil {
+		status = "fail"
 		logger.Error(err.Error())
 		logger.Info("=============部署失败=============")
 	} else {
+		status = "success"
 		logger.Info("=============部署成功=============")
+	}
+	if len(deployData) > 0 {
+		s.Where("workflow_id=? and id=?", []any{workflowId, params["NodeId"]}).Update(map[string]interface{}{"cert_hash": nowSha256, "status": status})
+	} else {
+		s.Insert(map[string]interface{}{"cert_hash": nowSha256, "workflow_id": workflowId, "id": params["NodeId"], "status": status})
 	}
 	return nil, err
 }
