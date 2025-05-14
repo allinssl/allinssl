@@ -184,6 +184,17 @@ func init() {
 	    end_time    TEXT,
 	    workflow_id TEXT not null
 	);
+
+	create table IF NOT EXISTS workflow_deploy
+	(
+		id          TEXT
+			constraint workflow_deploy_pk
+				primary key,
+		workflow_id TEXT,
+		cert_hash   TEXT,
+		status      TEXT
+	);
+
 	`)
 	insertDefaultData(db, "users", "INSERT INTO users (id, username, password, salt) VALUES (1, 'xxxx', 'xxxxxxx', '&*ghs^&%dag');")
 	insertDefaultData(db, "access_type", `
@@ -220,6 +231,10 @@ INSERT INTO settings (key, value, create_time, update_time, active, type) VALUES
 	InsertIfNotExists(db, "access_type", map[string]any{"name": "huaweicloud", "type": "host"}, []string{"name", "type"}, []any{"huaweicloud", "host"})
 	InsertIfNotExists(db, "access_type", map[string]any{"name": "huaweicloud", "type": "dns"}, []string{"name", "type"}, []any{"huaweicloud", "dns"})
 	
+	InsertIfNotExists(db, "access_type", map[string]any{"name": "baidu", "type": "host"}, []string{"name", "type"}, []any{"baidu", "host"})
+	InsertIfNotExists(db, "access_type", map[string]any{"name": "baidu", "type": "dns"}, []string{"name", "type"}, []any{"baidu", "dns"})
+	
+	InsertIfNotExists(db, "access_type", map[string]any{"name": "btwaf", "type": "dns"}, []string{"name", "type"}, []any{"btwaf", "dns"})
 }
 
 func insertDefaultData(db *sql.DB, table, insertSQL string) {
