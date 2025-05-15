@@ -1,12 +1,8 @@
 # .goreleaser.yml
 version: 2
+# 在快照模式下，不要尝试创建GitHub release
 release:
-  disable: false
-  # 覆盖之前的release
-  replace_existing_draft: true
-  prerelease: auto
-  mode: replace
-  name_template: "Build {{.Tag}}"
+  disable: true
 before:
   hooks:
     # 删除已有的frontend文件夹

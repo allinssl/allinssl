@@ -4,8 +4,9 @@ on:
   push:
     branches:
       - '*'
-    tags:
-      - '*'
+    # 我们不需要在tags上触发
+    # tags:
+    #   - '*'
 
 permissions:
   contents: write
@@ -28,16 +29,32 @@ jobs:
         name: Set Release Version
         id: set_version
         run: |
-          echo "RELEASE_VERSION=latest" >> $GITHUB_ENV
+          RELEASE_DATE=$(date +'%Y%m%d%H%M%S')
+          echo "RELEASE_DATE=$RELEASE_DATE" >> $GITHUB_ENV
+          echo "Release date set to: $RELEASE_DATE"
+      # 创建或更新 latest 标签，指向当前提交
+      -
+        name: Update latest tag
+        run: |
+          git tag -f latest
+          git push -f origin latest
       -
         name: Run GoReleaser
         uses: goreleaser/goreleaser-action@v6
         with:
-          # either 'goreleaser' (default) or 'goreleaser-pro'
           distribution: goreleaser
           version: latest
-          args: release --clean --snapshot --skip-validate
+          args: release --clean --snapshot
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          # Your GoReleaser Pro key, if you are using the 'goreleaser-pro' distribution
-          # GORELEASER_KEY: ${{ secrets.GORELEASER_KEY }}
+      -
+        name: Create/Update GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          name: "最新构建"
+          tag_name: latest
+          files: ./dist/*.tar.gz
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
