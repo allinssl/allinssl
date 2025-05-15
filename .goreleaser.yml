@@ -6,8 +6,6 @@ release:
   replace_existing_draft: true
   prerelease: auto
   mode: replace
-  # 允许快照版本发布
-  allow_snapshot: true
   name_template: "Build {{.Tag}}"
 before:
   hooks:
