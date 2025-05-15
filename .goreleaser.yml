@@ -6,6 +6,9 @@ release:
   replace_existing_draft: true
   prerelease: auto
   mode: replace
+  # 允许快照版本发布
+  allow_snapshot: true
+  name_template: "Build {{.Tag}}"
 before:
   hooks:
     # 删除已有的frontend文件夹
@@ -14,6 +17,12 @@ before:
     - cp -r build frontend || true
     # 打包前先执行一些必要的操作
     - go mod tidy
+    
+# 源代码配置
+source:
+  enabled: true
+  prefix_template: '{{ .ProjectName }}-source'
+
 archives:
   - format: tar.gz
     name_template: "{{ .ProjectName }}_{{ .Os }}_{{ .Arch }}"
