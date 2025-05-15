@@ -43,6 +43,12 @@ func Deploy(cfg map[string]any, logger *public.Logger) error {
 	case "aliyun-oss":
 		logger.Debug("部署到阿里云OSS...")
 		return DeployOss(cfg)
+	case "safeline-site":
+		logger.Debug("部署雷池WAF网站...")
+		return DeploySafeLineWafSite(cfg, logger)
+	case "safeline-panel":
+		logger.Debug("部署雷池WAF面板...")
+		return DeploySafeLineWaf(cfg)
 	case "localhost":
 		logger.Debug("部署到本地...")
 		return DeployLocalhost(cfg)
