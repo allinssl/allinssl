@@ -29,14 +29,23 @@ jobs:
         name: Set Release Version
         id: set_version
         run: |
+          # 使用日期时间戳作为版本号
           RELEASE_DATE=$(date +'%Y%m%d%H%M%S')
           echo "RELEASE_DATE=$RELEASE_DATE" >> $GITHUB_ENV
+          # 创建语义化版本标签 v1.0.0-yyyyMMddHHmmss
+          echo "VERSION=v1.0.0-$RELEASE_DATE" >> $GITHUB_ENV
           echo "Release date set to: $RELEASE_DATE"
-      # 创建或更新 latest 标签，指向当前提交
+      # 创建或更新标签，指向当前提交
       -
-        name: Update latest tag
+        name: Update Git Tag
         run: |
+          # 删除远程的latest标签(如果存在)
+          git push origin :refs/tags/latest || true
+          # 创建新的语义化标签
+          git tag -f $VERSION
           git tag -f latest
+          # 推送标签到远程
+          git push -f origin $VERSION
           git push -f origin latest
       -
         name: Run GoReleaser
@@ -44,7 +53,7 @@ jobs:
         with:
           distribution: goreleaser
           version: latest
-          args: release --clean --snapshot
+          args: release --clean
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       -

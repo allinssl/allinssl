@@ -1,8 +1,8 @@
 # .goreleaser.yml
 version: 2
-# 在快照模式下，不要尝试创建GitHub release
 release:
-  disable: true
+  disable: false
+  mode: replace
 before:
   hooks:
     # 删除已有的frontend文件夹
