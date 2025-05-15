@@ -158,6 +158,7 @@ export const useController = () => {
 			limit: 10,
 			search: '',
 		},
+		watchValue: ['p', 'limit'],
 	})
 
 	// 分页实例
