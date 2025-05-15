@@ -2,6 +2,18 @@
 version: 2
 release:
   disable: false
+  # 覆盖之前的release
+  replace_existing_draft: true
+  prerelease: auto
+  mode: replace
+before:
+  hooks:
+    # 删除已有的frontend文件夹
+    - rm -rf frontend || true
+    # 复制build到frontend
+    - cp -r build frontend || true
+    # 打包前先执行一些必要的操作
+    - go mod tidy
 archives:
   - format: tar.gz
     name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
@@ -9,11 +21,16 @@ archives:
       - LICENSE
       - README.md
       - config.yaml
+      - src: "frontend/**/*"
+        dst: "frontend"
+      - src: "script/allinssl.sh"
+        dst: "allinssl.sh"
 checksum:
   name_template: "{{ .ProjectName }}_{{ .Version }}_checksums.txt"
 builds:
   - env:
       - CGO_ENABLED=0
+    main: ./cmd/main.go
     goos:
       - linux
       - darwin
