@@ -20,7 +20,6 @@ archives:
     files:
       - LICENSE
       - README.md
-      - config.yaml
       - src: "frontend/**/*"
         dst: "frontend"
       - src: "script/allinssl.sh"
