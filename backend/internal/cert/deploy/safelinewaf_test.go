@@ -8,7 +8,7 @@ import (
 
 func TestSafeLineWAFSite(t *testing.T) {
 	cfg := map[string]any{
-		"siteName":    "测得1",
+		"siteName":    "Test",
 		"provider_id": "5",
 		"certificate": map[string]any{
 			"key":    "-----BEGIN RSA PRIVATE KEY-----\nMIIEowIBAAKCAQEAxIjmAi/paC2OmG7nOqZ+OJx7spDrx7yZiWvn1XgLW/5ODONh\nWhMT6W+cx0WMC80yCRm5JshIIMzmMxN03pRD1h4u1fPNUnJmGtthRZIm3aU7TlSM\n4tz/Zh8a3kVyN4MtWDmV1/1MV8H0YBtT6K2gxZ7Fz/YKhVATdh8Fy+1qEz3gSrw1\nz6qqEDcM8FtHoAXAdxQBkS8xu34SIriwZiN2YlrtL8Qy73j4XiJLh2cc/NPp+mW9\ncMY1cCEBxpwQTJiJHbX9LcEqYgOkkhWIijW2dYlCLaLsnvJw0TCRd6PooR8XK7MU\nS89+DsixFf3HL+iWjr6yVnQ/mAGVPQ+HD4pwmQIDAQABAoIBAALpcFb59MBZZHJ3\nui9RRi96ig6kPQoRjkjN83pjM+/h/bANMmUOQU5FHBKLwj5uhN5Dpk2fzAnIX2TE\nVgfyNGsYuWLsIM+m6EJfm7pXJwJDr3RCpm+6DIKr1U8TwlR2OhbDi6fOlfH66q79\n2Klq4SXsa0vgfllpTVCDtydFVjwAuQV7Cf6DGRjbNpN3DPLeOC1wYFimNZwudSK0\nf8grWpPFXw2TPaf3TgeBGxwL7GCTYSKT+Eq9USbhG4RArrM9oQt+h7rzaH2bFEdg\n7tOM4KIgV+aw8r0TsYisDG9dfiHfHr5vQnkmWgt/rxAOvHlJ7/64pBVuET1ZF0mB\nP6gu4Y0CgYEAzkwXvfnHI5qx9BVP6e9lGrpWrm0RxCKr2iCCwrOVALbX1yfKCb5L\nrP/jSERMuLt6bIKg/AoVu9ogCTGzntyHTbZXFGg/y5Xoul+1af2arQ1rGZ7A/Im7\nnteZePg2U6UiDRy07F94FF5aL/v97D4BffiSA+0atlgH6tpKyYfY6NsCgYEA8+Ku\nGQqX9kHDd5bbzPhLelNmHVnAjnMaHEhvzVtBA737F10Oqg9wyffqe/i/DvdUSx9r\nafKGUfzB2vVZjz//OpSQ8VhRzDTiyelKLsSTmzOokLBnwayyTxw85o9EDvTNrzfb\nYQbAjmAXWmnv5Xvx1KfvTaKFY3BmHsKYJDzwnJsCgYBK1SVjn2CSVMIqlTSI2nMl\nb+STnzLrn9wQ4uwr7nKlcK34+RD72dCfr67lfwkJldBB3lzBMHNT0jr+us26Waqn\nEPaji3Fgyz9BpAgtq3XZQl3QTFsbAGdTpkegrwEd9G/Wq8whVjw7v0Id193zPUbT\nSEDHNdITxPkSQx8P3bxcMwKBgQDO5EGk5KO9OFTFoqib3RbKku1RgM4lCefgjmKp\n5vvkXMohK8RA6BBahYHZ4U7TN2W+xMyueBsSekVJplFvgG7YFyhOVQovHb42Yz2X\nJxPA2bXp6HxchFBPZDkVrfuiZHIIbm4ghUXcgg/Nl4j3OIoSSNRtG63kiXlYJuRB\n+aB0eQKBgD79VrREpbOMS7HRlDTtfkDN94HY3T4MLErs26z/NLO/dC44tmBJGo2P\ngcQ+p7XxNjpWUnUbEiuz4R3Xgh6ULwuSseWtcQicolPHTkBjnc+6BEpyguZJ+FPZ\nGls3g3LxjGhdPlyd37CaWDvx/Jtjrd4Y9iGkGO2d9fXZD0Hg0ymX\n-----END RSA PRIVATE KEY-----",
@@ -36,10 +36,10 @@ func TestSafeLineWAFP(t *testing.T) {
 
 func TestGetSafeLineWAFSiteList(t *testing.T) {
 	res, err := GetSafeLineWafSiteList(1, 100, "测", "5")
-	for _, site := range res {
-		sites := site.(map[string]any)
-		fmt.Println(sites)
-	}
+	//for _, site := range res {
+	//sites := site.(map[string]any)
+	//fmt.Println(sites)
+	//}
 	fmt.Println(err)
 
 	siteId := matchSafeLineSiteByColumn(res, "comment", "测得3")

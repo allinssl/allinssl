@@ -174,8 +174,7 @@ func DeploySafeLineWafSite(cfg map[string]any, logger *public.Logger) error {
 	if !ok {
 		return fmt.Errorf("参数错误：siteName")
 	}
-
-	siteList, err := GetSafeLineWafSiteList(1, 100, "测", "5")
+	siteList, err := GetSafeLineWafSiteList(1, 100, siteName, providerID)
 	if siteList == nil || err != nil {
 		return fmt.Errorf("雷池WAF找不到网站名称：%s", siteName)
 	}
