@@ -102,7 +102,7 @@ export default defineComponent({
 												},
 											}}
 										>
-											{$t('SMTP端口禁止修改')}
+											{$t('t_0_1747280814475')}
 										</NTooltip>
 									</NFormItemGi>
 								</NGrid>

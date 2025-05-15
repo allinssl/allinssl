@@ -1,6 +1,7 @@
 import { FormInst, FormItemRule, FormRules } from 'naive-ui'
 import md5 from 'crypto-js/md5'
 import { useFormHooks, useModal, useDialog, useForm, useMessage, useLoadingMask } from '@baota/naive-ui/hooks'
+import { clearCookie, clearLocal, clearSession } from '@baota/utils/browser'
 import { useError } from '@baota/hooks/error'
 import { $t } from '@locales/index'
 import { useStore } from './useStore'
@@ -91,7 +92,11 @@ export const useController = () => {
 				...params,
 				password: params.password !== '' ? encryptPassword(params.password) : '',
 			})
-			// window.location.reload()
+			setTimeout(() => {
+				clearCookie()
+				clearSession()
+				window.location.href = `${params.secure}`
+			}, 2000)
 		} catch (error) {
 			handleError(error)
 		}

@@ -118,7 +118,7 @@ export default defineConfig({
 					target: ['.sync-git/allinssl-gitlab/build', '.sync-git/allinssl-github/build'],
 					mode: 'copy',
 					clearTarget: true,
-					exclude: ['node_modules'],
+					exclude: ['node_modules', '.git'],
 				},
 				{
 					source: '/',

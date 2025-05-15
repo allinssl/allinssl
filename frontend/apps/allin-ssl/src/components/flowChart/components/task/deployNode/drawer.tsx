@@ -86,7 +86,7 @@ export default defineComponent({
 		const searchKeyword = ref('') // 搜索关键字
 
 		const param = ref(deepClone(props.node.config)) // 表单参数
-		const localProvider = ref([{ label: $t('本机部署'), value: 'localhost' }]) // 本地提供商
+		const localProvider = ref([{ label: $t('t_6_1747271296994'), value: 'localhost' }]) // 本地提供商
 		const provider = computed(() => {
 			return param.value.provider
 				? $t('t_4_1746858917773') + '：' + deployTypeOptions.find((item) => item.value === param.value.provider)?.label
@@ -134,7 +134,7 @@ export default defineComponent({
 									)
 								},
 							}
-						: useFormSelect($t('主机提供商'), 'provider', localProvider.value, { disabled: true }),
+						: useFormSelect($t('t_0_1746754500246'), 'provider', localProvider.value, { disabled: true }),
 				],
 				useFormSelect($t('t_1_1745748290291'), 'inputs.fromNodeId', certOptions.value, {
 					onUpdateValue: (val, option: { label: string; value: string }) => {
@@ -148,22 +148,22 @@ export default defineComponent({
 				case 'ssh':
 					config.push(
 						...[
-							useFormInput($t('证书文件路径（仅支持PEM格式）'), 'certPath', {
+							useFormInput($t('t_1_1747280813656'), 'certPath', {
 								placeholder: $t('t_30_1746667591892'),
 								onInput: (val: string) => (param.value.certPath = val.trim()),
 							}),
-							useFormInput($t('私钥文件路径'), 'keyPath', {
+							useFormInput($t('t_2_1747280811593'), 'keyPath', {
 								placeholder: $t('t_31_1746667593074'),
 								onInput: (val: string) => (param.value.keyPath = val.trim()),
 							}),
 							useFormTextarea(
-								$t('前置命令（可选）'),
+								$t('t_3_1747280812067'),
 								'beforeCmd',
 								{ placeholder: $t('t_21_1745735769154'), rows: 2 },
 								{ showRequireMark: false },
 							),
 							useFormTextarea(
-								$t('后置命令（可选）'),
+								$t('t_4_1747280811462'),
 								'afterCmd',
 								{ placeholder: $t('t_22_1745735767366'), rows: 2 },
 								{ showRequireMark: false },
@@ -175,8 +175,8 @@ export default defineComponent({
 				case 'btpanel-site':
 					config.push(
 						...[
-							useFormInput($t('站点名称'), 'siteName', {
-								placeholder: $t('t_23_1745735766455'),
+							useFormInput($t('网站名'), 'siteName', {
+								placeholder: $t('请输入网址名'),
 								onInput: (val: string) => (param.value.siteName = val.trim()),
 							}),
 						],
@@ -185,7 +185,7 @@ export default defineComponent({
 				case '1panel-site':
 					config.push(
 						...[
-							useFormInput($t('站点ID'), 'site_id', {
+							useFormInput($t('t_6_1747280809615'), 'site_id', {
 								placeholder: $t('t_24_1745735766826'),
 								onInput: (val: string) => (param.value.site_id = val.trim()),
 							}),
@@ -196,7 +196,7 @@ export default defineComponent({
 				case 'aliyun-cdn':
 					config.push(
 						...[
-							useFormInput($t('域名'), 'domain', {
+							useFormInput($t('t_17_1745227838561'), 'domain', {
 								placeholder: $t('t_0_1744958839535'),
 								onInput: (val: string) => (param.value.domain = val.trim()),
 							}),
@@ -207,7 +207,7 @@ export default defineComponent({
 				case 'aliyun-oss':
 					config.push(
 						...[
-							useFormInput($t('域名'), 'domain', {
+							useFormInput($t('t_17_1745227838561'), 'domain', {
 								placeholder: $t('t_0_1744958839535'),
 								onInput: (val: string) => (param.value.domain = val.trim()),
 							}),
@@ -215,7 +215,7 @@ export default defineComponent({
 					)
 					config.push(
 						...[
-							useFormInput($t('区域'), 'region', {
+							useFormInput($t('t_7_1747280808936'), 'region', {
 								placeholder: $t('t_25_1745735766651'),
 								onInput: (val: string) => (param.value.region = val.trim()),
 							}),
@@ -223,7 +223,7 @@ export default defineComponent({
 					)
 					config.push(
 						...[
-							useFormInput($t('存储桶'), 'bucket', {
+							useFormInput($t('t_8_1747280809382'), 'bucket', {
 								placeholder: $t('t_26_1745735767144'),
 								onInput: (val: string) => (param.value.bucket = val.trim()),
 							}),
@@ -236,16 +236,16 @@ export default defineComponent({
 				type: 'custom' as const,
 				render: () => {
 					return (
-						<NFormItem label={$t('重复部署')} path="skip">
-							<NText>{$t('当与上次部署的证书相同且上次部署成功时')}</NText>
+						<NFormItem label={$t('t_9_1747280810169')} path="skip">
+							<NText>{$t('t_10_1747280816952')}</NText>
 							<NSwitch
 								v-model:value={param.value.skip}
 								checkedValue={1}
 								uncheckedValue={0}
 								class="mx-[.5rem] "
-								v-slots={{ checked: () => $t('跳过'), unchecked: () => $t('不跳过') }}
+								v-slots={{ checked: () => $t('t_11_1747280809178'), unchecked: () => $t('t_12_1747280809893') }}
 							/>
-							<NText>{$t('重新部署')}</NText>
+							<NText>{$t('t_13_1747280810369')}</NText>
 						</NFormItem>
 					)
 				},
@@ -362,7 +362,7 @@ export default defineComponent({
 								<NInput
 									value={searchKeyword.value}
 									onUpdateValue={(val) => (searchKeyword.value = val)}
-									placeholder={$t('搜索部署类型')}
+									placeholder={$t('t_14_1747280811231')}
 									clearable
 								>
 									{{

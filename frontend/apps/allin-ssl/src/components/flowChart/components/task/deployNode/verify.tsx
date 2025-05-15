@@ -39,7 +39,7 @@ export default {
 	// btpanel相关字段
 	siteName: {
 		required: true,
-		message: $t('t_23_1745735766455'),
+		message: $t('请输入网址名'),
 		trigger: 'input',
 	},
 	// 1panel相关字段
