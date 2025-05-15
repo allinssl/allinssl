@@ -40,9 +40,9 @@ builds:
       - amd64
       - arm
       - arm64
-      - ppc64
     goarm:
       - "7"
     ignore:
       - goos: windows
         goarch: arm
+      - goarch: ppc64
