@@ -8,6 +8,7 @@ import {
 	NFormItemGi,
 	NGrid,
 	NInput,
+	NInputNumber,
 	NSelect,
 	NSpace,
 	NTag,
@@ -29,7 +30,18 @@ import { isEmail, isIp, isPort, isUrl } from '@baota/utils/business'
 import { $t } from '@locales/index'
 import { useStore } from './useStore'
 
-import type { AccessItem, AccessListParams, AddAccessParams, SshAccessConfig, UpdateAccessParams } from '@/types/access'
+import type {
+	AccessItem,
+	AccessListParams,
+	AddAccessParams,
+	AliyunAccessConfig,
+	CloudflareAccessConfig,
+	HuaWeiCloudAccessConfig,
+	PanelAccessConfig,
+	SshAccessConfig,
+	TencentCloudAccessConfig,
+	UpdateAccessParams,
+} from '@/types/access'
 import type { FormConfig } from '@baota/naive-ui/types/form'
 
 import ApiManageForm from './components/apiManageForm'
@@ -284,6 +296,7 @@ export const useApiFormController = (props: { data: AccessItem }) => {
 						const mapTips = {
 							btpanel: $t('t_2_1745317314362'),
 							btwaf: $t('t_0_1747271295174'),
+							safeline: $t('t_0_1747300383756'),
 						}
 						return callback(new Error(mapTips[param.value.type as keyof typeof mapTips]))
 					}
@@ -297,7 +310,8 @@ export const useApiFormController = (props: { data: AccessItem }) => {
 						const mapTips = {
 							cloudflare: $t('t_0_1747042966820'),
 							btpanel: $t('t_1_1747042969705'),
-							btwaf: $t('t_1_1747271295484'),
+							btwaf: $t('t_1_1747300384579'),
+							safeline: $t('t_2_1747300385222'),
 						}
 						return callback(new Error(mapTips[param.value.type as keyof typeof mapTips]))
 					}
@@ -408,10 +422,13 @@ export const useApiFormController = (props: { data: AccessItem }) => {
 						return (
 							<NGrid cols={24} xGap={4}>
 								<NFormItemGi label={$t('t_1_1745833931535')} span={16} path="config.host">
-									<NInput v-model:value={(param.value.config as SshAccessConfig).host} />
+									<NInput
+										v-model:value={(param.value.config as SshAccessConfig).host}
+										onInput={(val: string) => ((param.value.config as SshAccessConfig).host = val.trim())}
+									/>
 								</NFormItemGi>
 								<NFormItemGi label={$t('t_2_1745833931404')} span={8} path="config.port">
-									<NInput v-model:value={(param.value.config as SshAccessConfig).port} />
+									<NInputNumber v-model:value={(param.value.config as SshAccessConfig).port} showButton={false} />
 								</NFormItemGi>
 							</NGrid>
 						)
@@ -434,8 +451,12 @@ export const useApiFormController = (props: { data: AccessItem }) => {
 			case 'btwaf':
 			case 'safeline':
 				items.push(
-					useFormInput(typeUrlMap.get(param.value.type) || '', 'config.url'),
-					useFormInput($t('t_55_1745289355715'), 'config.api_key'),
+					useFormInput(typeUrlMap.get(param.value.type) || '', 'config.url', {
+						onInput: (val: string) => ((param.value.config as PanelAccessConfig).url = val.trim()),
+					}),
+					useFormInput($t('t_55_1745289355715'), 'config.api_key', {
+						onInput: (val: string) => ((param.value.config as PanelAccessConfig).api_key = val.trim()),
+					}),
 					useFormSwitch(
 						$t('t_3_1746667592270'),
 						'config.ignore_ssl',
@@ -449,19 +470,44 @@ export const useApiFormController = (props: { data: AccessItem }) => {
 				break
 			case 'aliyun':
 				items.push(
-					useFormInput('AccessKeyId', 'config.access_key'),
-					useFormInput('AccessKeySecret', 'config.access_secret'),
+					useFormInput('AccessKeyId', 'config.access_key_id', {
+						onInput: (val: string) => ((param.value.config as AliyunAccessConfig).access_key_id = val.trim()),
+					}),
+					useFormInput('AccessKeySecret', 'config.access_key_secret', {
+						onInput: (val: string) => ((param.value.config as AliyunAccessConfig).access_key_secret = val.trim()),
+					}),
 				)
 				break
 			case 'tencentcloud':
-				items.push(useFormInput('SecretId', 'config.secret_id'), useFormInput('SecretKey', 'config.secret_key'))
+				items.push(
+					useFormInput('SecretId', 'config.secret_id', {
+						onInput: (val: string) => ((param.value.config as TencentCloudAccessConfig).secret_id = val.trim()),
+					}),
+					useFormInput('SecretKey', 'config.secret_key', {
+						onInput: (val: string) => ((param.value.config as TencentCloudAccessConfig).secret_key = val.trim()),
+					}),
+				)
 				break
 			case 'huaweicloud':
 			case 'baidu':
-				items.push(useFormInput('AccessKey', 'config.access_key'), useFormInput('SecretKey', 'config.secret_key'))
+				items.push(
+					useFormInput('AccessKey', 'config.access_key', {
+						onInput: (val: string) => ((param.value.config as HuaWeiCloudAccessConfig).access_key = val.trim()),
+					}),
+					useFormInput('SecretKey', 'config.secret_key', {
+						onInput: (val: string) => ((param.value.config as HuaWeiCloudAccessConfig).secret_key = val.trim()),
+					}),
+				)
 				break
 			case 'cloudflare':
-				items.push(useFormInput('邮箱', 'config.email'), useFormInput('APIKey', 'config.api_key'))
+				items.push(
+					useFormInput('邮箱', 'config.email', {
+						onInput: (val: string) => ((param.value.config as CloudflareAccessConfig).email = val.trim()),
+					}),
+					useFormInput('APIKey', 'config.api_key', {
+						onInput: (val: string) => ((param.value.config as CloudflareAccessConfig).api_key = val.trim()),
+					}),
+				)
 				break
 			default:
 				break

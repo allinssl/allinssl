@@ -1,0 +1,1 @@
+import{$ as r}from"./main-CTqwUdcf.js";const e={key:{required:!0,trigger:["input","blur","focus"],validator:(e,i)=>new Promise(((e,o)=>{i?e():o(new Error(r("t_38_1745735769521")))}))},cert:{required:!0,trigger:["input","blur","focus"],validator:(e,i)=>new Promise(((e,o)=>{i?e():o(new Error(r("t_40_1745735815317")))}))}};export{e as r};

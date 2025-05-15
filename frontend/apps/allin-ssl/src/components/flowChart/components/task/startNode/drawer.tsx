@@ -161,7 +161,19 @@ export default defineComponent({
 
 		// 更新参数的函数
 		const updateParamValue = (updates: StartNodeConfig) => {
-			param.value = { ...updates }
+			let newParams = { ...updates }
+			if (newParams.exec_type === 'manual') {
+				// 小时随机 1-6
+				const randomHour = Math.floor(Math.random() * 6) + 1
+				// 分钟每5分钟随机，0-55
+				const randomMinute = Math.floor(Math.random() * 12) * 5
+				newParams = {
+					...newParams,
+					hour: randomHour,
+					minute: randomMinute,
+				}
+				param.value = newParams
+			}
 		}
 
 		// 监听执行类型变化

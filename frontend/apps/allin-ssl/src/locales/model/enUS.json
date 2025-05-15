@@ -1,6 +1,4 @@
 {
-  "t_0_1747296173751": "Website name",
-  "t_1_1747296175494": "Please enter the website name",
   "t_0_1744098811152": "Warning: You have entered an unknown area, the page you are visiting does not exist, please click the button to return to the homepage.",
   "t_1_1744098801860": "Return Home",
   "t_2_1744098804908": "Safety Tip: If you think this is an error, please contact the administrator immediately",
@@ -534,5 +532,12 @@
   "t_11_1747280809178": "Skip",
   "t_12_1747280809893": "Do not skip",
   "t_13_1747280810369": "Re-deployment",
-  "t_14_1747280811231": "Search deployment type"
+  "t_14_1747280811231": "Search deployment type",
+  "t_0_1747296173751": "Website name",
+  "t_1_1747296175494": "Please enter the website name",
+  "t_0_1747298114839": "Leichi WAF Site",
+  "t_1_1747298114192": "Leichi WAF",
+  "t_0_1747300383756": "Leichi WAF - URL format error",
+  "t_1_1747300384579": "Please enter the correct BT-WAF API key",
+  "t_2_1747300385222": "Please enter the correct Leichi WAF-API key"
 }

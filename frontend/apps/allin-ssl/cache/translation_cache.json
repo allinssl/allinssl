@@ -9109,5 +9109,90 @@
       "arDZ": "الرجاء إدخال اسم الموقع"
     },
     "timestamp": "2025-05-15T08:02:55.496Z"
+  },
+  "雷池WAF站点": {
+    "text": "雷池WAF站点",
+    "key": "t_0_1747298114839",
+    "translations": {
+      "zhCN": "雷池WAF站点",
+      "zhTW": "雷池WAF站點",
+      "enUS": "Leichi WAF Site",
+      "jaJP": "雷池WAFサイト",
+      "koKR": "레이치 WAF 사이트",
+      "ruRU": "Сайт Leichi WAF",
+      "ptBR": "Site Leichi WAF",
+      "frFR": "Site Leichi WAF",
+      "esAR": "Sitio Leichi WAF",
+      "arDZ": "موقع Leichi WAF"
+    },
+    "timestamp": "2025-05-15T08:35:14.839Z"
+  },
+  "雷池WAF": {
+    "text": "雷池WAF",
+    "key": "t_1_1747298114192",
+    "translations": {
+      "zhCN": "雷池WAF",
+      "zhTW": "雷池WAF",
+      "enUS": "Leichi WAF",
+      "jaJP": "雷池WAF",
+      "koKR": "레이치 WAF",
+      "ruRU": "Лэйчи WAF",
+      "ptBR": "Leichi WAF",
+      "frFR": "Leichi WAF",
+      "esAR": "Leichi WAF",
+      "arDZ": "ليتشي WAF"
+    },
+    "timestamp": "2025-05-15T08:35:14.841Z"
+  },
+  "雷池WAF-URL地址格式错误": {
+    "text": "雷池WAF-URL地址格式错误",
+    "key": "t_0_1747300383756",
+    "translations": {
+      "zhCN": "雷池WAF-URL地址格式错误",
+      "zhTW": "雷池WAF-URL地址格式錯誤",
+      "enUS": "Leichi WAF - URL format error",
+      "jaJP": "雷池WAF - URL形式エラー",
+      "koKR": "레츠 WAF - URL 형식 오류",
+      "ruRU": "Leichi WAF - ошибка формата URL",
+      "ptBR": "Leichi WAF - erro de formato de URL",
+      "frFR": "Leichi WAF - erreur de format d'URL",
+      "esAR": "Leichi WAF - error de formato de URL",
+      "arDZ": "ليتشي WAF - خطأ في تنسيق عنوان URL"
+    },
+    "timestamp": "2025-05-15T09:13:05.223Z"
+  },
+  "请输入正确的宝塔WAF-API密钥": {
+    "text": "请输入正确的宝塔WAF-API密钥",
+    "key": "t_1_1747300384579",
+    "translations": {
+      "zhCN": "请输入正确的宝塔WAF-API密钥",
+      "zhTW": "請輸入正確的寶塔WAF-API密鑰",
+      "enUS": "Please enter the correct BT-WAF API key",
+      "jaJP": "正しいBT-WAF APIキーを入力してください",
+      "koKR": "올바른 BT-WAF API 키를 입력하십시오",
+      "ruRU": "Пожалуйста, введите правильный API-ключ BT-WAF",
+      "ptBR": "Por favor, insira a chave de API correta do BT-WAF",
+      "frFR": "Veuillez entrer la clé API correcte de BT-WAF",
+      "esAR": "Por favor, ingrese la clave API correcta de BT-WAF",
+      "arDZ": "الرجاء إدخال مفتاح BT-WAF الصحيح API"
+    },
+    "timestamp": "2025-05-15T09:13:05.223Z"
+  },
+  "请输入正确的雷池WAF-API密钥": {
+    "text": "请输入正确的雷池WAF-API密钥",
+    "key": "t_2_1747300385222",
+    "translations": {
+      "zhCN": "请输入正确的雷池WAF-API密钥",
+      "zhTW": "請輸入正確的雷池WAF-API密鑰",
+      "enUS": "Please enter the correct Leichi WAF-API key",
+      "jaJP": "正しい雷池WAF-APIキーを入力してください",
+      "koKR": "올바른 레이치 WAF-API 키를 입력하세요",
+      "ruRU": "Пожалуйста, введите правильный ключ Leichi WAF-API",
+      "ptBR": "Por favor, insira a chave correta do Leichi WAF-API",
+      "frFR": "Veuillez saisir la clé correcte de Leichi WAF-API",
+      "esAR": "Por favor, ingrese la clave correcta de Leichi WAF-API",
+      "arDZ": "الرجاء إدخال مفتاح Leichi WAF-API الصحيح"
+    },
+    "timestamp": "2025-05-15T09:13:05.223Z"
   }
 }

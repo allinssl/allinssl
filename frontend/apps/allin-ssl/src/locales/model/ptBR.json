@@ -1,6 +1,4 @@
 {
-  "t_0_1747296173751": "Nome do site",
-  "t_1_1747296175494": "Por favor, insira o nome do site",
   "t_0_1744098811152": "Aviso: Você entrou em uma área desconhecida, a página que você está visitando não existe, por favor, clique no botão para voltar para a página inicial.",
   "t_1_1744098801860": "Voltar para a homepage",
   "t_2_1744098804908": "Dica de Segurança: Se você acha que isso é um erro, entre em contato com o administrador imediatamente",
@@ -534,5 +532,12 @@
   "t_11_1747280809178": "Pular",
   "t_12_1747280809893": "Não pular",
   "t_13_1747280810369": "Reimplantação",
-  "t_14_1747280811231": "Pesquisar tipo de implantação"
+  "t_14_1747280811231": "Pesquisar tipo de implantação",
+  "t_0_1747296173751": "Nome do site",
+  "t_1_1747296175494": "Por favor, insira o nome do site",
+  "t_0_1747298114839": "Site Leichi WAF",
+  "t_1_1747298114192": "Leichi WAF",
+  "t_0_1747300383756": "Leichi WAF - erro de formato de URL",
+  "t_1_1747300384579": "Por favor, insira a chave de API correta do BT-WAF",
+  "t_2_1747300385222": "Por favor, insira a chave correta do Leichi WAF-API"
 }

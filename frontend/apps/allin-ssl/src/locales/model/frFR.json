@@ -1,6 +1,4 @@
 {
-  "t_0_1747296173751": "Nom du site",
-  "t_1_1747296175494": "Veuillez entrer le nom du site Web",
   "t_0_1744098811152": "Avertissement : Vous avez entré dans une zone inconnue, la page que vous visitez n'existe pas, veuillez cliquer sur le bouton pour revenir à la page d'accueil.",
   "t_1_1744098801860": "Retour à l'accueil",
   "t_2_1744098804908": "Avis de sécurité : Si vous pensez que c'est une erreur, veuillez contacter l'administrateur immédiatement",
@@ -534,5 +532,12 @@
   "t_11_1747280809178": "Passer",
   "t_12_1747280809893": "Ne pas sauter",
   "t_13_1747280810369": "Redéploiement",
-  "t_14_1747280811231": "Rechercher le type de déploiement"
+  "t_14_1747280811231": "Rechercher le type de déploiement",
+  "t_0_1747296173751": "Nom du site",
+  "t_1_1747296175494": "Veuillez entrer le nom du site Web",
+  "t_0_1747298114839": "Site Leichi WAF",
+  "t_1_1747298114192": "Leichi WAF",
+  "t_0_1747300383756": "Leichi WAF - erreur de format d'URL",
+  "t_1_1747300384579": "Veuillez entrer la clé API correcte de BT-WAF",
+  "t_2_1747300385222": "Veuillez saisir la clé correcte de Leichi WAF-API"
 }

@@ -126,7 +126,7 @@ export default defineComponent({
 		// 错误处理
 		const { handleError } = useError()
 		// 获取DNS提供商
-		const { fetchDnsProvider, dnsProvider } = useStore()
+		const { fetchDnsProvider, resetDnsProvider, dnsProvider } = useStore()
 		// 表单的值
 		const param = ref<DnsProviderOption>({
 			label: '',
@@ -258,7 +258,6 @@ export default defineComponent({
 		watch(
 			() => props.value,
 			() => {
-				// loadDnsProviders(props.type)
 				handleUpdateValue(props.value)
 			},
 			{ immediate: true },
@@ -266,6 +265,10 @@ export default defineComponent({
 
 		onMounted(() => {
 			loadDnsProviders(props.type)
+		})
+
+		onUnmounted(() => {
+			resetDnsProvider()
 		})
 
 		return () => (

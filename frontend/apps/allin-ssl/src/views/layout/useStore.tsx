@@ -190,8 +190,16 @@ export const useLayoutStore = defineStore('layout-store', () => {
 					type: item.type,
 				})) || []
 		} catch (error) {
+			dnsProvider.value = []
 			handleError(error)
 		}
+	}
+
+	/**
+	 * @description 重置DNS提供商
+	 */
+	const resetDnsProvider = (): void => {
+		dnsProvider.value = []
 	}
 
 	// ==============================
@@ -218,6 +226,7 @@ export const useLayoutStore = defineStore('layout-store', () => {
 		handleExpand,
 		fetchNotifyProvider,
 		fetchDnsProvider,
+		resetDnsProvider,
 	}
 })
 
