@@ -9279,5 +9279,22 @@
       "arDZ": "الرجاء إدخال SecretKey لمحرك بركان"
     },
     "timestamp": "2025-05-16T03:20:03.108Z"
+  },
+  "宝塔docker站点": {
+    "text": "宝塔docker站点",
+    "key": "t_0_1747367069267",
+    "translations": {
+      "zhCN": "宝塔docker站点",
+      "zhTW": "寶塔docker站點",
+      "enUS": "Pagoda docker site",
+      "jaJP": "Pagoda dockerサイト",
+      "koKR": "Pagoda docker 사이트",
+      "ruRU": "Сайт Pagoda docker",
+      "ptBR": "Site Pagoda docker",
+      "frFR": "Site Pagoda docker",
+      "esAR": "Sitio Pagoda docker",
+      "arDZ": "موقع Pagoda docker"
+    },
+    "timestamp": "2025-05-16T03:44:29.267Z"
   }
 }

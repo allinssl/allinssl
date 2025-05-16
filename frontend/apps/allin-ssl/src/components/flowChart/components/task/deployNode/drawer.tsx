@@ -71,6 +71,7 @@ export default defineComponent({
 			{ label: $t('t_10_1745735765165'), value: 'btpanel', category: 'btpanel', icon: 'btpanel' },
 			{ label: $t('t_11_1745735766456'), value: 'btpanel-site', category: 'btpanel', icon: 'btpanel' },
 			{ label: $t('t_0_1747215751189'), value: 'btwaf-site', category: 'btpanel', icon: 'btpanel' },
+			{ label: $t('t_0_1747367069267'), value: 'btpanel-dockersite', category: 'btpanel', icon: 'btpanel' },
 			{ label: $t('t_12_1745735765571'), value: '1panel', category: '1panel', icon: '1panel' },
 			{ label: $t('t_13_1745735766084'), value: '1panel-site', category: '1panel', icon: '1panel' },
 			{ label: $t('t_14_1745735766121'), value: 'tencentcloud-cdn', category: 'tencentcloud', icon: 'tencentcloud' },
@@ -175,6 +176,7 @@ export default defineComponent({
 					break
 				case 'btwaf-site':
 				case 'btpanel-site':
+				case 'btpanel-dockersite':
 				case 'safeline-site':
 					config.push(
 						...[
