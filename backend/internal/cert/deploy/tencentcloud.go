@@ -111,7 +111,7 @@ func DeployToTX(cfg map[string]any) error {
 		if !ok {
 			return fmt.Errorf("参数错误：region")
 		}
-		bucket, ok := cfg["domain"].(string)
+		bucket, ok := cfg["bucket"].(string)
 		if !ok {
 			return fmt.Errorf("参数错误：bucket")
 		}
