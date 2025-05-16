@@ -1,7 +1,11 @@
-# ALLinSSL - SSL证书全流程管理工具 🔒
+# All in SSL - SSL证书全流程管理工具 🔒
 
-![GitHub License](https://img.shields.io/github/license/allinssl/allinssl)
+[![GitHub License](https://img.shields.io/github/license/allinssl/allinssl)](https://github.com/allinssl/allinssl?tab=readme-ov-file#AGPL-3.0-1-ov-file)
 ![GitHub Stars](https://img.shields.io/github/stars/allinssl/allinssl?style=social)
+[![GitHub Issues](https://img.shields.io/github/issues/allinssl/allinssl)](https://github.com/allinssl/allinssl/issues)
+[![GitHub Release](https://img.shields.io/github/v/release/allinssl/allinssl)](https://github.com/allinssl/allinssl/releases)
+[![Docker Pulls](https://img.shields.io/docker/pulls/allinssl/allinssl)](https://hub.docker.com/r/allinssl/allinssl)
+
 
 > 🚀 一站式SSL证书生命周期管理解决方案 | 支持Let's Encrypt | 多平台部署 | 自动化运维
 
@@ -35,7 +39,14 @@ curl -sSO http://download.allinssl.com/install_allinssl.sh && bash install_allin
 
 ### Docker安装
 ```bash 
-docker run -d --name allinssl -p 7979:8888 -v /www/allinssl/data:/www/allinssl/data allinssl/allinssl:latest
+docker run -itd \
+  --name allinssl \
+  -p 7979:8888 \
+  -v /www/allinssl/data:/www/allinssl/data \
+  -e ALLINSSL_USER=allinssl \
+  -e ALLINSSL_PWD=allinssldocker \
+  -e ALLINSSL_URL=allinssl \
+  allinssl/allinssl:latest
 ```
 
 ### 编译安装
@@ -127,8 +138,33 @@ allinssl 17: 卸载ALLinSSL 🗑️
 - 邮箱：support@allinssl.com 📧
 - 问题反馈：[GitHub Issues](https://github.com/allinssl/allinssl/issues)
 
+## 🙏 致谢
+**感谢在SSL证书管理领域做出贡献的开源项目的社区和服务商：**
+- [Certbot](https://certbot.eff.org/)
+- [acme.sh](https://github.com/acmesh-official/acme.sh)
+- [Caddy](https://caddyserver.com/)
+- [lego](https://github.com/go-acme/lego)
+- [Let's Encrypt](https://letsencrypt.org/)
+- [certimate](https://github.com/usual2970/certimate)
+- [certd](https://github.com/certd/certd)
+- [SSL.com](https://www.ssl.com/)
+- [Racent](https://www.racent.com/)
+- [TrustAsia](https://www.trustasia.com/)
+- [阿里云](https://www.aliyun.com/)
+- [腾讯云 DNSPod](https://cloud.tencent.com/)
+- [Cloudflare](https://www.cloudflare.com/)
+- [宝塔面板](https://www.bt.cn/)
+
+**感谢以下用户对本项目的支持和贡献：**
+- [@寒雨馨](https://www.hanyuxin.cn/)
+
+
 ## 📜 许可证
 本项目采用 [AGPL-3.0 license](./LICENSE) 开源协议
+
+## 🌟Star 历史
+
+[![Star History Chart](https://api.star-history.com/svg?repos=allinssl/allinssl&type=Date)](https://www.star-history.com/#allinssl/allinssl&Date)
 
 ---
 
