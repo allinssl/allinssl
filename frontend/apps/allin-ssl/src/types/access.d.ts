@@ -44,6 +44,8 @@ export interface AddAccessParams<
 		| HuaWeiCloudAccessConfig
 		| CloudflareAccessConfig
 		| BaiduCloudAccessConfig
+		| VolcengineAccessConfig
+		| WestcnAccessConfig
 		| BtWafSiteAccessConfig,
 > {
 	name: string
@@ -61,7 +63,9 @@ export interface UpdateAccessParams<
 		| HuaWeiCloudAccessConfig
 		| CloudflareAccessConfig
 		| BaiduCloudAccessConfig
-		| BtWafSiteAccessConfig,
+		| BtWafSiteAccessConfig
+		| VolcengineAccessConfig
+		| WestcnAccessConfig,
 > extends AddAccessParams<T> {
 	id: string
 }
@@ -116,12 +120,26 @@ export interface HuaWeiCloudAccessConfig {
  * 百度云授权配置
  */
 export interface BaiduCloudAccessConfig extends HuaWeiCloudAccessConfig {}
+
+/**
+ * 火山引擎授权配置
+ */
+export interface VolcengineAccessConfig extends HuaWeiCloudAccessConfig {}
+
 /**
  *  cloudflare 授权配置
  */
 export interface CloudflareAccessConfig {
 	api_key: string
 	email: string
+}
+
+/**
+ * 西部数码授权配置
+ */
+export interface WestcnAccessConfig {
+	username: string
+	password: string
 }
 
 

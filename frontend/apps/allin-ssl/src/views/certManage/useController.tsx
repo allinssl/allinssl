@@ -67,7 +67,6 @@ export const useController = () => {
 					[endDay > 30, 'success', $t('t_0_1745999035681', { days: row.end_day })],
 				] as [boolean, 'success' | 'error' | 'warning' | 'default' | 'info' | 'primary', string][]
 				const [_, type, text] = config.find((item) => item[0]) ?? ['default', 'error', '获取失败']
-				console.log(config)
 				return (
 					<NTag type={type} size="small">
 						{text}
@@ -110,6 +109,25 @@ export const useController = () => {
 			),
 		},
 	]
+
+	/**
+	 * 根据证书的到期天数确定行的 CSS 类名。
+	 * @param row 当前行的数据对象，类型为 CertItem。
+	 * @returns 返回一个字符串，表示行的 CSS 类名。
+	 *          - 'bg-red-500/10'：如果证书已过期 (endDay <= 0)。
+	 *          - 'bg-orange-500/10'：如果证书将在30天内过期 (0 < endDay < 30)。
+	 *          - 空字符串：其他情况。
+	 */
+	const getRowClassName = (row: CertItem): string => {
+		const endDay = Number(row.end_day)
+		if (endDay <= 0) {
+			return 'bg-red-500/10' // Tailwind class for light red background
+		}
+		if (endDay < 30) {
+			return 'bg-orange-500/10' // Tailwind class for light orange background
+		}
+		return '' // 默认情况下没有额外的类
+	}
 
 	// 表格实例
 	const {
@@ -156,7 +174,6 @@ export const useController = () => {
 		})
 	}
 
-
 	/**
 	 * @description 删除证书
 	 * @param {CertItem} cert - 证书对象
@@ -181,6 +198,7 @@ export const useController = () => {
 		fetch,
 		CertTable,
 		CertTablePage,
+		getRowClassName,
 		param,
 		data,
 		openUploadModal,
@@ -226,3 +244,4 @@ export const useUploadCertController = () => {
 		fetch,
 	}
 }
+

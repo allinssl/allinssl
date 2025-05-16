@@ -41,6 +41,7 @@ import type {
 	SshAccessConfig,
 	TencentCloudAccessConfig,
 	UpdateAccessParams,
+	WestcnAccessConfig,
 } from '@/types/access'
 import type { FormConfig } from '@baota/naive-ui/types/form'
 
@@ -278,10 +279,23 @@ export const useApiFormController = (props: { data: AccessItem }) => {
 				trigger: 'input',
 				message: $t('t_3_1744164839524'),
 			},
-			password: {
+			username: {
 				required: true,
-				message: $t('t_4_1744164840458'),
+				message: $t('t_0_1747365600180'),
 				trigger: 'input',
+			},
+			password: {
+				trigger: 'input',
+				validator: (rule: FormItemRule, value: string, callback: (error?: Error) => void) => {
+					if (!value) {
+						const mapTips = {
+							westcn: $t('t_1_1747365603108'),
+							ssh: $t('t_2_1747365599051'),
+						}
+						return callback(new Error(mapTips[param.value.type as keyof typeof mapTips]))
+					}
+					callback()
+				},
 			},
 			key: {
 				required: true,
@@ -333,16 +347,14 @@ export const useApiFormController = (props: { data: AccessItem }) => {
 				message: $t('t_6_1745317313383'),
 				trigger: 'input',
 			},
-
 			access_key: {
-				required: true,
-				message: $t('t_4_1747042966254'),
 				trigger: 'input',
 				validator: (rule: FormItemRule, value: string, callback: (error?: Error) => void) => {
-					if (!value.length) {
+					if (!value) {
 						const mapTips = {
 							huawei: $t('t_2_1747271295877'),
 							baidu: $t('t_3_1747271294475'),
+							volcengine: $t('t_3_1747365600828'),
 						}
 						return callback(new Error(mapTips[param.value.type as keyof typeof mapTips]))
 					}
@@ -357,6 +369,7 @@ export const useApiFormController = (props: { data: AccessItem }) => {
 							tencentcloud: $t('t_2_1747042967277'),
 							huawei: $t('t_3_1747042967608'),
 							baidu: $t('t_4_1747271294621'),
+							volcengine: $t('t_4_1747365600137'),
 						}
 						return callback(new Error(mapTips[param.value.type as keyof typeof mapTips]))
 					}
@@ -490,6 +503,7 @@ export const useApiFormController = (props: { data: AccessItem }) => {
 				break
 			case 'huaweicloud':
 			case 'baidu':
+			case 'volcengine':
 				items.push(
 					useFormInput('AccessKey', 'config.access_key', {
 						onInput: (val: string) => ((param.value.config as HuaWeiCloudAccessConfig).access_key = val.trim()),
@@ -506,6 +520,16 @@ export const useApiFormController = (props: { data: AccessItem }) => {
 					}),
 					useFormInput('APIKey', 'config.api_key', {
 						onInput: (val: string) => ((param.value.config as CloudflareAccessConfig).api_key = val.trim()),
+					}),
+				)
+				break
+			case 'westcn':
+				items.push(
+					useFormInput('Username', 'config.username', {
+						onInput: (val: string) => ((param.value.config as WestcnAccessConfig).username = val.trim()),
+					}),
+					useFormInput('Password', 'config.password', {
+						onInput: (val: string) => ((param.value.config as WestcnAccessConfig).password = val.trim()),
 					}),
 				)
 				break

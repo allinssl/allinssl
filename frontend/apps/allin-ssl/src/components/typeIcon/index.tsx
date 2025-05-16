@@ -26,6 +26,8 @@ const types = {
 	'aliyun-oss': '阿里云OSS',
 	'1panel-site': '1Panel网站',
 	'btpanel-site': '宝塔面板网站',
+	volcengine: '火山引擎',
+	westcn: '西部数码',
 }
 
 export const AuthApiTypeIcon = defineComponent({
@@ -82,6 +84,8 @@ export const AuthApiTypeIcon = defineComponent({
 				'btpanel-site': 'btpanel',
 				baidu: 'baidu',
 				safeline: 'safeline',
+				volcengine: 'volcengine',
+				westcn: 'westcn',
 			}
 
 			// 返回匹配的图标路径或默认图标

@@ -9194,5 +9194,90 @@
       "arDZ": "الرجاء إدخال مفتاح Leichi WAF-API الصحيح"
     },
     "timestamp": "2025-05-15T09:13:05.223Z"
+  },
+  "请输入西部数码的Username": {
+    "text": "请输入西部数码的Username",
+    "key": "t_0_1747365600180",
+    "translations": {
+      "zhCN": "请输入西部数码的用户名",
+      "zhTW": "請輸入西部數碼的用戶名",
+      "enUS": "Please enter the Western Digital username",
+      "jaJP": "Western Digitalのユーザー名を入力してください",
+      "koKR": "Western Digital 사용자 이름을 입력하세요",
+      "ruRU": "Пожалуйста, введите имя пользователя Western Digital",
+      "ptBR": "Por favor, insira o nome de usuário da Western Digital",
+      "frFR": "Veuillez saisir le nom d'utilisateur Western Digital",
+      "esAR": "Por favor, ingrese el nombre de usuario de Western Digital",
+      "arDZ": "الرجاء إدخال اسم المستخدم Western Digital"
+    },
+    "timestamp": "2025-05-16T03:20:03.108Z"
+  },
+  "请输入西部数码的Password": {
+    "text": "请输入西部数码的Password",
+    "key": "t_1_1747365603108",
+    "translations": {
+      "zhCN": "请输入西部数码的密码",
+      "zhTW": "請輸入西部數碼的密碼",
+      "enUS": "Please enter the Western Digital password",
+      "jaJP": "ウェスタンデジタルのパスワードを入力してください",
+      "koKR": "웨스턴 디지털의 비밀번호를 입력하세요",
+      "ruRU": "Пожалуйста, введите пароль Western Digital",
+      "ptBR": "Por favor, insira a senha da Western Digital",
+      "frFR": "Veuillez entrer le mot de passe de Western Digital",
+      "esAR": "Por favor, ingrese la contraseña de Western Digital",
+      "arDZ": "الرجاء إدخال كلمة مرور ويسترن ديجيتال"
+    },
+    "timestamp": "2025-05-16T03:20:03.108Z"
+  },
+  "请输入SSH的Password": {
+    "text": "请输入SSH的Password",
+    "key": "t_2_1747365599051",
+    "translations": {
+      "zhCN": "请输入SSH的Password",
+      "zhTW": "請輸入SSH的Password",
+      "enUS": "Please enter the SSH Password",
+      "jaJP": "SSHのパスワードを入力してください",
+      "koKR": "SSH 비밀번호를 입력하세요",
+      "ruRU": "Пожалуйста, введите пароль SSH",
+      "ptBR": "Por favor, insira a senha SSH",
+      "frFR": "Veuillez entrer le mot de passe SSH",
+      "esAR": "Por favor ingrese la contraseña SSH",
+      "arDZ": "يرجى إدخال كلمة مرور SSH"
+    },
+    "timestamp": "2025-05-16T03:20:03.108Z"
+  },
+  "请输入火山引擎的AccessKey": {
+    "text": "请输入火山引擎的AccessKey",
+    "key": "t_3_1747365600828",
+    "translations": {
+      "zhCN": "请输入火山引擎的AccessKey",
+      "zhTW": "請輸入火山引擎的AccessKey",
+      "enUS": "Please enter the AccessKey of Volcano Engine",
+      "jaJP": "ボルケーノエンジンのAccessKeyを入力してください",
+      "koKR": "볼케이노 엔진의 AccessKey를 입력하세요",
+      "ruRU": "Пожалуйста, введите AccessKey Volcano Engine",
+      "ptBR": "Por favor, insira a AccessKey do Volcano Engine",
+      "frFR": "Veuillez saisir la clé d'accès du moteur Volcano",
+      "esAR": "Por favor ingrese la AccessKey de Volcano Engine",
+      "arDZ": "يرجى إدخال مفتاح الوصول AccessKey لمحرك Volcano"
+    },
+    "timestamp": "2025-05-16T03:20:03.108Z"
+  },
+  "请输入火山引擎的SecretKey": {
+    "text": "请输入火山引擎的SecretKey",
+    "key": "t_4_1747365600137",
+    "translations": {
+      "zhCN": "请输入火山引擎的SecretKey",
+      "zhTW": "請輸入火山引擎的SecretKey",
+      "enUS": "Please enter the SecretKey of Volcano Engine",
+      "jaJP": "火山エンジンのSecretKeyを入力してください",
+      "koKR": "볼케이노 엔진의 SecretKey를 입력하세요",
+      "ruRU": "Введите SecretKey Volcano Engine",
+      "ptBR": "Por favor, insira o SecretKey do Volcano Engine",
+      "frFR": "Veuillez entrer le SecretKey de Volcano Engine",
+      "esAR": "Por favor ingrese el SecretKey de Volcano Engine",
+      "arDZ": "الرجاء إدخال SecretKey لمحرك بركان"
+    },
+    "timestamp": "2025-05-16T03:20:03.108Z"
   }
 }

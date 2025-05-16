@@ -16,6 +16,7 @@ export const useCertManageStore = defineStore('cert-manage-store', () => {
 	// -------------------- 状态定义 --------------------
 	// 上传证书表单
 	const uploadForm = ref<UploadCertParams>({
+		cert_id: '',
 		cert: '',
 		key: '',
 	})
@@ -48,7 +49,6 @@ export const useCertManageStore = defineStore('cert-manage-store', () => {
 	 */
 	const downloadExistingCert = (id: string) => {
 		try {
-			// const { data } = await downloadCert({ id })
 			const link = document.createElement('a')
 			link.href = '/v1/cert/download?id=' + id
 			link.target = '_blank'

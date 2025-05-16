@@ -70,3 +70,8 @@ img {
 	flex: 1 !important;
 }
 /* end */
+
+
+.n-data-table .n-data-table-td {
+	background-color: transparent !important;
+}
