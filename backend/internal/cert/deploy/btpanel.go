@@ -159,3 +159,41 @@ func DeployBtSite(cfg map[string]any) error {
 	}
 	return nil
 }
+
+func DeployBtDockerSite(cfg map[string]any) error {
+	cert, ok := cfg["certificate"].(map[string]any)
+	if !ok {
+		return fmt.Errorf("证书不存在")
+	}
+	// 设置证书
+	keyPem, ok := cert["key"].(string)
+	if !ok {
+		return fmt.Errorf("证书错误：key")
+	}
+	certPem, ok := cert["cert"].(string)
+	if !ok {
+		return fmt.Errorf("证书错误：cert")
+	}
+	var providerID string
+	switch v := cfg["provider_id"].(type) {
+	case float64:
+		providerID = strconv.Itoa(int(v))
+	case string:
+		providerID = v
+	default:
+		return fmt.Errorf("参数错误：provider_id")
+	}
+	siteName, ok := cfg["siteName"].(string)
+	if !ok {
+		return fmt.Errorf("参数错误：siteName")
+	}
+	data := url.Values{}
+	data.Set("key", keyPem)
+	data.Set("csr", certPem)
+	data.Set("siteName", siteName)
+	_, err := RequestBt(&data, "POST", providerID, "mod/docker/com/set_ssl")
+	if err != nil {
+		return fmt.Errorf("证书部署失败: %v", err)
+	}
+	return nil
+}
