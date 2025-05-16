@@ -229,7 +229,8 @@ export interface DeployConfig<
 		| 'aliyun-cdn'
 		| 'aliyun-oss'
 		| 'safeline-site'
-		| 'safeline-panel',
+		| 'safeline-panel'
+		| 'btpanel-dockersite',
 > {
 	provider: T
 	provider_id: string
@@ -288,6 +289,11 @@ export interface DeploySafelineSiteConfig extends DeployBTPanelSiteConfig {
 	[key: string]: unknown
 }
 
+// 部署宝塔docker站点
+export interface DeployBTPanelDockerSiteConfig extends DeployBTPanelSiteConfig {
+	[key: string]: unknown
+}
+
 // 部署节点配置
 export type DeployNodeConfig = DeployConfig<
 	| DeploySSHConfig // 部署节点配置（ssh）
@@ -300,6 +306,7 @@ export type DeployNodeConfig = DeployConfig<
 	| DeployStorageConfig // 部署节点配置（腾讯云COS/阿里云OSS）
 	| DeploySafelineConfig // 部署节点配置（雷池WAF）
 	| DeploySafelineSiteConfig // 部署节点配置（雷池WAF站点）
+	| DeployBTPanelDockerSiteConfig // 部署节点配置（宝塔docker站点）
 >
 
 // 部署节点输入配置

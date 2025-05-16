@@ -1,9 +1,5 @@
 {
-  "t_0_1747365600180": "Por favor, insira o nome de usuário da Western Digital",
-  "t_1_1747365603108": "Por favor, insira a senha da Western Digital",
-  "t_2_1747365599051": "Por favor, insira a senha SSH",
-  "t_3_1747365600828": "Por favor, insira a AccessKey do Volcano Engine",
-  "t_4_1747365600137": "Por favor, insira o SecretKey do Volcano Engine",
+  "t_0_1747367069267": "Site Pagoda docker",
   "t_0_1744098811152": "Aviso: Você entrou em uma área desconhecida, a página que você está visitando não existe, por favor, clique no botão para voltar para a página inicial.",
   "t_1_1744098801860": "Voltar para a homepage",
   "t_2_1744098804908": "Dica de Segurança: Se você acha que isso é um erro, entre em contato com o administrador imediatamente",
@@ -544,5 +540,10 @@
   "t_1_1747298114192": "Leichi WAF",
   "t_0_1747300383756": "Leichi WAF - erro de formato de URL",
   "t_1_1747300384579": "Por favor, insira a chave de API correta do BT-WAF",
-  "t_2_1747300385222": "Por favor, insira a chave correta do Leichi WAF-API"
+  "t_2_1747300385222": "Por favor, insira a chave correta do Leichi WAF-API",
+  "t_0_1747365600180": "Por favor, insira o nome de usuário da Western Digital",
+  "t_1_1747365603108": "Por favor, insira a senha da Western Digital",
+  "t_2_1747365599051": "Por favor, insira a senha SSH",
+  "t_3_1747365600828": "Por favor, insira a AccessKey do Volcano Engine",
+  "t_4_1747365600137": "Por favor, insira o SecretKey do Volcano Engine"
 }
