@@ -6,11 +6,12 @@ var Port = GetSettingIgnoreError("port")
 var Secure = GetSettingIgnoreError("secure")
 var SessionKey = GetSettingIgnoreError("session_key")
 var LogPath = GetSettingIgnoreError("log_path")
+var LoginKey = GenerateUUID()
 var TimeOut = func() int {
 	settingStr := GetSettingIgnoreError("timeout")
 	setting, err := strconv.Atoi(settingStr)
 	if err != nil {
-		return 300
+		return 3600
 	}
 	return setting
 }()
@@ -25,7 +26,7 @@ func ReloadConfig() {
 	settingStr := GetSettingIgnoreError("timeout")
 	setting, err := strconv.Atoi(settingStr)
 	if err != nil {
-		TimeOut = 300
+		TimeOut = 3600
 	} else {
 		TimeOut = setting
 	}

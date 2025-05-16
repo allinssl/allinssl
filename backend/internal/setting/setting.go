@@ -131,7 +131,7 @@ func Save(setting *Setting) error {
 		return nil
 	} else {
 		if reload {
-			s.Where("key = 'login_key'", []interface{}{}).Update(map[string]interface{}{"value": public.GenerateUUID()})
+			public.LoginKey = public.GenerateUUID()
 		}
 	}
 	return nil

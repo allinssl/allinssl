@@ -178,7 +178,7 @@ func init() {
 	);
 
 	`)
-	insertDefaultData(db, "users", "INSERT INTO users (id, username, password, salt) VALUES (1, 'xxxx', 'xxxxxxx', '&*ghs^&%dag');")
+	insertDefaultData(db, "users", "INSERT INTO users (id, username, password, salt) VALUES (1, 'admin', 'xxxxxxx', '&*ghs^&%dag');")
 	insertDefaultData(db, "access_type", `
 	INSERT INTO access_type (name, type) VALUES ('aliyun', 'dns');
 	INSERT INTO access_type (name, type) VALUES ('tencentcloud', 'dns');
@@ -201,10 +201,9 @@ func init() {
 INSERT INTO settings (key, value, create_time, update_time, active, type) VALUES ( 'workflow_log_path', 'logs/workflows/', '2025-04-15 15:58', '2025-04-15 15:58', 1, null);
 INSERT INTO settings (key, value, create_time, update_time, active, type) VALUES ( 'timeout', '3600', '2025-04-15 15:58', '2025-04-15 15:58', 1, null);
 INSERT INTO settings (key, value, create_time, update_time, active, type) VALUES ( 'https', '0', '2025-04-15 15:58', '2025-04-15 15:58', 1, null);
-INSERT INTO settings (key, value, create_time, update_time, active, type) VALUES ( 'login_key', '%s', '2025-04-15 15:58', '2025-04-15 15:58', 1, null);
 INSERT INTO settings (key, value, create_time, update_time, active, type) VALUES ('session_key', '%s', '2025-04-15 15:58', '2025-04-15 15:58', 1, null);
 INSERT INTO settings (key, value, create_time, update_time, active, type) VALUES ('secure', '/%s', '2025-04-15 15:58', '2025-04-15 15:58', 1, null);
-INSERT INTO settings (key, value, create_time, update_time, active, type) VALUES ('port', '%d', '2025-04-15 15:58', '2025-04-15 15:58', 1, null);`, uuidStr, uuidStr, randomStr, port)
+INSERT INTO settings (key, value, create_time, update_time, active, type) VALUES ('port', '%d', '2025-04-15 15:58', '2025-04-15 15:58', 1, null);`, uuidStr, randomStr, port)
 
 	insertDefaultData(db, "settings", Isql)
 

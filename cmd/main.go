@@ -121,7 +121,8 @@ func main() {
 			fmt.Println(err)
 			return
 		}
-		public.UpdateSetting("login_key", public.GenerateUUID())
+		envVars["web"] = "restart"
+		err = control()
 		fmt.Println("用户名设置成功:", input)
 	case "6":
 		var input string
@@ -164,8 +165,8 @@ func main() {
 			fmt.Println(err)
 			return
 		}
-		public.UpdateSetting("login_key", public.GenerateUUID())
-
+		envVars["web"] = "restart"
+		err = control()
 		fmt.Println("密码设置成功:", input)
 	case "7":
 		var input string
