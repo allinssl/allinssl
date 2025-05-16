@@ -51,8 +51,8 @@ func GetDNSProvider(providerName string, creds map[string]string) (challenge.Pro
 		return cloudflare.NewDNSProviderConfig(config)
 	case "aliyun":
 		config := alidns.NewDefaultConfig()
-		config.APIKey = creds["access_key"]
-		config.SecretKey = creds["access_secret"]
+		config.APIKey = creds["access_key_id"]
+		config.SecretKey = creds["access_key_secret"]
 		return alidns.NewDNSProviderConfig(config)
 	case "huaweicloud":
 		config := huaweicloud.NewDefaultConfig()
