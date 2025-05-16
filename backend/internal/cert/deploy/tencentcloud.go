@@ -53,7 +53,7 @@ func DeployToTX(cfg map[string]any) error {
 	if !ok {
 		return fmt.Errorf("证书错误：cert")
 	}
-
+	
 	var providerID string
 	switch v := cfg["provider_id"].(type) {
 	case float64:
@@ -83,16 +83,16 @@ func DeployToTX(cfg map[string]any) error {
 		region = r
 	}
 	client := ClientTencentcloud(providerConfig["secret_id"], providerConfig["secret_key"], region)
-
+	
 	// 上传证书
 	certificateId, err := UploadToTX(client, strings.TrimSpace(keyPem), strings.TrimSpace(certPem))
 	if err != nil {
 		return err
 	}
 	// fmt.Println(certificateId)
-
+	
 	request := ssl.NewDeployCertificateInstanceRequest()
-
+	
 	request.CertificateId = common.StringPtr(certificateId)
 	if cfg["resource_type"] == "cdn" {
 		domain, ok := cfg["domain"].(string)
@@ -103,7 +103,6 @@ func DeployToTX(cfg map[string]any) error {
 		request.ResourceType = common.StringPtr("cdn")
 	}
 	if cfg["resource_type"] == "cos" {
-		// fmt.Println(fmt.Sprintf("%s|%s|%s", cfg["region"].(string), cfg["bucket"].(string), cfg["domain"].(string)))
 		domain, ok := cfg["domain"].(string)
 		if !ok {
 			return fmt.Errorf("参数错误：domain")
@@ -112,15 +111,14 @@ func DeployToTX(cfg map[string]any) error {
 		if !ok {
 			return fmt.Errorf("参数错误：region")
 		}
-		bucket, ok := cfg["domain"].(string)
+		bucket, ok := cfg["bucket"].(string)
 		if !ok {
 			return fmt.Errorf("参数错误：bucket")
 		}
 		request.InstanceIdList = common.StringPtrs([]string{fmt.Sprintf("%s|%s|%s", region, bucket, domain)})
-		// request.InstanceIdList = common.StringPtrs([]string{"ap-guangzhou#allinssl-1253163109#allinssl.zachyang.cn"})
 		request.ResourceType = common.StringPtr("cos")
 	}
-
+	
 	// 返回的resp是一个DeployCertificateInstanceResponse的实例，与请求对象对应
 	response, err := client.DeployCertificateInstance(request)
 	if _, ok := err.(*errors.TencentCloudSDKError); ok {

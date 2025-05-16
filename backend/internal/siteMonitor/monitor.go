@@ -25,7 +25,7 @@ type SSLInfo struct {
 }
 
 func GetSqlite() (*public.Sqlite, error) {
-	s, err := public.NewSqlite("data/data.db", "")
+	s, err := public.NewSqlite("data/site_monitor.db", "")
 	if err != nil {
 		return nil, err
 	}

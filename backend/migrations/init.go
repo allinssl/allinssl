@@ -2,6 +2,7 @@ package migrations
 
 import (
 	"ALLinSSL/backend/public"
+	"ALLinSSL/backend/public/sqlite_migrate"
 	"database/sql"
 	"fmt"
 	_ "modernc.org/sqlite"
@@ -27,9 +28,9 @@ func init() {
 		fmt.Fprintf(os.Stderr, "切换目录失败: %v\n", err)
 		os.Exit(1)
 	}
-	
+
 	os.MkdirAll("data", os.ModePerm)
-	
+
 	dbPath := "data/data.db"
 	_, _ = filepath.Abs(dbPath)
 	// fmt.Println("数据库路径:", absPath)
@@ -122,28 +123,7 @@ func init() {
 	    active      integer not null,
 	    type        TEXT
 	);
-	
-	create table IF NOT EXISTS site_monitor
-	(
-	    id              integer not null
-	        constraint site_monitor_pk
-	            primary key autoincrement,
-	    name            TEXT    not null,
-	    site_domain     TEXT    not null,
-	    cycle           integer not null,
-	    report_type     TEXT    not null,
-	    cert_domain     TEXT,
-	    ca              TEXT,
-	    active          integer,
-	    end_time        TEXT,
-	    end_day         TEXT,
-	    last_time       TEXT,
-	    except_end_time TEXT,
-	    create_time     TEXT,
-	    state           TEXT,
-	    update_time     TEXT,
-	    repeat_send_gap INTEGER
-	);
+
 	
 	create table IF NOT EXISTS users
 	(
@@ -207,15 +187,15 @@ func init() {
 	INSERT INTO access_type (name, type) VALUES ('ssh', 'host');
 	INSERT INTO access_type (name, type) VALUES ('btpanel', 'host');
 	INSERT INTO access_type (name, type) VALUES ('1panel', 'host');`)
-	
+
 	uuidStr := public.GenerateUUID()
 	randomStr := public.RandomString(8)
-	
+
 	port, err := public.GetFreePort()
 	if err != nil {
 		port = 20773
 	}
-	
+
 	Isql := fmt.Sprintf(
 		`INSERT INTO settings (key, value, create_time, update_time, active, type) VALUES ('log_path', 'logs/ALLinSSL.log', '2025-04-15 15:58', '2025-04-15 15:58', 1, null);
 INSERT INTO settings (key, value, create_time, update_time, active, type) VALUES ( 'workflow_log_path', 'logs/workflows/', '2025-04-15 15:58', '2025-04-15 15:58', 1, null);
@@ -225,21 +205,67 @@ INSERT INTO settings (key, value, create_time, update_time, active, type) VALUES
 INSERT INTO settings (key, value, create_time, update_time, active, type) VALUES ('session_key', '%s', '2025-04-15 15:58', '2025-04-15 15:58', 1, null);
 INSERT INTO settings (key, value, create_time, update_time, active, type) VALUES ('secure', '/%s', '2025-04-15 15:58', '2025-04-15 15:58', 1, null);
 INSERT INTO settings (key, value, create_time, update_time, active, type) VALUES ('port', '%d', '2025-04-15 15:58', '2025-04-15 15:58', 1, null);`, uuidStr, uuidStr, randomStr, port)
-	
+
 	insertDefaultData(db, "settings", Isql)
-	
+
 	InsertIfNotExists(db, "access_type", map[string]any{"name": "cloudflare", "type": "host"}, []string{"name", "type"}, []any{"cloudflare", "host"})
 	InsertIfNotExists(db, "access_type", map[string]any{"name": "cloudflare", "type": "dns"}, []string{"name", "type"}, []any{"cloudflare", "dns"})
 	InsertIfNotExists(db, "access_type", map[string]any{"name": "huaweicloud", "type": "host"}, []string{"name", "type"}, []any{"huaweicloud", "host"})
 	InsertIfNotExists(db, "access_type", map[string]any{"name": "huaweicloud", "type": "dns"}, []string{"name", "type"}, []any{"huaweicloud", "dns"})
-	
+
 	InsertIfNotExists(db, "access_type", map[string]any{"name": "baidu", "type": "host"}, []string{"name", "type"}, []any{"baidu", "host"})
 	InsertIfNotExists(db, "access_type", map[string]any{"name": "baidu", "type": "dns"}, []string{"name", "type"}, []any{"baidu", "dns"})
-	
+
 	InsertIfNotExists(db, "access_type", map[string]any{"name": "btwaf", "type": "host"}, []string{"name", "type"}, []any{"btwaf", "host"})
-	
+
+	// 雷池
 	InsertIfNotExists(db, "access_type", map[string]any{"name": "safeline", "type": "host"}, []string{"name", "type"}, []any{"safeline", "host"})
-	
+	// 西部数码
+	InsertIfNotExists(db, "access_type", map[string]any{"name": "westcn", "type": "dns"}, []string{"name", "type"}, []any{"westcn", "dns"})
+	// 火山引擎
+	InsertIfNotExists(db, "access_type", map[string]any{"name": "volcengine", "type": "dns"}, []string{"name", "type"}, []any{"volcengine", "dns"})
+
+	err = sqlite_migrate.EnsureDatabaseWithTables(
+		"data/site_monitor.db",
+		"data/data.db",
+		[]string{"site_monitor"}, // 你要迁移的表
+	)
+	if err != nil {
+		fmt.Println("错误:", err)
+	}
+
+	db1, err := sql.Open("sqlite", "data/site_monitor.db")
+	if err != nil {
+		// fmt.Println("创建数据库失败:", err)
+		return
+	}
+	defer db1.Close()
+	// 创建表
+	_, err = db1.Exec(`
+	PRAGMA journal_mode=WAL;
+ 
+	create table IF NOT EXISTS site_monitor
+	(
+	    id              integer not null
+	        constraint site_monitor_pk
+	            primary key autoincrement,
+	    name            TEXT    not null,
+	    site_domain     TEXT    not null,
+	    cycle           integer not null,
+	    report_type     TEXT    not null,
+	    cert_domain     TEXT,
+	    ca              TEXT,
+	    active          integer,
+	    end_time        TEXT,
+	    end_day         TEXT,
+	    last_time       TEXT,
+	    except_end_time TEXT,
+	    create_time     TEXT,
+	    state           TEXT,
+	    update_time     TEXT,
+	    repeat_send_gap INTEGER
+	);
+       `)
 }
 
 func insertDefaultData(db *sql.DB, table, insertSQL string) {
@@ -250,7 +276,7 @@ func insertDefaultData(db *sql.DB, table, insertSQL string) {
 		// fmt.Println("检查数据行数失败:", err)
 		return
 	}
-	
+
 	// 如果表为空，则插入默认数据
 	if count == 0 {
 		// fmt.Println("表为空，插入默认数据...")
@@ -284,7 +310,7 @@ func InsertIfNotExists(
 		whereArgs = append(whereArgs, val)
 		i++
 	}
-	
+
 	// 2. 判断是否存在
 	query := fmt.Sprintf("SELECT EXISTS(SELECT 1 FROM %s WHERE %s)", table, whereClause)
 	var exists bool
@@ -295,7 +321,7 @@ func InsertIfNotExists(
 	if exists {
 		return nil // 已存在
 	}
-	
+
 	// 3. 构建 INSERT 语句
 	columnList := ""
 	placeholderList := ""
@@ -308,11 +334,11 @@ func InsertIfNotExists(
 		placeholderList += "?"
 	}
 	insertSQL := fmt.Sprintf("INSERT INTO %s (%s) VALUES (%s)", table, columnList, placeholderList)
-	
+
 	_, err = db.Exec(insertSQL, insertValues...)
 	if err != nil {
 		return fmt.Errorf("insert failed: %w", err)
 	}
-	
+
 	return nil
 }
