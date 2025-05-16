@@ -67,7 +67,7 @@ func GetCertCount() (map[string]int, error) {
 }
 
 func GetSiteMonitorCount() (map[string]any, error) {
-	s, err := public.NewSqlite("data/data.db", "")
+	s, err := public.NewSqlite("data/site_monitor.db", "")
 	if err != nil {
 		return nil, err
 	}
@@ -126,7 +126,7 @@ func GetWorkflowHistory() ([]map[string]any, error) {
 		} else {
 			name = "未知"
 		}
-		
+
 		result = append(result, map[string]any{
 			"name":      name,
 			"state":     state,

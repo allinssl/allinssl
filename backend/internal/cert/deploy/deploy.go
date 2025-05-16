@@ -17,6 +17,9 @@ func Deploy(cfg map[string]any, logger *public.Logger) error {
 	case "btpanel-site":
 		logger.Debug("部署到宝塔面板网站...")
 		return DeployBtSite(cfg)
+	case "btpanel-dockersite":
+		logger.Debug("部署到宝塔Docker面板网站...")
+		return DeployBtDockerSite(cfg)
 	case "btwaf-site":
 		logger.Debug("部署到宝塔WAF面板网站...")
 		return DeployBtWafSite(cfg)
