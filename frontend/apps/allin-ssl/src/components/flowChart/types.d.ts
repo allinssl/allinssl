@@ -203,8 +203,10 @@ export interface ApplyNodeConfig {
 	provider_id: string // DNS提供商授权ID
 	provider: string // DNS提供商
 	end_day: number // 续签间隔
+	// 高级功能
 	name_server: string // DNS递归服务器
 	skip_check: number // 跳过检查
+	algorithm: string // 数字证书算法
 	// 高级功能
 	// algorithm: 'RSA2048' | 'RSA3072' | 'RSA4096' | 'RSA8192' | 'EC256' | 'EC384' // 数字证书算法
 	// dnsServer?: string // 指定DNS解析服务器

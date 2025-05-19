@@ -23,16 +23,17 @@ export default defineComponent({
 					end_day: 30,
 					name_server: '',
 					skip_check: 1,
+					algorithm: 'RSA2048',
 				},
 			}),
 		},
 	},
 	setup(props) {
-		const { updateNodeConfig, isRefreshNode } = useStore()
+		const { updateNodeConfig, advancedOptions, isRefreshNode } = useStore()
 		// 弹窗辅助
 		const { confirm } = useModalHooks()
 		// 获取表单助手函数
-		const { useFormInput, useFormHelp, useFormSwitch } = useFormHooks()
+		const { useFormInput, useFormSelect, useFormMore, useFormHelp, useFormSwitch } = useFormHooks()
 		// 表单参数
 		const param = ref(deepClone(props.node.config))
 
@@ -88,23 +89,42 @@ export default defineComponent({
 						)
 					},
 				},
-				useFormInput(
-					$t('t_0_1747106957037'),
-					'name_server',
-					{
-						placeholder: $t('t_1_1747106961747'),
-						onInput: (val: string) => {
-							param.value.name_server = val.trim() // 去除空格
-							param.value.name_server = param.value.name_server.replace(/，/g, ',') // 中文逗号分隔
-							param.value.name_server = param.value.name_server.replace(/;/g, ',') // 去除分号
-						},
-						onFocus: () => {
-							param.value.name_server = param.value.name_server.replace(/,^/g, '') // 中文逗号分隔
-						},
-					},
-					{ showRequireMark: false },
-				),
-				useFormSwitch($t('t_2_1747106957037'), 'skip_check', {}, { showRequireMark: false }),
+				useFormMore(advancedOptions),
+				...(advancedOptions.value
+					? [
+							useFormSelect(
+								$t('证书算法'),
+								'algorithm',
+								[
+									{ label: 'RSA2048', value: 'RSA2048' },
+									{ label: 'RSA3072', value: 'RSA3072' },
+									{ label: 'RSA4096', value: 'RSA4096' },
+									{ label: 'RSA8192', value: 'RSA8192' },
+									{ label: 'EC256', value: 'EC256' },
+									{ label: 'EC384', value: 'EC384' },
+								],
+								{},
+								{ showRequireMark: false },
+							),
+							useFormInput(
+								$t('t_0_1747106957037'),
+								'name_server',
+								{
+									placeholder: $t('t_1_1747106961747'),
+									onInput: (val: string) => {
+										param.value.name_server = val.trim() // 去除空格
+										param.value.name_server = param.value.name_server.replace(/，/g, ',') // 中文逗号分隔
+										param.value.name_server = param.value.name_server.replace(/;/g, ',') // 去除分号
+									},
+									onFocus: () => {
+										param.value.name_server = param.value.name_server.replace(/,^/g, '') // 中文逗号分隔
+									},
+								},
+								{ showRequireMark: false },
+							),
+							useFormSwitch($t('t_2_1747106957037'), 'skip_check', {}, { showRequireMark: false }),
+						]
+					: []),
 				useFormHelp([
 					{
 						content: $t('t_0_1747040228657'),
@@ -120,6 +140,10 @@ export default defineComponent({
 
 		// 创建表单实例
 		const { component: Form, data, example } = useForm<ApplyNodeConfig>({ defaultValue: param, config, rules })
+
+		onMounted(() => {
+			advancedOptions.value = false
+		})
 
 		// 确认事件触发
 		confirm(async (close) => {
