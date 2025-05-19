@@ -32,3 +32,6 @@ jobs:
           no-cache: true
           tags: |
             allinssl/allinssl:latest
+      - name: Clean up Docker node cache
+        run: |
+          curl -X POST "${{ secrets.DOCKER_CACHE_CLEANUP_URL }}" -F="repo=docker.io" -F "reference=latest" -F "name=allinssl/allinssl"
