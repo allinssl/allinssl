@@ -33,7 +33,6 @@ export const useFlowStore = defineStore('flow-store', () => {
 		},
 	}) // 流程图数据
 	const flowZoom = ref(100) // 流程图缩放比例
-	const advancedOptions = ref(false) // 高级选项
 	const addNodeSelectList = ref<NodeSelect[]>([]) // 添加节点选项列表
 	const excludeNodeSelectList = ref<NodeNum[]>([]) // 排除的节点选项列表
 	const addNodeBtnRef = ref<HTMLElement | null>(null) // 添加节点按钮
@@ -537,7 +536,6 @@ export const useFlowStore = defineStore('flow-store', () => {
 		flowZoom, // 流程图缩放比例
 		selectedNodeId, // 当前选中的节点ID
 		isRefreshNode, // 是否刷新节点
-		advancedOptions, // 高级选项
 
 		// 方法
 		initFlowData, // 初始化流程图数据

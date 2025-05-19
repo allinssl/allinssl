@@ -20,7 +20,6 @@ export default {
 				provider_id: '',
 				provider: '',
 				end_day: 30,
-				algorithm: 'RSA2048',
 			},
 			childNode: {
 				id: 'deploy-1',
