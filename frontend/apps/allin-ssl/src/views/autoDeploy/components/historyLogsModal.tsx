@@ -32,12 +32,6 @@ export default defineComponent({
 			}
 		}
 
-		// 组件挂载时自动获取日志
-		onMounted(() => {
-			fetchLogs()
-			console.log('mounted')
-		})
-
 		return () => (
 			<LogViewer
 				title={`工作流执行日志 (ID: ${props.id})`}

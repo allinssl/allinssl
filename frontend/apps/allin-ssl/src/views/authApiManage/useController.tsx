@@ -325,12 +325,16 @@ export const useApiFormController = (props: { data: AccessItem }) => {
 							cloudflare: $t('t_0_1747042966820'),
 							btpanel: $t('t_1_1747042969705'),
 							btwaf: $t('t_1_1747300384579'),
-							safeline: $t('t_2_1747300385222'),
 						}
 						return callback(new Error(mapTips[param.value.type as keyof typeof mapTips]))
 					}
 					callback()
 				},
+			},
+			api_token: {
+				required: true,
+				message: $t('t_0_1747617113090'),
+				trigger: 'input',
 			},
 			access_key_id: {
 				required: true,
@@ -467,9 +471,13 @@ export const useApiFormController = (props: { data: AccessItem }) => {
 					useFormInput(typeUrlMap.get(param.value.type) || '', 'config.url', {
 						onInput: (val: string) => ((param.value.config as PanelAccessConfig).url = val.trim()),
 					}),
-					useFormInput($t('t_55_1745289355715'), 'config.api_key', {
-						onInput: (val: string) => ((param.value.config as PanelAccessConfig).api_key = val.trim()),
-					}),
+					useFormInput(
+						param.value.type === 'safeline' ? $t('t_1_1747617105179') : $t('t_55_1745289355715'),
+						param.value.type === 'safeline' ? 'config.api_token' : 'config.api_key',
+						{
+							onInput: (val: string) => ((param.value.config as PanelAccessConfig).api_key = val.trim()),
+						},
+					),
 					useFormSwitch(
 						$t('t_3_1746667592270'),
 						'config.ignore_ssl',

@@ -2,6 +2,7 @@ import { TranslationAdapter } from './index.js'
 import { ZhipuAITranslator } from '../ai/zhipuAI.js'
 import { QianwenAITranslator } from '../ai/qianwenAI.js'
 import { DeepSeekAITranslator } from '../ai/deepseekAI.js'
+import { LinuxDoAITranslator } from '../ai/linuxDoAI.js'
 import config from '../../config/config.js'
 
 /**
@@ -11,6 +12,7 @@ export class AIBatchAdapter extends TranslationAdapter {
 	constructor() {
 		super()
 		this.translator = new DeepSeekAITranslator(config.apiKey[config.translateMethod])
+		console.log(`当前翻译模型：${this.translator.model}`)
 	}
 
 	/**

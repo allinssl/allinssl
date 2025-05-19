@@ -9296,5 +9296,39 @@
       "arDZ": "موقع Pagoda docker"
     },
     "timestamp": "2025-05-16T03:44:29.267Z"
+  },
+  "请输入雷池的API Token": {
+    "text": "请输入雷池的API Token",
+    "key": "t_0_1747617113090",
+    "translations": {
+      "zhCN": "请输入雷池的API令牌",
+      "zhTW": "請輸入雷池的API令牌",
+      "enUS": "Please enter the Leichi API Token",
+      "jaJP": "雷池のAPIトークンを入力してください",
+      "koKR": "레치 API 토큰을 입력하세요",
+      "ruRU": "Пожалуйста, введите API-токен Leichi",
+      "ptBR": "Por favor, insira o Token API do Leichi",
+      "frFR": "Veuillez entrer le jeton API de Leichi",
+      "esAR": "Por favor, ingrese el Token API de Leichi",
+      "arDZ": "الرجاء إدخال رمز API الخاص بـ Leichi"
+    },
+    "timestamp": "2025-05-19T01:11:53.090Z"
+  },
+  "API Token": {
+    "text": "API Token",
+    "key": "t_1_1747617105179",
+    "translations": {
+      "zhCN": "API Token",
+      "zhTW": "API Token",
+      "enUS": "API Token",
+      "jaJP": "API Token",
+      "koKR": "API Token",
+      "ruRU": "API Token",
+      "ptBR": "API Token",
+      "frFR": "API Token",
+      "esAR": "API Token",
+      "arDZ": "API Token"
+    },
+    "timestamp": "2025-05-19T01:11:53.092Z"
   }
 }

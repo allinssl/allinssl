@@ -1,7 +1,7 @@
 import { FormRules } from 'naive-ui'
 import { useModal, useForm, useFormHooks, useLoadingMask, useModalHooks } from '@baota/naive-ui/hooks'
 import { useError } from '@baota/hooks/error'
-import { isDomain } from '@baota/utils/business'
+import { isDomain, isWildcardDomain } from '@baota/utils/business'
 import { useStore as useWorkflowViewStore } from '@autoDeploy/children/workflowView/useStore'
 import { $t } from '@locales/index'
 import { useStore } from './useStore'
@@ -127,10 +127,10 @@ export const useCertificateFormController = () => {
 			message: $t('t_7_1746667592468'),
 			trigger: 'input',
 			validator: (rule: any, value: any, callback: any) => {
-				if (!isDomain(value)) {
-					callback(new Error($t('t_7_1746667592468')))
-				} else {
+				if (isDomain(value) || isWildcardDomain(value)) {
 					callback()
+				} else {
+					callback(new Error($t('t_7_1746667592468')))
 				}
 			},
 		},

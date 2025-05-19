@@ -90,7 +90,6 @@ export default defineComponent({
 		// 下载日志
 		const downloadLogs = () => {
 			if (!logs.value) return
-
 			const blob = new Blob([logs.value], { type: 'text/plain' })
 			const url = URL.createObjectURL(blob)
 			const a = document.createElement('a')
@@ -120,7 +119,7 @@ export default defineComponent({
 		}
 
 		return () => (
-			<NCard bordered={false} class="w-full h-full" contentClass="!pb-0 !px-0">
+			<NCard bordered={false} class="w-full h-full" contentClass="!p-0">
 				<NSpin show={isLoading.value}>
 					<div class="mb-2.5 flex justify-start items-center">
 						<NSpace>

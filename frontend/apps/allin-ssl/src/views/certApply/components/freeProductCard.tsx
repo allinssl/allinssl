@@ -93,9 +93,7 @@ export default defineComponent({
 						</div>
 						<div class="flex mb-[1rem] leading-relaxed">
 							<span class="font-medium text-gray-500 flex-none w-[9rem]">{$t('t_16_1746667591069')}</span>
-							<span class="flex-1 text-gray-700">
-								{isWildcard.value ? $t('t_17_1746667588785') : $t('t_18_1746667590113')}
-							</span>
+							<span class="flex-1 text-gray-700">{$t('t_17_1746667588785')}</span>
 						</div>
 						<div class="flex mb-[1rem] leading-relaxed">
 							<span class="font-medium text-gray-500 flex-none w-[9rem]">{$t('t_19_1746667589295')}</span>
