@@ -7,7 +7,7 @@ import { $t } from '@locales/index' // 引入 $t
 // import ThemeTips from '@baota/naive-ui/components/themeTips'
 
 // 错误图标
-const errorIcon = (size: number = 16, color: string = 'var(--n-warning-color)') => {
+const errorIcon = (size: number = 16, color: string = '#18181c') => {
 	return (
 		<svg width={size} height={size} viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg" fill={color}>
 			<path
@@ -25,17 +25,10 @@ export default defineComponent({
 		const router: Router = useRouter()
 
 		// 获取主题变量
-		const cssVar = useThemeCssVar([
-			'cardColor',
-			'warningColor',
-			'textColorSecondary',
-			'textColorDisabled',
-			'textColorInverse',
-			'warningColorHover',
-		])
+		const cssVar = useThemeCssVar(['cardColor', 'textColorSecondary', 'textColorDisabled', 'textColorInverse'])
 
 		return () => (
-			<div class="flex flex-col items-center justify-center min-h-screen" style={cssVar.value}>
+			<div class="flex flex-col items-center justify-center min-h-screen " style={cssVar.value}>
 				{/* <div class="absolute z-[99] top-0 right-0 p-8 flex w-[120px] justify-between">
 					<LocalesTips />
 					<ThemeTips />
@@ -44,17 +37,20 @@ export default defineComponent({
 					<div
 						class="text-[8rem] font-bold leading-none mb-4"
 						style={{
-							color: 'var(--n-warning-color)',
-							textShadow: '2px 2px 4px rgba(0, 0, 0, 0.1)',
+							color: '#18181c',
+							textShadow: '2px 2px 8px rgba(0,0,0,0.25)',
 						}}
 					>
 						404
 					</div>
-					<div class="flex items-center justify-center mb-8">{errorIcon(60)}</div>
+					<div class="flex items-center justify-center mb-8">{errorIcon(60, '#18181c')}</div>
 					<div class="text-[1.8rem] mb-8" style={{ color: 'var(--n-text-color-secondary)' }}>
 						{$t('t_0_1744098811152')}
 					</div>
-					<NButton type="warning" onClick={() => router.push('/')}>
+					<NButton
+						style={{ backgroundColor: '#18181c', color: '#fff', border: 'none' }}
+						onClick={() => router.push('/')}
+					>
 						{$t('t_1_1744098801860')}
 					</NButton>
 					<div class="mt-8 text-[1.3rem]" style={{ color: 'var(--n-text-color-disabled)' }}>
