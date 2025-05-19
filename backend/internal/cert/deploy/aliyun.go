@@ -9,7 +9,7 @@ import (
 	"github.com/alibabacloud-go/tea/tea"
 	"strconv"
 	"strings"
-
+	
 	"github.com/aliyun/aliyun-oss-go-sdk/oss"
 )
 
@@ -23,7 +23,7 @@ func ClientAliCdn(accessKey, accessSecret string) (_result *aliyuncdn.Client, er
 	if err != nil {
 		return nil, err
 	}
-
+	
 	return client, nil
 }
 
@@ -56,8 +56,8 @@ func DeployAliCdn(cfg map[string]any) error {
 	if err != nil {
 		return err
 	}
-
-	client, err := ClientAliCdn(providerConfig["access_key"], providerConfig["access_secret"])
+	
+	client, err := ClientAliCdn(providerConfig["access_key_id"], providerConfig["access_key_secret"])
 	if err != nil {
 		return err
 	}
@@ -74,7 +74,7 @@ func DeployAliCdn(cfg map[string]any) error {
 	if !ok {
 		return fmt.Errorf("证书错误：cert")
 	}
-
+	
 	setCdnDomainSSLCertificateRequest := &aliyuncdn.SetCdnDomainSSLCertificateRequest{
 		DomainName:  tea.String(domain),
 		SSLProtocol: tea.String("on"),
@@ -108,12 +108,12 @@ func ClientOss(accessKeyId, accessKeySecret, region string) (*oss.Client, error)
 	default:
 		endpoint = fmt.Sprintf("oss-%s.aliyuncs.com", region)
 	}
-
+	
 	client, err := oss.New(endpoint, accessKeyId, accessKeySecret)
 	if err != nil {
 		return nil, err
 	}
-
+	
 	return client, nil
 }
 
@@ -150,8 +150,8 @@ func DeployOss(cfg map[string]any) error {
 	if !ok {
 		return fmt.Errorf("参数错误：region")
 	}
-
-	client, err := ClientOss(providerConfig["access_key"], providerConfig["access_secret"], region)
+	
+	client, err := ClientOss(providerConfig["access_key_id"], providerConfig["access_key_secret"], region)
 	if err != nil {
 		return err
 	}
@@ -159,7 +159,7 @@ func DeployOss(cfg map[string]any) error {
 	if !ok {
 		return fmt.Errorf("参数错误：domain")
 	}
-	bucket, ok := cfg["domain"].(string)
+	bucket, ok := cfg["bucket"].(string)
 	if !ok {
 		return fmt.Errorf("参数错误：bucket")
 	}
@@ -172,7 +172,7 @@ func DeployOss(cfg map[string]any) error {
 	if !ok {
 		return fmt.Errorf("证书错误：cert")
 	}
-
+	
 	putBucketCnameWithCertificateRequest := oss.PutBucketCname{
 		Cname: domain,
 		CertificateConfiguration: &oss.CertificateConfiguration{
