@@ -23,6 +23,7 @@ import type { DataTableColumn } from 'naive-ui'
 import { TableColumn } from 'naive-ui/es/data-table/src/interface'
 
 const {
+	refreshTable,
 	fetchWorkflowList,
 	fetchWorkflowHistory,
 	workflowFormData,
@@ -54,6 +55,7 @@ const statusCol = <T,>(key: string, title: string): TableColumn<T> => ({
 			type: 'default',
 			text: $t('t_1_1746773348701'),
 		}
+		if (row[key] === 'running') refreshTable.value = true
 		return (
 			<NTag type={status.type as any} size="small">
 				{status.text}
@@ -107,24 +109,6 @@ export const useController = () => {
 				</NSpace>
 			),
 		},
-		// {
-		// 	title: $t('t_4_1745215914951'),
-		// 	key: 'active',
-		// 	width: 100,
-		// 	render: (row: WorkflowItem) => (
-		// 		<NSwitch
-		// 			size="small"
-		// 			v-model:value={row.active}
-		// 			onUpdate:value={() => {
-		// 				handleChangeActive(row)
-		// 			}}
-		// 			checkedValue={1}
-		// 			uncheckedValue={0}
-		// 			checked-text={$t('t_0_1745457486299')}
-		// 			unchecked-text={$t('t_1_1745457484314')}
-		// 		/>
-		// 	),
-		// },
 		{
 			title: $t('t_7_1745215914189'),
 			key: 'created_at',
@@ -191,6 +175,21 @@ export const useController = () => {
 			pageSize: 'limit',
 		},
 	})
+
+	// 节流渲染
+	const throttleFn = useThrottleFn(() => {
+		setTimeout(() => {
+			fetch()
+			refreshTable.value = false
+		}, 1000)
+	}, 100)
+
+	watch(
+		() => refreshTable.value,
+		(val) => {
+			if (val) throttleFn()
+		},
+	)
 
 	/**
 	 * @description 打开添加工作流弹窗

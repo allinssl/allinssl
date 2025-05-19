@@ -1,6 +1,8 @@
-import { NCard, NText, NSpin, NScrollbar, NButton, NSpace, NIcon } from 'naive-ui'
+import { NCard, NSpin, NButton, NSpace, NIcon, NLog, NConfigProvider } from 'naive-ui'
+import hljs from 'highlight.js/lib/core'
 import { $t } from '@locales/index'
-import { DownloadOutline } from '@vicons/ionicons5'
+import { DownloadOutline, RefreshOutline } from '@vicons/ionicons5'
+import { useThemeCssVar } from '@baota/naive-ui/theme'
 
 export default defineComponent({
 	name: 'LogViewer',
@@ -39,7 +41,7 @@ export default defineComponent({
 	setup(props) {
 		const logs = ref(props.content || '')
 		const isLoading = ref(props.loading)
-		const logContainerRef = ref<HTMLDivElement | null>(null)
+		const logRef = ref<any>(null)
 
 		// 监听内容变化
 		watch(
@@ -57,20 +59,28 @@ export default defineComponent({
 				isLoading.value = newValue
 			},
 		)
+		hljs.registerLanguage('custom-logs', () => ({
+			contains: [
+				{
+					className: 'info-text',
+					begin: /\[INFO\]/,
+				},
+				{
+					className: 'error-text',
+					begin: /\[ERROR\]/,
+				},
+				{
+					className: 'warning-text',
+					begin: /\[WARNING\]/,
+				},
+				{
+					className: 'date-text',
+					begin: /\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}/,
+				},
+			],
+		}))
 
-		watch(
-			() => props.fetchLogs,
-			(newValue) => {
-				console.log('fetchLogs', props.fetchLogs)
-			},
-		)
-
-		onMounted(() => {
-			// 如果有传入获取日志的方法，则调用
-			// 这里可以根据需要设置一个定时器来定时获取日志
-			loadLogs()
-			scrollToBottom()
-		})
+		const cssVar = useThemeCssVar(['successColor', 'errorColor', 'warningColor', 'successColorPressed'])
 
 		// 加载日志
 		const loadLogs = async () => {
@@ -103,14 +113,9 @@ export default defineComponent({
 
 		// 滚动到底部
 		const scrollToBottom = () => {
-			setTimeout(() => {
-				if (logContainerRef.value) {
-					const scrollElement = logContainerRef.value.querySelector('.n-scrollbar-container')
-					if (scrollElement) {
-						scrollElement.scrollTop = scrollElement.scrollHeight
-					}
-				}
-			}, 100)
+			nextTick(() => {
+				logRef.value?.scrollTo({ top: Number.MAX_SAFE_INTEGER })
+			})
 		}
 
 		// 刷新日志
@@ -118,31 +123,64 @@ export default defineComponent({
 			loadLogs()
 		}
 
+		type LogLine = { type: string; content: string }
+
+		// 将日志内容转换为NLog需要的格式
+		const logContent = computed((): LogLine[] => {
+			if (!logs.value) return []
+			return logs.value.split('\n').map(
+				(line): LogLine => ({
+					type: 'default',
+					content: line,
+				}),
+			)
+		})
+
+		onMounted(() => {
+			// 如果有传入获取日志的方法，则调用
+			loadLogs()
+		})
+
 		return () => (
-			<NCard bordered={false} class="w-full h-full" contentClass="!p-0">
-				<NSpin show={isLoading.value}>
-					<div class="mb-2.5 flex justify-start items-center">
-						<NSpace>
-							<NButton onClick={refreshLogs} size="small">
-								{$t('t_0_1746497662220')}
+			<NCard bordered={false} class="w-full h-full" contentClass="!p-3" style={cssVar.value}>
+				<div class="mb-2.5 flex justify-start items-center">
+					<NSpace>
+						<NButton onClick={refreshLogs} size="small" type="primary">
+							<NIcon class="mr-1">
+								<RefreshOutline />
+							</NIcon>
+							{$t('t_0_1746497662220')}
+						</NButton>
+						{props.enableDownload && (
+							<NButton onClick={downloadLogs} size="small">
+								<NIcon class="mr-1">
+									<DownloadOutline />
+								</NIcon>
+								{$t('t_2_1746776194263')}
 							</NButton>
-							{props.enableDownload && (
-								<NButton onClick={downloadLogs} size="small">
-									<NIcon>
-										<DownloadOutline />
-									</NIcon>
-									<span>{$t('t_2_1746776194263')}</span>
-								</NButton>
-							)}
-						</NSpace>
-					</div>
-					<div class="border border-gray-200 rounded bg-gray-50" ref={logContainerRef}>
-						<NScrollbar class="h-max-[500px]">
-							<NText class="block p-3 h-[500px] font-mono whitespace-pre-wrap break-all text-[1.2rem] leading-normal">
-								{logs.value ? logs.value : $t('t_3_1746776195004')}
-							</NText>
-						</NScrollbar>
-					</div>
+						)}
+					</NSpace>
+				</div>
+
+				<NSpin show={isLoading.value}>
+					<NConfigProvider hljs={hljs}>
+						<NLog
+							ref={logRef}
+							log={logs.value}
+							rows={logContent.value.length}
+							language="custom-logs"
+							loading={isLoading.value}
+							fontSize={14}
+							trim={false}
+							lineHeight={1.5}
+							style={{
+								height: '500px',
+								border: '1px solid var(--n-border-color)',
+								padding: '10px',
+								borderRadius: '10px',
+							}}
+						/>
+					</NConfigProvider>
 				</NSpin>
 			</NCard>
 		)

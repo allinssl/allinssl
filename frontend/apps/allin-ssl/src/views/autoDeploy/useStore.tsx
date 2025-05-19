@@ -1,6 +1,5 @@
 import {
 	getWorkflowList,
-	addWorkflow,
 	deleteWorkflow,
 	getWorkflowHistory,
 	executeWorkflow,
@@ -11,7 +10,6 @@ import { useError } from '@baota/hooks/error'
 // import { useMessage } from '@baota/naive-ui/hooks'
 import { $t } from '@locales/index'
 import type {
-	AddWorkflowParams,
 	WorkflowListParams,
 	WorkflowHistoryParams,
 	WorkflowHistoryItem,
@@ -27,6 +25,8 @@ const { handleError } = useError()
  * @description 用于管理工作流相关的状态和操作，包括工作流列表、历史记录、分页等
  */
 export const useWorkflowStore = defineStore('workflow-store', () => {
+	// 刷新表格
+	const refreshTable = ref(false)
 	const isEditWorkFlow = ref(false) // 是否编辑工作流
 	// 表单数据
 	const workflowFormData = ref({
@@ -138,6 +138,7 @@ export const useWorkflowStore = defineStore('workflow-store', () => {
 
 	return {
 		// 状态
+		refreshTable,
 		isEditWorkFlow,
 		workflowFormData,
 		workflowTemplateOptions,
