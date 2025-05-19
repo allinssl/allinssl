@@ -49,7 +49,7 @@ export default defineComponent({
 		onUnmounted(resetFlowData)
 		return () => (
 			<div class="flex flex-col w-full h-full" style={cssVars.value}>
-				<div class="w-full h-[6rem] px-[2rem] mb-[2rem] bg-white rounded-lg flex items-center gap-2 justify-between">
+				<div class="w-full h-[6rem] px-[2rem] mb-[2rem] rounded-lg flex items-center gap-2 justify-between">
 					<div class="flex items-center">
 						<NButton onClick={goBack}>
 							<NIcon class="mr-1">

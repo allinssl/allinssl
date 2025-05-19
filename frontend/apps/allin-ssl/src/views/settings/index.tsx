@@ -43,7 +43,7 @@ export default defineComponent({
 								<div class="w-full">
 									<NCard>
 										<NTabs
-											class="bg-white rounded-2xl p-6"
+											class="rounded-2xl p-6"
 											type="segment"
 											v-model:value={activeTab.value}
 											size="large"

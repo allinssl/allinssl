@@ -81,7 +81,7 @@ export default defineComponent({
 					<NGrid cols="2 s:1 m:2" xGap={16} yGap={16}>
 						{channelConfigs.map((item) => (
 							<NGridItem key={item.type}>
-								<div class="flex justify-between items-center p-4 border rounded-md hover:shadow-sm transition-shadow">
+								<div class="flex justify-between items-center p-4 border border-[var(--n-border-color)] rounded-md hover:shadow-sm transition-shadow">
 									<div class="flex items-center">
 										<SvgIcon icon={`notify-${item.type}`} size="3rem" />
 										<div class="ml-4">

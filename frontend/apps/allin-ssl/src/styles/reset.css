@@ -48,8 +48,6 @@ img {
 }
 
 .n-tabs-tab.n-tabs-tab--active {
-	background-color: #fff;
-	/* box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08); */
 	font-weight: 600;
 	width: 100%;
 }

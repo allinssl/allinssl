@@ -94,7 +94,7 @@
 }
 
 .nodeHeaderTitleInput input:focus {
-  @apply border-[#1e83e9] bg-white text-[#333];
+  @apply border-[#1e83e9] text-[#333];
 }
 
 .nodeHeaderTitleEdit {

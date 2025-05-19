@@ -52,13 +52,12 @@ export const useTheme = (name?: ThemeName) => {
 
 	// 主题继承修改
 	const themeOverrides = computed(() => {
-		return themeActiveOverrides.value || {}
+		return themeActiveOverrides.value?.themeOverrides || {}
 	})
 
 	// 预设配置
 	const presetsOverrides = computed(() => {
 		// 如果没有激活的主题，则返回空对象
-		console.log('presetsOverrides', themeActiveOverrides.value)
 		if (!themeActiveOverrides.value) return {}
 		return themeActiveOverrides.value || {}
 	})
@@ -132,12 +131,16 @@ export const useTheme = (name?: ThemeName) => {
 			// 加载主题样式
 			const themeConfig = await themeItem.import()
 			const themeStyles = await themeItem.styleContent() // 获取主题样式内容
+
 			// 加载新样式
 			if (themeStyles || themeStyles) {
 				loadDynamicCss(themeStyles as string, 'theme-style')
 			}
 			// 更新激活的主题
 			themeActiveOverrides.value = themeConfig
+
+			console.log('themeActiveOverrides', themeActiveOverrides.value)
+			console.log('themeOverrides', themeOverrides.value)
 		} catch (error) {
 			console.error(`加载主题失败 ${themeName}:`, error)
 		}

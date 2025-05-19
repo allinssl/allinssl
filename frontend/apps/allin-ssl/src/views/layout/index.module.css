@@ -63,7 +63,7 @@
 
 /* 子路由导航样式 */
 .subRouteNav {
-	@apply mb-4 p-4 bg-white  rounded-lg shadow-sm;
+	@apply mb-4 p-4 rounded-lg shadow-sm;
 }
 
 /* 子路由标题样式 */
@@ -73,5 +73,5 @@
 
 /* 子路由面包屑样式 */
 .breadcrumb {
-	@apply bg-white  p-3 rounded-lg shadow-sm mb-4;
+	@apply  p-3 rounded-lg shadow-sm mb-4;
 }

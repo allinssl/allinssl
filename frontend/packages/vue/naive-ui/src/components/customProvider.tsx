@@ -1,4 +1,4 @@
-import { defineComponent } from 'vue'
+import { defineComponent, watch } from 'vue'
 import {
 	NConfigProvider,
 	NDialogProvider,
@@ -21,6 +21,14 @@ export default defineComponent({
 		const { theme, themeOverrides } = useTheme() // 主题
 
 		console.log(theme.value, themeOverrides.value)
+
+		watch(
+			() => themeOverrides.value,
+			(newVal) => {
+				console.log('1111', newVal)
+			},
+		)
+
 		// 国际化配置
 		return () => (
 			<NConfigProvider

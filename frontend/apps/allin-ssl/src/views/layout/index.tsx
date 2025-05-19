@@ -5,16 +5,16 @@ import { RouterView } from 'vue-router'
 import { $t } from '@locales/index'
 import { useThemeCssVar } from '@baota/naive-ui/theme'
 import { MenuFoldOutlined, MenuUnfoldOutlined } from '@vicons/antd'
+// import ThemeTips from '@baota/naive-ui/components/themeTips'
+
 import { useController } from './useController'
 import styles from './index.module.css'
 
-// import ThemeTips from '@baota/naive-ui/components/themeTips'
 export default defineComponent({
 	setup() {
 		// 获取控制器中的状态和方法
 		const { menuItems, menuActive, isCollapsed, toggleCollapse, handleExpand, handleCollapse, updateMenuActive } =
 			useController()
-
 		// 获取主题变量
 		const cssVars = useThemeCssVar(['cardColor', 'headerColor', 'contentColor'])
 

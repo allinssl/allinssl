@@ -33,7 +33,7 @@
 
 /* 右侧配置区样式 */
 .configPanel {
-  @apply flex flex-col w-[360px] min-w-[360px]  bg-white z-10 rounded-lg;
+  @apply flex flex-col w-[360px] min-w-[360px]  z-10 rounded-lg;
 }
 
 .configHeader {
