@@ -1,0 +1,1 @@
+/* empty css              */const e={Modal:{preset:"card"}},t={name:"defaultLight",type:"light",title:"默认亮色主题",themeOverrides:{common:{}},presetsOverrides:e},r={name:"defaultDark",type:"dark",title:"默认暗色主题",themeOverrides:{common:{},Popover:{},Radio:{buttonTextColorActive:"#ffffff"}},presetsOverrides:e};export{r as defaultDark,t as defaultLight};

@@ -15,11 +15,11 @@ const defaultLight: ThemeTemplate = {
 	title: '默认亮色主题', // 主题名称
 	themeOverrides: {
 		common: {
-			borderRadius: '0.6rem', // 圆角
-			primaryColor: '#4caf50', // 主色
-			primaryColorHover: '#20a53a', // 主色悬停
-			primaryColorPressed: '#157f3a', // 主色按下
-			primaryColorSuppl: '#4caf50', // 主色补充
+			// borderRadius: '0.6rem', // 圆角
+			// primaryColor: '#4caf50', // 主色
+			// primaryColorHover: '#20a53a', // 主色悬停
+			// primaryColorPressed: '#157f3a', // 主色按下
+			// primaryColorSuppl: '#4caf50', // 主色补充
 		},
 	}, // 主题变量
 	presetsOverrides: presets, // 预设变量
@@ -33,22 +33,22 @@ const defaultDark: ThemeTemplate = {
 	themeOverrides: {
 		common: {
 			// baseColor: '#F1F1F1', // 基础色
-			primaryColor: '#4caf50', // 主色
-			primaryColorHover: '#20a53a', // 主色悬停
-			primaryColorPressed: '#157f3a', // 主色按下
-			primaryColorSuppl: '#4caf50', // 主色补充
-			borderRadius: '0.6rem', // 圆角
+			// primaryColor: '#4caf50', // 主色
+			// primaryColorHover: '#20a53a', // 主色悬停
+			// primaryColorPressed: '#157f3a', // 主色按下
+			// primaryColorSuppl: '#4caf50', // 主色补充
+			// borderRadius: '0.6rem', // 圆角
 		},
 
 		Popover: {
 			// color: '#ffffff', // 弹出层背景色
 		},
-		Button: {
-			textColorPrimary: '#ffffff', // 主按钮文本色
-			textColorHoverPrimary: '#ffffff', // 主按钮文本色悬停
-			textColorPressedPrimary: '#ffffff', // 主按钮文本色按下
-			textColorFocusPrimary: '#ffffff', // 主按钮文本色聚焦
-		},
+		// Button: {
+		// 	textColorPrimary: '#ffffff', // 主按钮文本色
+		// 	textColorHoverPrimary: '#ffffff', // 主按钮文本色悬停
+		// 	textColorPressedPrimary: '#ffffff', // 主按钮文本色按下
+		// 	textColorFocusPrimary: '#ffffff', // 主按钮文本色聚焦
+		// },
 		Radio: {
 			buttonTextColorActive: '#ffffff', // 单选框文本色
 		},
