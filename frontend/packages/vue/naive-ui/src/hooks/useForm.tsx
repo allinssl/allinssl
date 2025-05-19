@@ -1,4 +1,4 @@
-import { ref, Ref, toRef, effectScope, onScopeDispose, shallowRef, toRefs, watch, isRef } from 'vue'
+import { ref, Ref, toRef, effectScope, onScopeDispose, shallowRef, toRefs, isRef } from 'vue'
 import {
 	NForm,
 	NFormItem,
@@ -46,7 +46,7 @@ import {
 	type CheckboxGroupProps,
 	SwitchSlots,
 } from 'naive-ui'
-import { LeftOutlined, DownOutlined } from '@vicons/antd'
+import { DownOutlined, UpOutlined } from '@vicons/antd'
 import { translation, TranslationModule, type TranslationLocale } from '../locals/translation'
 import type {
 	FormInstanceWithComponent,
@@ -739,18 +739,13 @@ const useFormMore = (isMore: Ref<boolean>, content?: string) => {
 	return {
 		type: 'custom',
 		render: () => (
-			<NDivider
-				class="cursor-pointer w-full"
-				onClick={() => {
-					isMore.value = !isMore.value
-				}}
-			>
+			<NDivider class="cursor-pointer w-full !m-[1rem]" onClick={() => (isMore.value = !isMore.value)}>
 				<div class="flex items-center w-full" style={{ color }}>
 					<span class="mr-[4px]">
 						{!isMore.value ? hookT('expand') : hookT('collapse')}
 						{content || hookT('moreConfig')}
 					</span>
-					<NIcon>{isMore.value ? <DownOutlined /> : <LeftOutlined />}</NIcon>
+					<NIcon>{isMore.value ? <DownOutlined /> : <UpOutlined />}</NIcon>
 				</div>
 			</NDivider>
 		),

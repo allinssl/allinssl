@@ -9330,5 +9330,22 @@
       "arDZ": "API Token"
     },
     "timestamp": "2025-05-19T01:11:53.092Z"
+  },
+  "证书算法": {
+    "text": "证书算法",
+    "key": "t_0_1747647014927",
+    "translations": {
+      "zhCN": "证书算法",
+      "zhTW": "證書算法",
+      "enUS": "Certificate algorithm",
+      "jaJP": "証明書アルゴリズム",
+      "koKR": "인증서 알고리즘",
+      "ruRU": "Алгоритм сертификата",
+      "ptBR": "Algoritmo de certificado",
+      "frFR": "Algorithme de certificat",
+      "esAR": "Algoritmo de certificado",
+      "arDZ": "خوارزمية الشهادة"
+    },
+    "timestamp": "2025-05-19T09:30:14.927Z"
   }
 }

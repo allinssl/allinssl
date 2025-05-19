@@ -109,6 +109,7 @@ nodeOptions[APPLY] = () =>
 				end_day: 30,
 				provider: '',
 				provider_id: '',
+				algorithm: 'RSA2048',
 			},
 			childNode: null,
 		},

@@ -107,7 +107,7 @@ export default defineConfig({
 				},
 				{
 					repo: 'https://github.com/allinssl/allinssl.git',
-					branch: '1.0.2',
+					branch: '1.0.3',
 					targetDir: 'allinssl-github',
 					discardChanges: true,
 				},

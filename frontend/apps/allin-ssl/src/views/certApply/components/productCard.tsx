@@ -11,6 +11,7 @@ interface ProductCardProps {
 		num: number
 		price: number
 		discount: number
+		ipssl?: number
 		state: number
 		install_price: number
 		src_price: number
@@ -72,20 +73,16 @@ export default defineComponent({
 			props.onBuy(props.product.pid)
 		}
 
-		// 获取品牌图标
+		// 获取品牌图标 
 		const getBrandIcon = (brand: string) => {
 			const brandLower = brand.toLowerCase()
 			if (brandLower.includes('sectigo')) return '/static/icons/sectigo-ico.png'
 			if (brandLower.includes('positive')) return '/static/icons/positive-ico.png'
 			if (brandLower.includes('锐安信')) return '/static/icons/ssltrus-ico.png'
 			if (brandLower.includes("let's encrypt")) return '/static/icons/letsencrypt-icon.svg'
-			// return '/static/icons/default.png'
+			if (brandLower.includes('宝塔证书')) return '/static/icons/btssl.svg'
+			
 		}
-
-		// // 显示的功能特点
-		// const features = computed(() => {
-		// 	return ['快速颁发', '支持全部浏览器', isWildcard.value ? '支持所有子域名' : '高安全性', '7*24小时技术支持']
-		// })
 
 		return () => (
 			<div class="relative border border-gray-200 rounded-[0.8rem] p-[2rem] transition-all duration-300 h-full flex flex-col bg-white shadow-sm hover:shadow-md hover:border-blue-100 hover:-translate-y-[0.2rem]">
@@ -107,7 +104,10 @@ export default defineComponent({
 					<div class="flex-1 w-full">
 						<h3 class="font-semibold mb-[0.8rem] text-gray-800 leading-tight">{props.product.title}</h3>
 						<p class="text-[1.3rem] text-gray-500 m-0 leading-relaxed px-[0.8rem]">
-							{props.product.brand}是知名的证书颁发机构，提供高质量的SSL证书解决方案。
+							{props.product.brand === '宝塔证书'
+								? '宝塔证书是新国产证书品牌，支持 ECC、RSA 及我国商用密码 SM2 等标准算法，兼容国密浏览器'
+								: `${props.product.brand}是知名的证书颁发机构，提供高质量的SSL证书解决方案`}
+							。
 						</p>
 					</div>
 				</div>
@@ -133,13 +133,15 @@ export default defineComponent({
 						<div class="flex mb-[1rem] leading-relaxed whitespace-nowrap overflow-hidden text-ellipsis text-gray-500">
 							<span class="font-medium text-gray-500 flex-none w-[9rem]">适用网站：</span>
 							<span class="flex-1 text-gray-600 whitespace-nowrap overflow-hidden text-ellipsis">
-								{isWildcard.value
-									? isMultiDomain.value
-										? '*.bt.cn、*.btnode.cn'
-										: '*.bt.cn'
-									: isMultiDomain.value
-										? 'bt.cn、btnode.cn'
-										: 'www.bt.cn、bt.cn'}
+								{props.product?.ipssl
+									? '支持IP SSL证书'
+									: isWildcard.value
+										? isMultiDomain.value
+											? '*.bt.cn、*.btnode.cn'
+											: '*.bt.cn'
+										: isMultiDomain.value
+											? 'bt.cn、btnode.cn'
+											: 'www.bt.cn、bt.cn'}
 							</span>
 						</div>
 					</div>
