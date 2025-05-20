@@ -48,6 +48,9 @@ docker run -itd \
   -e ALLINSSL_URL=allinssl \
   allinssl/allinssl:latest
 ```
+- 访问地址：http://ip:7979/allinssl
+- 默认账号：allinssl
+- 默认密码：allinssldocker
 
 ### 编译安装
   - 编译安装时需要注意可执行文件的名称和运行目录，在`allinssl.sh`中需要修改为对应的名称和路径否则可能导致脚本不可用
