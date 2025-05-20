@@ -10,6 +10,7 @@ import verifyRules from './verify'
 import type { FormConfig } from '@baota/naive-ui/types/form'
 import type { UploadNodeConfig } from '@components/flowChart/types'
 import type { CertItem } from '@/types/cert'
+import { noSideSpace } from '@lib/utils'
 
 export default defineComponent({
 	name: 'UploadNodeDrawer',
@@ -76,13 +77,13 @@ export default defineComponent({
 						placeholder: $t('t_35_1745735781545'),
 						rows: 6,
 						readonly: param.value.cert_id === '' ? false : true,
-						onInput: (val: string) => (param.value.cert = val.trim()),
+						allowInput: noSideSpace,
 					}),
 					useFormTextarea($t('t_36_1745735769443'), 'key', {
 						placeholder: $t('t_37_1745735779980'),
 						rows: 6,
 						readonly: param.value.cert_id === '' ? false : true,
-						onInput: (val: string) => (param.value.key = val.trim()),
+						allowInput: noSideSpace,
 					}),
 					useFormHelp([
 						{

@@ -6,6 +6,7 @@ import rules from './verify'
 import DnsProviderSelect from '@components/dnsProviderSelect'
 import type { ApplyNodeConfig } from '@components/flowChart/types'
 import { deepClone } from '@baota/utils/data'
+import { noSideSpace } from '@lib/utils'
 
 export default defineComponent({
 	name: 'ApplyNodeDrawer',
@@ -43,18 +44,14 @@ export default defineComponent({
 			return [
 				useFormInput($t('t_17_1745227838561'), 'domains', {
 					placeholder: $t('t_0_1745735774005'),
+					allowInput: noSideSpace,
 					onInput: (val: string) => {
-						param.value.domains = val.trim() // 去除空格
-						param.value.domains = param.value.domains.replace(/，/g, ',') // 中文逗号分隔
-						param.value.domains = param.value.domains.replace(/;/g, ',') // 去除分号
-					},
-					onFocus: () => {
-						param.value.domains = param.value.domains.replace(/,^/g, '') // 中文逗号分隔
+						param.value.domains = val.replace(/，/g, ',').replace(/;/g, ',') // 中文逗号分隔
 					},
 				}),
 				useFormInput($t('t_1_1745735764953'), 'email', {
 					placeholder: $t('t_2_1745735773668'),
-					onInput: (val: string) => (param.value.email = val.trim()),
+					allowInput: noSideSpace,
 				}),
 				{
 					type: 'custom' as const,
@@ -111,13 +108,9 @@ export default defineComponent({
 								'name_server',
 								{
 									placeholder: $t('t_1_1747106961747'),
+									allowInput: noSideSpace,
 									onInput: (val: string) => {
-										param.value.name_server = val.trim() // 去除空格
-										param.value.name_server = param.value.name_server.replace(/，/g, ',') // 中文逗号分隔
-										param.value.name_server = param.value.name_server.replace(/;/g, ',') // 去除分号
-									},
-									onFocus: () => {
-										param.value.name_server = param.value.name_server.replace(/,^/g, '') // 中文逗号分隔
+										param.value.name_server = val.replace(/，/g, ',').replace(/;/g, ',') // 中文逗号分隔
 									},
 								},
 								{ showRequireMark: false },

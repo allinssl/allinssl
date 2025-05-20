@@ -10,6 +10,7 @@ import verify from './verify'
 
 import { NotifyNodeConfig } from '@components/flowChart/types'
 import { deepClone } from '@baota/utils/data'
+import { noSideSpace } from '@lib/utils'
 
 export default defineComponent({
 	name: 'NotifyNodeDrawer',
@@ -39,12 +40,12 @@ export default defineComponent({
 		const formConfig: FormConfig = [
 			useFormInput($t('t_0_1745920566646'), 'subject', {
 				placeholder: $t('t_3_1745887835089'),
-				onInput: (val: string) => (param.value.subject = val.trim()),
+				allowInput: noSideSpace,
 			}),
 			useFormTextarea($t('t_1_1745920567200'), 'body', {
 				placeholder: $t('t_4_1745887835265'),
 				rows: 4,
-				onInput: (val: string) => (param.value.body = val.trim()),
+				allowInput: noSideSpace,
 			}),
 			useFormCustom(() => (
 				<NotifyProviderSelect

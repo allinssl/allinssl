@@ -17,6 +17,7 @@ import { directives, useDirectives } from '@lib/directive'
 
 const app = createApp(App)
 app.use(router) // 路由
+console.log('app', router)
 app.use(pinia) // 使用状态管理
 app.use(i18n) // 国际化
 app.mount('#app') // 挂载到DOM

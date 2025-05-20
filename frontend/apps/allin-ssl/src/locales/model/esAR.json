@@ -1,5 +1,7 @@
 {
-  "t_0_1747647014927": "Algoritmo de certificado",
+  "t_0_1747711335067": "Por favor ingrese la contraseña SSH",
+  "t_1_1747711335336": "Dirección del host",
+  "t_2_1747711337958": "Por favor ingrese la dirección del host, no puede estar vacía",
   "t_0_1744098811152": "Advertencia: Ha ingresado a una zona desconocida, la página que intenta visitar no existe, por favor, haga clic en el botón para regresar a la página de inicio.",
   "t_1_1744098801860": "Volver al inicio",
   "t_2_1744098804908": "Consejo de seguridad: Si piensa que es un error, póngase en contacto con el administrador inmediatamente",
@@ -543,10 +545,11 @@
   "t_2_1747300385222": "Por favor, ingrese la clave correcta de Leichi WAF-API",
   "t_0_1747365600180": "Por favor, ingrese el nombre de usuario de Western Digital",
   "t_1_1747365603108": "Por favor, ingrese la contraseña de Western Digital",
-  "t_2_1747365599051": "Por favor ingrese la contraseña SSH",
   "t_3_1747365600828": "Por favor ingrese la AccessKey de Volcano Engine",
   "t_4_1747365600137": "Por favor ingrese el SecretKey de Volcano Engine",
   "t_0_1747367069267": "Sitio Pagoda docker",
   "t_0_1747617113090": "Por favor, ingrese el Token API de Leichi",
-  "t_1_1747617105179": "API Token"
+  "t_1_1747617105179": "API Token",
+  "t_0_1747647014927": "Algoritmo de certificado",
+  "t_0_1747709067998": "Ingrese la clave SSH, el contenido no puede estar vacío"
 }

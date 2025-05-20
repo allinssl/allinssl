@@ -25,6 +25,7 @@ import SearchOutlined from '@vicons/antd/es/SearchOutlined'
 import styles from './index.module.css'
 import verifyRules from './verify'
 import { deepClone } from '@baota/utils/data'
+import { noSideSpace } from '@lib/utils'
 
 type StepStatus = 'process' | 'wait' | 'finish' | 'error'
 
@@ -153,11 +154,11 @@ export default defineComponent({
 						...[
 							useFormInput($t('t_1_1747280813656'), 'certPath', {
 								placeholder: $t('t_30_1746667591892'),
-								onInput: (val: string) => (param.value.certPath = val.trim()),
+								allowInput: noSideSpace,
 							}),
 							useFormInput($t('t_2_1747280811593'), 'keyPath', {
 								placeholder: $t('t_31_1746667593074'),
-								onInput: (val: string) => (param.value.keyPath = val.trim()),
+								allowInput: noSideSpace,
 							}),
 							useFormTextarea(
 								$t('t_3_1747280812067'),
@@ -182,7 +183,7 @@ export default defineComponent({
 						...[
 							useFormInput($t('t_0_1747296173751'), 'siteName', {
 								placeholder: $t('t_1_1747296175494'),
-								onInput: (val: string) => (param.value.siteName = val.trim()),
+								allowInput: noSideSpace,
 							}),
 						],
 					)
@@ -192,7 +193,7 @@ export default defineComponent({
 						...[
 							useFormInput($t('t_6_1747280809615'), 'site_id', {
 								placeholder: $t('t_24_1745735766826'),
-								onInput: (val: string) => (param.value.site_id = val.trim()),
+								allowInput: noSideSpace,
 							}),
 						],
 					)
@@ -203,7 +204,7 @@ export default defineComponent({
 						...[
 							useFormInput($t('t_17_1745227838561'), 'domain', {
 								placeholder: $t('t_0_1744958839535'),
-								onInput: (val: string) => (param.value.domain = val.trim()),
+								allowInput: noSideSpace,
 							}),
 						],
 					)
@@ -214,7 +215,7 @@ export default defineComponent({
 						...[
 							useFormInput($t('t_17_1745227838561'), 'domain', {
 								placeholder: $t('t_0_1744958839535'),
-								onInput: (val: string) => (param.value.domain = val.trim()),
+								allowInput: noSideSpace,
 							}),
 						],
 					)
@@ -222,7 +223,7 @@ export default defineComponent({
 						...[
 							useFormInput($t('t_7_1747280808936'), 'region', {
 								placeholder: $t('t_25_1745735766651'),
-								onInput: (val: string) => (param.value.region = val.trim()),
+								allowInput: noSideSpace,
 							}),
 						],
 					)
@@ -230,7 +231,7 @@ export default defineComponent({
 						...[
 							useFormInput($t('t_8_1747280809382'), 'bucket', {
 								placeholder: $t('t_26_1745735767144'),
-								onInput: (val: string) => (param.value.bucket = val.trim()),
+								allowInput: noSideSpace,
 							}),
 						],
 					)

@@ -1,7 +1,7 @@
 import { defineComponent, VNode } from 'vue'
 import { NButton, NFlex, NFormItemGi, NGrid, NSelect, NText } from 'naive-ui'
 import { $t } from '@locales/index'
-import { useStore } from '@/views/layout/useStore'
+import { useStore } from '@layout/useStore'
 import SvgIcon from '@components/svgIcon'
 
 interface NotifyProviderOption {

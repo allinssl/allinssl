@@ -1,10 +1,5 @@
-:root {
-  --bg-color: #f5f5f7;
-  --border-color: #5a5e66;
-}
-
 .flowContainer {
-  @apply flex relative box-border w-full h-[calc(100vh-19rem)] overflow-x-auto overflow-y-auto bg-slate-50  ;
+  @apply flex relative box-border w-full h-[calc(100vh-19rem)] overflow-x-auto overflow-y-auto p-[1rem];
 }
 
 .flowProcess {
@@ -17,7 +12,7 @@
 
 .flowZoomIcon {
   @apply w-[2.5rem] h-[2.5rem] cursor-pointer border flex items-center justify-center;
-  border-color: var(--border-color);
+  border-color: var(--n-border-color);
 }
 
 /* 嵌套节点包装器样式 */

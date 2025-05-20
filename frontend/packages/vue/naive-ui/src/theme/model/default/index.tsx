@@ -49,9 +49,9 @@ const defaultDark: ThemeTemplate = {
 		// 	textColorPressedPrimary: '#ffffff', // 主按钮文本色按下
 		// 	textColorFocusPrimary: '#ffffff', // 主按钮文本色聚焦
 		// },
-		Radio: {
-			buttonTextColorActive: '#ffffff', // 单选框文本色
-		},
+		// Radio: {
+		// 	buttonTextColorActive: '#ffffff', // 单选框文本色
+		// },
 	},
 	presetsOverrides: presets, // 预设变量
 }

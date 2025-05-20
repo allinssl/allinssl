@@ -49,6 +49,7 @@ import ApiManageForm from './components/apiManageForm'
 import SvgIcon from '@components/svgIcon'
 import TypeIcon from '@components/typeIcon'
 import { useStore as useLayoutStore } from '@layout/useStore'
+import { noSideSpace } from '@lib/utils'
 
 const { sourceTypes } = useLayoutStore()
 // 状态和方法
@@ -292,7 +293,7 @@ export const useApiFormController = (props: { data: AccessItem }) => {
 					if (!value) {
 						const mapTips = {
 							westcn: $t('t_1_1747365603108'),
-							ssh: $t('t_2_1747365599051'),
+							ssh: $t('t_0_1747711335067'),
 						}
 						return callback(new Error(mapTips[param.value.type as keyof typeof mapTips]))
 					}
@@ -440,10 +441,11 @@ export const useApiFormController = (props: { data: AccessItem }) => {
 					useFormCustom(() => {
 						return (
 							<NGrid cols={24} xGap={4}>
-								<NFormItemGi label={$t('t_1_1745833931535')} span={16} path="config.host">
+								<NFormItemGi label={$t('t_1_1747711335336')} span={16} path="config.host">
 									<NInput
 										v-model:value={(param.value.config as SshAccessConfig).host}
-										onInput={(val: string) => ((param.value.config as SshAccessConfig).host = val.trim())}
+										placeholder={$t('t_2_1747711337958')}
+										allow-input={noSideSpace}
 									/>
 								</NFormItemGi>
 								<NFormItemGi label={$t('t_2_1745833931404')} span={8} path="config.port">
@@ -458,10 +460,12 @@ export const useApiFormController = (props: { data: AccessItem }) => {
 						{ label: $t('t_1_1746667588689'), value: 'key' },
 					]),
 					(param.value.config as SshAccessConfig)?.mode === 'password'
-						? useFormInput($t('t_48_1745289355714'), 'config.password')
+						? useFormInput($t('t_48_1745289355714'), 'config.password', {
+								allowInput: noSideSpace,
+							})
 						: useFormTextarea($t('t_1_1746667588689'), 'config.key', {
 								rows: 3,
-								placeholder: $t('t_3_1745317313561'),
+								placeholder: $t('t_0_1747709067998'),
 							}),
 				)
 				break
@@ -471,76 +475,53 @@ export const useApiFormController = (props: { data: AccessItem }) => {
 			case 'safeline':
 				items.push(
 					useFormInput(typeUrlMap.get(param.value.type) || '', 'config.url', {
-						onInput: (val: string) => ((param.value.config as PanelAccessConfig).url = val.trim()),
+						allowInput: noSideSpace,
 					}),
 					useFormInput(
 						param.value.type === 'safeline' ? $t('t_1_1747617105179') : $t('t_55_1745289355715'),
 						param.value.type === 'safeline' ? 'config.api_token' : 'config.api_key',
 						{
-							onInput: (val: string) => ((param.value.config as PanelAccessConfig).api_key = val.trim()),
+							allowInput: noSideSpace,
 						},
 					),
 					useFormSwitch(
 						$t('t_3_1746667592270'),
 						'config.ignore_ssl',
-						{
-							checkedValue: '1',
-							uncheckedValue: '0',
-						},
+						{ checkedValue: '1', uncheckedValue: '0' },
 						{ showRequireMark: false },
 					),
 				)
 				break
 			case 'aliyun':
 				items.push(
-					useFormInput('AccessKeyId', 'config.access_key_id', {
-						onInput: (val: string) => ((param.value.config as AliyunAccessConfig).access_key_id = val.trim()),
-					}),
-					useFormInput('AccessKeySecret', 'config.access_key_secret', {
-						onInput: (val: string) => ((param.value.config as AliyunAccessConfig).access_key_secret = val.trim()),
-					}),
+					useFormInput('AccessKeyId', 'config.access_key_id', { allowInput: noSideSpace }),
+					useFormInput('AccessKeySecret', 'config.access_key_secret', { allowInput: noSideSpace }),
 				)
 				break
 			case 'tencentcloud':
 				items.push(
-					useFormInput('SecretId', 'config.secret_id', {
-						onInput: (val: string) => ((param.value.config as TencentCloudAccessConfig).secret_id = val.trim()),
-					}),
-					useFormInput('SecretKey', 'config.secret_key', {
-						onInput: (val: string) => ((param.value.config as TencentCloudAccessConfig).secret_key = val.trim()),
-					}),
+					useFormInput('SecretId', 'config.secret_id', { allowInput: noSideSpace }),
+					useFormInput('SecretKey', 'config.secret_key', { allowInput: noSideSpace }),
 				)
 				break
 			case 'huaweicloud':
 			case 'baidu':
 			case 'volcengine':
 				items.push(
-					useFormInput('AccessKey', 'config.access_key', {
-						onInput: (val: string) => ((param.value.config as HuaWeiCloudAccessConfig).access_key = val.trim()),
-					}),
-					useFormInput('SecretKey', 'config.secret_key', {
-						onInput: (val: string) => ((param.value.config as HuaWeiCloudAccessConfig).secret_key = val.trim()),
-					}),
+					useFormInput('AccessKey', 'config.access_key', { allowInput: noSideSpace }),
+					useFormInput('SecretKey', 'config.secret_key', { allowInput: noSideSpace }),
 				)
 				break
 			case 'cloudflare':
 				items.push(
-					useFormInput('邮箱', 'config.email', {
-						onInput: (val: string) => ((param.value.config as CloudflareAccessConfig).email = val.trim()),
-					}),
-					useFormInput('APIKey', 'config.api_key', {
-						onInput: (val: string) => ((param.value.config as CloudflareAccessConfig).api_key = val.trim()),
-					}),
+					useFormInput('邮箱', 'config.email', { allowInput: noSideSpace }),
+					useFormInput('APIKey', 'config.api_key', { allowInput: noSideSpace }),
 				)
 				break
 			case 'westcn':
 				items.push(
-					useFormInput('Username', 'config.username', {
-						onInput: (val: string) => ((param.value.config as WestcnAccessConfig).username = val.trim()),
-					}),
-					useFormInput('Password', 'config.password', {
-						onInput: (val: string) => ((param.value.config as WestcnAccessConfig).password = val.trim()),
-					}),
+					useFormInput('Username', 'config.username', { allowInput: noSideSpace }),
+					useFormInput('Password', 'config.password', { allowInput: noSideSpace }),
 				)
 				break
 			default:
