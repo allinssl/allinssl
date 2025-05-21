@@ -24,7 +24,7 @@ func Sign(c *gin.Context) {
 	}
 	form.Username = strings.TrimSpace(form.Username)
 	form.Code = strings.TrimSpace(form.Code)
-
+	
 	// 从数据库拿用户
 	s, err := public.NewSqlite("data/data.db", "")
 	if err != nil {
@@ -32,7 +32,6 @@ func Sign(c *gin.Context) {
 		public.FailMsg(c, err.Error())
 		return
 	}
-	s.Connect()
 	defer s.Close()
 	s.TableName = "users"
 	res, err := s.Where("username=?", []interface{}{form.Username}).Select()
@@ -41,10 +40,10 @@ func Sign(c *gin.Context) {
 		public.FailMsg(c, err.Error())
 		return
 	}
-
+	
 	session := sessions.Default(c)
 	now := time.Now()
-
+	
 	loginErrCount := session.Get("__loginErrCount")
 	loginErrEnd := session.Get("__loginErrEnd")
 	ErrCount := 0
@@ -57,9 +56,9 @@ func Sign(c *gin.Context) {
 	if __loginErrEnd, ok := loginErrEnd.(time.Time); ok {
 		ErrEnd = __loginErrEnd
 	}
-
+	
 	// fmt.Println(ErrCount, ErrEnd)
-
+	
 	// 判断登录错误次数
 	switch {
 	case ErrCount >= 5:
@@ -91,7 +90,7 @@ func Sign(c *gin.Context) {
 			}
 		}
 	}
-
+	
 	// 判断用户是否存在
 	if len(res) == 0 {
 		session.Set("__loginErrCount", ErrCount+1)
@@ -117,7 +116,7 @@ func Sign(c *gin.Context) {
 	keyMd5 := md5.Sum([]byte(passwd))
 	passwdMd5 := hex.EncodeToString(keyMd5[:])
 	// fmt.Println(passwdMd5)
-
+	
 	if res[0]["password"] != passwdMd5 {
 		session.Set("__loginErrCount", ErrCount+1)
 		session.Set("__loginErrEnd", now)
@@ -128,7 +127,7 @@ func Sign(c *gin.Context) {
 		public.FailMsg(c, "密码错误")
 		return
 	}
-
+	
 	// session := sessions.Default(c)
 	session.Set("__loginErrCount", 0)
 	session.Delete("__loginErrEnd")
@@ -145,7 +144,7 @@ func Sign(c *gin.Context) {
 func GetCode(c *gin.Context) {
 	_, bs64, code, _ := public.GenerateCode()
 	session := sessions.Default(c)
-
+	
 	session.Set("_verifyCode", code)
 	_ = session.Save()
 	public.SuccessData(c, bs64, 0)

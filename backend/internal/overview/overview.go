@@ -12,7 +12,6 @@ func GetWorkflowCount() (map[string]any, error) {
 	if err != nil {
 		return nil, err
 	}
-	s.Connect()
 	defer s.Close()
 	workflow, err := s.Query(`select count(*) as count,
        count(case when exec_type='auto' then 1 end ) as active,
@@ -71,7 +70,6 @@ func GetSiteMonitorCount() (map[string]any, error) {
 	if err != nil {
 		return nil, err
 	}
-	s.Connect()
 	defer s.Close()
 	cert, err := s.Query(`select count(*) as count,
 	   count(case when state='异常' then 1 end ) as exception
@@ -126,7 +124,7 @@ func GetWorkflowHistory() ([]map[string]any, error) {
 		} else {
 			name = "未知"
 		}
-
+		
 		result = append(result, map[string]any{
 			"name":      name,
 			"state":     state,

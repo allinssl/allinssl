@@ -13,7 +13,6 @@ func GetSqlite() (*public.Sqlite, error) {
 	if err != nil {
 		return nil, err
 	}
-	s.Connect()
 	s.TableName = "cert"
 	return s, nil
 }
@@ -26,7 +25,7 @@ func GetList(search string, p, limit int64) ([]map[string]any, int, error) {
 		return data, 0, err
 	}
 	defer s.Close()
-	
+
 	var limits []int64
 	if p >= 0 && limit >= 0 {
 		limits = []int64{0, limit}
@@ -35,7 +34,7 @@ func GetList(search string, p, limit int64) ([]map[string]any, int, error) {
 			limits[1] = p * limit
 		}
 	}
-	
+
 	if search != "" {
 		count, err = s.Where("domains like ?", []interface{}{"%" + search + "%"}).Count()
 		data, err = s.Where("domains like ?", []interface{}{"%" + search + "%"}).Limit(limits).Order("create_time", "desc").Select()
@@ -68,7 +67,6 @@ func AddCert(source, key, cert, issuer, issuerCert, domains, sha256, historyId, 
 		if err != nil {
 			return err
 		}
-		s.Connect()
 		s.TableName = "workflow_history"
 		defer s.Close()
 		// 查询 workflowId
@@ -80,7 +78,7 @@ func AddCert(source, key, cert, issuer, issuerCert, domains, sha256, historyId, 
 			workflowId = wh[0]["workflow_id"].(string)
 		}
 	}
-	
+
 	now := time.Now().Format("2006-01-02 15:04:05")
 	_, err = s.Insert(map[string]any{
 		"source":      source,
@@ -108,7 +106,7 @@ func SaveCert(source, key, cert, issuerCert, historyId string) (string, error) {
 	if err := public.ValidateSSLCertificate(cert, key); err != nil {
 		return "", err
 	}
-	
+
 	certObj, err := public.ParseCertificate([]byte(cert))
 	if err != nil {
 		return "", fmt.Errorf("解析证书失败: %v", err)
@@ -121,23 +119,23 @@ func SaveCert(source, key, cert, issuerCert, historyId string) (string, error) {
 	if d, _ := GetCert(sha256); d != nil {
 		return sha256, nil
 	}
-	
+
 	domainSet := make(map[string]bool)
-	
+
 	if certObj.Subject.CommonName != "" {
 		domainSet[certObj.Subject.CommonName] = true
 	}
 	for _, dns := range certObj.DNSNames {
 		domainSet[dns] = true
 	}
-	
+
 	// 转成切片并拼接成逗号分隔的字符串
 	var domains []string
 	for domain := range domainSet {
 		domains = append(domains, domain)
 	}
 	domainList := strings.Join(domains, ",")
-	
+
 	// 提取 CA 名称（Issuer 的组织名）
 	caName := "UNKNOWN"
 	if len(certObj.Issuer.Organization) > 0 {
@@ -149,7 +147,7 @@ func SaveCert(source, key, cert, issuerCert, historyId string) (string, error) {
 	startTime := certObj.NotBefore.Format("2006-01-02 15:04:05")
 	endTime := certObj.NotAfter.Format("2006-01-02 15:04:05")
 	endDay := fmt.Sprintf("%d", int(certObj.NotAfter.Sub(time.Now()).Hours()/24))
-	
+
 	err = AddCert(source, key, cert, caName, issuerCert, domainList, sha256, historyId, startTime, endTime, endDay)
 	if err != nil {
 		return "", fmt.Errorf("保存证书失败: %v", err)
@@ -171,7 +169,7 @@ func DelCert(id string) error {
 		return err
 	}
 	defer s.Close()
-	
+
 	_, err = s.Where("id=?", []interface{}{id}).Delete()
 	if err != nil {
 		return err
@@ -185,7 +183,7 @@ func GetCert(id string) (map[string]string, error) {
 		return nil, err
 	}
 	defer s.Close()
-	
+
 	res, err := s.Where("id=? or sha256=?", []interface{}{id, id}).Select()
 	if err != nil {
 		return nil, err
@@ -193,13 +191,13 @@ func GetCert(id string) (map[string]string, error) {
 	if len(res) == 0 {
 		return nil, fmt.Errorf("证书不存在")
 	}
-	
+
 	data := map[string]string{
 		"domains": res[0]["domains"].(string),
 		"cert":    res[0]["cert"].(string),
 		"key":     res[0]["key"].(string),
 	}
-	
+
 	return data, nil
 }
 

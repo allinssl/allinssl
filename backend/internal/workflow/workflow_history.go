@@ -13,7 +13,6 @@ func GetSqliteObjWH() (*public.Sqlite, error) {
 	if err != nil {
 		return nil, err
 	}
-	s.Connect()
 	s.TableName = "workflow_history"
 	return s, nil
 }
@@ -27,7 +26,7 @@ func GetListWH(id string, p, limit int64) ([]map[string]any, int, error) {
 		return data, 0, err
 	}
 	defer s.Close()
-	
+
 	var limits []int64
 	if p >= 0 && limit >= 0 {
 		limits = []int64{0, limit}
@@ -43,7 +42,7 @@ func GetListWH(id string, p, limit int64) ([]map[string]any, int, error) {
 		count, err = s.Where("workflow_id=?", []interface{}{id}).Count()
 		data, err = s.Where("workflow_id=?", []interface{}{id}).Limit(limits).Order("create_time", "desc").Select()
 	}
-	
+
 	if err != nil {
 		return data, 0, err
 	}

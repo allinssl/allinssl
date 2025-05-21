@@ -12,7 +12,6 @@ func GetSqlite() (*public.Sqlite, error) {
 	if err != nil {
 		return nil, err
 	}
-	s.Connect()
 	s.TableName = "access"
 	return s, nil
 }

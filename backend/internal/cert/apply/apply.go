@@ -32,7 +32,6 @@ func GetSqlite() (*public.Sqlite, error) {
 	if err != nil {
 		return nil, err
 	}
-	s.Connect()
 	s.TableName = "_accounts"
 	return s, nil
 }
@@ -183,7 +182,6 @@ func Apply(cfg map[string]any, logger *public.Logger) (map[string]any, error) {
 		if err != nil {
 			return nil, err
 		}
-		s.Connect()
 		s.TableName = "workflow_history"
 		defer s.Close()
 		// 查询 workflowId

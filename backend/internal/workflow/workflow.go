@@ -13,7 +13,6 @@ func GetSqlite() (*public.Sqlite, error) {
 	if err != nil {
 		return nil, err
 	}
-	s.Connect()
 	s.TableName = "workflow"
 	return s, nil
 }

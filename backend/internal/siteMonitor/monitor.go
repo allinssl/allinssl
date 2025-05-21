@@ -29,7 +29,6 @@ func GetSqlite() (*public.Sqlite, error) {
 	if err != nil {
 		return nil, err
 	}
-	s.Connect()
 	s.TableName = "site_monitor"
 	return s, nil
 }

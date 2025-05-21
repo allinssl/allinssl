@@ -9,7 +9,6 @@ func GetSqliteAT() (*public.Sqlite, error) {
 	if err != nil {
 		return nil, err
 	}
-	s.Connect()
 	s.TableName = "access_type"
 	return s, nil
 }

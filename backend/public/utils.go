@@ -22,7 +22,6 @@ func GetSettingIgnoreError(key string) string {
 	if err != nil {
 		return ""
 	}
-	s.Connect()
 	defer s.Close()
 	s.TableName = "settings"
 	res, err := s.Where("key=?", []interface{}{key}).Select()
@@ -44,7 +43,6 @@ func UpdateSetting(key, val string) error {
 	if err != nil {
 		return err
 	}
-	s.Connect()
 	defer s.Close()
 	s.TableName = "settings"
 	_, err = s.Where("key=?", []interface{}{key}).Update(map[string]any{"value": val})
@@ -60,7 +58,6 @@ func GetSettingsFromType(typ string) ([]map[string]any, error) {
 	if err != nil {
 		return nil, err
 	}
-	s.Connect()
 	defer s.Close()
 	s.TableName = "settings"
 	res, err := s.Where("type=?", []interface{}{typ}).Select()
