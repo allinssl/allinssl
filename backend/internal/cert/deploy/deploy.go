@@ -55,6 +55,12 @@ func Deploy(cfg map[string]any, logger *public.Logger) error {
 	case "localhost":
 		logger.Debug("部署到本地...")
 		return DeployLocalhost(cfg)
+	case "qiniu-cdn":
+		logger.Debug("部署到七牛云CDN...")
+		return DeployQiniuCdn(cfg)
+	case "qiniu-oss":
+		logger.Debug("部署到七牛云OSS...")
+		return DeployQiniuOss(cfg)
 	default:
 		return fmt.Errorf("不支持的部署: %s", providerName)
 	}

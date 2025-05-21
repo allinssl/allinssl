@@ -166,6 +166,8 @@ func TestAccess(c *gin.Context) {
 		result = deploy.TencentCloudAPITest(form.ID)
 	case "aliyun":
 		result = deploy.AliyunCdnAPITest(form.ID)
+	case "qiniu":
+		result = deploy.QiniuAPITest(form.ID)
 	default:
 		public.FailMsg(c, "不支持测试的提供商")
 	}

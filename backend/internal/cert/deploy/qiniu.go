@@ -12,41 +12,6 @@ import (
 	"github.com/qiniu/go-sdk/v7/client"
 )
 
-// DeployQiniuCdn deploys an SSL certificate to a Qiniu CDN domain.
-// It takes a configuration map containing certificate data and domain information,
-// uploads the certificate to Qiniu's service, and then applies it to the specified domain.
-//
-// Parameters:
-//   - cfg: A map containing:
-//   - "certificate": Map with "key" (private key) and "cert" (certificate) strings
-//   - "domain": String representing the domain to apply the certificate to
-//   - "provider_id": The ID of the Qiniu provider (string or float64)
-//
-// Returns:
-//   - error: nil on success, or an error describing what went wrong
-func DeployQiniuCdn(cfg map[string]any) error {
-	_, ok := cfg["certificate"].(map[string]any)
-	if !ok {
-		return fmt.Errorf("证书不存在")
-	}
-	domain, ok := cfg["domain"].(string)
-	if !ok {
-		return fmt.Errorf("参数错误：domain")
-	}
-
-	certId, err := uploadQiniuCert(cfg)
-	if err != nil {
-		return err
-	}
-	path := fmt.Sprintf("domain/%v/sslize", domain)
-	m := map[string]any{
-		"certid": certId,
-	}
-	var response commonResponse
-	err = requestQiniu(cfg, path, m, "PUT", &response)
-	return err
-}
-
 type commonResponse struct {
 	Code  int    `json:"code"`
 	Error string `json:"error"`
@@ -54,25 +19,6 @@ type commonResponse struct {
 
 type sslCertResponse struct {
 	CertID string `json:"certID"`
-}
-
-func uploadQiniuCert(cfg map[string]any) (string, error) {
-	cert, ok := cfg["certificate"].(map[string]any)
-	keyPem, ok := cert["key"].(string)
-	if !ok {
-		return "", fmt.Errorf("证书错误：key")
-	}
-	certPem, ok := cert["cert"].(string)
-	if !ok {
-		return "", fmt.Errorf("证书错误：cert")
-	}
-	m := map[string]any{
-		"pri": keyPem,
-		"ca":  certPem,
-	}
-	var response sslCertResponse
-	err := requestQiniu(cfg, "sslcert", m, "POST", &response)
-	return response.CertID, err
 }
 
 func requestQiniu(cfg map[string]any, path string, m map[string]any, method string, response any) (err error) {
@@ -96,11 +42,90 @@ func requestQiniu(cfg map[string]any, path string, m map[string]any, method stri
 	if err != nil {
 		return err
 	}
-
+	
 	uri := fmt.Sprintf("https://api.qiniu.com/%v", path)
 	credentials := auth.New(providerConfig["access_key"], providerConfig["access_secret"])
 	header := http.Header{}
 	header.Add("Content-Type", "application/json")
 	err = client.DefaultClient.CredentialedCallWithJson(context.Background(), credentials, auth.TokenQBox, response, method, uri, header, m)
 	return err
+}
+
+
+func DeployQiniuCdn(cfg map[string]any) error {
+	_, ok := cfg["certificate"].(map[string]any)
+	if !ok {
+		return fmt.Errorf("证书不存在")
+	}
+	domain, ok := cfg["domain"].(string)
+	if !ok {
+		return fmt.Errorf("参数错误：domain")
+	}
+
+	certId, err := uploadQiniuCert(cfg)
+	if err != nil {
+		return err
+	}
+	path := fmt.Sprintf("domain/%v/sslize", domain)
+	m := map[string]any{
+		"certid": certId,
+	}
+	var response commonResponse
+	err = requestQiniu(cfg, path, m, "PUT", &response)
+	return err
+}
+
+func DeployQiniuOss(cfg map[string]any) error {
+	_, ok := cfg["certificate"].(map[string]any)
+	if !ok {
+		return fmt.Errorf("证书不存在")
+	}
+	domain, ok := cfg["domain"].(string)
+	if !ok {
+		return fmt.Errorf("参数错误：domain")
+	}
+	
+	certId, err := uploadQiniuCert(cfg)
+	if err != nil {
+		return err
+	}
+	m := map[string]any{
+		"certid": certId,
+		"domain": domain,
+	}
+	var response commonResponse
+	err = requestQiniu(cfg, "cert/bind", m, "POST", &response)
+	return err
+}
+
+func uploadQiniuCert(cfg map[string]any) (string, error) {
+	cert, ok := cfg["certificate"].(map[string]any)
+	keyPem, ok := cert["key"].(string)
+	if !ok {
+		return "", fmt.Errorf("证书错误：key")
+	}
+	certPem, ok := cert["cert"].(string)
+	if !ok {
+		return "", fmt.Errorf("证书错误：cert")
+	}
+	m := map[string]any{
+		"pri": keyPem,
+		"ca":  certPem,
+	}
+	var response sslCertResponse
+	err := requestQiniu(cfg, "sslcert", m, "POST", &response)
+	return response.CertID, err
+}
+
+func QiniuAPITest(providerID string) error {
+	cfg := map[string]any{
+		"provider_id": providerID,
+	}
+	m := map[string]any{}
+	var response commonResponse
+	err := requestQiniu(cfg, "sslcert", m, "GET", &response)
+	if err != nil {
+		return fmt.Errorf("测试请求失败: %v", err)
+	}
+	return nil
 }
