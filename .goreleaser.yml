@@ -17,6 +17,7 @@ checksum:
 builds:
   - env:
       - CGO_ENABLED=0
+    main: ./cmd
     goos:
       - linux
       - darwin
