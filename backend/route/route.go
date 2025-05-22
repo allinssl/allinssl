@@ -44,6 +44,7 @@ func Register(r *gin.Engine) {
 		access.POST("/upd_access", api.UpdateAccess)
 		access.POST("/get_all", api.GetAllAccess)
 		access.POST("/test_access", api.TestAccess)
+		access.POST("/get_sites", api.GetSiteList)
 
 		access.POST("/get_eab_list", api.GetEABList)
 		access.POST("/add_eab", api.AddEAB)

@@ -88,6 +88,19 @@ func RequestBt(data *url.Values, method, providerID, requestUrl string) (map[str
 	return res, nil
 }
 
+func UploadBt(key, csr, providerID string) (string, error) {
+	data := url.Values{}
+	data.Set("key", key)
+	data.Set("csr", csr)
+	response, err := RequestBt(&data, "POST", providerID, "ssl/cert/save_cert")
+	if response == nil {
+		return "", fmt.Errorf("证书上传失败: %v", err)
+	}
+	sslHash := response["ssl_hash"].(string)
+	
+	return sslHash, nil
+}
+
 func DeployBt(cfg map[string]any) error {
 	cert, ok := cfg["certificate"].(map[string]any)
 	if !ok {
@@ -145,15 +158,26 @@ func DeployBtSite(cfg map[string]any) error {
 	default:
 		return fmt.Errorf("参数错误：provider_id")
 	}
-	siteName, ok := cfg["siteName"].(string)
+	siteNames, ok := cfg["siteName"].(string)
 	if !ok {
 		return fmt.Errorf("参数错误：siteName")
 	}
+	
+	sslHash, err := UploadBt(keyPem, certPem, providerID)
+	batchInfo := []map[string]string{}
+	
+	siteNamesList := strings.Split(siteNames, ",")
+	for _, siteName := range siteNamesList {
+		batchInfo = append(batchInfo, map[string]string{
+			"siteName": siteName,
+			"ssl_hash": sslHash,
+		})
+	}
+	batchs, err := json.Marshal(batchInfo)
+	
 	data := url.Values{}
-	data.Set("key", keyPem)
-	data.Set("csr", certPem)
-	data.Set("siteName", siteName)
-	_, err := RequestBt(&data, "POST", providerID, "site?action=SetSSL")
+	data.Set("BatchInfo", string(batchs))
+	_, err = RequestBt(&data, "POST", providerID, "ssl?action=SetBatchCertToSite")
 	if err != nil {
 		return fmt.Errorf("证书部署失败: %v", err)
 	}
@@ -205,4 +229,17 @@ func BtPanelAPITest(providerID string) error {
 		return fmt.Errorf("测试请求失败: %v", err)
 	}
 	return nil
+}
+
+func BtPanelSiteList(providerID string) ([]any, error) {
+	data := url.Values{}
+	data.Set("cert_list", "")
+	siteList, err := RequestBt(&data, "POST", providerID, "ssl?action=GetSiteDomain")
+	if err != nil {
+		fmt.Println("获取网站列表失败:", err)
+		return nil, err
+	}
+	
+	fmt.Printf("siteList:%#v\n", siteList["all"].([]any))
+	return siteList["all"].([]any), nil
 }

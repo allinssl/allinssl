@@ -4,6 +4,7 @@ import (
 	"ALLinSSL/backend/internal/access"
 	"ALLinSSL/backend/internal/cert/deploy"
 	"ALLinSSL/backend/public"
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"strings"
 )
@@ -321,4 +322,34 @@ func TestAccess(c *gin.Context) {
 
 	public.SuccessMsg(c, "请求测试成功！")
 	return
+}
+
+func GetSiteList(c *gin.Context) {
+	var form struct {
+		ID     string `form:"id"`
+		Type   string `form:"type"`
+		Search string `form:"search"`
+		Page   int64  `form:"p"`
+		Limit  int64  `form:"limit"`
+	}
+	err := c.ShouldBind(&form)
+	if err != nil {
+		public.FailMsg(c, err.Error())
+		return
+	}
+	
+	var siteList []any
+	switch form.Type {
+	case "btpanel":
+		siteList, err = deploy.BtPanelSiteList(form.ID)
+	default:
+		public.FailMsg(c, "不支持的提供商")
+	}
+	
+	if err != nil {
+		public.FailMsg(c, fmt.Sprintf("获取网站列表失败%v", err))
+		return
+	}
+	
+	public.SuccessData(c, siteList, len(siteList))
 }
