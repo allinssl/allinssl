@@ -64,6 +64,9 @@ func Deploy(cfg map[string]any, logger *public.Logger) error {
 	case "qiniu-oss":
 		logger.Debug("部署到七牛云OSS...")
 		return DeployQiniuOss(cfg)
+	case "baidu-cdn":
+		logger.Debug("部署到百度云CDN...")
+		return DeployBaiduCdn(cfg)
 	default:
 		return fmt.Errorf("不支持的部署: %s", providerName)
 	}
