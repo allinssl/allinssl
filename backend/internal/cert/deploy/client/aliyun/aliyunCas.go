@@ -6,11 +6,11 @@ import (
 	"github.com/alibabacloud-go/tea/tea"
 )
 
-type ClientAliCas struct {
+type AliyunCasClient struct {
 	aliyuncas.Client
 }
 
-func NewClientAliCas(accessKey, accessSecret string) (_result *ClientAliCas, err error) {
+func ClientAliCas(accessKey, accessSecret string) (_result *AliyunCasClient, err error) {
 	config := &openapi.Config{
 		AccessKeyId:     tea.String(accessKey),
 		AccessKeySecret: tea.String(accessSecret),
@@ -21,13 +21,13 @@ func NewClientAliCas(accessKey, accessSecret string) (_result *ClientAliCas, err
 		return nil, err
 	}
 	
-	client := &ClientAliCas{
+	client := &AliyunCasClient{
 		Client: *casClient,
 	}
 	return client, nil
 }
 
-func (c *ClientAliCas) UploadCert(certName, certContent, certKey string) (*int64, error) {
+func (c *AliyunCasClient) UploadCert(certName, certContent, certKey string) (*int64, error) {
 	certificateRequest := &aliyuncas.UploadUserCertificateRequest{
 		Cert: tea.String(certContent),
 		Key:  tea.String(certKey),
