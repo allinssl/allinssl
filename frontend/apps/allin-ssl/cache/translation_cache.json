@@ -10605,5 +10605,22 @@
       "arDZ": "إضافة Zerossl، Google، تفويض CA مخصص"
     },
     "timestamp": "2025-05-23T08:57:06.044Z"
+  },
+  "宝塔docker网站": {
+    "text": "宝塔docker网站",
+    "key": "t_0_1747994891459",
+    "translations": {
+      "zhCN": "宝塔docker网站",
+      "zhTW": "寶塔docker網站",
+      "enUS": "Pagoda docker website",
+      "jaJP": "宝塔dockerサイト",
+      "koKR": "보타 docker 웹사이트",
+      "ruRU": "Веб-сайт Pagoda docker",
+      "ptBR": "Site do Pagoda docker",
+      "frFR": "Site web Pagoda docker",
+      "esAR": "Sitio web de Pagoda docker",
+      "arDZ": "موقع باغودا docker"
+    },
+    "timestamp": "2025-05-23T10:08:11.459Z"
   }
 }

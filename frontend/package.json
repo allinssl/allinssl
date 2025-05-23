@@ -11,8 +11,9 @@
     "test": "vitest",
     "clear": "sh ./scripts/clear-temp.sh",
     "cursor:backup": "sh ./scripts/cursor_backup.sh",
-    "devcloud": "turbo run dev --filter cloud-control",
-    "buildcloud": "turbo run build --filter cloud-control",
+    "devcloud": "turbo run dev --filter cloud-control --",
+    "buildcloud": "turbo run build --filter cloud-control && node apps/cloud-control/upload.js",
+    "uploadcloud": "node apps/cloud-control/upload.js",
     "sync": "sh ./scripts/sync-project.sh"
   },
   "devDependencies": {

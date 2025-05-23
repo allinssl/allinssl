@@ -1,11 +1,11 @@
-import { App, Directive, DirectiveBinding } from 'vue'
+import { App, Directive } from 'vue'
 
 /**
  * 移除输入框中的空格
  * 用法：v-nospace
  */
 export const vNospace: Directive = {
-	mounted(el: HTMLElement, binding: DirectiveBinding) {
+	mounted(el: HTMLElement) {
 		el.addEventListener('input', (event: Event) => {
 			const inputElement = event.target as HTMLInputElement
 			const newValue = inputElement.value.replace(/\s+/g, '')

@@ -52,7 +52,11 @@ export const ApiProjectConfig: Record<string, ApiProjectType> = {
 	btpanel: {
 		name: $t('t_10_1745735765165'),
 		icon: 'btpanel',
-		hostRelated: { default: { name: $t('t_10_1745735765165') }, site: { name: $t('t_1_1747886307276') } },
+		hostRelated: {
+			default: { name: $t('t_10_1745735765165') },
+			site: { name: $t('t_1_1747886307276') },
+			dockersite: { name: $t('t_0_1747994891459') },
+		},
 		type: ['host'],
 		sort: 3,
 	},
