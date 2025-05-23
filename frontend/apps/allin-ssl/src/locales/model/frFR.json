@@ -1,5 +1,4 @@
 {
-  "t_0_1747990626044": "Ajouter Zerossl, Google, autorisation CA personnalisée",
   "t_0_1744098811152": "Avertissement : Vous avez entré dans une zone inconnue, la page que vous visitez n'existe pas, veuillez cliquer sur le bouton pour revenir à la page d'accueil.",
   "t_1_1744098801860": "Retour à l'accueil",
   "t_2_1744098804908": "Avis de sécurité : Si vous pensez que c'est une erreur, veuillez contacter l'administrateur immédiatement",
@@ -622,5 +621,6 @@
   "t_7_1747990227761": "Adresse proxy (facultatif)",
   "t_8_1747990235316": "Ne prend en charge que les adresses proxy http ou https (par exemple, http://proxy.example.com:8080)",
   "t_9_1747990229640": "L'heure de renouvellement automatique ne peut pas être vide",
-  "t_10_1747990232207": "Veuillez sélectionner le nom du site (sélection multiple prise en charge)"
+  "t_10_1747990232207": "Veuillez sélectionner le nom du site (sélection multiple prise en charge)",
+  "t_0_1747990626044": "Ajouter Zerossl, Google, autorisation CA personnalisée"
 }

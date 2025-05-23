@@ -113,6 +113,7 @@ nodeOptions[APPLY] = () =>
 				provider: '',
 				provider_id: '',
 				algorithm: 'RSA2048',
+				skip_check: 0,
 			},
 			childNode: null,
 		},

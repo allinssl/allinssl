@@ -200,6 +200,7 @@ export interface EabItem {
 	name: string
 	Kid: string
 	HmacEncoded: string
+	mail: string
 	ca: string
 	create_time: string
 	update_time: string

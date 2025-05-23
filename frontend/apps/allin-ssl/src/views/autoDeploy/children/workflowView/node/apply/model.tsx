@@ -56,6 +56,7 @@ export default defineComponent({
 				useFormInput($t('t_1_1745735764953'), 'email', {
 					placeholder: $t('t_2_1745735773668'),
 					allowInput: noSideSpace,
+					readonly: param.value.ca !== 'letsencrypt',
 				}),
 				{
 					type: 'custom' as const,
@@ -101,11 +102,13 @@ export default defineComponent({
 										<CAProviderSelect
 											path="eabId"
 											value={param.value.eabId}
+											email={param.value.email}
 											ca={param.value.ca}
 											{...{
-												'onUpdate:value': (val: { value: string; ca: string }) => {
+												'onUpdate:value': (val: { value: string; ca: string; email: string }) => {
 													param.value.eabId = val.value
 													param.value.ca = val.ca
+													if (val.value) param.value.email = val.email
 												},
 											}}
 										/>
@@ -148,7 +151,15 @@ export default defineComponent({
 								},
 								{ showRequireMark: false },
 							),
-							useFormSwitch($t('t_2_1747106957037'), 'skip_check', {}, { showRequireMark: false }),
+							useFormSwitch(
+								$t('t_2_1747106957037'),
+								'skip_check',
+								{
+									checkedValue: 1,
+									uncheckedValue: 0,
+								},
+								{ showRequireMark: false },
+							),
 						]
 					: []),
 				useFormHelp([

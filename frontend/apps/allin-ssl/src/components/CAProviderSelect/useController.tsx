@@ -22,6 +22,7 @@ export function useCAProviderSelectController(props: CAProviderSelectProps, emit
 		label: '',
 		value: '',
 		ca: '',
+		email: '',
 	})
 	const caProviderRef = ref<CAProviderOption[]>([])
 	const isLoading = ref(false)
@@ -47,6 +48,7 @@ export function useCAProviderSelectController(props: CAProviderSelectProps, emit
 				label: selectedProvider.label,
 				value: selectedProvider.value,
 				ca: selectedProvider.ca,
+				email: selectedProvider.email,
 			}
 		} else if (caProviderRef.value.length > 0 && param.value.value === '') {
 			// 如果 param.value 为空（例如初始状态或清空后），且 caProviderRef 列表不为空，则默认选中第一个
@@ -54,9 +56,16 @@ export function useCAProviderSelectController(props: CAProviderSelectProps, emit
 				label: caProviderRef.value[0]?.label || '',
 				value: caProviderRef.value[0]?.value || '',
 				ca: caProviderRef.value[0]?.ca || '',
+				email: caProviderRef.value[0]?.email || '',
 			}
 		}
-		emit('update:value', { value: param.value.value, ca: param.value.ca })
+
+		// 当 value 不为空时，将其赋值给 email 字段
+		if (param.value.value !== '') {
+			emit('update:email', param.value.email)
+		}
+
+		emit('update:value', { value: param.value.value, ca: param.value.ca, email: param.value.email })
 	}
 
 	/**
@@ -82,6 +91,7 @@ export function useCAProviderSelectController(props: CAProviderSelectProps, emit
 				label: "Let's Encrypt",
 				value: '',
 				ca: 'letsencrypt',
+				email: '',
 			}
 
 			// 获取其他CA授权列表
@@ -90,6 +100,7 @@ export function useCAProviderSelectController(props: CAProviderSelectProps, emit
 				label: item.name,
 				value: item.id.toString(),
 				ca: item.ca,
+				email: item.mail,
 			}))
 
 			// 合并选项，Let's Encrypt在首位

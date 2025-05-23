@@ -6,6 +6,7 @@ export interface CAProviderOption {
 	label: string
 	value: string
 	ca: string
+	email: string
 }
 
 /**
@@ -29,6 +30,11 @@ export interface CAProviderSelectProps {
 	 */
 	ca: string
 	/**
+	 * @property email
+	 * @description 邮箱地址，当 value 不为空时会被赋值
+	 */
+	email: string
+	/**
 	 * @property disabled
 	 * @description 是否禁用选择器
 	 * @default false
@@ -46,7 +52,8 @@ export interface CAProviderSelectProps {
  * @description CAProviderSelect 组件的 Emits 定义
  */
 export interface CAProviderSelectEmits {
-	(e: 'update:value', value: { value: string; ca: string }): void
+	(e: 'update:value', value: { value: string; ca: string; email: string }): void
+	(e: 'update:email', email: string): void
 }
 
 /**

@@ -1,12 +1,10 @@
-import { useRouter, type Router } from 'vue-router'
+import { useRouter } from 'vue-router'
 import { NButton } from 'naive-ui'
 import { useThemeCssVar } from '@baota/naive-ui/theme'
-import { $t } from '@locales/index' // 引入 $t
-
+import { $t } from '@locales/index'
 
 // 错误图标
-// Changed default color to use a theme variable (textColor1)
-const errorIcon = (size: number = 16, color: string = 'var(--n-text-color-1)') => {
+const errorIcon = (size: number = 16, color: string) => {
 	return (
 		<svg width={size} height={size} viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg" fill={color}>
 			<path
@@ -20,47 +18,42 @@ const errorIcon = (size: number = 16, color: string = 'var(--n-text-color-1)') =
 
 export default defineComponent({
 	setup() {
-		// 路由实例
-		const router: Router = useRouter()
-
-		// 获取主题变量
-		// Added textColor1 for the errorIcon default color
-		const cssVar = useThemeCssVar(['baseColor','textColorBase', 'textColorSecondary', 'textColorDisabled', 'textColorInverse', 'textColor1'])
+		const router = useRouter()
+		const cssVar = useThemeCssVar(['baseColor', 'textColorBase', 'textColorSecondary', 'textColorDisabled'])
 
 		return () => (
-			<div class="flex flex-col items-center justify-center min-h-screen p-4" style={cssVar.value}> {/* Added p-4 for mobile padding */}
-				<div class="text-center px-4 sm:px-8 max-w-[60rem] mx-auto"> {/* Responsive horizontal padding */}
+			<div class="flex flex-col items-center justify-center min-h-screen p-4" style={cssVar.value}>
+				<div class="text-center px-4 sm:px-8 max-w-[60rem] mx-auto">
 					<div
-						// Responsive font size and margin
 						class="text-[4.5rem] sm:text-[6rem] md:text-[8rem] font-bold leading-none mb-2 sm:mb-4"
 						style={{
-							color: 'var(--n-text-color-base)', // Use theme variable for color
-							textShadow: '2px 2px 8px rgba(0,0,0,0.25)', // Existing text shadow
+							color: 'var(--n-text-color-base)',
+							textShadow: '2px 2px 8px rgba(0,0,0,0.25)',
 						}}
 					>
 						404
 					</div>
-					{/* Responsive margin; Icon color explicitly set to cardColor to match "404" text */}
-					<div class="flex items-center justify-center mb-4 sm:mb-8">
-						{errorIcon(60, 'var(--n-text-color-base)')}
-					</div>
-					{/* Responsive font size and margin */}
-					<div class="text-[1.2rem] sm:text-[1.5rem] md:text-[1.8rem] mb-4 sm:mb-8" style={{ color: 'var(--n-text-color-secondary)' }}>
+					<div class="flex items-center justify-center mb-4 sm:mb-8">{errorIcon(60, 'var(--n-text-color-base)')}</div>
+					<div
+						class="text-[1.2rem] sm:text-[1.5rem] md:text-[1.8rem] mb-4 sm:mb-8"
+						style={{ color: 'var(--n-text-color-secondary)' }}
+					>
 						{$t('t_0_1744098811152')}
 					</div>
 					<NButton
-						// Button colors from theme variables
 						style={{
 							backgroundColor: 'var(--n-text-color-base)',
 							color: 'var(--n-base-color)',
-							border: 'none'
+							border: 'none',
 						}}
 						onClick={() => router.push('/')}
 					>
 						{$t('t_1_1744098801860')}
 					</NButton>
-					{/* Responsive margin and font size */}
-					<div class="mt-4 sm:mt-8 text-[1rem] sm:text-[1.1rem] md:text-[1.3rem]" style={{ color: 'var(--n-text-color-disabled)' }}>
+					<div
+						class="mt-4 sm:mt-8 text-[1rem] sm:text-[1.1rem] md:text-[1.3rem]"
+						style={{ color: 'var(--n-text-color-disabled)' }}
+					>
 						{$t('t_2_1744098804908')}
 					</div>
 				</div>

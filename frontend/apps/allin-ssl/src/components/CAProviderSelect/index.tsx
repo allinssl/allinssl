@@ -21,15 +21,18 @@ import { $t } from '@locales/index'
  *   path="form.eabId"
  *   v-model:value="formValue.eabId"
  *   v-model:ca="formValue.ca"
+ *   v-model:email="formValue.email"
  * />
  *
  * @property {string} path - 表单路径，用于表单校验。
  * @property {string} value - 当前选中的值 (通过 v-model:value 绑定)。
  * @property {string} ca - 当前选中的CA类型 (通过 v-model:ca 绑定)。
+ * @property {string} email - 邮箱地址 (通过 v-model:email 绑定)，当 value 不为空时会被自动赋值。
  * @property {boolean} [disabled=false] - 是否禁用。
  * @property {string} [customClass] - 自定义CSS类名。
  *
  * @emits update:value - (value: { value: string; ca: string }) 当选择的CA授权变更时触发，传递值和CA类型。
+ * @emits update:email - (email: string) 当 value 不为空时触发，传递邮箱地址。
  */
 export default defineComponent<CAProviderSelectProps>({
 	name: 'CAProviderSelect',
@@ -47,6 +50,10 @@ export default defineComponent<CAProviderSelectProps>({
 			type: String,
 			required: true,
 		},
+		email: {
+			type: String,
+			required: true,
+		},
 		disabled: {
 			type: Boolean,
 			default: false,
@@ -58,6 +65,7 @@ export default defineComponent<CAProviderSelectProps>({
 	},
 	emits: {
 		'update:value': (value: { value: string; ca: string }) => true,
+		'update:email': (email: string) => true,
 	},
 	setup(props: CAProviderSelectProps, { emit }: { emit: CAProviderSelectEmits }) {
 		const {
