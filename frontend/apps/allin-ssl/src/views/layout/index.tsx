@@ -184,7 +184,7 @@ export default defineComponent({
 						)}
 						<div class={styles.systemInfo}>
 							<NBadge value={1} show={false} dot>
-								<span class="px-1 sm:px-[.5rem] cursor-pointer">v1.0.2</span>
+								<span class="px-1 sm:px-[.5rem] cursor-pointer">v1.0.3</span>
 							</NBadge>
 						</div>
 					</NLayoutHeader>

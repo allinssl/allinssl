@@ -79,22 +79,22 @@ export default defineConfig({
 		pluginI18n(),
 		// ftp同步
 		ftpSync([
-			{
-				host: '192.168.168.121',
-				port: 22,
-				username: 'root',
-				password: 'www.bt.cn',
-				remotePath: '/www/allinssl/frontend',
-				clearRemote: true,
-			},
-			{
-				host: '192.168.168.25',
-				port: 22,
-				username: 'root',
-				password: 'qweqwe123',
-				remotePath: '/www/allinssl/frontend',
-				clearRemote: true,
-			},
+			// {
+			// 	host: '192.168.168.121',
+			// 	port: 22,
+			// 	username: 'root',
+			// 	password: 'www.bt.cn',
+			// 	remotePath: '/www/allinssl/frontend',
+			// 	clearRemote: true,
+			// },
+			// {
+			// 	host: '192.168.168.25',
+			// 	port: 22,
+			// 	username: 'root',
+			// 	password: 'qweqwe123',
+			// 	remotePath: '/www/allinssl/frontend',
+			// 	clearRemote: true,
+			// },
 		]),
 		// 项目同步git
 		pluginProjectSyncGit({

@@ -14,7 +14,7 @@ export default defineComponent({
 						<NDescriptions bordered>
 							<NDescriptionsItem label={$t('t_5_1745833933241')}>
 								<div class="flex items-center">
-									<span class="text-[2rem] font-medium">v1.0.2</span>
+									<span class="text-[2rem] font-medium">v1.0.3</span>
 								</div>
 							</NDescriptionsItem>
 							<NDescriptionsItem label={$t('t_29_1746667589773')}>
