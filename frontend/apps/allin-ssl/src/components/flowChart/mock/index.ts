@@ -17,10 +17,14 @@ export default {
 			config: {
 				domains: '',
 				email: '',
-				provider_id: '',
-				provider: '',
+				eabId: '',
+				ca: 'letsencrypt',
+				proxy: '',
 				end_day: 30,
+				provider: '',
+				provider_id: '',
 				algorithm: 'RSA2048',
+				skip_check: 0,
 			},
 			childNode: {
 				id: 'deploy-1',

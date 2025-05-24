@@ -107,7 +107,7 @@ nodeOptions[APPLY] = () =>
 				domains: '',
 				email: '',
 				eabId: '',
-				ca: '',
+				ca: 'letsencrypt',
 				proxy: '',
 				end_day: 30,
 				provider: '',
