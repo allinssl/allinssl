@@ -31,6 +31,8 @@
 
 ### 系统要求
 - Linux 系统
+- macOS/Windows（请参照下面教程，暂不支持脚本安装）
+- Docker
 
 ### 极速安装
 ```bash
