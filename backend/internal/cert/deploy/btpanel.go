@@ -224,7 +224,7 @@ func DeployBtDockerSite(cfg map[string]any) error {
 
 func BtPanelAPITest(providerID string) error {
 	data := url.Values{}
-	_, err := RequestBt(&data, "POST", providerID, "mod/push/task/get_task_list")
+	_, err := RequestBt(&data, "POST", providerID, "system?action=GetNetWork")
 	if err != nil {
 		return fmt.Errorf("测试请求失败: %v", err)
 	}
