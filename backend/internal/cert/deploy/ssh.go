@@ -115,7 +115,7 @@ func writeMultipleFilesViaSSH(config SSHConfig, files []RemoteFile, preCmd, post
 
 	cmd := script.String()
 
-	if err := session.Run(cmd); err != nil {
+	if err := session.Start(cmd); err != nil  {
 		return fmt.Errorf("运行出错: %v", err)
 	}
 
