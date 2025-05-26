@@ -273,7 +273,14 @@ func SSHAPITest(providerID string) error {
 	default:
 		port = "22"
 	}
+	IPtype := public.CheckIPType(providerConfig.Host)
+	if IPtype == "IPv6" {
+		providerConfig.Host = "[" + providerConfig.Host + "]"
+	}
 	addr := fmt.Sprintf("%s:%s", providerConfig.Host, port)
+	if providerConfig.Mode == "" || providerConfig.Mode == "password" {
+		providerConfig.PrivateKey = ""
+	}
 
 	authMethods, err := buildAuthMethods(providerConfig.Password, providerConfig.PrivateKey)
 	if err != nil {
