@@ -1,6 +1,7 @@
 package deploy
 
 import (
+	"ALLinSSL/backend/app/dto/response"
 	"ALLinSSL/backend/internal/access"
 	"bytes"
 	"crypto/md5"
@@ -88,11 +89,11 @@ func Request1panel(data *map[string]any, method, providerID, requestUrl string) 
 	var res map[string]interface{}
 	err = json.Unmarshal(body, &res)
 	if err != nil {
-		return nil, fmt.Errorf("证书部署失败: %v", err)
+		return nil, fmt.Errorf("解析返回值失败: %v", err)
 	}
 	code, ok := res["code"].(float64)
 	if !ok {
-		return nil, fmt.Errorf("证书部署失败")
+		return nil, fmt.Errorf("请求失败")
 	}
 	if code != 200 {
 		msg, ok := res["message"].(string)
@@ -184,17 +185,19 @@ func Deploy1panelSite(cfg map[string]any) error {
 	if !ok {
 		return fmt.Errorf("获取网站参数失败: data")
 	}
-	SSLProtocol, ok := siteData["SSLProtocol"].([]any)
-	if !ok {
-		return fmt.Errorf("获取网站参数失败: data.SSLProtocol")
+	
+	var SSLProtocol []any
+	if siteData["SSLProtocol"] == nil {
+		SSLProtocol = []any{"TLSv1.3", "TLSv1.2", "TLSv1.1", "TLSv1"}
+	} else {
+		SSLProtocol, ok = siteData["SSLProtocol"].([]any)
+		if !ok {
+			return fmt.Errorf("获取网站参数失败: data.SSLProtocol")
+		}
 	}
 	algorithm, ok := siteData["algorithm"].(string)
 	if !ok {
 		return fmt.Errorf("获取网站参数失败: data.algorithm")
-	}
-	enable, ok := siteData["enable"].(bool)
-	if !ok {
-		return fmt.Errorf("获取网站参数失败: data.enable")
 	}
 	hsts, ok := siteData["hsts"].(bool)
 	if !ok {
@@ -203,6 +206,9 @@ func Deploy1panelSite(cfg map[string]any) error {
 	httpConfig, ok := siteData["httpConfig"].(string)
 	if !ok {
 		return fmt.Errorf("获取网站参数失败: data.httpConfig")
+	}
+	if httpConfig == "" {
+		httpConfig = "HTTPToHTTPS"
 	}
 	
 	data := map[string]any{
@@ -213,7 +219,7 @@ func Deploy1panelSite(cfg map[string]any) error {
 		"privateKey":  keyPem,
 		// "certificatePath": "",
 		// "privateKeyPath":  "",
-		"enable":     enable,
+		"enable": true,
 		"hsts":       hsts,
 		"httpConfig": httpConfig,
 		"importType": "paste",
@@ -231,4 +237,36 @@ func OnePanelAPITest(providerID string) error {
 		return fmt.Errorf("测试请求失败: %v", err)
 	}
 	return nil
+}
+
+func OnePanelSiteList(providerID string) ([]response.AccessSiteList, error) {
+	data := map[string]any{
+		"name":           "",
+		"order":          "null",
+		"orderBy":        "created_at",
+		"page":           1,
+		"pageSize":       1000,
+		"websiteGroupId": 0,
+	}
+	siteList, err := Request1panel(&data, "POST", providerID, "api/v1/websites/search")
+	if err != nil {
+		return nil, fmt.Errorf("获取网站列表失败 %v", err)
+	}
+	
+	var result []response.AccessSiteList
+	sites, ok := siteList["data"].(map[string]any)["items"].([]any)
+	if !ok {
+		return nil, fmt.Errorf("获取网站列表失败: data.items")
+	}
+	
+	for _, site := range sites {
+		siteMap, ok := site.(map[string]any)
+		if !ok {
+			return nil, fmt.Errorf("获取网站列表失败: site")
+		}
+		siteId := strconv.FormatFloat(siteMap["id"].(float64), 'f', -1, 64)
+		result = append(result, response.AccessSiteList{Id: siteId, SiteName: siteMap["alias"].(string), Domain: []string{}})
+	}
+	
+	return result, nil
 }

@@ -1,6 +1,7 @@
 package deploy
 
 import (
+	"ALLinSSL/backend/app/dto/response"
 	"ALLinSSL/backend/internal/access"
 	"crypto/md5"
 	"crypto/tls"
@@ -237,7 +238,7 @@ func BtPanelAPITest(providerID string) error {
 	return nil
 }
 
-func BtPanelSiteList(providerID string) ([]any, error) {
+func BtPanelSiteList(providerID string) ([]response.AccessSiteList, error) {
 	data := url.Values{}
 	data.Set("cert_list", "")
 	siteList, err := RequestBt(&data, "POST", providerID, "ssl?action=GetSiteDomain")
@@ -246,6 +247,16 @@ func BtPanelSiteList(providerID string) ([]any, error) {
 		return nil, err
 	}
 
-	fmt.Printf("siteList:%#v\n", siteList["all"].([]any))
-	return siteList["all"].([]any), nil
+	var result []response.AccessSiteList
+	sites, ok := siteList["all"].([]any)
+	if !ok {
+		return nil, fmt.Errorf("获取网站列表失败: 数据格式错误")
+	}
+	
+	for _, site := range sites {
+		result = append(result, response.AccessSiteList{Id: "", SiteName: site.(string), Domain: []string{}})
+	}
+	
+	//fmt.Printf("siteList:%#v\n", result)
+	return result, nil
 }

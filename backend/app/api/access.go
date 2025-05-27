@@ -1,6 +1,7 @@
 package api
 
 import (
+	"ALLinSSL/backend/app/dto/response"
 	"ALLinSSL/backend/internal/access"
 	"ALLinSSL/backend/internal/cert/deploy"
 	"ALLinSSL/backend/public"
@@ -353,11 +354,13 @@ func GetSiteList(c *gin.Context) {
 		public.FailMsg(c, err.Error())
 		return
 	}
-
-	var siteList []any
+	
+	var siteList []response.AccessSiteList
 	switch form.Type {
 	case "btpanel-site":
 		siteList, err = deploy.BtPanelSiteList(form.ID)
+	case "1panel-site":
+		siteList, err = deploy.OnePanelSiteList(form.ID)
 	default:
 		public.FailMsg(c, "不支持的提供商")
 	}

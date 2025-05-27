@@ -38,3 +38,12 @@ func TestOnePanelAPITest(t *testing.T) {
 		t.Log("SSHAPITest success")
 	}
 }
+
+func TestOnePanelSiteList(t *testing.T) {
+	result, err := OnePanelSiteList("8")
+	if err != nil {
+		t.Fatalf("OnePanelSiteList failed: %v", err)
+	} else {
+		t.Logf("OnePanelSiteList success: %v", result)
+	}
+}
