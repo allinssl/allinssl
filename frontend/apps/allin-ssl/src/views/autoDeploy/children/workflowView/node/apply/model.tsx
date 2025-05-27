@@ -93,8 +93,8 @@ export default defineComponent({
 						)
 					},
 				},
-				useFormInput($t('邮件'), 'email', {
-					placeholder: $t('请输入邮箱信息，用于接收证书验证邮件'),
+				useFormInput($t('t_68_1745289354676'), 'email', {
+					placeholder: $t('t_2_1748052862259'),
 					allowInput: noSideSpace,
 				}),
 

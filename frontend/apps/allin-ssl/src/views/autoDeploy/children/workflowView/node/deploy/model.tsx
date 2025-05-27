@@ -121,11 +121,17 @@ export default defineComponent({
 							valueType: 'value' as const,
 							isAddMode: true,
 							'onUpdate:value': (val: { value: number | string; type: string }) => {
-								if (val.value !== '' && param.value.provider_id !== '' && param.value.provider_id !== val.value) {
+								if (
+									val.value !== '' &&
+									param.value.provider_id !== '' &&
+									param.value.provider_id !== val.value &&
+									param.provider === 'btpanel-site'
+								) {
 									param.value.siteName = []
 								}
 								param.value.provider_id = val.value
-							}, 
+								param.value.type = val.type
+							},
 						}
 						return (<DnsProviderSelect {...dnsProviderProps} />) as VNode
 					}),
@@ -257,6 +263,7 @@ export default defineComponent({
 		const prevStep = (): void => {
 			current.value--
 			next.value = true
+			param.value = {}
 			param.value.provider_id = ''
 			param.value.provider = ''
 		}

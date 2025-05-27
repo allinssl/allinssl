@@ -46,7 +46,6 @@ export function useDnsProviderSelectController(props: DnsProviderSelectProps, em
 			const valueToCompare = props.valueType === 'value' ? item.value : item.type
 			return valueToCompare === param.value.value
 		})
-
 		if (selectedProvider) {
 			param.value = {
 				label: selectedProvider.label,
@@ -170,8 +169,9 @@ export function useDnsProviderSelectController(props: DnsProviderSelectProps, em
 		},
 	)
 
-	onMounted(() => {
-		loadDnsProviders(props.type)
+	onMounted(async () => {
+		await loadDnsProviders(props.type)
+		console.log(param.value)
 	})
 
 	onUnmounted(() => {

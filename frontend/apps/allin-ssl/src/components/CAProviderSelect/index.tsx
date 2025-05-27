@@ -109,7 +109,7 @@ export default defineComponent<CAProviderSelectProps>({
 		return () => (
 			<NSpin show={isLoading.value}>
 				<NGrid cols={24} class={props.customClass}>
-					<NFormItemGi span={13} label={$t('证书颁发机构/授权（可选）')} path={props.path}>
+					<NFormItemGi span={13} label={$t('t_0_1748052857931')} path={props.path}>
 						<NSelect
 							class="flex-1 w-full"
 							options={caProviderRef.value}
@@ -128,7 +128,7 @@ export default defineComponent<CAProviderSelectProps>({
 											class="flex items-center cursor-pointer hover:text-[#333] hover:bg-[#eee]"
 											onClick={() => goToAddCAProvider('addCAForm')}
 										>
-											{$t('添加Zerossl、Google，CA证书授权')}
+											{$t('t_1_1748052860539')}
 										</div>
 									)
 								},

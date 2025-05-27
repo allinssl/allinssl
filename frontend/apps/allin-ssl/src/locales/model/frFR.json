@@ -612,7 +612,6 @@
   "t_4_1747984130327": "Copier",
   "t_5_1747984133112": "Lorsque la date d'expiration approche",
   "t_0_1747990228780": "Veuillez sélectionner l'autorité de certification",
-  "t_1_1747990228492": "Autorité de certification (ID EAB)",
   "t_2_1747990228008": "Aucune donnée d'autorisation CA disponible",
   "t_3_1747990229599": "Échec de l'obtention de la liste d'autorisation CA",
   "t_4_1747990227956": "Renouvellement automatique (jours)",
@@ -622,6 +621,8 @@
   "t_8_1747990235316": "Ne prend en charge que les adresses proxy http ou https (par exemple, http://proxy.example.com:8080)",
   "t_9_1747990229640": "L'heure de renouvellement automatique ne peut pas être vide",
   "t_10_1747990232207": "Veuillez sélectionner le nom du site (sélection multiple prise en charge)",
-  "t_0_1747990626044": "Ajouter Zerossl, Google, autorisation CA personnalisée",
-  "t_0_1747994891459": "Site web Pagoda docker"
+  "t_0_1747994891459": "Site web Pagoda docker",
+  "t_0_1748052857931": "Autorité de Certification/Autorisation (Optionnel)",
+  "t_1_1748052860539": "Ajouter Zerossl, Google, autorisation de certificat CA",
+  "t_2_1748052862259": "Veuillez entrer les informations de votre e-mail pour recevoir l'e-mail de vérification du certificat"
 }
