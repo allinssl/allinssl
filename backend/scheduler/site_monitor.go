@@ -17,6 +17,12 @@ func SiteMonitor() {
 		fmt.Println(err)
 	}
 	defer s.Close()
+	s1, err := report.GetSqlite()
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	defer s1.Close()
 	data, err := s.Select()
 	if err != nil {
 		fmt.Println(err)
@@ -63,8 +69,8 @@ func SiteMonitor() {
 						}
 						reportType, ok := v["report_type"].(string)
 						if ok && errCount >= int(repeatSendGap) {
-							s.TableName = "report"
-							rdata, err := s.Where("type=?", []interface{}{reportType}).Select()
+							s1.TableName = "report"
+							rdata, err := s1.Where("type=?", []interface{}{reportType}).Select()
 							if err != nil {
 								return
 							}

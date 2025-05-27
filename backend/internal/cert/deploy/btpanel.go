@@ -96,8 +96,11 @@ func UploadBt(key, csr, providerID string) (string, error) {
 	if response == nil {
 		return "", fmt.Errorf("证书上传失败: %v", err)
 	}
-	sslHash := response["ssl_hash"].(string)
-	
+	sslHash, ok := response["ssl_hash"].(string)
+	if !ok {
+		return "", fmt.Errorf("证书上传失败: ssl_hash 不存在")
+	}
+
 	return sslHash, nil
 }
 
@@ -162,10 +165,10 @@ func DeployBtSite(cfg map[string]any) error {
 	if !ok {
 		return fmt.Errorf("参数错误：siteName")
 	}
-	
+
 	sslHash, err := UploadBt(keyPem, certPem, providerID)
 	batchInfo := []map[string]string{}
-	
+
 	siteNamesList := strings.Split(siteNames, ",")
 	for _, siteName := range siteNamesList {
 		batchInfo = append(batchInfo, map[string]string{
@@ -174,7 +177,7 @@ func DeployBtSite(cfg map[string]any) error {
 		})
 	}
 	batchs, err := json.Marshal(batchInfo)
-	
+
 	data := url.Values{}
 	data.Set("BatchInfo", string(batchs))
 	_, err = RequestBt(&data, "POST", providerID, "ssl?action=SetBatchCertToSite")
@@ -239,7 +242,7 @@ func BtPanelSiteList(providerID string) ([]any, error) {
 		fmt.Println("获取网站列表失败:", err)
 		return nil, err
 	}
-	
+
 	fmt.Printf("siteList:%#v\n", siteList["all"].([]any))
 	return siteList["all"].([]any), nil
 }
