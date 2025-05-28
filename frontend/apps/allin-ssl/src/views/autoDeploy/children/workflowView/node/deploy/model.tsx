@@ -150,6 +150,7 @@ export default defineComponent({
 				}),
 			)
 
+			console.log(param.value.provider)
 			// 根据不同的部署类型添加不同的表单配置
 			switch (param.value.provider) {
 				case 'localhost':
@@ -201,6 +202,15 @@ export default defineComponent({
 			return config
 		})
 
+		watch(
+			() => param.value.provider_id,
+			() => {
+				if (param.value.provider === 'btpanel-site') {
+					handleSiteSearch('')
+				}
+			},
+		)
+
 		/**
 		 * 处理网站搜索
 		 * @param query 搜索关键字
@@ -236,9 +246,10 @@ export default defineComponent({
 			if (!param.value.provider) return message.error($t('t_0_1746858920894'))
 			if (param.value.provider === 'localhost') {
 				delete param.value.provider_id
-			} else {
-				param.value.provider_id = props.node.config.provider_id
 			}
+			// else {
+			// param.value.provider_id = props.node.config.provider_id
+			// }
 			// 加载证书来源选项
 			certOptions.value = findApplyUploadNodesUp(props.node.id).map((item) => {
 				return { label: item.name, value: item.id }
@@ -257,6 +268,13 @@ export default defineComponent({
 			next.value = false
 		}
 
+		// 表单组件
+		const { component: Form, example } = useForm<DeployNodeConfig>({
+			config: nodeFormConfig,
+			defaultValue: param,
+			rules: verifyRules,
+		})
+
 		/**
 		 * 上一步
 		 */
@@ -267,22 +285,6 @@ export default defineComponent({
 			param.value.provider_id = ''
 			param.value.provider = ''
 		}
-
-		// 表单组件
-		const { component: Form, example } = useForm<DeployNodeConfig>({
-			config: nodeFormConfig,
-			defaultValue: param,
-			rules: verifyRules,
-		})
-
-		watch(
-			() => param.value.provider_id,
-			() => {
-				if (param.value.provider === 'btpanel-site') {
-					handleSiteSearch('')
-				}
-			},
-		)
 
 		/**
 		 * 提交

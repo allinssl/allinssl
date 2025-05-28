@@ -91,7 +91,7 @@ export const ApiProjectConfig: Record<string, ApiProjectType> = {
 		type: ['host', 'dns'],
 		hostRelated: {
 			cdn: { name: $t('t_14_1745735766121') },
-			oss: { name: $t('t_15_1745735768976') },
+			cos: { name: $t('t_15_1745735768976') },
 			waf: { name: $t('t_9_1744958840634') },
 			teo: { name: $t('t_5_1747886301427') },
 		},

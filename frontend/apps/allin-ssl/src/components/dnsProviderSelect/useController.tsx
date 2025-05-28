@@ -171,7 +171,6 @@ export function useDnsProviderSelectController(props: DnsProviderSelectProps, em
 
 	onMounted(async () => {
 		await loadDnsProviders(props.type)
-		console.log(param.value)
 	})
 
 	onUnmounted(() => {
