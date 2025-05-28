@@ -9,12 +9,14 @@ import (
 	"crypto/rand"
 	"encoding/json"
 	"fmt"
+	azcorecloud "github.com/Azure/azure-sdk-for-go/sdk/azcore/cloud"
 	"github.com/go-acme/lego/v4/certcrypto"
 	"github.com/go-acme/lego/v4/certificate"
 	"github.com/go-acme/lego/v4/challenge"
 	"github.com/go-acme/lego/v4/challenge/dns01"
 	"github.com/go-acme/lego/v4/lego"
 	"github.com/go-acme/lego/v4/providers/dns/alidns"
+	"github.com/go-acme/lego/v4/providers/dns/azuredns"
 	"github.com/go-acme/lego/v4/providers/dns/baiducloud"
 	"github.com/go-acme/lego/v4/providers/dns/cloudflare"
 	"github.com/go-acme/lego/v4/providers/dns/cloudns"
@@ -53,7 +55,7 @@ var CADirURLMap = map[string]string{
 }
 
 func GetSqlite() (*public.Sqlite, error) {
-	s, err := public.NewSqlite("data/data.db", "")
+	s, err := public.NewSqlite("data/accounts.db", "")
 	if err != nil {
 		return nil, err
 	}
@@ -119,11 +121,27 @@ func GetDNSProvider(providerName string, creds map[string]string) (challenge.Pro
 		config.AuthID = creds["auth_id"]
 		config.AuthPassword = creds["auth_password"]
 		return cloudns.NewDNSProviderConfig(config)
-	case "route53":
+	case "aws":
 		config := route53.NewDefaultConfig()
 		config.AccessKeyID = creds["access_key_id"]
 		config.SecretAccessKey = creds["secret_access_key"]
 		return route53.NewDNSProviderConfig(config)
+	case "azure":
+		config := azuredns.NewDefaultConfig()
+		config.TenantID = creds["tenant_id"]
+		config.ClientID = creds["client_id"]
+		config.ClientSecret = creds["client_secret"]
+		switch strings.ToLower(creds["environment"]) {
+		case "", "default", "public", "azurecloud":
+			config.Environment = azcorecloud.AzurePublic
+		case "china", "chinacloud", "azurechina", "azurechinacloud":
+			config.Environment = azcorecloud.AzureChina
+		case "usgovernment", "government", "azureusgovernment", "azuregovernment":
+			config.Environment = azcorecloud.AzureGovernment
+		default:
+			return nil, fmt.Errorf("不支持的 Azure 环境: %s", creds["environment"])
+		}
+		return azuredns.NewDNSProviderConfig(config)
 
 	default:
 		return nil, fmt.Errorf("不支持的 DNS Provider: %s", providerName)

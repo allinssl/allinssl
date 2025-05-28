@@ -26,7 +26,7 @@ func Sign(c *gin.Context) {
 	form.Code = strings.TrimSpace(form.Code)
 
 	// 从数据库拿用户
-	s, err := public.NewSqlite("data/data.db", "")
+	s, err := public.NewSqlite("data/settings.db", "")
 	if err != nil {
 		// c.JSON(http.StatusBadRequest, public.ResERR(err.Error()))
 		public.FailMsg(c, err.Error())

@@ -39,7 +39,7 @@ func Get() (Setting, error) {
 	}
 	setting.Key = string(key)
 	setting.Cert = string(cert)
-	s, err := public.NewSqlite("data/data.db", "")
+	s, err := public.NewSqlite("data/settings.db", "")
 	if err != nil {
 		return setting, err
 	}
@@ -61,7 +61,7 @@ func Save(setting *Setting) error {
 	var restart bool
 	var reload bool
 
-	s, err := public.NewSqlite("data/data.db", "")
+	s, err := public.NewSqlite("data/settings.db", "")
 	if err != nil {
 		return err
 	}

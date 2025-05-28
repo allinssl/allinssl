@@ -43,19 +43,6 @@ func init() {
 	// 创建表
 	_, err = db.Exec(`
 	PRAGMA journal_mode=WAL;
-
-	create table IF NOT EXISTS _accounts
-	(
-	    id          integer not null
-	        constraint _accounts_pk
-	            primary key autoincrement,
-	    private_key TEXT    not null,
-	    reg         TEXT    not null,
-	    email       TEXT    not null,
-	    create_time TEXT,
-	    update_time TEXT,
-	    type        TEXT
-	);
 	
 	create table IF NOT EXISTS access
 	(
@@ -111,33 +98,6 @@ func init() {
 	    name        TEXT
 	);
 	
-	create table IF NOT EXISTS settings
-	(
-	    id          integer
-	        constraint settings_pk
-	            primary key,
-	    key         TEXT,
-	    value       TEXT,
-	    create_time TEXT    not null,
-	    update_time TEXT    not null,
-	    active      integer not null,
-	    type        TEXT
-	);
-
-	
-	create table IF NOT EXISTS users
-	(
-	    id       integer         not null
-	        constraint users_pk
-	            primary key autoincrement,
-	    username TEXT            not null
-	        constraint users_pk2
-	            unique,
-	    password TEXT            not null,
-	    salt     TEXT default '' not null
-	);
-	
-	
 	create table IF NOT EXISTS workflow
 	(
 	    id              integer not null
@@ -175,20 +135,6 @@ func init() {
 		status      TEXT,
 		constraint workflow_deploy_pk
 			primary key (id, workflow_id)
-	);
-
-	create table IF NOT EXISTS _eab
-	(
-		id          integer not null
-			constraint _eab_pk
-				primary key autoincrement,
-		name        TEXT,
-		Kid         TEXT    not null,
-		HmacEncoded TEXT    not null,
-		ca          TEXT    not null,
-		create_time TEXT,
-		update_time TEXT,
-		mail        TEXT    not null
 	);
 
 	`)
@@ -242,6 +188,12 @@ INSERT INTO settings (key, value, create_time, update_time, active, type) VALUES
 	// godaddy
 	InsertIfNotExists(db, "access_type", map[string]any{"name": "godaddy", "type": "dns"}, []string{"name", "type"}, []any{"godaddy", "dns"})
 
+	InsertIfNotExists(db, "access_type", map[string]any{"name": "namecheap", "type": "dns"}, []string{"name", "type"}, []any{"namecheap", "dns"})
+	InsertIfNotExists(db, "access_type", map[string]any{"name": "ns1", "type": "dns"}, []string{"name", "type"}, []any{"ns1", "dns"})
+	InsertIfNotExists(db, "access_type", map[string]any{"name": "cloudns", "type": "dns"}, []string{"name", "type"}, []any{"cloudns", "dns"})
+	InsertIfNotExists(db, "access_type", map[string]any{"name": "aws", "type": "dns"}, []string{"name", "type"}, []any{"aws", "dns"})
+	InsertIfNotExists(db, "access_type", map[string]any{"name": "azure", "type": "dns"}, []string{"name", "type"}, []any{"azure", "dns"})
+
 	err = sqlite_migrate.EnsureDatabaseWithTables(
 		"data/site_monitor.db",
 		"data/data.db",
@@ -282,6 +234,97 @@ INSERT INTO settings (key, value, create_time, update_time, active, type) VALUES
 	    update_time     TEXT,
 	    repeat_send_gap INTEGER
 	);
+       `)
+
+	err = sqlite_migrate.EnsureDatabaseWithTables(
+		"data/settings.db",
+		"data/data.db",
+		[]string{"settings", "users"}, // 你要迁移的表
+	)
+	if err != nil {
+		fmt.Println("错误:", err)
+	}
+	dbSetting, err := public.NewSqlite("data/settings.db", "")
+	if err != nil {
+		//fmt.Println("创建 settings 数据库失败:", err)
+		return
+	}
+	defer dbSetting.Close()
+	// 创建表
+	_, err = db1.Exec(`
+	PRAGMA journal_mode=WAL;
+
+	create table IF NOT EXISTS settings
+	(
+	    id          integer
+	        constraint settings_pk
+	            primary key,
+	    key         TEXT,
+	    value       TEXT,
+	    create_time TEXT    not null,
+	    update_time TEXT    not null,
+	    active      integer not null,
+	    type        TEXT
+	);
+
+	create table IF NOT EXISTS users
+	(
+	    id       integer         not null
+	        constraint users_pk
+	            primary key autoincrement,
+	    username TEXT            not null
+	        constraint users_pk2
+	            unique,
+	    password TEXT            not null,
+	    salt     TEXT default '' not null
+	);
+       `)
+
+	err = sqlite_migrate.EnsureDatabaseWithTables(
+		"data/accounts.db",
+		"data/data.db",
+		[]string{"_accounts", "_eab"}, // 你要迁移的表
+	)
+	if err != nil {
+		fmt.Println("错误:", err)
+	}
+	dbAcc, err := public.NewSqlite("data/accounts.db", "")
+	if err != nil {
+		//fmt.Println("创建 settings 数据库失败:", err)
+		return
+	}
+	defer dbAcc.Close()
+	// 创建表
+	_, err = db1.Exec(`
+	PRAGMA journal_mode=WAL;
+
+	create table IF NOT EXISTS _accounts
+	(
+	    id          integer not null
+	        constraint _accounts_pk
+	            primary key autoincrement,
+	    private_key TEXT    not null,
+	    reg         TEXT    not null,
+	    email       TEXT    not null,
+	    create_time TEXT,
+	    update_time TEXT,
+	    type        TEXT
+	);
+
+	create table IF NOT EXISTS _eab
+	(
+		id          integer not null
+			constraint _eab_pk
+				primary key autoincrement,
+		name        TEXT,
+		Kid         TEXT    not null,
+		HmacEncoded TEXT    not null,
+		ca          TEXT    not null,
+		create_time TEXT,
+		update_time TEXT,
+		mail        TEXT    not null
+	);
+
        `)
 }
 

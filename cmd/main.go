@@ -109,7 +109,7 @@ func main() {
 			fmt.Println("用户名至少需要5位")
 			return
 		}
-		s, err := public.NewSqlite("data/data.db", "")
+		s, err := public.NewSqlite("data/settings.db", "")
 		if err != nil {
 			fmt.Println(err)
 			return
@@ -136,7 +136,7 @@ func main() {
 			fmt.Println("密码至少需要8位")
 			return
 		}
-		s, err := public.NewSqlite("data/data.db", "")
+		s, err := public.NewSqlite("data/settings.db", "")
 		if err != nil {
 			fmt.Println(err)
 			return
@@ -257,7 +257,7 @@ func main() {
 		}
 		publicAddr := fmt.Sprintf("%s://%s:%s%s", http, publicIp, public.Port, public.Secure)
 
-		s, err := public.NewSqlite("data/data.db", "")
+		s, err := public.NewSqlite("data/settings.db", "")
 		if err != nil {
 			fmt.Println(err)
 			return

@@ -6,7 +6,7 @@ import (
 )
 
 func GetSqliteEAB() (*public.Sqlite, error) {
-	s, err := public.NewSqlite("data/data.db", "")
+	s, err := public.NewSqlite("data/accounts.db", "")
 	if err != nil {
 		return nil, err
 	}

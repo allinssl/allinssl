@@ -75,6 +75,9 @@ func Deploy(cfg map[string]any, logger *public.Logger) error {
 	case "baidu-cdn":
 		logger.Debug("部署到百度云CDN...")
 		return DeployBaiduCdn(cfg)
+	case "huaweicloud-cdn":
+		logger.Debug("部署到华为云CDN...")
+		return DeployHwCdn(cfg)
 	default:
 		return fmt.Errorf("不支持的部署: %s", providerName)
 	}

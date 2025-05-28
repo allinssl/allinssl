@@ -18,7 +18,7 @@ const defaultCharset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123
 
 // GetSettingIgnoreError 获取系统配置-忽略错误
 func GetSettingIgnoreError(key string) string {
-	s, err := NewSqlite("data/data.db", "")
+	s, err := NewSqlite("data/settings.db", "")
 	if err != nil {
 		return ""
 	}
@@ -39,7 +39,7 @@ func GetSettingIgnoreError(key string) string {
 }
 
 func UpdateSetting(key, val string) error {
-	s, err := NewSqlite("data/data.db", "")
+	s, err := NewSqlite("data/settings.db", "")
 	if err != nil {
 		return err
 	}
@@ -53,7 +53,7 @@ func UpdateSetting(key, val string) error {
 }
 
 func GetSettingsFromType(typ string) ([]map[string]any, error) {
-	db := "data/data.db"
+	db := "data/settings.db"
 	s, err := NewSqlite(db, "")
 	if err != nil {
 		return nil, err
