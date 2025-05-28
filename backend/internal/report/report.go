@@ -126,6 +126,8 @@ func NotifyTest(id string) error {
 		err = NotifyMail(params)
 	case "webhook":
 		err = NotifyWebHook(params)
+	case "feishu":
+		err = NotifyFeishu(params)
 	}
 	return err
 }
@@ -145,6 +147,8 @@ func Notify(params map[string]any) error {
 	// 	return NotifyBt(params)
 	case "webhook":
 		return NotifyWebHook(params)
+	case "feishu":
+		return NotifyFeishu(params)
 	default:
 		return fmt.Errorf("不支持的通知类型")
 	}
