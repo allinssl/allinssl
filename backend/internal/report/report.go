@@ -128,6 +128,8 @@ func NotifyTest(id string) error {
 		err = NotifyWebHook(params)
 	case "feishu":
 		err = NotifyFeishu(params)
+	case "dingtalk":
+		err = NotifyDingtalk(params)
 	}
 	return err
 }
@@ -149,6 +151,8 @@ func Notify(params map[string]any) error {
 		return NotifyWebHook(params)
 	case "feishu":
 		return NotifyFeishu(params)
+	case "dingtalk":
+		return NotifyDingtalk(params)
 	default:
 		return fmt.Errorf("不支持的通知类型")
 	}
