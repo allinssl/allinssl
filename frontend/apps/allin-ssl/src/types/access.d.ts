@@ -48,7 +48,12 @@ export interface AddAccessParams<
 		| WestcnAccessConfig
 		| BtWafSiteAccessConfig
 		| GoDaddyAccessConfig
-		| QiniuAccessConfig,
+		| QiniuAccessConfig
+		| NamecheapAccessConfig
+		| NS1AccessConfig
+		| CloudnsAccessConfig
+		| AwsAccessConfig
+		| AzureAccessConfig,
 > {
 	name: string
 	type: string
@@ -69,7 +74,12 @@ export interface UpdateAccessParams<
 		| VolcengineAccessConfig
 		| WestcnAccessConfig
 		| GoDaddyAccessConfig
-		| QiniuAccessConfig,
+		| QiniuAccessConfig
+		| NamecheapAccessConfig
+		| NS1AccessConfig
+		| CloudnsAccessConfig
+		| AwsAccessConfig
+		| AzureAccessConfig,
 > extends AddAccessParams<T> {
 	id: string
 }
@@ -160,6 +170,47 @@ export interface GoDaddyAccessConfig {
 export interface QiniuAccessConfig {
 	access_key: string
 	access_secret: string
+}
+
+/**
+ * Namecheap授权配置
+ */
+export interface NamecheapAccessConfig {
+	api_user: string
+	api_key: string
+}
+
+/**
+ * NS1授权配置
+ */
+export interface NS1AccessConfig {
+	api_key: string
+}
+
+/**
+ * ClouDNS授权配置
+ */
+export interface CloudnsAccessConfig {
+	auth_id: string
+	auth_password: string
+}
+
+/**
+ * AWS授权配置
+ */
+export interface AwsAccessConfig {
+	access_key_id: string
+	secret_access_key: string
+}
+
+/**
+ * Azure授权配置
+ */
+export interface AzureAccessConfig {
+	tenant_id: string
+	client_id: string
+	client_secret: string
+	environment: string
 }
 
 /** 删除授权请求参数 */

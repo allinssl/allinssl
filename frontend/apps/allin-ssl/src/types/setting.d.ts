@@ -60,6 +60,33 @@ export interface ReportMail {
 	// username: string
 }
 
+/** 飞书通知配置 */
+export interface ReportFeishu {
+	name?: string
+	enabled: string
+	webhook: string
+	secret: string
+}
+
+/** 钉钉通知配置 */
+export interface ReportDingtalk {
+	name?: string
+	enabled: string
+	webhook: string
+	secret: string
+}
+
+/** Webhook通知配置 */
+export interface ReportWebhook {
+	name?: string
+	enabled: string
+	url: string
+	data: string
+	method: 'post' | 'get'
+	headers: string
+	ignore_ssl: boolean
+}
+
 /** 添加告警请求参数 */
 export interface AddReportParams<T = string> {
 	name: string
