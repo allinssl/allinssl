@@ -1,0 +1,69 @@
+.flowNodeBranch {
+  @apply flex flex-col justify-center w-full relative max-w-full overflow-visible;
+}
+
+/* 多列分支样式 */
+.multipleColumns {
+	@apply w-full
+}
+
+.flowNodeBranchBox {
+  @apply flex flex-row w-full flex-nowrap min-h-[50px] relative overflow-visible;
+}
+
+/* 有嵌套分支的容器样式 */
+.hasNestedBranch {
+	@apply w-full justify-around;
+}
+
+.flowNodeBranchCol {
+  @apply flex flex-col items-center border-t-2 border-b-2 border-[#cacaca] pt-[50px] bg-[#f8fafc] flex-1 relative max-w-[50%];
+}
+
+
+/* 有嵌套分支时列宽调整 */
+.hasNestedBranch .flowNodeBranchCol {
+	@apply w-full;
+}
+
+/* 多级嵌套分支样式调整 */
+.flowNodeBranchCol .flowNodeBranchCol {
+	@apply min-w-[20rem] w-[24rem]
+}
+
+
+.flowNodeBranchCol::before {
+  @apply content-[''] absolute top-0 left-0 right-0 bottom-0 z-0 m-auto w-[2px] h-full bg-[#cacaca];
+}
+
+.coverLine {
+  @apply absolute h-[8px] w-[calc(50%-1px)] bg-[#f8fafc];
+}
+
+.topLeftCoverLine {
+  @apply -top-[4px] left-0;
+}
+
+.topRightCoverLine {
+  @apply -top-[4px] right-0;
+}
+
+.bottomLeftCoverLine {
+  @apply -bottom-[4px] left-0;
+}
+
+.bottomRightCoverLine {
+  @apply -bottom-[4px] right-0;
+}
+
+.rightCoverLine{
+	@apply absolute w-[2px] bg-[#f8fafc] top-0 right-0 h-full;
+}
+
+.leftCoverLine{
+	@apply absolute w-[2px] bg-[#f8fafc] top-0 left-0 h-full;
+}
+
+.flowConditionNodeAdd {
+  @apply absolute left-1/2 -translate-x-1/2 -top-[15px] flex justify-center items-center z-[2] w-[70px] h-[30px] text-[12px] text-[#1c84c6] bg-white rounded-[20px] cursor-pointer shadow-md;
+}

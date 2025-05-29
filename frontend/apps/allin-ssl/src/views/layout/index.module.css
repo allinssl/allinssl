@@ -1,0 +1,120 @@
+/* 布局容器样式 */
+.layoutContainer {
+	@apply min-h-screen flex flex-col;
+	background-color: var(--n-color); /* Naive UI 主题背景色 */
+}
+
+/* 侧边栏样式 */
+.sider {
+	@apply h-screen shadow-lg z-10 transition-all duration-300 ease-in-out;
+	/* 移动端默认行为通过 NLayoutSider 的 collapsed 属性和 TSX 逻辑控制 */
+}
+
+/* Logo容器样式 */
+.logoContainer {
+	@apply flex items-center h-[var(--n-sider-login-height)] border-b relative;
+	@apply px-3 sm:px-4 md:px-6; /* 统一响应式内边距 */
+	border-color: var(--n-border-color);
+}
+
+/* Logo容器内文字样式 (用于控制展开时的文字) */
+.logoContainer span.logoText { /* 更具体的选择器 */
+	@apply text-nowrap overflow-hidden overflow-ellipsis;
+	@apply w-full sm:w-auto; /* 在小屏幕上允许文字占据更多空间或换行，大屏幕自适应 */
+	color: var(--n-text-color-base);
+	/* 响应式字体大小 */
+	@apply text-base sm:text-lg md:text-xl; /* 例如: 1rem, 1.125rem, 1.25rem */
+}
+
+/* Logo容器文本整体 (当侧边栏展开时) */
+.logoContainerText {
+	@apply flex items-center w-full; /* 确保在各种情况下都能正确对齐 */
+}
+
+/* Logo容器激活（折叠时）样式 */
+.logoContainerActive {
+	@apply flex items-center justify-center px-0; /* 折叠时无内边距，确保图标居中 */
+}
+
+/* 折叠/展开图标容器 (原 .collapsedIcon) */
+.menuToggleButton {
+	@apply h-[3.6rem] absolute rounded-[.4rem] flex items-center justify-center cursor-pointer transition-all duration-300;
+	@apply right-2 sm:right-3 md:right-4 px-2; /* 统一响应式定位和内边距 */
+	color: var(--n-text-color-2); /* Naive UI 次要文字颜色 */
+}
+.menuToggleButton:hover {
+	background-color: var(--n-action-color); /* Naive UI 交互元素背景色 */
+	color: var(--n-text-color-1); /* Naive UI 主要文字颜色 */
+}
+
+/* 新增：头部菜单切换按钮样式 */
+.headerMenuToggleButton {
+  @apply flex items-center justify-center cursor-pointer rounded-md p-2; /* p-2 提供 8px 内边距 */
+  color: var(--n-text-color-2); /* 默认图标颜色 (由 NIcon 继承) */
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.headerMenuToggleButton:hover {
+  background-color: var(--n-action-color); /* 悬浮背景色 */
+  color: var(--n-text-color-1); /* 悬浮图标颜色 (由 NIcon 继承) */
+}
+
+/* 折叠图标激活（折叠时）样式 (原 .collapsedIconActive) - 如果还需要特殊处理折叠时的按钮样式 */
+/* .menuToggleButtonActive { ... } */
+
+
+/* 头部样式 */
+.header {
+	@apply h-[var(--n-header-height)] border-b shadow-sm z-10 transition-all duration-300 ease-in-out flex items-center justify-end;
+	background-color: var(--n-header-color);
+	border-color: var(--n-border-color);
+	@apply px-3 sm:px-4 md:px-6; /* 统一响应式内边距 */
+}
+
+/* 系统信息样式 */
+.systemInfo {
+	@apply flex items-center space-x-2 sm:space-x-3 md:space-x-4 text-[1.4rem];
+	color: var(--n-text-color-secondary); /* Naive UI 次级文字颜色 */
+}
+
+
+/* 内容区域样式 */
+.content {
+	@apply flex-1 transition-all duration-300 ease-in-out h-[calc(100vh-var(--n-main-diff-height))] overflow-y-auto p-[var(--n-content-padding)] sm:p-0 md:p-0;
+	background-color: var(--n-layout-content-background-color);
+	transition: padding 0s;
+}
+
+/* 移动端视图 */
+.siderMobileOpen {
+	@apply fixed top-0 left-0 h-full shadow-xl;
+	z-index: 1050; /* 确保在顶层 */
+	background-color: var(--n-sider-color, var(--n-body-color)); /* 匹配侧边栏背景色 */
+	transform: translateX(0);
+	transition: transform 0.3s ease-in-out;
+	/* 宽度由 NLayoutSider 的 width prop 控制 */
+}
+
+.siderMobileClosed {
+	@apply fixed top-0 left-0 h-full;
+	transform: translateX(-100%);
+	transition: transform 0.3s ease-in-out;
+	/* 宽度由 NLayoutSider 的 collapsedWidth prop 控制，但由于移出屏幕，实际宽度不重要 */
+}
+
+/* Mobile Menu Backdrop */
+.mobileMenuBackdrop {
+	@apply fixed inset-0 bg-black bg-opacity-50;
+	z-index: 1040; /* 在侧边栏下方，内容区域上方 */
+}
+
+
+/* 针对 1100px 以下屏幕的样式调整 */
+@media (max-width: 1100px) {
+	.header {
+		@apply px-2 sm:px-3;
+	}
+	.content {
+		@apply p-2 sm:p-3;
+	}
+}

@@ -1,0 +1,44 @@
+.flowContainer {
+  @apply flex relative box-border w-full h-[calc(100vh-19rem)] overflow-x-auto overflow-y-auto p-[1rem];
+}
+
+.flowProcess {
+  @apply relative h-full w-full;
+}
+
+.flowZoom {
+  @apply flex fixed items-center justify-between h-[4rem] w-[12.5rem] bottom-[4rem] z-[99];
+}
+
+.flowZoomIcon {
+  @apply w-[2.5rem] h-[2.5rem] cursor-pointer border flex items-center justify-center;
+  border-color: var(--n-border-color);
+}
+
+/* 嵌套节点包装器样式 */
+.nested-node-wrap {
+  @apply flex flex-col items-center relative;
+  max-width: 100%;
+}
+
+.deep-nested-node-wrap {
+  @apply flex flex-col items-center relative;
+  max-width: 100%;
+}
+
+/* 右侧配置区样式 */
+.configPanel {
+  @apply flex flex-col w-[360px] min-w-[360px]  z-10 rounded-lg;
+}
+
+.configHeader {
+  @apply flex items-center justify-between px-4 py-3 border-b border-gray-200 ;
+}
+
+.configContent {
+  @apply flex-1 overflow-y-auto ;
+}
+
+.emptyTip {
+  @apply flex items-center justify-center h-full text-gray-400 ;
+}

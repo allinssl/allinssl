@@ -1,0 +1,119 @@
+/* 状态文本颜色定义 */
+.stateText {
+  &.success { color: var(--n-success-color); }
+  &.warning { color: var(--n-warning-color); }
+  &.error { color: var(--n-error-color); }
+  &.info { color: var(--n-info-color); }
+  &.default { color: var(--n-text-color3); } /* 使用 Naive UI 较浅的文本颜色 */
+}
+
+/* 卡片悬停效果 */
+.cardHover {
+  transition: all 0.3s ease;
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--n-box-shadow2); /* 使用 Naive UI 阴影变量 */
+  }
+}
+
+/* 快捷入口卡片基础样式 */
+.quickEntryCard {
+	height: 100%	;
+  transition: all 0.3s ease;
+  border-radius: 0.6rem; /* 圆角 */
+}
+
+.quickEntryCard:hover {
+  transform: translateY(-4px); /* 悬停时上移效果更明显 */
+}
+
+/* 工作流快捷入口特定样式 */
+.workflow {
+  background: var(--color-workflow-bg); /* 使用 variable.css 中定义的变量 */
+}
+
+.workflow .iconWrapper {
+  background: var(--color-workflow-icon-wrapper-bg); /* 使用 variable.css 中定义的变量 */
+  color: var(--n-success-color); /* 使用 Naive UI 主题色 */
+}
+
+.workflow .title {
+  color: var(--n-success-color); /* 使用 Naive UI 主题色 */
+}
+
+/* 证书快捷入口特定样式 */
+.cert {
+  background: var(--color-cert-bg); /* 使用 variable.css 中定义的变量 */
+}
+
+.cert .iconWrapper {
+  background: var(--color-cert-icon-wrapper-bg); /* 使用 variable.css 中定义的变量 */
+  color: var(--n-warning-color); /* 使用 Naive UI 主题色 */
+}
+
+.cert .title {
+  color: var(--n-warning-color); /* 使用 Naive UI 主题色 */
+}
+
+/* 监控快捷入口特定样式 */
+.monitor {
+  background: var(--color-monitor-bg); /* 使用 variable.css 中定义的变量 */
+}
+
+.monitor .iconWrapper {
+  background: var(--color-monitor-icon-wrapper-bg); /* 使用 variable.css 中定义的变量 */
+  color: var(--color-monitor-text); /* 使用 variable.css 中定义的变量 */
+}
+
+.monitor .title {
+  color: var(--color-monitor-text); /* 使用 variable.css 中定义的变量 */
+}
+
+/* 图标包装器通用样式 */
+.iconWrapper {
+  border-radius: 50%; /* 圆形 */
+  padding: 1rem; /* 内边距 */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* 快捷入口卡片内标题样式 */
+.title {
+  font-size: 2rem;
+  font-weight: 500; /* 中等字重 */
+  margin-bottom: 0.75rem;
+}
+
+/* 表格内文本、卡片内描述文本等通用文本样式 */
+.tableText {
+  font-size: 1.4rem; /* 14px */
+  color: var(--n-text-color2); /* Naive UI secondary text color */
+  line-height: 1.6; /* Improved readability */
+}
+
+
+
+/* 概览卡片中的图标区域样式 */
+.workflowIcon,
+.certIcon,
+.monitorIcon {
+  /* 若有特定于这些图标容器的样式，可在此定义 */
+  /* 例如：padding: 0.5rem; background-color: #f0f0f0; border-radius: 8px; */
+}
+
+/* Utility classes for background colors from index.tsx */
+.bgUtilSuccess {
+  background-color: var(--n-success-color); }
+
+.bgUtilError {
+  background-color: var(--n-error-color); 
+}
+
+.bgUtilWarning {
+  background-color: var(--n-warning-color); 
+}
+
+.bgUtilDecorative {
+  background-color: var(--n-primary-color); /* 修改：使用 Naive UI 标准变量 (假设 primaryColor 是期望的装饰色) */
+}

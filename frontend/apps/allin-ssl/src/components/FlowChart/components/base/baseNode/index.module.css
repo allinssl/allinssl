@@ -1,0 +1,182 @@
+.node {
+  @apply flex flex-col items-center relative mx-[1.2rem];
+}
+
+.nodeArrows::before {
+  content: '';
+  position: absolute;
+  top: -1.2rem;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 0.4rem;
+  border-style: solid;
+  border-width: 0.8rem 0.6rem 0.4rem;
+  border-color: #cacaca transparent transparent;
+  background-color: #f5f5f7;
+}
+
+.nodeContent {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 20rem;
+  min-height: 8rem;
+  font-size: 1.4rem;
+  box-shadow: .2rem .2rem .5rem .2rem rgba(0, 0, 0, 0.2);
+  white-space: normal;
+  word-break: break-word;
+  position: relative;
+  box-sizing: border-box;
+  border-radius: 0.5rem;
+  transition: box-shadow 0.1s;
+}
+
+.nodeContent:hover {
+  box-shadow: 0.3rem 0.3rem .6rem 0.3rem rgba(0, 0, 0, 0.2);
+}
+
+.nodeSelected {
+  box-shadow: 0 0 0 2px #1e83e9;
+  border: 1px solid #1e83e9;
+}
+
+.nodeHeader {
+  @apply w-full flex relative items-center justify-center bg-[#1e83e9] rounded-t-[0.5rem] p-[0.5rem_1rem] text-white box-border;
+}
+
+.nodeHeaderBranch{
+	@apply flex-1 justify-between;
+}
+
+.nodeCondition{
+	min-height: 5rem;
+}
+
+.nodeConditionHeader {
+	min-height: 5rem;
+	border-radius: 1rem;
+	color: #333 !important;
+	background-color: #f8fafc !important;
+}
+
+.nodeConditionHeader input{
+	color: #333 !important;
+}
+
+.nodeConditionHeader input:focus{
+	background-color: #efefef !important;
+}
+
+
+.nodeConditionHeader .nodeIcon{
+	color: #333 !important;		
+}
+
+.nodeIcon {
+  @apply text-[1.6rem];
+}
+
+.nodeHeaderTitle {
+  @apply flex flex-row items-center justify-center relative px-[2rem];
+}
+
+.nodeHeaderTitleText {
+  @apply max-w-[11rem] min-w-[2rem] mr-[0.5rem] whitespace-nowrap overflow-hidden text-ellipsis;
+}
+
+.nodeHeaderTitleInput {
+  @apply w-auto ;
+}
+
+.nodeHeaderTitleInput input {
+  @apply w-full text-center border border-none rounded px-2 py-1 text-[#fff] focus:outline-none bg-transparent;
+}
+
+.nodeHeaderTitleInput input:focus {
+  @apply border-[#1e83e9] text-[#333];
+}
+
+.nodeHeaderTitleEdit {
+  @apply w-[3rem] cursor-pointer hidden;
+}
+
+.nodeHeaderTitle:hover .nodeHeaderTitleEdit {
+  @apply inline;
+}
+
+.nodeClose {
+  @apply text-[1.6rem] text-center cursor-pointer;
+}
+
+.nodeBody {
+  @apply w-full flex-1 flex flex-col justify-center bg-white rounded-b-[0.5rem] p-[1rem] text-[#5a5e66] cursor-pointer box-border;
+}
+
+.nodeConditionBody {
+  @apply bg-[#f8fafc] rounded-[0.5rem];
+}
+
+.nodeError {
+
+	box-shadow: 0 0 1rem 0.2rem rgba(243, 5, 5, 0.5);
+}
+
+.nodeError:hover {
+	box-shadow: 0 0 1.2rem 0.4rem rgba(243, 5, 5, 0.5);
+}
+
+.nodeErrorMsg {
+  @apply absolute top-1/2 -translate-y-1/2 -right-[5.5rem] z-[1];
+}
+
+.nodeErrorMsgBox {
+  @apply relative;
+}
+
+.nodeErrorIcon {
+  @apply w-[2.5rem] h-[2.5rem] cursor-pointer;
+}
+
+.nodeErrorTips {
+  position: absolute;
+  z-index: 3;
+  top: 50%;
+  transform: translateY(-50%);
+  left: 4.5rem;
+  min-width: 15rem;
+  background-color: white;
+  border-radius: 0.5rem;
+  box-shadow: 0.5rem 0.5rem 1rem 0.2rem rgba(0, 0, 0, 0.2);
+  display: flex;
+  padding: 1.6rem;
+}
+
+.nodeErrorTips::before {
+  content: '';
+  width: 0;
+  height: 0;
+  border-width: 1rem;
+  border-style: solid;
+  position: absolute;
+  top: 50%;
+  left: -2rem;
+  transform: translateY(-50%);
+  border-color: transparent #FFFFFF transparent transparent;
+}
+
+.nodeMove {
+  @apply absolute top-1/2 -translate-y-1/2;
+}
+
+.nodeMoveLeft {
+  @apply -left-[3rem];
+}
+
+.nodeMoveRight {
+  @apply -right-[3rem];
+}
+
+.nodeMoveIcon {
+  @apply w-[3.5rem] h-[3.5rem] cursor-pointer;
+} 

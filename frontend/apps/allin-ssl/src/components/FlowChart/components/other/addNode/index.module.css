@@ -1,0 +1,129 @@
+.add {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 4rem 0;
+}
+
+.add::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: -1;
+  margin: auto;
+  width: 0.2rem;
+  height: 100%;
+  background-color: #cacaca;
+}
+
+.addBtn {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  margin-left: -1.2rem;
+	margin-top: -2rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 2.4rem;
+  height: 2.4rem;
+  border-radius: 4rem;
+  background-color: #1c84c6;
+  box-shadow: 0.5rem 0.5rem 1rem 0.2rem rgba(0, 0, 0, 0.2);
+  transition-property: width, height;
+  transition-duration: 0.1s;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+
+/* .addBtn:hover {
+  width: 3.5rem;
+  height: 3.5rem;
+} */
+
+.addBtnIcon {
+  font-weight: bold;
+  color: #FFFFFF;
+  cursor: pointer;
+}
+
+.addSelectBox {
+  position: absolute;
+  z-index: 9999999999999999;
+  top: -.8rem;
+ 	min-width: 160px;
+  padding: 4px;
+	list-style-type: none;
+	background-color: #ffffff;
+	background-clip: padding-box;
+	border-radius: 8px;
+	outline: none;
+	box-shadow: 0 6px 16px 0 rgba(0, 0, 0, 0.08), 0 3px 6px -4px rgba(0, 0, 0, 0.12), 0 9px 28px 8px rgba(0, 0, 0, 0.05);
+}
+
+.addSelectBox::before {
+  content: '';
+  width: 0;
+  height: 0;
+  border: 1rem solid;
+  position: absolute;
+  top: 1rem;
+}
+
+.addSelectItem {
+	margin: 0;
+	width: 100%;
+	padding: 5px 12px;
+	color: rgba(0, 0, 0, 0.88);
+	font-weight: normal;
+	font-size: 14px;
+	line-height: 1.5714285714285714;
+	cursor: pointer;
+	transition: all 0.2s;
+	border-radius: 4px;
+	display: flex;
+	align-items: center;
+}
+
+.addSelectItem:hover {
+	background-color: #1e83e9 !important;
+	color: #FFFFFF !important;
+}
+
+.addSelectItemIcon {
+  width: 1.2rem;
+  height: 1.2rem;
+	margin-right: 1rem;
+}
+
+.addSelectItemTitle {
+  font-size: 1.4rem;
+}
+
+.addSelected {
+  background-color: #1e83e9 !important;
+  color: #FFFFFF !important;
+}
+
+.addLeft {
+  right: 3.4rem;
+}
+
+.addLeft::before {
+  right: -2rem;
+  border-color: transparent transparent transparent #FFFFFF;
+}
+
+.addRight {
+  left: 3.4rem;
+}
+
+.addRight::before {
+  left: -2rem;
+  border-color: transparent #FFFFFF transparent transparent;
+} 

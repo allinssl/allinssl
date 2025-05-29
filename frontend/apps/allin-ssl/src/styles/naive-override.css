@@ -1,0 +1,51 @@
+.n-tabs .n-tabs-nav {
+	background-color: var(--bt-card-bg-color) !important;
+	border-radius: 0.8rem;
+}
+.n-tabs .n-tabs-nav .n-tabs-tab-pad {
+	display: none;
+}
+.n-tabs .n-tabs-nav .n-tabs-tab-wrapper {
+	border-radius: 0.8rem 0.8rem 0.8rem 0.8rem;
+}
+.n-tabs .n-tabs-tab {
+	padding: 0 2.2rem;
+	height: 5.2rem;
+}
+.n-tabs .n-tabs-tab.n-tabs-tab--active {
+	background-color: var(--bt-card-bg-color-active) !important;
+}
+.n-tabs .n-tabs-tab:first-child {
+	border-radius: 0.8rem 0 0 0.8rem;
+}
+.n-tabs .n-tabs-tab:last-child {
+	border-radius: 0 0.8rem 0.8rem 0;
+}
+
+
+/* 日志颜色 */
+
+.hljs-info-text{
+	color: var(--n-success-color) !important;
+}
+.hljs-date-text{
+	color: var(--n-success-color-pressed) !important;
+}
+.hljs-error-text{
+	color: var(--n-error-color) !important;
+}
+.hljs-warning-text{
+	color: var(--n-warning-color) !important;
+}
+
+
+/* 表格数据显示 */
+.n-data-table .n-data-table-empty{
+	background-color: var(--n-merged-td-color);
+}
+
+
+.leftPanel .n-tabs-tab {
+	height: 3.2rem;
+	line-height: 3.2rem;
+}

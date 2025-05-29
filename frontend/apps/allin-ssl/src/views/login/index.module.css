@@ -1,0 +1,386 @@
+/* 颜色变量定义 */
+
+/* 主容器样式 - 全屏显示并居中内容 */
+.container {
+	@apply w-screen h-screen flex items-center justify-center relative overflow-hidden;
+	background: no-repeat center center;
+	background-size: cover;
+	animation: fadeIn 1.2s cubic-bezier(0.4, 0, 0.2, 1);
+	will-change: opacity;
+}
+
+/* 主容器背景遮罩 - 创建渐变暗色效果 */
+.container::before {
+	@apply content-[''] absolute inset-0;
+	animation: fadeIn 1.5s cubic-bezier(0.4, 0, 0.2, 1);
+	will-change: opacity;
+}
+
+/* 登录盒子 - 包含左右两个部分 */
+.loginBox {
+	@apply w-[90vw] max-w-[100rem] min-h-[60rem] flex relative z-10 justify-center items-center;
+	animation: scaleIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+	will-change: transform, opacity;
+}
+
+.leftImageWrapper {
+	@apply p-[2rem] w-[33rem];
+}
+
+.leftImage:hover {
+	animation: floating 2s ease-in-out infinite;
+}
+
+@keyframes floating {
+	0% {
+		transform: translateY(0px);
+	}
+	50% {
+		transform: translateY(-10px);
+	}
+	100% {
+		transform: translateY(0px);
+	}
+}
+
+.leftImage {
+	@apply w-full text-[3.2rem] font-bold mb-7 flex items-center transition-transform duration-300 ease-in-out;
+}
+
+/* 左侧内容区域 - 包含标题和描述文本 */
+.leftSection {
+	@apply flex-1 flex flex-col justify-center;
+	@apply p-14;
+	animation: fadeInLeft 1s cubic-bezier(0.4, 0, 0.2, 1) 0.3s both;
+	will-change: transform, opacity;
+}
+
+/* 左侧标题样式 - 渐变文本效果 */
+.leftTitle {
+	@apply text-[var(--n-text-color-2)] text-[3.2rem] font-bold mb-7 flex items-center;
+}
+
+.logo {
+	@apply w-[5.6rem] h-[5.6rem] mr-6;
+	will-change: transform;
+}
+
+/* 左侧描述文本样式 */
+.leftDesc {
+	@apply text-[clamp(1.6rem,2vw,1.8rem)] leading-[1.8] opacity-90 max-w-[60rem];
+	animation: slideUp 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) 0.5s both;
+	will-change: transform, opacity;
+}
+
+/* 右侧登录区域 - 白色背景卡片 */
+.rightSection {
+	@apply w-[40rem] min-h-[38rem] flex flex-col bg-[var(--n-action-color)] rounded-xl shadow-lg p-14 mr-[5rem];
+	animation: fadeInRight 0.6s cubic-bezier(0.4, 0, 0.2, 1) 0.3s both;
+	transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+	will-change: transform, opacity, box-shadow;
+	backdrop-filter: blur(20px);
+}
+
+.rightSection:hover {
+	transform: translateY(-2px) scale(1.01);
+}
+
+/* 登录标题样式 */
+.title {
+	@apply text-4xl font-bold text-[var(--n-text-color-2)] text-left mb-11;
+	animation: slideDown 0.3s ease-out 0.3s both;
+}
+
+/* 表单容器 - 采用 flex 布局实现自适应高度 */
+.formContainer {
+	@apply flex-1 flex flex-col;
+	animation: fadeIn 0.4s cubic-bezier(0.4, 0, 0.2, 1) 0.5s both;
+}
+
+/* 表单包装器 - 确保表单占满剩余空间 */
+.formWrapper {
+	@apply flex-1 flex flex-col;
+}
+
+/* 表单内容区域 - 使用 flex 布局分配空间 */
+.formContent {
+	@apply flex-1 flex flex-col;
+}
+
+/* 表单输入区域 - 输入框垂直排列 */
+.formInputs {
+	@apply flex flex-col;
+}
+
+/* 表单输入框样式 */
+.formInputs :global(.n-input) {
+	transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+	will-change: transform;
+}
+
+.formInputs :global(.n-input:hover) {
+	transform: translateY(-1px) scale(1.01);
+}
+
+.formInputs :global(.n-input:focus-within) {
+	transform: translateY(-2px) scale(1.02);
+}
+
+/* 表单底部操作区域 */
+.formActions {
+	@apply flex flex-col;
+}
+
+/* 记住密码和忘记密码区域 */
+.rememberSection {
+	@apply flex justify-between items-center;
+	@apply mb-6;
+	animation: fadeIn 0.3s cubic-bezier(0.4, 0, 0.2, 1) 0.5s both;
+}
+
+/* 底部按钮区域 */
+.formButton {
+	@apply mt-6;
+	animation: slideUp 0.3s ease-out 1.2s both;
+}
+
+/* 社交链接区域 */
+.socialLinks {
+	@apply mt-14 flex items-center;
+	animation: fadeIn 0.3s cubic-bezier(0.4, 0, 0.2, 1) 1s both;
+}
+
+.socialLinks > :not(:first-child) {
+	@apply ml-6;
+}
+
+.socialLinks > * {
+	transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.socialLinks > *:hover {
+	transform: scale(1.1);
+}
+
+/* 错误信息显示 */
+.error {
+	@apply text-[var(--n-error-color)] text-[1.4rem] text-center mt-3;
+	animation: shake 0.3s cubic-bezier(0.36, 0, 0.66, -0.56);
+	transform-origin: center;
+	will-change: transform;
+}
+
+/* 基础淡入动画 */
+@keyframes fadeIn {
+	from {
+		opacity: 0;
+	}
+	to {
+		opacity: 1;
+	}
+}
+
+/* 缩放进入动画 */
+@keyframes scaleIn {
+	from {
+		opacity: 0;
+		transform: scale(0.95) translateY(10px);
+	}
+	to {
+		opacity: 1;
+		transform: scale(1) translateY(0);
+	}
+}
+
+/* 向下滑入动画 */
+@keyframes slideDown {
+	from {
+		opacity: 0;
+		transform: translateY(-30px) scale(0.95);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0) scale(1);
+	}
+}
+
+/* 向上滑入动画 */
+@keyframes slideUp {
+	from {
+		opacity: 0;
+		transform: translateY(30px) scale(0.95);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0) scale(1);
+	}
+}
+
+/* 左侧内容淡入动画 */
+@keyframes fadeInLeft {
+	from {
+		opacity: 0;
+		transform: translateX(-50px) scale(0.98);
+	}
+	to {
+		opacity: 1;
+		transform: translateX(0) scale(1);
+	}
+}
+
+/* 右侧内容淡入动画 */
+@keyframes fadeInRight {
+	from {
+		opacity: 0;
+		transform: translateX(50px) scale(0.98);
+	}
+	to {
+		opacity: 1;
+		transform: translateX(0) scale(1);
+	}
+}
+
+/* 错误信息抖动动画 */
+@keyframes shake {
+	0%,
+	100% {
+		transform: translateX(0);
+	}
+	10%,
+	30%,
+	50%,
+	70%,
+	90% {
+		transform: translateX(-2px) rotate(-1deg);
+	}
+	20%,
+	40%,
+	60%,
+	80% {
+		transform: translateX(2px) rotate(1deg);
+	}
+}
+
+/* 动画关键帧优化 */
+@keyframes rotate {
+	from {
+		transform: rotate(-180deg) scale(0.5);
+		opacity: 0;
+	}
+	to {
+		transform: rotate(0) scale(1);
+		opacity: 1;
+	}
+}
+
+/* 响应式布局适配 */
+@media (max-width: 768px) {
+	.loginBox {
+		@apply flex-col p-4 w-[95vw] min-h-[auto];
+	}
+
+	.leftSection {
+		@apply p-4 text-center mb-4;
+	}
+
+	.leftTitle {
+		@apply text-[2.4rem] mb-4;
+	}
+
+	.leftImageWrapper {
+		@apply hidden;
+	}
+
+	.leftDesc {
+		@apply mx-auto text-[1.4rem];
+	}
+
+	.rightSection {
+		@apply w-full mx-auto mr-0 p-8 min-h-[auto];
+	}
+
+	.title {
+		@apply text-[2.8rem] mb-8;
+	}
+
+	.formContainer {
+		@apply gap-4;
+	}
+}
+
+/* 更小屏幕适配 */
+@media (max-width: 480px) {
+	.container {
+		@apply p-4;
+	}
+
+	.loginBox {
+		@apply w-full p-2 min-h-[auto];
+	}
+
+	.leftSection {
+		@apply p-2 mb-2;
+	}
+
+	.leftTitle {
+		@apply text-[2rem] mb-2 flex-col;
+	}
+
+	.logo {
+		@apply w-[4rem] h-[4rem] mr-0 mb-2;
+	}
+
+	.rightSection {
+		@apply p-6;
+	}
+
+	.title {
+		@apply text-[2.4rem] mb-6;
+	}
+
+	.formInputs :global(.n-form-item) {
+		@apply mb-4;
+	}
+
+	.rememberSection {
+		@apply flex-col items-start gap-2 mb-4;
+	}
+
+	/* 验证码输入框移动端优化 */
+	.formInputs :global(.n-input) {
+		@apply text-[1.6rem];
+	}
+
+	/* 验证码图片容器移动端优化 */
+	.codeImageContainer {
+		@apply w-[8rem] h-[3.5rem] mr-[-1rem] text-[1.4rem];
+	}
+}
+
+/* 清理不需要的样式 */
+.todoList,
+.todoItem,
+.todoCheckbox,
+.todoTitle,
+.deleteButton {
+	display: none;
+}
+
+/* 忘记密码链接样式 */
+.forgotPassword {
+	@apply text-[var(--n-primary-color)] no-underline text-[1.4rem] transition-opacity duration-300 hover:opacity-80;
+}
+
+/* 图标样式 */
+.icon {
+	color: var(--n-primary-color-suppl);
+}
+
+/* 验证码图片容器样式 */
+.codeImageContainer {
+	transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.codeImageContainer:hover {
+	@apply bg-slate-500;
+}
