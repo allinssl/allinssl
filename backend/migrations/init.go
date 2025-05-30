@@ -138,7 +138,6 @@ func init() {
 	);
 
 	`)
-	insertDefaultData(db, "users", "INSERT INTO users (id, username, password, salt) VALUES (1, 'admin', 'xxxxxxx', '&*ghs^&%dag');")
 	insertDefaultData(db, "access_type", `
 	INSERT INTO access_type (name, type) VALUES ('aliyun', 'dns');
 	INSERT INTO access_type (name, type) VALUES ('tencentcloud', 'dns');
@@ -147,25 +146,6 @@ func init() {
 	INSERT INTO access_type (name, type) VALUES ('ssh', 'host');
 	INSERT INTO access_type (name, type) VALUES ('btpanel', 'host');
 	INSERT INTO access_type (name, type) VALUES ('1panel', 'host');`)
-
-	uuidStr := public.GenerateUUID()
-	randomStr := public.RandomString(8)
-
-	port, err := public.GetFreePort()
-	if err != nil {
-		port = 20773
-	}
-
-	Isql := fmt.Sprintf(
-		`INSERT INTO settings (key, value, create_time, update_time, active, type) VALUES ('log_path', 'logs/ALLinSSL.log', '2025-04-15 15:58', '2025-04-15 15:58', 1, null);
-INSERT INTO settings (key, value, create_time, update_time, active, type) VALUES ( 'workflow_log_path', 'logs/workflows/', '2025-04-15 15:58', '2025-04-15 15:58', 1, null);
-INSERT INTO settings (key, value, create_time, update_time, active, type) VALUES ( 'timeout', '3600', '2025-04-15 15:58', '2025-04-15 15:58', 1, null);
-INSERT INTO settings (key, value, create_time, update_time, active, type) VALUES ( 'https', '0', '2025-04-15 15:58', '2025-04-15 15:58', 1, null);
-INSERT INTO settings (key, value, create_time, update_time, active, type) VALUES ('session_key', '%s', '2025-04-15 15:58', '2025-04-15 15:58', 1, null);
-INSERT INTO settings (key, value, create_time, update_time, active, type) VALUES ('secure', '/%s', '2025-04-15 15:58', '2025-04-15 15:58', 1, null);
-INSERT INTO settings (key, value, create_time, update_time, active, type) VALUES ('port', '%d', '2025-04-15 15:58', '2025-04-15 15:58', 1, null);`, uuidStr, randomStr, port)
-
-	insertDefaultData(db, "settings", Isql)
 
 	InsertIfNotExists(db, "access_type", map[string]any{"name": "cloudflare", "type": "host"}, []string{"name", "type"}, []any{"cloudflare", "host"})
 	InsertIfNotExists(db, "access_type", map[string]any{"name": "cloudflare", "type": "dns"}, []string{"name", "type"}, []any{"cloudflare", "dns"})
@@ -245,14 +225,14 @@ INSERT INTO settings (key, value, create_time, update_time, active, type) VALUES
 	if err != nil {
 		fmt.Println("错误:", err)
 	}
-	dbSetting, err := public.NewSqlite("data/settings.db", "")
+	dbSetting, err := sql.Open("sqlite", "data/settings.db")
 	if err != nil {
 		//fmt.Println("创建 settings 数据库失败:", err)
 		return
 	}
 	defer dbSetting.Close()
 	// 创建表
-	_, err = db1.Exec(`
+	_, err = dbSetting.Exec(`
 	PRAGMA journal_mode=WAL;
 
 	create table IF NOT EXISTS settings
@@ -280,6 +260,25 @@ INSERT INTO settings (key, value, create_time, update_time, active, type) VALUES
 	    salt     TEXT default '' not null
 	);
        `)
+	insertDefaultData(dbSetting, "users", "INSERT INTO users (id, username, password, salt) VALUES (1, 'admin', 'xxxxxxx', '&*ghs^&%dag');")
+	uuidStr := public.GenerateUUID()
+	randomStr := public.RandomString(8)
+
+	port, err := public.GetFreePort()
+	if err != nil {
+		port = 20773
+	}
+
+	Isql := fmt.Sprintf(
+		`INSERT INTO settings (key, value, create_time, update_time, active, type) VALUES ('log_path', 'logs/ALLinSSL.log', '2025-04-15 15:58', '2025-04-15 15:58', 1, null);
+INSERT INTO settings (key, value, create_time, update_time, active, type) VALUES ( 'workflow_log_path', 'logs/workflows/', '2025-04-15 15:58', '2025-04-15 15:58', 1, null);
+INSERT INTO settings (key, value, create_time, update_time, active, type) VALUES ( 'timeout', '3600', '2025-04-15 15:58', '2025-04-15 15:58', 1, null);
+INSERT INTO settings (key, value, create_time, update_time, active, type) VALUES ( 'https', '0', '2025-04-15 15:58', '2025-04-15 15:58', 1, null);
+INSERT INTO settings (key, value, create_time, update_time, active, type) VALUES ('session_key', '%s', '2025-04-15 15:58', '2025-04-15 15:58', 1, null);
+INSERT INTO settings (key, value, create_time, update_time, active, type) VALUES ('secure', '/%s', '2025-04-15 15:58', '2025-04-15 15:58', 1, null);
+INSERT INTO settings (key, value, create_time, update_time, active, type) VALUES ('port', '%d', '2025-04-15 15:58', '2025-04-15 15:58', 1, null);`, uuidStr, randomStr, port)
+
+	insertDefaultData(dbSetting, "settings", Isql)
 
 	err = sqlite_migrate.EnsureDatabaseWithTables(
 		"data/accounts.db",
@@ -289,14 +288,14 @@ INSERT INTO settings (key, value, create_time, update_time, active, type) VALUES
 	if err != nil {
 		fmt.Println("错误:", err)
 	}
-	dbAcc, err := public.NewSqlite("data/accounts.db", "")
+	dbAcc, err := sql.Open("sqlite", "data/accounts.db")
 	if err != nil {
 		//fmt.Println("创建 settings 数据库失败:", err)
 		return
 	}
 	defer dbAcc.Close()
 	// 创建表
-	_, err = db1.Exec(`
+	_, err = dbAcc.Exec(`
 	PRAGMA journal_mode=WAL;
 
 	create table IF NOT EXISTS _accounts
