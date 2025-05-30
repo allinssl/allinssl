@@ -13,11 +13,20 @@ type VolcEngineCdnClient struct {
 	*cdn.CDN
 }
 
-func ClientVolcEngineCdn(ak, sk, region string) (*VolcEngineCdnClient, error) {
+func createSdkSession(ak, sk, region string) (*session.Session, error) {
 	config := volcengine.NewConfig().
 		WithRegion(region).
 		WithCredentials(credentials.NewStaticCredentials(ak, sk, ""))
 	sess, err := session.NewSession(config)
+	if err != nil {
+		return nil, fmt.Errorf("创建火山引擎客户端失败: %w", err)
+	}
+	
+	return sess, err
+}
+
+func ClientVolcEngineCdn(ak, sk, region string) (*VolcEngineCdnClient, error) {
+	sess, err := createSdkSession(ak, sk, region)
 	if err != nil {
 		return nil, fmt.Errorf("创建火山引擎CDN客户端失败: %w", err)
 	}

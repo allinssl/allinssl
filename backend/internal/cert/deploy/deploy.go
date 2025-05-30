@@ -81,6 +81,12 @@ func Deploy(cfg map[string]any, logger *public.Logger) error {
 	case "huaweicloud-cdn":
 		logger.Debug("部署到华为云CDN...")
 		return DeployHwCdn(cfg)
+	case "volcengine-cdn":
+		logger.Debug("部署到火山CDN...")
+		return DeployVolcEngineCdn(cfg)
+	case "volcengine-dcdn":
+		logger.Debug("部署到火山DCDN...")
+		return DeployVolcEngineDCdn(cfg)
 	default:
 		return fmt.Errorf("不支持的部署: %s", providerName)
 	}

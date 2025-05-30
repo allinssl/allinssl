@@ -185,6 +185,7 @@ INSERT INTO settings (key, value, create_time, update_time, active, type) VALUES
 	InsertIfNotExists(db, "access_type", map[string]any{"name": "westcn", "type": "dns"}, []string{"name", "type"}, []any{"westcn", "dns"})
 	// 火山引擎
 	InsertIfNotExists(db, "access_type", map[string]any{"name": "volcengine", "type": "dns"}, []string{"name", "type"}, []any{"volcengine", "dns"})
+	InsertIfNotExists(db, "access_type", map[string]any{"name": "volcengine", "type": "host"}, []string{"name", "type"}, []any{"volcengine", "host"})
 	// godaddy
 	InsertIfNotExists(db, "access_type", map[string]any{"name": "godaddy", "type": "dns"}, []string{"name", "type"}, []any{"godaddy", "dns"})
 
