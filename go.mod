@@ -28,6 +28,7 @@ require (
 	github.com/qiniu/go-sdk/v7 v7.25.3
 	github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/common v1.0.1128
 	github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/ssl v1.0.1124
+	github.com/volcengine/volcengine-go-sdk v1.1.11
 	golang.org/x/crypto v0.37.0
 	modernc.org/sqlite v1.37.0
 )
@@ -115,6 +116,7 @@ require (
 	google.golang.org/protobuf v1.36.6 // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect
 	gopkg.in/ns1/ns1-go.v2 v2.13.0 // indirect
+	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 	modernc.org/libc v1.62.1 // indirect
 	modernc.org/mathutil v1.7.1 // indirect
