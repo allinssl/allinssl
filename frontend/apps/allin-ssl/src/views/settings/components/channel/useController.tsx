@@ -229,12 +229,22 @@ export const useWebhookChannelFormController = () => {
 	const config = computed(() => [
 		useFormInput($t('t_2_1745289353944'), 'name'),
 		useFormInput('WebHook回调地址', 'url'),
-		useFormTextarea('WebHook推送通知回调数据（可选）', 'data', { rows: 3 }, { showRequireMark: false }),
 		useFormSelect('请求方式', 'method', [
 			{ label: 'POST', value: 'post' },
 			{ label: 'GET', value: 'get' },
 		]),
-		useFormTextarea('WebHook请求头（可选）', 'headers', { rows: 3 }, { showRequireMark: false }),
+		useFormTextarea(
+			'WebHook请求头（可选）',
+			'headers',
+			{ rows: 3, placeholder: 'Content-Type: application/json' },
+			{ showRequireMark: false },
+		),
+		useFormTextarea(
+			'WebHook推送通知回调数据（可选）',
+			'data',
+			{ rows: 3, placeholder: '请使用JSON格式，例如：{"title":"test","content":"test"}' },
+			{ showRequireMark: false },
+		),
 		useFormSwitch('忽略SSL/TLS证书错误', 'ignore_ssl'),
 	])
 

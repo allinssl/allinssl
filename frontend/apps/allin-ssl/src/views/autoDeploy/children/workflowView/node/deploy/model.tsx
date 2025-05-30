@@ -180,13 +180,6 @@ export default defineComponent({
 								clearable: true, // 可清除
 								loading: siteOptionsLoading.value,
 								onSearch: handleSiteSearch,
-								// onUpdateValue: (val: string, option: { label: string; value: string }) => {
-								// 	if (param.value.provider === '1panel-site') {
-								// 		param.value.site_id = val
-								// 	} else {
-								// 		param.value.siteName = val
-								// 	}
-								// },
 							},
 						),
 					)

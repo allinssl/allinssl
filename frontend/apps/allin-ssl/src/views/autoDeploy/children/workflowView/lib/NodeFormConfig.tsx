@@ -140,7 +140,7 @@ export function createNodeFormConfig() {
 		 * @param valueRef 值引用
 		 */
 		siteDeploy() {
-			return [this.input($t('t_0_1747296173751'), 'siteName', { placeholder: $t('t_1_1747296175494') })]
+			return [this.input($t('t_0_1747296173751'), 'siteName', { placeholder: $t('请输入网站名，只支持单个网站部署') })]
 		},
 
 		/**

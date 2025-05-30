@@ -95,7 +95,7 @@ export const useSettingsStore = defineStore('settings-store', () => {
 		url: '', // WebHook回调地址
 		data: '', // WebHook推送通知回调数据（可选）
 		method: 'post', // 请求方式
-		headers: '', // WebHook请求头（可选）
+		headers: 'Content-Type: application/json', // WebHook请求头（可选）
 		ignore_ssl: false, // 忽略SSL/TLS证书错误
 	})
 

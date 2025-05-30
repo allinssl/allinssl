@@ -1,5 +1,4 @@
 {
-  "t_0_1748586248783": "Por favor, selecione um nome de site, apenas seleção única",
   "t_0_1744098811152": "Aviso: Você entrou em uma área desconhecida, a página que você está visitando não existe, por favor, clique no botão para voltar para a página inicial.",
   "t_1_1744098801860": "Voltar para a homepage",
   "t_2_1744098804908": "Dica de Segurança: Se você acha que isso é um erro, entre em contato com o administrador imediatamente",
@@ -625,5 +624,6 @@
   "t_0_1747994891459": "Site do Pagoda docker",
   "t_0_1748052857931": "Autoridade Certificadora/Autorização (Opcional)",
   "t_1_1748052860539": "Adicionar Zerossl, Google, autorização de certificado CA",
-  "t_2_1748052862259": "Por favor, insira as informações do seu e-mail para receber o e-mail de verificação do certificado"
+  "t_2_1748052862259": "Por favor, insira as informações do seu e-mail para receber o e-mail de verificação do certificado",
+  "t_0_1748586248783": "Por favor, selecione um nome de site, apenas seleção única"
 }
