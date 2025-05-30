@@ -1,5 +1,4 @@
 {
-  "t_0_1748591669194": "Enviar mensagem de teste para, configuração atual {type} notificação, continuar?",
   "t_0_1744098811152": "Aviso: Você entrou em uma área desconhecida, a página que você está visitando não existe, por favor, clique no botão para voltar para a página inicial.",
   "t_1_1744098801860": "Voltar para a homepage",
   "t_2_1744098804908": "Dica de Segurança: Se você acha que isso é um erro, entre em contato com o administrador imediatamente",
@@ -633,5 +632,6 @@
   "t_2_1748591495339": "No máximo, apenas um canal de notificação DingTalk pode ser configurado",
   "t_3_1748591484673": "Webhook",
   "t_4_1748591492587": "Testando notificação {type}",
-  "t_5_1748591491370": "Teste{type}"
+  "t_5_1748591491370": "Teste{type}",
+  "t_0_1748591669194": "Enviar mensagem de teste para, configuração atual {type} notificação, continuar?"
 }

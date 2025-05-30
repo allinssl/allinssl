@@ -1,5 +1,4 @@
 {
-  "t_0_1748591669194": "Enviar mensaje de prueba a, configuración actual {type} notificación, ¿continuar?",
   "t_0_1744098811152": "Advertencia: Ha ingresado a una zona desconocida, la página que intenta visitar no existe, por favor, haga clic en el botón para regresar a la página de inicio.",
   "t_1_1744098801860": "Volver al inicio",
   "t_2_1744098804908": "Consejo de seguridad: Si piensa que es un error, póngase en contacto con el administrador inmediatamente",
@@ -633,5 +632,6 @@
   "t_2_1748591495339": "Solo se puede configurar un canal de notificación DingTalk como máximo",
   "t_3_1748591484673": "Webhook",
   "t_4_1748591492587": "Probando notificación {type}",
-  "t_5_1748591491370": "Prueba{type}"
+  "t_5_1748591491370": "Prueba{type}",
+  "t_0_1748591669194": "Enviar mensaje de prueba a, configuración actual {type} notificación, ¿continuar?"
 }

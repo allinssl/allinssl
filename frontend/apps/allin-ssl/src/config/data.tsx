@@ -99,24 +99,10 @@ export const ApiProjectConfig: Record<string, ApiProjectType> = {
 		},
 		sort: 7,
 	},
-	safeline: {
-		name: $t('t_11_1747886301986'),
-		icon: 'safeline',
-		type: ['host'],
-		hostRelated: { panel: { name: $t('t_1_1747298114192') }, site: { name: $t('t_12_1747886302725') } },
-		sort: 8,
-	},
-	qiniu: {
-		name: $t('t_6_1747886301844'),
-		icon: 'qiniu',
-		type: ['host'],
-		hostRelated: { cdn: { name: $t('t_7_1747886302395') }, oss: { name: $t('t_8_1747886304014') } },
-		sort: 9,
-	},
 	huaweicloud: {
 		name: $t('t_9_1747886301128'),
 		icon: 'huaweicloud',
-		type: ['dns', 'host'],
+		type: ['host', 'dns'],
 		hostRelated: {
 			cdn: { name: $t('t_9_1747886301128') + 'CDN' },
 		},
@@ -131,12 +117,6 @@ export const ApiProjectConfig: Record<string, ApiProjectType> = {
 		},
 		sort: 11,
 	},
-	cloudflare: {
-		name: 'Cloudflare',
-		icon: 'cloudflare',
-		type: ['dns'],
-		sort: 12,
-	},
 	volcengine: {
 		name: $t('t_13_1747886301689'),
 		icon: 'volcengine',
@@ -147,6 +127,28 @@ export const ApiProjectConfig: Record<string, ApiProjectType> = {
 		},
 		sort: 13,
 	},
+	safeline: {
+		name: $t('t_11_1747886301986'),
+		icon: 'safeline',
+		type: ['host'],
+		hostRelated: { panel: { name: $t('t_1_1747298114192') }, site: { name: $t('t_12_1747886302725') } },
+		sort: 8,
+	},
+	qiniu: {
+		name: $t('t_6_1747886301844'),
+		icon: 'qiniu',
+		type: ['host'],
+		hostRelated: { cdn: { name: $t('t_7_1747886302395') }, oss: { name: $t('t_8_1747886304014') } },
+		sort: 9,
+	},
+
+	cloudflare: {
+		name: 'Cloudflare',
+		icon: 'cloudflare',
+		type: ['dns'],
+		sort: 12,
+	},
+
 	westcn: {
 		name: $t('t_14_1747886301884'),
 		icon: 'westcn',
