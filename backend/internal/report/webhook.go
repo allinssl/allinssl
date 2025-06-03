@@ -183,22 +183,32 @@ func NotifyWebHook(params map[string]any) error {
 	if err != nil {
 		return fmt.Errorf("解析配置失败: %v", err)
 	}
-	
-	if params["subject"] != nil && params["body"] != nil {
-		subjStr, ok1 := params["subject"].(string)
-		bodyStr, ok2 := params["body"].(string)
-		if ok1 && ok2 {
-			subjStr = strings.ReplaceAll(subjStr, `"`, `\"`)
-			bodyStr = strings.ReplaceAll(bodyStr, `"`, `\"`)
-			if strings.Contains(config.Data, "{subject}") {
-				config.Data = strings.ReplaceAll(config.Data, "{subject}", subjStr)
-			}
-			if strings.Contains(config.Data, "{body}") {
-				config.Data = strings.ReplaceAll(config.Data, "{body}", bodyStr)
-			}
-			config.Data = strings.ReplaceAll(config.Data, "\n", `\n`)
+
+	escapeStr := func(s string) string {
+	    b, _ := json.Marshal(s)
+		if len(b) >= 2 {
+			return string(b[1 : len(b)-1])
+		}
+	    return ""
+	}
+
+	if subjectVal, exists := params["subject"]; exists && subjectVal != nil {
+		if subjStr, ok := subjectVal.(string); ok && len(subjStr) > 0 {
+			config.Data = strings.ReplaceAll(config.Data, "{subject}", escapeStr(subjStr))
 		}
 	}
+
+	if bodyVal, exists := params["body"]; exists && bodyVal != nil {
+		if bodyStr, ok := bodyVal.(string); ok && len(bodyStr) > 0 {
+			config.Data = strings.ReplaceAll(config.Data, "{body}", escapeStr(bodyStr))
+		}
+	}
+
+	config.Data = strings.ReplaceAll(config.Data, "\n", `\n`)
+
+	if !json.Valid([]byte(config.Data)) {
+        return fmt.Errorf("通知主题或通知内容包含特殊字符，消息配置字段替换失败")
+    }
 
 	reporter := NewWebHookReporter(&config, logger)
 	httpctx := context.Background()
