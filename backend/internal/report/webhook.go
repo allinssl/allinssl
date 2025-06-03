@@ -207,8 +207,8 @@ func NotifyWebHook(params map[string]any) error {
 	config.Data = strings.ReplaceAll(config.Data, "\n", `\n`)
 
 	if !json.Valid([]byte(config.Data)) {
-        return fmt.Errorf("通知主题或通知内容包含特殊字符，消息配置字段替换失败")
-    }
+		return fmt.Errorf("通知主题或通知内容包含特殊字符，消息配置字段替换失败")
+	}
 
 	reporter := NewWebHookReporter(&config, logger)
 	httpctx := context.Background()
