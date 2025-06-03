@@ -33,11 +33,11 @@ func NewWebHookReporter(config *ReportConfig, logger *public.Logger) *WebHookRep
 	if config.IgnoreSSL {
 		client.SetTLSClientConfig(&tls.Config{InsecureSkipVerify: true})
 	}
-	
+
 	if config.Data == "" {
 		config.Data = "{}" // 默认数据为空JSON对象
 	}
-	
+
 	return &WebHookReporter{
 		config:     config,
 		logger:     logger,
@@ -184,6 +184,22 @@ func NotifyWebHook(params map[string]any) error {
 		return fmt.Errorf("解析配置失败: %v", err)
 	}
 	
+	if params["subject"] != nil && params["body"] != nil {
+		subjStr, ok1 := params["subject"].(string)
+		bodyStr, ok2 := params["body"].(string)
+		if ok1 && ok2 {
+			subjStr = strings.ReplaceAll(subjStr, `"`, `\"`)
+			bodyStr = strings.ReplaceAll(bodyStr, `"`, `\"`)
+			if strings.Contains(config.Data, "{subject}") {
+				config.Data = strings.ReplaceAll(config.Data, "{subject}", subjStr+"\n")
+			}
+			if strings.Contains(config.Data, "{body}") {
+				config.Data = strings.ReplaceAll(config.Data, "{body}", bodyStr)
+			}
+			config.Data = strings.ReplaceAll(config.Data, "\n", `\n`)
+		}
+	}
+
 	reporter := NewWebHookReporter(&config, logger)
 	httpctx := context.Background()
 	err = reporter.Send(httpctx)
