@@ -191,7 +191,7 @@ func NotifyWebHook(params map[string]any) error {
 			subjStr = strings.ReplaceAll(subjStr, `"`, `\"`)
 			bodyStr = strings.ReplaceAll(bodyStr, `"`, `\"`)
 			if strings.Contains(config.Data, "{subject}") {
-				config.Data = strings.ReplaceAll(config.Data, "{subject}", subjStr+"\n")
+				config.Data = strings.ReplaceAll(config.Data, "{subject}", subjStr)
 			}
 			if strings.Contains(config.Data, "{body}") {
 				config.Data = strings.ReplaceAll(config.Data, "{body}", bodyStr)
