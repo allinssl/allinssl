@@ -16,6 +16,7 @@ import (
 	"runtime"
 	"strconv"
 	"syscall"
+	"time"
 )
 
 var s = &scheduler.Scheduler{}
@@ -29,8 +30,25 @@ var envVars = map[string]string{
 
 func main() {
 	if len(os.Args) < 2 {
-		fmt.Println(`请不要直接运行本程序`)
+		//fmt.Println(`请不要直接运行本程序`)
 		// start()
+		if runtime.GOOS == "windows" {
+			go func() {
+				time.Sleep(1 * time.Second)
+				http := "http"
+				if public.GetSettingIgnoreError("https") == "1" {
+					http = "https"
+				}
+				url := fmt.Sprintf("%s://127.0.0.1:%s%s", http, public.Port, public.Secure)
+				err := exec.Command("rundll32", "url.dll,FileProtocolHandler", url).Start()
+				if err != nil {
+					fmt.Println("无法打开浏览器，请手动访问：", url)
+				} else {
+					fmt.Println("正在打开浏览器，请稍候...")
+				}
+			}()
+			mainRun()
+		}
 		return
 	}
 	env, err := godotenv.Read(envPath)
@@ -42,6 +60,26 @@ func main() {
 	switch cmd {
 	case "start":
 		mainRun()
+	case "help":
+		fmt.Println(`
+ALLinSSL 管理命令:
+start - 启动 ALLinSSL
+1 - 后台运行 ALLinSSL（仅支持linux）
+2 - 停止 ALLinSSL
+3 - 重启 ALLinSSL
+4 - 设置安全入口
+5 - 设置用户名
+6 - 设置密码
+7 - 设置端口号
+8 - 停止 web 服务
+9 - 启动 web 服务
+10 - 重启 web 服务
+11 - 停止后台调度服务
+12 - 启动后台调度服务
+13 - 重启后台调度服务
+14 - 关闭 HTTPS
+15 - 查看面板地址和用户信息
+`)
 	case "1":
 		fmt.Println("Starting ALLinSSL...")
 		if checkRun() {
