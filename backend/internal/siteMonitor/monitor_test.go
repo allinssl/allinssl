@@ -6,7 +6,7 @@ import (
 )
 
 func Test(t *testing.T) {
-	site := "bt.cn" // 只传域名或 IP，不要 http://
+	site := "bt.cn:443" // 只传域名或 IP，不要 http://
 	result, err := CheckWebsite(site)
 	if err != nil {
 		fmt.Printf("❌ 检测失败: %v\n", err)

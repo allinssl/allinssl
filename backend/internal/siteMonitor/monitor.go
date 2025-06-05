@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"strings"
 	"time"
+	"strconv"
 )
 
 // SSLInfo 定义结果结构体
@@ -188,18 +189,48 @@ func UpdInfo(id, domain string, s *public.Sqlite, reportType string) error {
 	return errCheck
 }
 
+// ExtractHostPort 从 target 中提取 host 和 port 并校验，若无 port 则使用默认值
+func ExtractAndValidateHostPort(target, defaultPort string) (host string, port string, err error) {
+	host = target
+	port = defaultPort
+
+	// 处理带端口情况
+	if strings.Contains(target, ":") {
+		h, p, splitErr := net.SplitHostPort(target)
+		if splitErr == nil {
+			host, port = h, p
+		} else if !(strings.Count(target, ":") >= 2) || strings.Contains(target, "]") {
+			return "", "", fmt.Errorf("地址格式错误：%v", splitErr)
+		}
+	}
+
+	// 验证端口是数字且在有效范围内
+	portNum, convErr := strconv.Atoi(port)
+	if convErr != nil || portNum < 1 || portNum > 65535 {
+		return "", "", fmt.Errorf("端口号非法：%s", port)
+	}
+
+	return host, port, nil
+}
+
 // CheckWebsite 实际检测函数
 func CheckWebsite(target string) (*SSLInfo, error) {
 	result := &SSLInfo{Target: target}
 
+	host, port, err := ExtractAndValidateHostPort(target, "443")
+
+	if err != nil {
+		return nil, err
+	}
+
 	// 验证格式是否是 IP 或域名
-	if net.ParseIP(target) == nil {
-		if _, err := net.LookupHost(target); err != nil {
+	if net.ParseIP(host) == nil {
+		if _, err := net.LookupHost(host); err != nil {
 			return result, fmt.Errorf("无效域名或 IP：%v", err)
 		}
 	}
 
-	hostPort := net.JoinHostPort(target, "443")
+	hostPort := net.JoinHostPort(host, port)
 
 	// result := &SSLInfo{Target: target}
 
@@ -213,7 +244,7 @@ func CheckWebsite(target string) (*SSLInfo, error) {
 	defer conn.Close()
 
 	// 发送 HTTPS 请求检测状态
-	resp, err := http.Get("https://" + target)
+	resp, err := http.Get("https://" + hostPort)
 	if err != nil {
 		result.HTTPStatus = 0
 		result.HTTPStatusText = "异常"

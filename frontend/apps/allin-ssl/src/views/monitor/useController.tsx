@@ -14,7 +14,7 @@ import {
 	useLoadingMask,
 } from '@baota/naive-ui/hooks'
 import { useError } from '@baota/hooks/error'
-import { isDomain } from '@baota/utils/business'
+import { isDomain, isIp, isPort } from '@baota/utils/business'
 import { $t } from '@locales/index'
 
 // Store和组件
@@ -336,6 +336,61 @@ export const useMonitorFormController = (data: UpdateSiteMonitorParams | null = 
 	])
 
 	/**
+	 * 验证输入是否合法域名或 IP 地址
+	 */
+	function isValidHost(host: string): boolean {
+		if (!host?.trim()) return false;
+
+		const trimmedHost = host.trim();
+		let hostPart: string;
+		let portPart: string | undefined;
+
+		// 分离主机和端口部分
+		if (trimmedHost.startsWith('[')) {
+			// IPv6 地址（可能带端口）
+			const closingBracketIndex = trimmedHost.indexOf(']');
+			// 缺少闭合括号
+			if (closingBracketIndex === -1) {
+ 				return false; 
+			}
+			// 去掉 []
+			hostPart = trimmedHost.slice(1, closingBracketIndex); 
+			const rest = trimmedHost.slice(closingBracketIndex + 1);
+			
+			// 检查剩余部分（只能是 :端口 或空）
+			if (rest) {
+				 // 非端口部分
+				if (!rest.startsWith(':')) {
+					return false;
+				}
+				portPart = rest.slice(1);
+			}
+		} else {
+			// IPv4 或域名（可能带端口）
+			const lastColonIndex = trimmedHost.lastIndexOf(':');
+			if (lastColonIndex !== -1) {
+				hostPart = trimmedHost.slice(0, lastColonIndex);
+				portPart = trimmedHost.slice(lastColonIndex + 1);
+			} else {
+				hostPart = trimmedHost;
+			}
+		}
+		
+		// 检查主机部分（IPv4/IPv6/域名）
+		const isHostValid = isIp(hostPart) || isDomain(hostPart);
+		if (!isHostValid) {
+			return false;
+		}
+
+		// 检查端口部分
+		if (portPart !== undefined) {
+			return isPort(portPart);
+		}
+
+		return true;
+	}
+
+	/**
 	 * 表单验证规则
 	 */
 	const rules = {
@@ -345,7 +400,7 @@ export const useMonitorFormController = (data: UpdateSiteMonitorParams | null = 
 			message: '请输入正确的域名',
 			trigger: 'input',
 			validator: (rule: any, value: any, callback: any) => {
-				if (!isDomain(value)) {
+				if (!isValidHost(value)) {
 					callback(new Error('请输入正确的域名'))
 				} else {
 					callback()
