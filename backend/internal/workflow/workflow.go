@@ -86,6 +86,11 @@ func DelWorkflow(id string) error {
 	if err != nil {
 		return err
 	}
+	// 清理工作流历史记录
+	err = CleanWorkflowHistory()
+	if err != nil {
+		return fmt.Errorf("清理工作流历史记录失败: %v", err)
+	}
 	return nil
 }
 

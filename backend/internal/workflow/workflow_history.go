@@ -4,6 +4,8 @@ import (
 	"ALLinSSL/backend/public"
 	"os"
 	"path/filepath"
+	"strconv"
+	"strings"
 	"time"
 )
 
@@ -113,4 +115,51 @@ func GetExecLog(id string) (string, error) {
 		return "", err
 	}
 	return string(log), nil
+}
+
+func CleanWorkflowHistory() error {
+	s, err := GetSqlite()
+	if err != nil {
+		return err
+	}
+	defer s.Close()
+	// 获取所有工作流ID
+	data, err := s.Select()
+	if err != nil {
+		return err
+	}
+	var workflowIds []string
+	for _, v := range data {
+		if workflowId, ok := v["id"].(int64); ok {
+			workflowIds = append(workflowIds, strconv.FormatInt(workflowId, 10))
+		}
+	}
+	workflowIdsStr := strings.Join(workflowIds, ",")
+	s.TableName = "workflow_history"
+	// 获取无意义的工作流记录id
+	data, err = s.Where("workflow_id NOT IN ("+workflowIdsStr+")", nil).Select()
+	if err != nil {
+		return err
+	}
+	// 删除无意义的工作流记录
+	_, err = s.Where("workflow_id NOT IN ("+workflowIdsStr+")", nil).Delete()
+	if err != nil {
+		return err
+	}
+	// 删除工作流执行日志
+	logPath := public.GetSettingIgnoreError("workflow_log_path")
+	if logPath == "" {
+		logPath = "logs/workflow"
+	}
+	for _, v := range data {
+		if id, ok := v["id"].(string); ok && id != "" {
+			logFile := filepath.Join(logPath, id+".log")
+			if _, err := os.Stat(logFile); err == nil {
+				if err := os.Remove(logFile); err != nil {
+					return err
+				}
+			}
+		}
+	}
+	return nil
 }
