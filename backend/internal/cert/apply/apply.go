@@ -16,6 +16,7 @@ import (
 	"github.com/go-acme/lego/v4/challenge"
 	"github.com/go-acme/lego/v4/challenge/dns01"
 	"github.com/go-acme/lego/v4/lego"
+	"github.com/go-acme/lego/v4/log"
 	"github.com/go-acme/lego/v4/providers/dns/alidns"
 	"github.com/go-acme/lego/v4/providers/dns/azuredns"
 	"github.com/go-acme/lego/v4/providers/dns/baiducloud"
@@ -535,11 +536,22 @@ func Apply(cfg map[string]any, logger *public.Logger) (map[string]any, error) {
 			dns01.WrapPreCheck(func(domain, fqdn, value string, check dns01.PreCheckFunc) (bool, error) {
 				return true, nil
 			}),
-			dns01.AddRecursiveNameservers(NameServers),
 		)
 	} else {
 		err = client.Challenge.SetDNS01Provider(provider,
 			dns01.AddRecursiveNameservers(NameServers),
+			dns01.WrapPreCheck(func(domain, fqdn, value string, check dns01.PreCheckFunc) (bool, error) {
+				ok, err := check(fqdn, value)
+				if err != nil {
+					log.Printf("[WARN] DNS precheck error for %s: %v", fqdn, err)
+				} else if !ok {
+					log.Printf("[INFO] TXT record for %s not yet found, but continuing anyway.", fqdn)
+				} else {
+					log.Printf("[OK] TXT record for %s is present.", fqdn)
+				}
+				// 👇 核心点：无论查不查到，都强制返回 true
+				return true, nil
+			}),
 		)
 	}
 	if err != nil {
