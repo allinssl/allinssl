@@ -8,6 +8,8 @@ import type {
 	GetReportListResponse,
 	GetSettingParams,
 	GetSettingResponse,
+	GetVersionParams,
+	GetVersionResponse,
 	SaveSettingParams,
 	TestReportParams,
 	UpdateReportParams,
@@ -69,5 +71,15 @@ export const testReport = (params?: TestReportParams): useAxiosReturn<AxiosRespo
  * @param {GetReportListParams} [params] 请求参数
  * @returns {useAxiosReturn<GetReportListResponse, GetReportListParams>} 获取告警类型列表的组合式 API 调用封装。包含响应数据、加载状态及执行函数。
  */
-export const getReportList = (params?: GetReportListParams): useAxiosReturn<GetReportListResponse, GetReportListParams> =>
+export const getReportList = (
+	params?: GetReportListParams,
+): useAxiosReturn<GetReportListResponse, GetReportListParams> =>
 	useApi<GetReportListResponse, GetReportListParams>('/v1/report/get_list', params)
+
+/**
+ * @description 获取版本信息
+ * @param {GetVersionParams} [params] 请求参数
+ * @returns {useAxiosReturn<GetVersionResponse, GetVersionParams>} 获取版本信息的组合式 API 调用封装。包含响应数据、加载状态及执行函数。
+ */
+export const getVersion = (params?: GetVersionParams): useAxiosReturn<GetVersionResponse, GetVersionParams> =>
+	useApi<GetVersionResponse, GetVersionParams>('/v1/setting/get_version', params)

@@ -87,6 +87,14 @@ export interface ReportWebhook {
 	ignore_ssl: boolean
 }
 
+/** 企业微信通知配置 */
+export interface ReportWecom {
+	name?: string
+	enabled: string
+	url: string
+	data: string
+}
+
 /** 添加告警请求参数 */
 export interface AddReportParams<T = string> {
 	name: string
@@ -107,6 +115,25 @@ export interface DeleteReportParams {
 /** 测试告警请求参数 */
 export interface TestReportParams {
 	id: number
+}
+
+/** 获取版本信息请求参数 */
+export interface GetVersionParams {
+	// 无参数
+}
+
+/** 版本信息数据 */
+export interface VersionData {
+	date: string // 版本日期
+	log: string // 更新日志
+	new_version: string // 新版本号
+	update: string // 是否有更新 "1" 表示有更新，"0" 表示无更新
+	version: string // 当前版本号
+}
+
+/** 获取版本信息响应 */
+export interface GetVersionResponse extends AxiosResponseData {
+	data: VersionData
 }
 
 /** 消息通知选项 */

@@ -3,13 +3,21 @@ import { useFormHooks, useLoadingMask } from '@baota/naive-ui/hooks'
 import { useError } from '@baota/hooks/error'
 import { $t } from '@locales/index'
 import { useStore } from '@settings/useStore'
-import type { ReportMail, ReportFeishu, ReportWebhook, ReportDingtalk, AddReportParams } from '@/types/setting'
+import type {
+	ReportMail,
+	ReportFeishu,
+	ReportWebhook,
+	ReportDingtalk,
+	ReportWecom,
+	AddReportParams,
+} from '@/types/setting'
 
 const {
 	emailChannelForm,
 	feishuChannelForm,
 	webhookChannelForm,
 	dingtalkChannelForm,
+	wecomChannelForm,
 	addReportChannel,
 	updateReportChannel,
 } = useStore()
@@ -356,6 +364,103 @@ export const useDingtalkChannelFormController = () => {
 		config,
 		rules,
 		dingtalkChannelForm,
+		submitForm,
+	}
+}
+
+/**
+ * 企业微信通知渠道表单控制器
+ * @function useWecomChannelFormController
+ * @description 提供企业微信通知渠道表单的配置、规则和提交方法
+ * @returns {object} 返回表单相关配置、规则和方法
+ */
+export const useWecomChannelFormController = () => {
+	const { open: openLoad, close: closeLoad } = useLoadingMask({ text: $t('t_0_1746667592819') })
+	/**
+	 * 表单验证规则
+	 * @type {FormRules}
+	 */
+	const rules: FormRules = {
+		name: {
+			required: true,
+			trigger: ['input', 'blur'],
+			message: $t('t_25_1746773349596'),
+		},
+		url: {
+			required: true,
+			trigger: ['input', 'blur'],
+			message: '请输入企业微信webhook地址',
+		},
+	}
+
+	/**
+	 * 表单配置
+	 * @type {ComputedRef<FormConfig>}
+	 * @description 生成企业微信通知渠道表单的字段配置
+	 */
+	const config = computed(() => [
+		useFormInput($t('t_2_1745289353944'), 'name'),
+		useFormInput('企业微信WebHook地址', 'url'),
+		useFormTextarea(
+			'推送数据格式',
+			'data',
+			{
+				placeholder: `请输入企业微信推送数据格式，支持模板变量 __subject__ 和 __body__
+
+示例格式：
+{
+  "msgtype": "news",
+  "news": {
+    "articles": [
+      {
+        "title": "__subject__",
+        "description": "__body__。",
+        "url": "https://allinssl.com/",
+        "picurl": "https://allinssl.com/logo.svg"
+      }
+    ]
+  }
+}`,
+				rows: 12,
+			},
+			{ showRequireMark: false },
+		),
+	])
+
+	/**
+	 * 提交表单
+	 * @async
+	 * @function submitForm
+	 * @description 验证并提交企业微信通知渠道表单
+	 * @param {any} params - 表单参数
+	 * @param {Ref<FormInst>} formRef - 表单实例引用
+	 * @returns {Promise<boolean>} 提交成功返回true，失败返回false
+	 */
+	const submitForm = async (
+		{ config, ...other }: AddReportParams<ReportWecom>,
+		formRef: Ref<FormInst | null>,
+		id?: number,
+	) => {
+		try {
+			openLoad()
+			if (id) {
+				await updateReportChannel({ id, config: JSON.stringify(config), ...other })
+			} else {
+				await addReportChannel({ config: JSON.stringify(config), ...other })
+			}
+			return true
+		} catch (error) {
+			handleError(error)
+			return false
+		} finally {
+			closeLoad()
+		}
+	}
+
+	return {
+		config,
+		rules,
+		wecomChannelForm,
 		submitForm,
 	}
 }

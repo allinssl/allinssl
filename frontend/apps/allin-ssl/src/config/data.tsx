@@ -191,6 +191,36 @@ export const ApiProjectConfig: Record<string, ApiProjectType> = {
 		type: ['dns'],
 		sort: 20,
 	},
+	namesilo: {
+		name: 'Namesilo',
+		icon: 'namesilo',
+		type: ['dns'],
+		sort: 21,
+	},
+	namedotcom: {
+		name: 'Name.com',
+		icon: 'namedotcom',
+		type: ['dns'],
+		sort: 22,
+	},
+	bunny: {
+		name: 'Bunny',
+		icon: 'bunny',
+		type: ['dns'],
+		sort: 23,
+	},
+	gcore: {
+		name: 'Gcore',
+		icon: 'gcore',
+		type: ['dns'],
+		sort: 24,
+	},
+	jdcloud: {
+		name: '京东云',
+		icon: 'jdcloud',
+		type: ['dns'],
+		sort: 25,
+	},
 }
 
 

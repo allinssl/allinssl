@@ -6,6 +6,7 @@ import type {
 	DeleteWorkflowParams,
 	EnableWorkflowParams,
 	ExecuteWorkflowParams,
+	StopWorkflowParams,
 	UpdateWorkflowExecTypeParams,
 	UpdateWorkflowParams,
 	WorkflowHistoryDetailParams,
@@ -23,7 +24,9 @@ import { useApi } from '@api/index'
  * @param {WorkflowListParams} [params] 请求参数
  * @returns {useAxiosReturn<WorkflowListResponse, WorkflowListParams>} 获取工作流列表的组合式 API 调用封装。包含响应数据、加载状态及执行函数。
  */
-export const getWorkflowList = (params?: WorkflowListParams): useAxiosReturn<WorkflowListResponse, WorkflowListParams> =>
+export const getWorkflowList = (
+	params?: WorkflowListParams,
+): useAxiosReturn<WorkflowListResponse, WorkflowListParams> =>
 	useApi<WorkflowListResponse, WorkflowListParams>('/v1/workflow/get_list', params)
 
 /**
@@ -39,7 +42,9 @@ export const addWorkflow = (params?: AddWorkflowParams): useAxiosReturn<AxiosRes
  * @param {UpdateWorkflowParams} [params] 请求参数
  * @returns {useAxiosReturn<AxiosResponseData, UpdateWorkflowParams>} 修改工作流的组合式 API 调用封装。包含响应数据、加载状态及执行函数。
  */
-export const updateWorkflow = (params?: UpdateWorkflowParams): useAxiosReturn<AxiosResponseData, UpdateWorkflowParams> =>
+export const updateWorkflow = (
+	params?: UpdateWorkflowParams,
+): useAxiosReturn<AxiosResponseData, UpdateWorkflowParams> =>
 	useApi<AxiosResponseData, UpdateWorkflowParams>('/v1/workflow/upd_workflow', params)
 
 /**
@@ -47,7 +52,9 @@ export const updateWorkflow = (params?: UpdateWorkflowParams): useAxiosReturn<Ax
  * @param {DeleteWorkflowParams} [params] 请求参数
  * @returns {useAxiosReturn<AxiosResponseData, DeleteWorkflowParams>} 删除工作流的组合式 API 调用封装。包含响应数据、加载状态及执行函数。
  */
-export const deleteWorkflow = (params?: DeleteWorkflowParams): useAxiosReturn<AxiosResponseData, DeleteWorkflowParams> =>
+export const deleteWorkflow = (
+	params?: DeleteWorkflowParams,
+): useAxiosReturn<AxiosResponseData, DeleteWorkflowParams> =>
 	useApi<AxiosResponseData, DeleteWorkflowParams>('/v1/workflow/del_workflow', params)
 
 /**
@@ -75,7 +82,9 @@ export const getWorkflowHistoryDetail = (
  * @param {ExecuteWorkflowParams} [params] 请求参数
  * @returns {useAxiosReturn<AxiosResponseData, ExecuteWorkflowParams>} 手动执行工作流的组合式 API 调用封装。包含响应数据、加载状态及执行函数。
  */
-export const executeWorkflow = (params?: ExecuteWorkflowParams): useAxiosReturn<AxiosResponseData, ExecuteWorkflowParams> =>
+export const executeWorkflow = (
+	params?: ExecuteWorkflowParams,
+): useAxiosReturn<AxiosResponseData, ExecuteWorkflowParams> =>
 	useApi<AxiosResponseData, ExecuteWorkflowParams>('/v1/workflow/execute_workflow', params)
 
 /**
@@ -93,5 +102,15 @@ export const updateWorkflowExecType = (
  * @param {EnableWorkflowParams} [params] 请求参数
  * @returns {useAxiosReturn<AxiosResponseData, EnableWorkflowParams>} 启用或禁用工作流的组合式 API 调用封装。包含响应数据、加载状态及执行函数。
  */
-export const enableWorkflow = (params?: EnableWorkflowParams): useAxiosReturn<AxiosResponseData, EnableWorkflowParams> =>
+export const enableWorkflow = (
+	params?: EnableWorkflowParams,
+): useAxiosReturn<AxiosResponseData, EnableWorkflowParams> =>
 	useApi<AxiosResponseData, EnableWorkflowParams>('/v1/workflow/active', params)
+
+/**
+ * @description 停止工作流执行
+ * @param {StopWorkflowParams} [params] 请求参数
+ * @returns {useAxiosReturn<AxiosResponseData, StopWorkflowParams>} 停止工作流执行的组合式 API 调用封装。包含响应数据、加载状态及执行函数。
+ */
+export const stopWorkflow = (params?: StopWorkflowParams): useAxiosReturn<AxiosResponseData, StopWorkflowParams> =>
+	useApi<AxiosResponseData, StopWorkflowParams>('/v1/workflow/stop', params)

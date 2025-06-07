@@ -10,6 +10,7 @@ import EmailChannelModel from './components/channel/EmailChannelModel'
 import FeishuChannelModel from './components/channel/FeishuChannelModel'
 import WebhookChannelModel from './components/channel/WebhookChannelModel'
 import DingtalkChannelModel from './components/channel/DingtalkChannelModel'
+import WecomChannelModel from './components/channel/WecomChannelModel'
 import type { ReportMail, SaveSettingParams, ReportType } from '@/types/setting'
 
 const {
@@ -178,6 +179,25 @@ export const useController = () => {
 		})
 	}
 
+	/**
+	 * 打开添加企业微信通知渠道弹窗
+	 * @function openAddWecomChannelModal
+	 * @description 打开添加企业微信通知渠道的模态框，并在关闭后刷新通知渠道列表
+	 * @returns {void} 无返回值
+	 */
+	const openAddWecomChannelModal = (limit: number = 1) => {
+		if (limit >= 1) {
+			message.warning('企业微信通知渠道已达到上限')
+			return
+		}
+		useModal({
+			title: '添加企业微信通知',
+			area: 650,
+			component: WecomChannelModel,
+			footer: true,
+		})
+	}
+
 	// 处理启用状态切换
 	const handleEnableChange = async (item: ReportType<ReportMail>) => {
 		useDialog({
@@ -263,6 +283,17 @@ export const useController = () => {
 				footer: true,
 				onClose: () => fetchNotifyChannels(),
 			})
+		} else if (item.type === 'workwx') {
+			useModal({
+				title: '编辑企业微信通知',
+				area: 650,
+				component: WecomChannelModel,
+				componentProps: {
+					data: item,
+				},
+				footer: true,
+				onClose: () => fetchNotifyChannels(),
+			})
 		}
 	}
 
@@ -274,7 +305,13 @@ export const useController = () => {
 	 * @returns {void} 无返回值
 	 */
 	const testChannelConfig = (item: ReportType<any>) => {
-		if (item.type !== 'mail' && item.type !== 'feishu' && item.type !== 'webhook' && item.type !== 'dingtalk') {
+		if (
+			item.type !== 'mail' &&
+			item.type !== 'feishu' &&
+			item.type !== 'webhook' &&
+			item.type !== 'dingtalk' &&
+			item.type !== 'workwx'
+		) {
 			message.warning($t('t_19_1746773352558'))
 			return
 		}
@@ -283,6 +320,7 @@ export const useController = () => {
 			feishu: $t('t_34_1746773350153'),
 			webhook: $t('t_3_1748591484673'),
 			dingtalk: $t('t_32_1746773348993'),
+			workwx: $t('t_33_1746773350932'),
 		}
 		const { open, close } = useLoadingMask({ text: $t('t_4_1748591492587', { type: typeMap[item.type] }) })
 		useDialog({
@@ -337,6 +375,7 @@ export const useController = () => {
 		openAddFeishuChannelModal,
 		openAddWebhookChannelModal,
 		openAddDingtalkChannelModal,
+		openAddWecomChannelModal,
 		handleEnableChange,
 		editChannelConfig,
 		testChannelConfig,

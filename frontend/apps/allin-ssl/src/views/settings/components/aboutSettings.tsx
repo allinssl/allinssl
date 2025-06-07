@@ -1,20 +1,65 @@
-import { NCard, NSpace, NDescriptions, NDescriptionsItem, NIcon, NButton } from 'naive-ui'
+import { NCard, NSpace, NDescriptions, NDescriptionsItem, NIcon, NButton, NBadge, NAlert } from 'naive-ui'
 import { $t } from '@locales/index'
 import { LogoGithub } from '@vicons/ionicons5'
+import { getVersion } from '@api/setting'
+import type { VersionData } from '@/types/setting'
 /**
  * 关于我们标签页组件
  */
 export default defineComponent({
 	name: 'AboutSettings',
 	setup() {
+		// 版本检查相关状态
+		const versionData = ref<VersionData | null>(null)
+		const hasUpdate = ref(false)
+
+		// 版本检查API
+		const versionApi = getVersion()
+
+		// 检查版本更新
+		const checkVersion = async () => {
+			try {
+				await versionApi.fetch()
+				if (versionApi.data.value && versionApi.data.value.data) {
+					const data = versionApi.data.value.data
+					versionData.value = data
+					hasUpdate.value = data.update === '1'
+				}
+			} catch (error) {
+				console.error('检查版本更新失败:', error)
+			}
+		}
+
+		// 跳转到GitHub
+		const goToGitHub = () => {
+			window.open('https://github.com/allinssl/allinssl', '_blank')
+		}
+
+		// 组件挂载时检查版本
+		onMounted(() => {
+			checkVersion()
+		})
+
 		return () => (
 			<div class="about-settings">
 				<NCard title={$t('t_4_1745833932780')} class="mb-4">
 					<NSpace vertical size={24}>
 						<NDescriptions bordered>
 							<NDescriptionsItem label={$t('t_5_1745833933241')}>
-								<div class="flex items-center">
-									<span class="text-[2rem] font-medium">v1.0.4</span>
+								<div class="flex items-center space-x-[1.2rem]">
+									<span class="text-[2.0rem] font-medium">v1.0.4</span>
+									{hasUpdate.value && versionData.value && (
+										<div class="relative">
+											<NBadge value="NEW" type="success" offset={[4, -3]}>
+												<span
+													class="text-[1.4rem] text-primary cursor-pointer font-medium inline-block px-[.8rem] py-[.4rem]"
+													onClick={goToGitHub}
+												>
+													{versionData.value.new_version} 可用
+												</span>
+											</NBadge>
+										</div>
+									)}
 								</div>
 							</NDescriptionsItem>
 							<NDescriptionsItem label={$t('t_29_1746667589773')}>
@@ -22,7 +67,7 @@ export default defineComponent({
 									<NIcon size="20" class="text-gray-600">
 										<LogoGithub />
 									</NIcon>
-									<NButton text tag="a" href="https://github.com/allinssl/allinssl" target="_blank" type="primary">
+									<NButton text onClick={goToGitHub} type="primary">
 										https://github.com/allinssl/allinssl
 									</NButton>
 								</div>
@@ -30,6 +75,33 @@ export default defineComponent({
 						</NDescriptions>
 					</NSpace>
 				</NCard>
+
+				{/* 新版本信息卡片 */}
+				{hasUpdate.value && versionData.value && (
+					<NCard title="发现新版本" class="mb-4">
+						<NAlert type="info" title={`新版本 ${versionData.value.new_version} 已发布`} class="mb-[1.6rem]">
+							<div class="text-[1.4rem]">
+								<div class="mb-[1.2rem] text-[1.4rem]">发布日期: {versionData.value.date}</div>
+								<div class="mb-[1.2rem] text-[1.4rem]">
+									<strong>更新内容:</strong>
+								</div>
+								<div class="whitespace-pre-line text-gray-700 text-[1.3rem] leading-relaxed">
+									{versionData.value.log.replace(/\\r\\n/g, '\n').replace(/\\n/g, '\n')}
+								</div>
+								<div class="mt-4">
+									<NButton size="medium" type="primary" onClick={goToGitHub}>
+										<div class="flex items-center">
+											<NIcon size="18" class="mr-2">
+												<LogoGithub />
+											</NIcon>
+											前往GitHub下载
+										</div>
+									</NButton>
+								</div>
+							</div>
+						</NAlert>
+					</NCard>
+				)}
 
 				<NCard title={$t('t_13_1745833933630')} class="mb-4">
 					<div class="about-content">

@@ -1,4 +1,4 @@
-import { NFormItem, NInputNumber } from 'naive-ui'
+import { NFormItem, NInputNumber, NSwitch } from 'naive-ui'
 import { useForm, useFormHooks, useModalHooks } from '@baota/naive-ui/hooks'
 import { useStore } from '@components/FlowChart/useStore'
 import { $t } from '@locales/index'
@@ -29,6 +29,9 @@ export default defineComponent({
 					name_server: '',
 					skip_check: 0,
 					algorithm: 'RSA2048',
+					close_cname: 0,
+					max_wait: undefined,
+					ignore_check: 0,
 				},
 			}),
 		},
@@ -86,7 +89,8 @@ export default defineComponent({
 									'onUpdate:value': (val: { value: string; ca: string; email: string }) => {
 										param.value.eabId = val.value
 										param.value.ca = val.ca
-										if (val.value) param.value.email = val.email
+										// 始终更新邮件，确保 Let's Encrypt 和 Buypass 的邮件能正确显示
+										param.value.email = val.email
 									},
 								}}
 							/>
@@ -138,15 +142,12 @@ export default defineComponent({
 								},
 								{ showRequireMark: false },
 							),
-							useFormInput(
-								$t('t_0_1747106957037'),
-								'name_server',
+							useFormSwitch(
+								$t('t_2_1749204567193'),
+								'close_cname',
 								{
-									placeholder: $t('t_1_1747106961747'),
-									allowInput: noSideSpace,
-									onInput: (val: string) => {
-										param.value.name_server = val.replace(/，/g, ',').replace(/;/g, ',') // 中文逗号分隔
-									},
+									checkedValue: 1,
+									uncheckedValue: 0,
 								},
 								{ showRequireMark: false },
 							),
@@ -159,6 +160,62 @@ export default defineComponent({
 								},
 								{ showRequireMark: false },
 							),
+							// 只有在跳过预检查关闭时才显示DNS递归服务器、预检查超时时间和忽略预检查结果
+							...(param.value.skip_check === 0
+								? [
+										useFormInput(
+											$t('t_0_1747106957037'),
+											'name_server',
+											{
+												placeholder: $t('t_1_1747106961747'),
+												allowInput: noSideSpace,
+												onInput: (val: string) => {
+													param.value.name_server = val.replace(/，/g, ',').replace(/;/g, ',') // 中文逗号分隔
+												},
+											},
+											{ showRequireMark: false },
+										),
+										{
+											type: 'custom' as const,
+											render: () => {
+												return (
+													<NFormItem label={$t('t_0_1749263105073')} path="max_wait">
+														<NInputNumber
+															v-model:value={(param.value as ApplyNodeConfig & { max_wait?: number }).max_wait}
+															showButton={false}
+															min={1}
+															class="w-full"
+															placeholder={$t('t_1_1749263104936')}
+														/>
+													</NFormItem>
+												)
+											},
+										},
+										{
+											type: 'custom' as const,
+											render: () => {
+												return (
+													<NFormItem label={$t('t_2_1749263103765')} path="ignore_check">
+														<div class="flex items-center">
+															<span class="text-[1.4rem] mr-[1.2rem]">{$t('t_3_1749263104237')}</span>
+															<NSwitch
+																v-model:value={param.value.ignore_check}
+																checkedValue={1}
+																uncheckedValue={0}
+																class="mx-[.5rem]"
+																v-slots={{
+																	checked: () => $t('t_4_1749263101853'),
+																	unchecked: () => $t('t_5_1749263101934'),
+																}}
+															/>
+															<span class="text-[1.4rem] ml-[1.2rem]">{$t('t_6_1749263103891')}</span>
+														</div>
+													</NFormItem>
+												)
+											},
+										},
+									]
+								: []),
 						]
 					: []),
 				useFormHelp([
@@ -183,6 +240,7 @@ export default defineComponent({
 		confirm(async (close) => {
 			try {
 				await example.value?.validate()
+
 				updateNodeConfig(props.node.id, data.value) // 更新节点配置
 				isRefreshNode.value = props.node.id // 刷新节点
 				close()

@@ -633,5 +633,16 @@
   "t_3_1748591484673": "Webhook",
   "t_4_1748591492587": "Probando notificación {type}",
   "t_5_1748591491370": "Prueba{type}",
-  "t_0_1748591669194": "Enviar mensaje de prueba a, configuración actual {type} notificación, ¿continuar?"
+  "t_0_1748591669194": "Enviar mensaje de prueba a, configuración actual {type} notificación, ¿continuar?",
+  "t_0_1749119980577": "Error de formato de dirección IP o nombre de dominio del servidor",
+  "t_0_1749204565782": "Detener ejecución",
+  "t_1_1749204570473": "¿Estás seguro de que quieres detener la ejecución del flujo de trabajo actual?",
+  "t_2_1749204567193": "Deshabilitar soporte CNAME",
+  "t_0_1749263105073": "Tiempo de espera de la preverificación (segundos)",
+  "t_1_1749263104936": "Introduce el tiempo de espera de la comprobación previa",
+  "t_2_1749263103765": "Ignorar los resultados de la verificación previa",
+  "t_3_1749263104237": "Cuando falla la verificación previa",
+  "t_4_1749263101853": "Continuar",
+  "t_5_1749263101934": "Detener",
+  "t_6_1749263103891": "Enviar solicitud de verificación a CA"
 }
