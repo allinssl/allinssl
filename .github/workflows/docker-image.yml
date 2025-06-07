@@ -16,9 +16,14 @@ jobs:
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
-      - name: Extract version from Git tag
+      - name: Extract version from Git ref
         id: vars
-        run: echo "VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_ENV
+        run: |
+          if [[ $GITHUB_REF == refs/tags/* ]]; then
+            echo "VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_ENV
+          else
+            echo "VERSION=${GITHUB_REF#refs/heads/}" >> $GITHUB_ENV
+          fi
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
       - name: Build and push
