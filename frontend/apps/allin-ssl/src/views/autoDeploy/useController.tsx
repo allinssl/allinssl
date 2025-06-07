@@ -35,7 +35,6 @@ const {
 	workflowFormData,
 	deleteExistingWorkflow,
 	executeExistingWorkflow,
-	stopExistingWorkflow,
 	setWorkflowActive,
 	setWorkflowExecType,
 	caFormData,
@@ -221,7 +220,7 @@ export const useController = () => {
 		useModal({
 			title: workflow ? `【${workflow.name}】 - ${$t('t_9_1745215914666')}` : $t('t_9_1745215914666'),
 			component: HistoryModal,
-			area: 850,
+			area: 800,
 			componentProps: { id: workflow.id.toString() },
 		})
 	}
@@ -424,23 +423,6 @@ export const useHistoryController = (id: string) => {
 	}
 
 	/**
-	 * @description 停止工作流执行
-	 * @param {WorkflowHistoryItem} historyItem - 工作流历史记录项
-	 */
-	const handleStopWorkflow = async (historyItem: WorkflowHistoryItem) => {
-		useDialog({
-			title: $t('t_0_1749204565782'),
-			content: $t('t_1_1749204570473'),
-			onPositiveClick: async () => {
-				await stopExistingWorkflow(historyItem.id)
-				await fetch() // 刷新历史记录表格
-				// 触发外部主表格刷新
-				refreshTable.value = true
-			},
-		})
-	}
-
-	/**
 	 * @description 创建历史记录表格列配置
 	 * @returns {DataTableColumn<WorkflowHistoryItem>[]} 返回表格列配置数组
 	 */
@@ -448,7 +430,7 @@ export const useHistoryController = (id: string) => {
 		{
 			title: $t('t_4_1745227838558'),
 			key: 'create_time',
-			width: 200,
+			width: 230,
 			render: (row: WorkflowHistoryItem) => {
 				// 处理数字类型的时间戳
 				return row.create_time ? row.create_time : '-'
@@ -457,7 +439,7 @@ export const useHistoryController = (id: string) => {
 		{
 			title: $t('t_5_1745227839906'),
 			key: 'end_time',
-			width: 200,
+			width: 230,
 			render: (row: WorkflowHistoryItem) => {
 				// 处理数字类型的时间戳
 				return row.end_time ? row.end_time : '-'
@@ -466,7 +448,7 @@ export const useHistoryController = (id: string) => {
 		{
 			title: $t('t_6_1745227838798'),
 			key: 'exec_type',
-			width: 120,
+			width: 110,
 			render: (row: WorkflowHistoryItem) => (
 				<NTag type={row.exec_type === 'auto' ? 'info' : 'default'} size="small" bordered={false}>
 					{row.exec_type === 'auto' ? $t('t_2_1745215915397') : $t('t_3_1745215914237')}
@@ -479,14 +461,9 @@ export const useHistoryController = (id: string) => {
 			key: 'actions',
 			fixed: 'right',
 			align: 'right',
-			width: 180,
+			width: 80,
 			render: (row: WorkflowHistoryItem) => (
-				<NSpace justify="end" size="small">
-					{row.status === 'running' && (
-						<NButton size="tiny" strong secondary type="error" onClick={() => handleStopWorkflow(row)}>
-							{$t('t_0_1749204565782')}
-						</NButton>
-					)}
+				<NSpace justify="end">
 					<NButton
 						size="tiny"
 						strong

@@ -65,19 +65,6 @@ export default defineComponent({
 		return () => (
 			<div class="webhook-channel-form">
 				<WebhookForm labelPlacement="top"></WebhookForm>
-
-				{/* 模板变量说明 */}
-				<div class="mt-4 p-4 bg-gray-50 rounded-md">
-					<div class="font-medium text-gray-700 mb-3 text-xl">模板变量将在发送时替换成实际值：</div>
-					<div class="text-gray-600 space-y-3 text-lg">
-						<div>
-							<code class="px-2 py-1 bg-gray-200 rounded text-lg font-mono">__subject__</code>：通知主题
-						</div>
-						<div>
-							<code class="px-2 py-1 bg-gray-200 rounded text-lg font-mono">__body__</code>：通知内容
-						</div>
-					</div>
-				</div>
 			</div>
 		)
 	},

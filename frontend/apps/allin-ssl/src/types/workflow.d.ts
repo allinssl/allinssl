@@ -81,7 +81,7 @@ export interface WorkflowHistoryItem {
 	create_time: number
 	end_time: string
 	exec_type: 'auto' | 'manual'
-	status: 'success' | 'failed' | 'running'
+	status: 'success' | 'failed' | 'pending'
 	workflow_id: string
 }
 
@@ -110,10 +110,5 @@ export interface UpdateWorkflowExecTypeParams {
 export interface EnableWorkflowParams {
 	id: string
 	active: string
-}
-
-/** 停止工作流请求参数 */
-export interface StopWorkflowParams {
-	id: string
 }
 

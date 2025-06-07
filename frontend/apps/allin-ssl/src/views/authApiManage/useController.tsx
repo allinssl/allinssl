@@ -27,7 +27,7 @@ import {
 	useLoadingMask,
 } from '@baota/naive-ui/hooks'
 import { useError } from '@baota/hooks/error'
-import { isEmail, isIp, isPort, isUrl, isDomain } from '@baota/utils/business'
+import { isEmail, isIp, isPort, isUrl } from '@baota/utils/business'
 import { $t } from '@locales/index'
 import { useStore } from './useStore'
 import { ApiProjectConfig } from '@config/data'
@@ -42,11 +42,6 @@ import type {
 	CloudnsAccessConfig,
 	AwsAccessConfig,
 	AzureAccessConfig,
-	NamesiloAccessConfig,
-	NamedotcomAccessConfig,
-	BunnyAccessConfig,
-	GcoreAccessConfig,
-	JdcloudAccessConfig,
 } from '@/types/access'
 import type { VNode, Ref } from 'vue'
 import { testAccess } from '@/api/access'
@@ -311,8 +306,8 @@ export const useApiFormController = (props: ApiFormControllerProps): ApiFormCont
 				required: true,
 				trigger: 'input',
 				validator: (rule: FormItemRule, value: string, callback: (error?: Error) => void) => {
-					if (!isIp(value) && !isDomain(value)) {
-						return callback(new Error($t('t_0_1749119980577')))
+					if (!isIp(value)) {
+						return callback(new Error($t('t_0_1745317313835')))
 					}
 					callback()
 				},
@@ -668,27 +663,6 @@ export const useApiFormController = (props: ApiFormControllerProps): ApiFormCont
 					useFormInput('Environment', 'config.environment', { allowInput: noSideSpace, placeholder: 'public' }),
 				)
 				break
-			case 'namesilo':
-				items.push(useFormInput('API Key', 'config.api_key', { allowInput: noSideSpace }))
-				break
-			case 'namedotcom':
-				items.push(
-					useFormInput('Username', 'config.username', { allowInput: noSideSpace }),
-					useFormInput('API Token', 'config.api_token', { allowInput: noSideSpace }),
-				)
-				break
-			case 'bunny':
-				items.push(useFormInput('API Key', 'config.api_key', { allowInput: noSideSpace }))
-				break
-			case 'gcore':
-				items.push(useFormInput('API Token', 'config.api_token', { allowInput: noSideSpace }))
-				break
-			case 'jdcloud':
-				items.push(
-					useFormInput('Access Key ID', 'config.access_key_id', { allowInput: noSideSpace }),
-					useFormInput('Secret Access Key', 'config.secret_access_key', { allowInput: noSideSpace }),
-				)
-				break
 			default:
 				break
 		}
@@ -785,33 +759,6 @@ export const useApiFormController = (props: ApiFormControllerProps): ApiFormCont
 						client_secret: '',
 						environment: '',
 					} as AzureAccessConfig
-					break
-				case 'namesilo':
-					param.value.config = {
-						api_key: '',
-					} as NamesiloAccessConfig
-					break
-				case 'namedotcom':
-					param.value.config = {
-						username: '',
-						api_token: '',
-					} as NamedotcomAccessConfig
-					break
-				case 'bunny':
-					param.value.config = {
-						api_key: '',
-					} as BunnyAccessConfig
-					break
-				case 'gcore':
-					param.value.config = {
-						api_token: '',
-					} as GcoreAccessConfig
-					break
-				case 'jdcloud':
-					param.value.config = {
-						access_key_id: '',
-						secret_access_key: '',
-					} as JdcloudAccessConfig
 					break
 			}
 		},

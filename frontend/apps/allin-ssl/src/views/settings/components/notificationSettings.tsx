@@ -16,7 +16,6 @@ export default defineComponent({
 			openAddFeishuChannelModal,
 			openAddWebhookChannelModal,
 			openAddDingtalkChannelModal,
-			openAddWecomChannelModal,
 			editChannelConfig,
 			testChannelConfig,
 			confirmDeleteChannel,
@@ -65,12 +64,6 @@ export default defineComponent({
 						{$t('t_1_1746676859550')}
 					</NButton>
 				)
-			} else if (type === 'workwx') {
-				return (
-					<NButton strong secondary type="primary" onClick={() => openAddWecomChannelModal(getConfiguredCount(type))}>
-						{$t('t_1_1746676859550')}
-					</NButton>
-				)
 			}
 			// 其他渠道暂未支持
 			return (
@@ -107,7 +100,7 @@ export default defineComponent({
 				color: '#1677ff',
 			},
 			{
-				type: 'workwx',
+				type: 'wecom',
 				name: $t('t_7_1746676857191'),
 				description: $t('t_8_1746676860457'),
 				color: '#07c160',

@@ -87,14 +87,14 @@ export default defineConfig({
 			// 	remotePath: '/www/allinssl/frontend',
 			// 	clearRemote: true,
 			// },
-			{
-				host: '192.168.69.167',
-				port: 22,
-				username: 'root',
-				password: 'www.bt.cn',
-				remotePath: '/www/allinssl/frontend',
-				clearRemote: true,
-			},
+			// {
+			// 	host: '192.168.168.25',
+			// 	port: 22,
+			// 	username: 'root',
+			// 	password: 'qweqwe123',
+			// 	remotePath: '/www/allinssl/frontend',
+			// 	clearRemote: true,
+			// },
 		]),
 		// 项目同步git
 		pluginProjectSyncGit({
@@ -105,12 +105,13 @@ export default defineConfig({
 				// 	targetDir: 'allinssl-gitlab',
 				// 	discardChanges: true,
 				// },
-				// {
-				// 	repo: 'https://github.com/allinssl/allinssl.git',
-				// 	branch: '1.0.4',
-				// 	targetDir: 'allinssl-github',
-				// 	discardChanges: true,
-				// },
+
+				{
+					repo: 'https://github.com/allinssl/allinssl.git',
+					branch: '1.0.4',
+					targetDir: 'allinssl-github',
+					discardChanges: true,
+				},
 			],
 			localSync: [
 				{

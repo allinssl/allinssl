@@ -44,36 +44,26 @@ export function useCAProviderSelectController(props: CAProviderSelectProps, emit
 		const selectedProvider = caProviderRef.value.find((item) => item.value === param.value.value)
 
 		if (selectedProvider) {
-			// 对于 Let's Encrypt 和 Buypass，使用传入的工作流邮件
-			let email = selectedProvider.email
-			if (selectedProvider.ca === 'letsencrypt' || selectedProvider.ca === 'buypass') {
-				email = props.email || selectedProvider.email
-			}
-
 			param.value = {
 				label: selectedProvider.label,
 				value: selectedProvider.value,
 				ca: selectedProvider.ca,
-				email: email,
+				email: selectedProvider.email,
 			}
 		} else if (caProviderRef.value.length > 0 && param.value.value === '') {
 			// 如果 param.value 为空（例如初始状态或清空后），且 caProviderRef 列表不为空，则默认选中第一个
-			const firstProvider = caProviderRef.value[0]
-			let email = firstProvider?.email || ''
-			if (firstProvider && (firstProvider.ca === 'letsencrypt' || firstProvider.ca === 'buypass')) {
-				email = props.email || firstProvider.email
-			}
-
 			param.value = {
-				label: firstProvider?.label || '',
-				value: firstProvider?.value || '',
-				ca: firstProvider?.ca || '',
-				email: email,
+				label: caProviderRef.value[0]?.label || '',
+				value: caProviderRef.value[0]?.value || '',
+				ca: caProviderRef.value[0]?.ca || '',
+				email: caProviderRef.value[0]?.email || '',
 			}
 		}
 
-		// 始终触发邮件更新事件，确保邮件字段能正确渲染
-		emit('update:email', param.value.email)
+		// 当 value 不为空时，将其赋值给 email 字段
+		if (param.value.value !== '') {
+			emit('update:email', param.value.email)
+		}
 
 		emit('update:value', { value: param.value.value, ca: param.value.ca, email: param.value.email })
 	}
@@ -96,23 +86,15 @@ export function useCAProviderSelectController(props: CAProviderSelectProps, emit
 		isLoading.value = true
 		errorMessage.value = ''
 		try {
-			// 添加Let's Encrypt作为首选项，使用传入的工作流邮件
+			// 添加Let's Encrypt作为首选项
 			const letsEncryptOption: CAProviderOption = {
 				label: "Let's Encrypt",
 				value: '',
 				ca: 'letsencrypt',
-				email: props.email || '',
+				email: '',
 			}
 
-			// 添加Buypass作为第二选项，使用传入的工作流邮件
-			const buypassOption: CAProviderOption = {
-				label: 'Buypass',
-				value: 'buypass',
-				ca: 'buypass',
-				email: props.email || '',
-			}
-
-			// 获取其他CA授权列表，使用接口返回的邮件
+			// 获取其他CA授权列表
 			const { data } = await getAllEabList({ ca: '' }).fetch()
 			const eabOptions: CAProviderOption[] = (data || []).map((item) => ({
 				label: item.name,
@@ -121,8 +103,8 @@ export function useCAProviderSelectController(props: CAProviderSelectProps, emit
 				email: item.mail,
 			}))
 
-			// 合并选项，Let's Encrypt在首位，Buypass在第二位
-			caProviderRef.value = [letsEncryptOption, buypassOption, ...eabOptions]
+			// 合并选项，Let's Encrypt在首位
+			caProviderRef.value = [letsEncryptOption, ...eabOptions]
 
 			// 数据加载后，如果 props.value 有值，尝试根据 props.value 初始化 param
 			if (props.value) {

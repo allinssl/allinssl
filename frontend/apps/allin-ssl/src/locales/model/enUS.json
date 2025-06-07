@@ -633,16 +633,5 @@
   "t_3_1748591484673": "Webhook",
   "t_4_1748591492587": "Testing {type} notification",
   "t_5_1748591491370": "Test{type}",
-  "t_0_1748591669194": "Send test message to, current configuration {type} notification, continue?",
-  "t_0_1749119980577": "Server IP address or domain name format error",
-  "t_0_1749204565782": "Stop execution",
-  "t_1_1749204570473": "Are you sure you want to stop the execution of the current workflow?",
-  "t_2_1749204567193": "Disable CNAME support",
-  "t_0_1749263105073": "Pre-check timeout (seconds)",
-  "t_1_1749263104936": "Please enter the pre-check timeout",
-  "t_2_1749263103765": "Ignore pre-check results",
-  "t_3_1749263104237": "When the pre-check fails",
-  "t_4_1749263101853": "Continue",
-  "t_5_1749263101934": "Stop",
-  "t_6_1749263103891": "Initiate verification request to CA"
+  "t_0_1748591669194": "Send test message to, current configuration {type} notification, continue?"
 }

@@ -14,7 +14,7 @@ import {
 	useLoadingMask,
 } from '@baota/naive-ui/hooks'
 import { useError } from '@baota/hooks/error'
-import { isDomain, isPort, isIp } from '@baota/utils/business'
+import { isDomain } from '@baota/utils/business'
 import { $t } from '@locales/index'
 
 // Store和组件
@@ -63,31 +63,6 @@ const {
 
 // 错误处理
 const { handleError } = useError()
-
-/**
- * 验证域名（或IP）+端口格式
- * @param value - 要验证的值
- * @returns {boolean} 如果是有效的域名、IP地址或它们加端口的格式，则返回 true
- */
-const isDomainWithPort = (value: string): boolean => {
-	if (!value) return false
-
-	// 检查是否包含端口号
-	const parts = value.split(':')
-
-	if (parts.length === 1) {
-		// 只有域名或IP，验证域名或IP地址
-		return isDomain(value) || isIp(value)
-	} else if (parts.length === 2) {
-		// 域名/IP+端口格式
-		const [host, port] = parts
-		if (!host || !port) return false
-		return (isDomain(host) || isIp(host)) && isPort(port)
-	}
-
-	// 超过一个冒号，格式不正确（IPv6除外，但这里暂不处理IPv6+端口的复杂情况）
-	return false
-}
 
 /**
  * 监控管理业务逻辑控制器
@@ -343,7 +318,7 @@ export const useMonitorFormController = (data: UpdateSiteMonitorParams | null = 
 	 */
 	const config = computed(() => [
 		useFormInput('名称', 'name'),
-		useFormInput('域名/IP地址', 'domain'),
+		useFormInput('域名', 'domain'),
 		useFormInputNumber('周期(分钟)', 'cycle', { class: 'w-full' }),
 		useFormCustom(() => {
 			return (
@@ -367,11 +342,11 @@ export const useMonitorFormController = (data: UpdateSiteMonitorParams | null = 
 		name: { required: true, message: '请输入名称', trigger: 'input' },
 		domain: {
 			required: true,
-			message: '请输入正确的域名或IP地址',
+			message: '请输入正确的域名',
 			trigger: 'input',
 			validator: (rule: any, value: any, callback: any) => {
-				if (!isDomainWithPort(value)) {
-					callback(new Error('请输入正确的域名或IP地址（支持域名:端口或IP:端口格式）'))
+				if (!isDomain(value)) {
+					callback(new Error('请输入正确的域名'))
 				} else {
 					callback()
 				}

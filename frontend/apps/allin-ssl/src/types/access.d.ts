@@ -53,12 +53,7 @@ export interface AddAccessParams<
 		| NS1AccessConfig
 		| CloudnsAccessConfig
 		| AwsAccessConfig
-		| AzureAccessConfig
-		| NamesiloAccessConfig
-		| NamedotcomAccessConfig
-		| BunnyAccessConfig
-		| GcoreAccessConfig
-		| JdcloudAccessConfig,
+		| AzureAccessConfig,
 > {
 	name: string
 	type: string
@@ -84,12 +79,7 @@ export interface UpdateAccessParams<
 		| NS1AccessConfig
 		| CloudnsAccessConfig
 		| AwsAccessConfig
-		| AzureAccessConfig
-		| NamesiloAccessConfig
-		| NamedotcomAccessConfig
-		| BunnyAccessConfig
-		| GcoreAccessConfig
-		| JdcloudAccessConfig,
+		| AzureAccessConfig,
 > extends AddAccessParams<T> {
 	id: string
 }
@@ -221,43 +211,6 @@ export interface AzureAccessConfig {
 	client_id: string
 	client_secret: string
 	environment: string
-}
-
-/**
- * Namesilo授权配置
- */
-export interface NamesiloAccessConfig {
-	api_key: string
-}
-
-/**
- * Name.com授权配置
- */
-export interface NamedotcomAccessConfig {
-	username: string
-	api_token: string
-}
-
-/**
- * Bunny授权配置
- */
-export interface BunnyAccessConfig {
-	api_key: string
-}
-
-/**
- * Gcore授权配置
- */
-export interface GcoreAccessConfig {
-	api_token: string
-}
-
-/**
- * 京东云授权配置
- */
-export interface JdcloudAccessConfig {
-	access_key_id: string
-	secret_access_key: string
 }
 
 /** 删除授权请求参数 */

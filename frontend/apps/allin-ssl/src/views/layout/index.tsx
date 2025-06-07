@@ -1,15 +1,5 @@
 // 外部库依赖
-import {
-	Transition,
-	type Component as ComponentType,
-	h,
-	defineComponent,
-	ref,
-	onMounted,
-	computed,
-	watch,
-	onUnmounted,
-} from 'vue' // 添加 watch, onUnmounted
+import { Transition, type Component as ComponentType, h, defineComponent, ref, onMounted, computed, watch } from 'vue' // 添加 watch
 import { NBadge, NIcon, NLayout, NLayoutContent, NLayoutHeader, NLayoutSider, NMenu, NTooltip } from 'naive-ui'
 import { RouterView } from 'vue-router'
 import { MenuFoldOutlined, MenuUnfoldOutlined } from '@vicons/antd'
@@ -22,12 +12,7 @@ import { useController } from './useController'
 import { $t } from '@locales/index'
 // 内部模块导入 - 样式
 import styles from './index.module.css'
-// 内部模块导入 - API
-import { getVersion } from '@api/setting'
-// 内部模块导入 - 组件
-import UpdateLogModal from '@/components/UpdateLogModal'
-// 内部模块导入 - 类型
-import type { VersionData } from '@/types/setting'
+
 
 /**
  * @description 基础布局组件，包含侧边栏导航、头部信息和内容区域。
@@ -50,38 +35,8 @@ export default defineComponent({
 			'actionColor',
 			'layoutContentBackgroundColor',
 			'siderLoginHeight', // 确保这个变量在 Naive UI 主题中存在或已自定义
-			'contentPadding',
+			'contentPadding'
 		])
-
-		// 版本检查相关状态
-		const hasUpdate = ref(false)
-		const versionData = ref<VersionData | null>(null)
-		const showUpdateModal = ref(false)
-		const checkTimer = ref<NodeJS.Timeout | null>(null)
-
-		// 版本检查API
-		const versionApi = getVersion()
-
-		// 检查版本更新
-		const checkVersion = async () => {
-			try {
-				await versionApi.fetch()
-				if (versionApi.data.value && versionApi.data.value.data) {
-					const data = versionApi.data.value.data
-					versionData.value = data
-					hasUpdate.value = data.update === '1'
-				}
-			} catch (error) {
-				console.error('检查版本更新失败:', error)
-			}
-		}
-
-		// 点击版本号
-		const handleVersionClick = () => {
-			if (hasUpdate.value && versionData.value) {
-				showUpdateModal.value = true
-			}
-		}
 
 		const siderWidth = ref(200)
 		const siderCollapsedWidth = ref(60)
@@ -95,28 +50,13 @@ export default defineComponent({
 			if (isMobile.value || isNarrowScreen.value) {
 				isCollapsed.value = true
 			}
-
-			// 初始检查版本
-			checkVersion()
-
-			// 设置定时检查版本更新（每30分钟检查一次）
-			checkTimer.value = setInterval(checkVersion, 30 * 60 * 1000)
-		})
-
-		// 组件卸载时清理定时器
-		onUnmounted(() => {
-			if (checkTimer.value) {
-				clearInterval(checkTimer.value)
-			}
 		})
 
 		// 监听屏幕宽度变化，自动折叠/展开菜单
 		watch(isNarrowScreen, (newValue) => {
-			if (newValue && !isMobile.value) {
-				// 仅在非移动设备且宽度小于1100px时处理
+			if (newValue && !isMobile.value) { // 仅在非移动设备且宽度小于1100px时处理
 				isCollapsed.value = true
-			} else if (!newValue && !isMobile.value) {
-				// 宽度大于1100px且非移动设备时
+			} else if (!newValue && !isMobile.value) { // 宽度大于1100px且非移动设备时
 				isCollapsed.value = false
 			}
 		})
@@ -169,13 +109,13 @@ export default defineComponent({
 					class={[styles.sider, siderDynamicClass.value].join(' ')}
 					bordered
 				>
-					<div
-						class={`${styles.logoContainer} ${
-							// Logo 容器的 'active' 状态 (仅在桌面端且折叠时应用)
-							// 在移动端，由于 NLayoutSider 自身宽度不变，不应用 active 样式来改变 Logo 区域布局
-							(isMobile.value ? false : isCollapsed.value) ? styles.logoContainerActive : ''
-						}`}
-					>
+					<div class={`${styles.logoContainer} ${
+						// Logo 容器的 'active' 状态 (仅在桌面端且折叠时应用)
+						// 在移动端，由于 NLayoutSider 自身宽度不变，不应用 active 样式来改变 Logo 区域布局
+						(isMobile.value ? false : isCollapsed.value)
+							? styles.logoContainerActive
+							: ''
+						}`}>
 						{/* Logo 显示逻辑 */}
 						{(isMobile.value ? false : isCollapsed.value) ? (
 							// 折叠时的 Logo (仅桌面端)
@@ -194,11 +134,11 @@ export default defineComponent({
 							<NTooltip placement="right" trigger="hover">
 								{{
 									trigger: () => (
-										<div class={styles.menuToggleButton} onClick={() => toggleCollapse()}>
-											<NIcon size={20}>
-												<MenuFoldOutlined />
-											</NIcon>{' '}
-											{/* 图标大小调整为 20 */}
+										<div
+											class={styles.menuToggleButton}
+											onClick={() => toggleCollapse()}
+										>
+											<NIcon size={20}><MenuFoldOutlined /></NIcon> {/* 图标大小调整为 20 */}
 										</div>
 									),
 									default: () => <span>{$t('t_4_1744098802046')}</span>,
@@ -232,7 +172,9 @@ export default defineComponent({
 									{{
 										trigger: () => (
 											<div class={styles.headerMenuToggleButton} onClick={() => toggleCollapse()}>
-												<NIcon size={20}>{isCollapsed.value ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}</NIcon>
+												<NIcon size={20}>
+													{isCollapsed.value ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
+												</NIcon>
 											</div>
 										),
 										default: () => <span>展开主菜单</span>,
@@ -241,13 +183,8 @@ export default defineComponent({
 							</div>
 						)}
 						<div class={styles.systemInfo}>
-							<NBadge value={1} show={hasUpdate.value} dot>
-								<span
-									class="px-[.8rem] sm:px-[.5rem] py-[.4rem] cursor-pointer hover:text-primary transition-colors text-[1.4rem] font-medium"
-									onClick={handleVersionClick}
-								>
-									v1.0.4
-								</span>
+							<NBadge value={1} show={false} dot>
+								<span class="px-1 sm:px-[.5rem] cursor-pointer">v1.0.4</span>
 							</NBadge>
 						</div>
 					</NLayoutHeader>
@@ -262,10 +199,9 @@ export default defineComponent({
 					</NLayoutContent>
 				</NLayout>
 				{/* 移动端菜单展开时的背景遮罩 */}
-				{showBackdrop.value && <div class={styles.mobileMenuBackdrop} onClick={() => toggleCollapse()}></div>}
-
-				{/* 更新日志弹窗 */}
-				<UpdateLogModal v-model:show={showUpdateModal.value} versionData={versionData.value} />
+				{showBackdrop.value && (
+					<div class={styles.mobileMenuBackdrop} onClick={() => toggleCollapse()}></div>
+				)}
 			</NLayout>
 		)
 	},
