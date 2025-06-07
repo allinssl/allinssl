@@ -633,5 +633,16 @@
   "t_3_1748591484673": "Webhook",
   "t_4_1748591492587": "Testando notificação {type}",
   "t_5_1748591491370": "Teste{type}",
-  "t_0_1748591669194": "Enviar mensagem de teste para, configuração atual {type} notificação, continuar?"
+  "t_0_1748591669194": "Enviar mensagem de teste para, configuração atual {type} notificação, continuar?",
+  "t_0_1749119980577": "Erro de formato de endereço IP ou nome de domínio do servidor",
+  "t_0_1749204565782": "Parar execução",
+  "t_1_1749204570473": "Tem certeza de que deseja interromper a execução do fluxo de trabalho atual?",
+  "t_2_1749204567193": "Desativar suporte CNAME",
+  "t_0_1749263105073": "Tempo limite de pré-verificação (segundos)",
+  "t_1_1749263104936": "Insira o tempo limite de pré-verificação",
+  "t_2_1749263103765": "Ignorar resultados de pré-verificação",
+  "t_3_1749263104237": "Quando a pré-verificação falha",
+  "t_4_1749263101853": "Continuar",
+  "t_5_1749263101934": "Parar",
+  "t_6_1749263103891": "Enviar solicitação de verificação para CA"
 }

@@ -114,9 +114,11 @@ export default defineComponent<CAProviderSelectProps>({
 							class="flex-1 w-full"
 							options={caProviderRef.value}
 							renderLabel={renderLabel}
-							renderTag={({ option }: { option: any }) => renderSingleSelectTag({ option: option as CAProviderOption })}
+							renderTag={({ option }: { option: unknown }) =>
+								renderSingleSelectTag({ option: option as CAProviderOption })
+							}
 							filterable
-							filter={(pattern: string, option: any) => handleFilter(pattern, option as CAProviderOption)}
+							filter={(pattern: string, option: unknown) => handleFilter(pattern, option as CAProviderOption)}
 							placeholder={$t('t_0_1747990228780')}
 							value={param.value.value} // 使用 controller 中的 param.value.value
 							onUpdateValue={handleUpdateValue}

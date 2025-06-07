@@ -31,7 +31,7 @@ export interface CAProviderSelectProps {
 	ca: string
 	/**
 	 * @property email
-	 * @description 邮箱地址，当 value 不为空时会被赋值
+	 * @description 邮箱地址，编辑时从工作流content中传入，新建时为空
 	 */
 	email: string
 	/**

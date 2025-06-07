@@ -10792,5 +10792,192 @@
       "arDZ": "إرسال رسالة اختبار إلى، التكوين الحالي {type} إشعار، هل تتابع؟"
     },
     "timestamp": "2025-05-30T07:54:29.194Z"
+  },
+  "服务器IP地址或域名格式错误": {
+    "text": "服务器IP地址或域名格式错误",
+    "key": "t_0_1749119980577",
+    "translations": {
+      "zhCN": "服务器IP地址或域名格式错误",
+      "zhTW": "伺服器IP位址或網域名稱格式錯誤",
+      "enUS": "Server IP address or domain name format error",
+      "jaJP": "サーバーのIPアドレスまたはドメイン名の形式が正しくありません",
+      "koKR": "서버 IP 주소 또는 도메인 이름 형식 오류",
+      "ruRU": "Ошибка формата IP-адреса сервера или доменного имени",
+      "ptBR": "Erro de formato de endereço IP ou nome de domínio do servidor",
+      "frFR": "Erreur de format d'adresse IP ou de nom de domaine du serveur",
+      "esAR": "Error de formato de dirección IP o nombre de dominio del servidor",
+      "arDZ": "خطأ في تنسيق عنوان IP الخادم أو اسم النطاق"
+    },
+    "timestamp": "2025-06-05T10:39:40.577Z"
+  },
+  "停止执行": {
+    "text": "停止执行",
+    "key": "t_0_1749204565782",
+    "translations": {
+      "zhCN": "停止执行",
+      "zhTW": "停止執行",
+      "enUS": "Stop execution",
+      "jaJP": "実行を停止",
+      "koKR": "실행 중지",
+      "ruRU": "Остановить выполнение",
+      "ptBR": "Parar execução",
+      "frFR": "Arrêter l'exécution",
+      "esAR": "Detener ejecución",
+      "arDZ": "إيقاف التنفيذ"
+    },
+    "timestamp": "2025-06-06T10:09:30.473Z"
+  },
+  "确定要停止当前工作流的执行吗？": {
+    "text": "确定要停止当前工作流的执行吗？",
+    "key": "t_1_1749204570473",
+    "translations": {
+      "zhCN": "确定要停止当前工作流的执行吗？",
+      "zhTW": "確定要停止當前工作流的執行嗎？",
+      "enUS": "Are you sure you want to stop the execution of the current workflow?",
+      "jaJP": "現在のワークフローの実行を停止しますか？",
+      "koKR": "현재 워크플로우 실행을 중지하시겠습니까?",
+      "ruRU": "Вы уверены, что хотите остановить выполнение текущего рабочего процесса?",
+      "ptBR": "Tem certeza de que deseja interromper a execução do fluxo de trabalho atual?",
+      "frFR": "Êtes-vous sûr de vouloir arrêter l'exécution du workflow actuel ?",
+      "esAR": "¿Estás seguro de que quieres detener la ejecución del flujo de trabajo actual?",
+      "arDZ": "هل أنت متأكد أنك تريد إيقاف تنفيذ سير العمل الحالي؟"
+    },
+    "timestamp": "2025-06-06T10:09:30.474Z"
+  },
+  "禁用CNAME支持": {
+    "text": "禁用CNAME支持",
+    "key": "t_2_1749204567193",
+    "translations": {
+      "zhCN": "禁用CNAME支持",
+      "zhTW": "禁用CNAME支援",
+      "enUS": "Disable CNAME support",
+      "jaJP": "CNAMEサポートを無効にする",
+      "koKR": "CNAME 지원 비활성화",
+      "ruRU": "Отключить поддержку CNAME",
+      "ptBR": "Desativar suporte CNAME",
+      "frFR": "Désactiver la prise en charge CNAME",
+      "esAR": "Deshabilitar soporte CNAME",
+      "arDZ": "تعطيل دعم CNAME"
+    },
+    "timestamp": "2025-06-06T10:09:30.474Z"
+  },
+  "预检查超时时间（秒）": {
+    "text": "预检查超时时间（秒）",
+    "key": "t_0_1749263105073",
+    "translations": {
+      "zhCN": "预检查超时时间（秒）",
+      "zhTW": "預檢查超時時間（秒）",
+      "enUS": "Pre-check timeout (seconds)",
+      "jaJP": "事前チェックのタイムアウト時間（秒）",
+      "koKR": "사전 점검 시간 초과 (초)",
+      "ruRU": "Таймаут предварительной проверки (секунды)",
+      "ptBR": "Tempo limite de pré-verificação (segundos)",
+      "frFR": "Délai d'expiration de la pré-vérification (secondes)",
+      "esAR": "Tiempo de espera de la preverificación (segundos)",
+      "arDZ": "وقت انتهاء الفحص المسبق (ثانية)"
+    },
+    "timestamp": "2025-06-07T02:25:05.074Z"
+  },
+  "请输入预检查超时时间": {
+    "text": "请输入预检查超时时间",
+    "key": "t_1_1749263104936",
+    "translations": {
+      "zhCN": "请输入预检查超时时间",
+      "zhTW": "請輸入預檢查超時時間",
+      "enUS": "Please enter the pre-check timeout",
+      "jaJP": "事前チェックのタイムアウト時間を入力してください",
+      "koKR": "사전 검사 시간 초과 시간을 입력하십시오",
+      "ruRU": "Введите время ожидания предварительной проверки",
+      "ptBR": "Insira o tempo limite de pré-verificação",
+      "frFR": "Veuillez entrer le délai d'attente de pré-vérification",
+      "esAR": "Introduce el tiempo de espera de la comprobación previa",
+      "arDZ": "الرجاء إدخال مهلة التحقق المسبق"
+    },
+    "timestamp": "2025-06-07T02:25:05.074Z"
+  },
+  "忽略预检查结果": {
+    "text": "忽略预检查结果",
+    "key": "t_2_1749263103765",
+    "translations": {
+      "zhCN": "忽略预检查结果",
+      "zhTW": "忽略預檢查結果",
+      "enUS": "Ignore pre-check results",
+      "jaJP": "事前チェック結果を無視",
+      "koKR": "사전 점검 결과 무시",
+      "ruRU": "Игнорировать результаты предварительной проверки",
+      "ptBR": "Ignorar resultados de pré-verificação",
+      "frFR": "Ignorer les résultats de la pré-vérification",
+      "esAR": "Ignorar los resultados de la verificación previa",
+      "arDZ": "تجاهل نتائج الفحص المسبق"
+    },
+    "timestamp": "2025-06-07T02:25:05.074Z"
+  },
+  "当预检查失败时": {
+    "text": "当预检查失败时",
+    "key": "t_3_1749263104237",
+    "translations": {
+      "zhCN": "当预检查失败时",
+      "zhTW": "當預檢查失敗時",
+      "enUS": "When the pre-check fails",
+      "jaJP": "事前チェックが失敗した場合",
+      "koKR": "사전 점검이 실패했을 때",
+      "ruRU": "Когда предварительная проверка не удалась",
+      "ptBR": "Quando a pré-verificação falha",
+      "frFR": "Lorsque la pré-vérification échoue",
+      "esAR": "Cuando falla la verificación previa",
+      "arDZ": "عندما تفشل الفحص المسبق"
+    },
+    "timestamp": "2025-06-07T02:25:05.074Z"
+  },
+  "继续": {
+    "text": "继续",
+    "key": "t_4_1749263101853",
+    "translations": {
+      "zhCN": "继续",
+      "zhTW": "繼續",
+      "enUS": "Continue",
+      "jaJP": "続ける",
+      "koKR": "계속하다",
+      "ruRU": "Продолжить",
+      "ptBR": "Continuar",
+      "frFR": "Continuer",
+      "esAR": "Continuar",
+      "arDZ": "استمر"
+    },
+    "timestamp": "2025-06-07T02:25:05.074Z"
+  },
+  "停止": {
+    "text": "停止",
+    "key": "t_5_1749263101934",
+    "translations": {
+      "zhCN": "停止",
+      "zhTW": "停止",
+      "enUS": "Stop",
+      "jaJP": "停止",
+      "koKR": "중지",
+      "ruRU": "Остановить",
+      "ptBR": "Parar",
+      "frFR": "Arrêter",
+      "esAR": "Detener",
+      "arDZ": "توقف"
+    },
+    "timestamp": "2025-06-07T02:25:05.074Z"
+  },
+  "向ca发起验证请求": {
+    "text": "向ca发起验证请求",
+    "key": "t_6_1749263103891",
+    "translations": {
+      "zhCN": "向CA发起验证请求",
+      "zhTW": "向CA發起驗證請求",
+      "enUS": "Initiate verification request to CA",
+      "jaJP": "CAに検証リクエストを送信する",
+      "koKR": "CA에 검증 요청 시작",
+      "ruRU": "Отправить запрос на проверку в CA",
+      "ptBR": "Enviar solicitação de verificação para CA",
+      "frFR": "Envoyer une demande de vérification à CA",
+      "esAR": "Enviar solicitud de verificación a CA",
+      "arDZ": "إرسال طلب التحقق إلى CA"
+    },
+    "timestamp": "2025-06-07T02:25:05.074Z"
   }
 }

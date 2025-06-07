@@ -22,6 +22,7 @@ import type {
 	ReportFeishu,
 	ReportWebhook,
 	ReportDingtalk,
+	ReportWecom,
 } from '@/types/setting'
 
 const { handleError } = useError()
@@ -63,7 +64,7 @@ export const useSettingsStore = defineStore('settings-store', () => {
 	const channelTypes = ref<Record<string, string>>({
 		mail: $t('t_68_1745289354676'),
 		dingtalk: $t('t_32_1746773348993'),
-		wecom: $t('t_33_1746773350932'),
+		workwx: $t('t_33_1746773350932'),
 		feishu: $t('t_34_1746773350153'),
 		webhook: 'WebHook',
 	})
@@ -105,6 +106,26 @@ export const useSettingsStore = defineStore('settings-store', () => {
 		enabled: '1',
 		webhook: '', // 钉钉webhook地址
 		secret: '', // 钉钉webhook加密密钥（可选）
+	})
+
+	// 企业微信通知渠道表单
+	const wecomChannelForm = ref<ReportWecom>({
+		name: '',
+		enabled: '1',
+		url: '', // 企业微信webhook地址
+		data: `{
+  "msgtype": "news",
+  "news": {
+    "articles": [
+      {
+        "title": "__subject__",
+        "description": "__body__。",
+        "url": "https://allinssl.com/",
+        "picurl": "https://allinssl.com/logo.svg"
+      }
+    ]
+  }
+}`, // 企业微信推送数据格式
 	})
 
 	// 关于页面数据
@@ -250,6 +271,7 @@ export const useSettingsStore = defineStore('settings-store', () => {
 		feishuChannelForm,
 		webhookChannelForm,
 		dingtalkChannelForm,
+		wecomChannelForm,
 		aboutInfo,
 
 		// 方法

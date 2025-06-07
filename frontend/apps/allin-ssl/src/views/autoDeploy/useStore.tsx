@@ -5,6 +5,7 @@ import {
 	executeWorkflow,
 	updateWorkflowExecType,
 	enableWorkflow,
+	stopWorkflow,
 } from '@/api/workflow'
 import { getEabList, addEab, deleteEab } from '@/api/access'
 import { useError } from '@baota/hooks/error'
@@ -17,6 +18,7 @@ import type {
 	WorkflowItem,
 	UpdateWorkflowExecTypeParams,
 	EnableWorkflowParams,
+	StopWorkflowParams,
 } from '@/types/workflow'
 import type { EabItem, EabListParams, EabAddParams } from '@/types/access'
 import type { TableResponse } from '@baota/naive-ui/types/table'
@@ -149,6 +151,22 @@ export const useWorkflowStore = defineStore('workflow-store', () => {
 	}
 
 	/**
+	 * 停止工作流执行
+	 * @description 停止指定工作流的执行
+	 * @param {string} id - 工作流ID
+	 * @returns {Promise<void>} 停止执行结果
+	 */
+	const stopExistingWorkflow = async (id: string) => {
+		try {
+			const { message, fetch } = stopWorkflow({ id })
+			message.value = true
+			await fetch()
+		} catch (error) {
+			handleError(error).default($t('t_1_1747895712756'))
+		}
+	}
+
+	/**
 	 * 获取CA授权列表
 	 * @param {EabListParams} params - 请求参数
 	 * @returns {Promise<TableResponse<EabItem>>} 返回表格数据结构
@@ -217,6 +235,7 @@ export const useWorkflowStore = defineStore('workflow-store', () => {
 		fetchWorkflowHistory,
 		deleteExistingWorkflow,
 		executeExistingWorkflow,
+		stopExistingWorkflow,
 		setWorkflowActive,
 		setWorkflowExecType,
 		fetchEabList,
