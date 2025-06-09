@@ -127,43 +127,40 @@ graph TB
     subgraph "核心服务层"
         H[证书申请服务]
         I[证书部署服务] 
-        J[监控调度服务]
-        K[通知服务]
+        J[工作流引擎]
+        K[监控调度服务]
+        L[通知服务]
     end
     
     subgraph "数据存储层"
-        L[(SQLite数据库)]
-        M[文件存储]
+        M[(SQLite数据库)]
+        N[文件存储]
     end
     
     subgraph "外部集成"
-        N[ACME协议]
-        O[云服务商API]
-        P[DNS提供商]
-        Q[CDN/面板API]
+        O[ACME协议]
+        P[云服务商API]
+        Q[DNS提供商]
+        R[CDN/面板API]
     end
     
     A -.-> D
-    D --> H
-    D --> I
     D --> J
-    D --> K
-    H --> L
-    I --> L
+    J --> H
+    J --> I
+    J --> K
     J --> L
-    K --> L
-    H --> N
-    I --> O
-    H --> P
-    I --> Q
+    H --> M
+    I --> M
+    K --> M
+    L --> M
+    H --> O
+    I --> P
+    H --> Q
+    I --> R
 ```
 
-### 💡 核心技术
-- **后端**: Go + Gin框架 + SQLite数据库
-- **前端**: Vue 3 + Naive UI + Vite构建
-- **证书**: ACME协议 + go-acme/lego客户端
-- **集成**: 多云服务商API + DNS提供商
-- **部署**: 支持面板、CDN、存储等多种目标
+
 
 ## 📚 使用文档
 - [快速入门指南](https://allinssl.com/guide/getting-started.html)
@@ -222,11 +219,43 @@ allinssl 17: 卸载ALLinSSL 🗑️
 - [Certbot](https://certbot.eff.org/) - EFF官方ACME客户端
 - [Caddy](https://caddyserver.com/) - 自动HTTPS Web服务器
 
-**感谢以下技术栈和云服务提供商：**
-- [Go](https://golang.org/) + [Gin](https://github.com/gin-gonic/gin) + [SQLite](https://www.sqlite.org/) - 后端技术栈
-- [Vue 3](https://vuejs.org/) + [Naive UI](https://naiveui.com/) + [Vite](https://vitejs.dev/) - 前端技术栈
-- [阿里云](https://www.aliyun.com/)、[腾讯云](https://cloud.tencent.com/)、[华为云](https://www.huaweicloud.com/)、[百度云](https://cloud.baidu.com/)、[火山引擎](https://www.volcengine.com/)、[京东云](https://www.jdcloud.com/)、[七牛云](https://www.qiniu.com/)等云服务商
-- [Microsoft Azure](https://azure.microsoft.com/)、[Amazon AWS](https://aws.amazon.com/)、[Cloudflare](https://www.cloudflare.com/)等国际云服务商
+**感谢以下技术栈和依赖库：**
+
+**🔧 后端依赖**
+- **Web框架**: [gin-gonic/gin](https://github.com/gin-gonic/gin) - HTTP Web框架
+- **数据库**: [modernc.org/sqlite](https://github.com/modernc/sqlite) - SQLite数据库
+- **ACME客户端**: [go-acme/lego](https://github.com/go-acme/lego) - 证书申请核心
+- **会话管理**: [gin-contrib/sessions](https://github.com/gin-contrib/sessions) - 用户会话
+- **HTTP客户端**: [go-resty/resty](https://github.com/go-resty/resty) - API调用
+- **邮件服务**: [jordan-wright/email](https://github.com/jordan-wright/email) - 邮件发送
+- **验证码**: [mojocn/base64Captcha](https://github.com/mojocn/base64Captcha) - 图形验证码
+- **UUID**: [google/uuid](https://github.com/google/uuid) - 唯一标识符
+- **环境变量**: [joho/godotenv](https://github.com/joho/godotenv) - 配置管理
+
+**🎨 前端依赖**
+- **框架**: [Vue 3](https://vuejs.org/) - 渐进式JavaScript框架
+- **UI组件**: [Naive UI](https://naiveui.com/) - Vue 3组件库
+- **构建工具**: [Vite](https://vitejs.dev/) - 极速构建工具
+- **包管理**: [Turbo](https://turbo.build/) - Monorepo构建系统
+- **路由**: [Vue Router](https://router.vuejs.org/) - 单页应用路由
+- **状态管理**: [Pinia](https://pinia.vuejs.org/) - 轻量级状态管理
+- **工具库**: [VueUse](https://vueuse.org/) - Vue组合式API工具
+- **图表**: [ECharts](https://echarts.apache.org/) - 数据可视化
+- **工作流**: [Vue Flow](https://vueflow.dev/) - 可视化流程编辑器
+- **HTTP**: [Axios](https://axios-http.com/) - HTTP客户端
+- **样式**: [TailwindCSS](https://tailwindcss.com/) - CSS框架
+
+**☁️ 云服务集成**
+- **阿里云**: [alibabacloud-go](https://github.com/alibabacloud-go) SDK系列
+- **腾讯云**: [tencentcloud-sdk-go](https://github.com/tencentcloud/tencentcloud-sdk-go) 
+- **华为云**: [huaweicloud-sdk-go-v3](https://github.com/huaweicloud/huaweicloud-sdk-go-v3)
+- **百度云**: [bce-sdk-go](https://github.com/baidubce/bce-sdk-go)
+- **火山引擎**: [volcengine-go-sdk](https://github.com/volcengine/volcengine-go-sdk)
+- **京东云**: [jdcloud-sdk-go](https://github.com/jdcloud-api/jdcloud-sdk-go)
+- **七牛云**: [qiniu/go-sdk](https://github.com/qiniu/go-sdk)
+- **Azure**: [azure-sdk-for-go](https://github.com/Azure/azure-sdk-for-go)
+- **AWS**: [aws-sdk-go-v2](https://github.com/aws/aws-sdk-go-v2)
+- **Cloudflare**: [cloudflare-go](https://github.com/cloudflare/cloudflare-go)
 
 **证书颁发机构：**
 - [Let's Encrypt](https://letsencrypt.org/) - 免费SSL证书
