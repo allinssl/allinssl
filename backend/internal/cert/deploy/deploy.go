@@ -87,6 +87,9 @@ func Deploy(cfg map[string]any, logger *public.Logger) error {
 	case "volcengine-dcdn":
 		logger.Debug("部署到火山DCDN...")
 		return DeployVolcEngineDCdn(cfg)
+	case "plugin":
+		logger.Debug("使用插件部署...")
+		return DeployPlugin(cfg)
 	default:
 		return fmt.Errorf("不支持的部署: %s", providerName)
 	}
