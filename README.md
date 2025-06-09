@@ -7,7 +7,7 @@
 [![Docker Pulls](https://img.shields.io/docker/pulls/allinssl/allinssl)](https://hub.docker.com/r/allinssl/allinssl)
 
 
-> 🚀 一站式SSL证书生命周期管理解决方案 | 支持Let's Encrypt Google ZeroSSL SSL.COM | 多平台部署 | 自动化运维
+> 🚀 一站式SSL证书生命周期管理解决方案 | 支持Let's Encrypt、ZeroSSL、Google、SSL.COM、BuyPass等多家CA | 多平台部署 | 自动化运维
 
 <p align="center">
   <img src=".github/img/main.gif" alt="控制台预览" width="600">
@@ -52,16 +52,7 @@ docker run -itd \
   allinssl/allinssl:latest
 ```
 
-### 编译安装
-  - 编译安装时需要注意可执行文件的名称和运行目录，在`allinssl.sh`中需要修改为对应的名称和路径否则可能导致脚本不可用
-  - 推荐安装路径为`/www/allinssl/`，可执行文件名为`allinssl`，建议将`allinssl.sh`软链到`/usr/bin/`目录下
-  - 安装：
-    1. 下载最新版本的release包并解压
-    2. 编译go程序（allinssl）
-    3. 运行可执行文件启动服务
-       - Linux: 执行 `./allinssl start`
-
-### 从 Releases 页面下载构建二进制文件
+### 二进制文件安装
 1. 打开 [releases 下载页面](https://github.com/allinssl/allinssl/releases)
 2. 下载最新版本的二进制文件
 3. 解压缩文件，并通过终端或者CMD进入解压目录
@@ -77,6 +68,16 @@ docker run -itd \
    - Windows: 终端进入到解压目录，执行 `.\allinssl start`
 6. 访问 `http://your-server-ip:port/安全入口`，使用账号和密码登录
 7. 更多命令行操作请参考 [命令行操作](#💻-命令行操作)
+
+### 源码编译安装
+如需自行编译，请确保已安装Go 1.23+环境：
+```bash
+git clone https://github.com/allinssl/allinssl.git
+cd allinssl
+go mod tidy
+go build -o allinssl cmd/main.go
+./allinssl start
+```
 
 ### 首次配置
 1. 访问 `http://your-server-ip:port/安全入口`
@@ -106,11 +107,63 @@ D --> E[通知结果]
 ```
 
 ## 🛠️ 技术架构
-- **后端**：Go语言  
-- **前端**：HTML/CSS/JavaScript  
-- **数据存储**：SQLite  
-- **证书管理**：ACME协议 (Let's Encrypt)  
-- **定时任务**：内置调度器
+
+### 🏗️ 系统架构图
+```mermaid
+graph TB
+    subgraph "前端层"
+        A[Vue 3 + Naive UI]
+        A --> B[Vite构建系统]
+        A --> C[Turbo Monorepo]
+    end
+    
+    subgraph "后端层"
+        D[Gin Web框架]
+        D --> E[RESTful API]
+        D --> F[Session管理]
+        D --> G[中间件层]
+    end
+    
+    subgraph "核心服务层"
+        H[证书申请服务]
+        I[证书部署服务] 
+        J[监控调度服务]
+        K[通知服务]
+    end
+    
+    subgraph "数据存储层"
+        L[(SQLite数据库)]
+        M[文件存储]
+    end
+    
+    subgraph "外部集成"
+        N[ACME协议]
+        O[云服务商API]
+        P[DNS提供商]
+        Q[CDN/面板API]
+    end
+    
+    A -.-> D
+    D --> H
+    D --> I
+    D --> J
+    D --> K
+    H --> L
+    I --> L
+    J --> L
+    K --> L
+    H --> N
+    I --> O
+    H --> P
+    I --> Q
+```
+
+### 💡 核心技术
+- **后端**: Go + Gin框架 + SQLite数据库
+- **前端**: Vue 3 + Naive UI + Vite构建
+- **证书**: ACME协议 + go-acme/lego客户端
+- **集成**: 多云服务商API + DNS提供商
+- **部署**: 支持面板、CDN、存储等多种目标
 
 ## 📚 使用文档
 - [快速入门指南](https://allinssl.com/guide/getting-started.html)
@@ -163,47 +216,17 @@ allinssl 17: 卸载ALLinSSL 🗑️
 **感谢在SSL证书管理领域做出贡献的开源项目和社区：**
 - [Let's Encrypt](https://letsencrypt.org/) - 免费SSL证书颁发机构
 - [lego](https://github.com/go-acme/lego) - Go语言ACME客户端，为本项目提供核心证书申请功能
-- [Certbot](https://certbot.eff.org/) - EFF官方ACME客户端
 - [acme.sh](https://github.com/acmesh-official/acme.sh) - 纯Shell脚本实现的ACME客户端
-- [Caddy](https://caddyserver.com/) - 自动HTTPS Web服务器
 - [certimate](https://github.com/usual2970/certimate) - 工作流部分DNS服务商实现方式参考
 - [certd](https://github.com/certd/certd) - 工作流部分的设计参考
+- [Certbot](https://certbot.eff.org/) - EFF官方ACME客户端
+- [Caddy](https://caddyserver.com/) - 自动HTTPS Web服务器
 
-**感谢以下技术栈和框架：**
-
-**后端技术栈：**
-- [Go](https://golang.org/) - 项目主要开发语言
-- [Gin](https://github.com/gin-gonic/gin) - 高性能HTTP Web框架
-- [SQLite](https://www.sqlite.org/) & [modernc.org/sqlite](https://github.com/modernc/sqlite) - 轻量级数据库
-- [base64Captcha](https://github.com/mojocn/base64Captcha) - 验证码生成
-- [UUID](https://github.com/google/uuid) - 唯一标识符生成
-- [godotenv](https://github.com/joho/godotenv) - 环境变量管理
-- [email](https://github.com/jordan-wright/email) - 邮件发送
-- [resty](https://github.com/go-resty/resty) - HTTP客户端
-
-**前端技术栈：**
-- [Vue.js 3](https://vuejs.org/) - 渐进式JavaScript框架
-- [Naive UI](https://naiveui.com/) - Vue 3组件库
-- [Vue Router](https://router.vuejs.org/) - 路由管理
-- [Pinia](https://pinia.vuejs.org/) - 状态管理
-- [VueUse](https://vueuse.org/) - Vue组合式API工具集
-- [ECharts](https://echarts.apache.org/) - 数据可视化图表库
-- [Vue Flow](https://vueflow.dev/) - 工作流可视化
-- [Axios](https://axios-http.com/) - HTTP客户端
-- [Vite](https://vitejs.dev/) - 前端构建工具
-- [Turbo](https://turbo.build/) - 单体仓库构建系统
-
-**云服务商SDK：**
-- [阿里云](https://www.aliyun.com/) - 阿里云各服务SDK
-- [腾讯云](https://cloud.tencent.com/) - 腾讯云SSL和DNSPod SDK
-- [华为云](https://www.huaweicloud.com/) - 华为云CDN SDK
-- [百度云](https://cloud.baidu.com/) - 百度云BCE SDK
-- [火山引擎](https://www.volcengine.com/) - 字节跳动云服务SDK
-- [京东云](https://www.jdcloud.com/) - 京东云API SDK
-- [七牛云](https://www.qiniu.com/) - 七牛云存储SDK
-- [Microsoft Azure](https://azure.microsoft.com/) - Azure DNS SDK
-- [Amazon AWS](https://aws.amazon.com/) - AWS Route53 SDK
-- [Cloudflare](https://www.cloudflare.com/) - Cloudflare API
+**感谢以下技术栈和云服务提供商：**
+- [Go](https://golang.org/) + [Gin](https://github.com/gin-gonic/gin) + [SQLite](https://www.sqlite.org/) - 后端技术栈
+- [Vue 3](https://vuejs.org/) + [Naive UI](https://naiveui.com/) + [Vite](https://vitejs.dev/) - 前端技术栈
+- [阿里云](https://www.aliyun.com/)、[腾讯云](https://cloud.tencent.com/)、[华为云](https://www.huaweicloud.com/)、[百度云](https://cloud.baidu.com/)、[火山引擎](https://www.volcengine.com/)、[京东云](https://www.jdcloud.com/)、[七牛云](https://www.qiniu.com/)等云服务商
+- [Microsoft Azure](https://azure.microsoft.com/)、[Amazon AWS](https://aws.amazon.com/)、[Cloudflare](https://www.cloudflare.com/)等国际云服务商
 
 **证书颁发机构：**
 - [Let's Encrypt](https://letsencrypt.org/) - 免费SSL证书
