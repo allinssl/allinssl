@@ -159,21 +159,63 @@ allinssl 17: 卸载ALLinSSL 🗑️
 - 问题反馈：[GitHub Issues](https://github.com/allinssl/allinssl/issues)
 
 ## 🙏 致谢
-**感谢在SSL证书管理领域做出贡献的开源项目的社区和服务商：**
-- [Certbot](https://certbot.eff.org/)
-- [acme.sh](https://github.com/acmesh-official/acme.sh)
-- [Caddy](https://caddyserver.com/)
-- [lego](https://github.com/go-acme/lego)
-- [Let's Encrypt](https://letsencrypt.org/)
-- [certimate](https://github.com/usual2970/certimate)
-- [certd](https://github.com/certd/certd)
-- [SSL.com](https://www.ssl.com/)
-- [Racent](https://www.racent.com/)
-- [TrustAsia](https://www.trustasia.com/)
-- [阿里云](https://www.aliyun.com/)
-- [腾讯云 DNSPod](https://cloud.tencent.com/)
-- [Cloudflare](https://www.cloudflare.com/)
-- [宝塔面板](https://www.bt.cn/)
+
+**感谢在SSL证书管理领域做出贡献的开源项目和社区：**
+- [Let's Encrypt](https://letsencrypt.org/) - 免费SSL证书颁发机构
+- [lego](https://github.com/go-acme/lego) - Go语言ACME客户端，为本项目提供核心证书申请功能
+- [Certbot](https://certbot.eff.org/) - EFF官方ACME客户端
+- [acme.sh](https://github.com/acmesh-official/acme.sh) - 纯Shell脚本实现的ACME客户端
+- [Caddy](https://caddyserver.com/) - 自动HTTPS Web服务器
+- [certimate](https://github.com/usual2970/certimate) - 工作流部分DNS服务商实现方式参考
+- [certd](https://github.com/certd/certd) - 工作流部分的设计参考
+
+**感谢以下技术栈和框架：**
+
+**后端技术栈：**
+- [Go](https://golang.org/) - 项目主要开发语言
+- [Gin](https://github.com/gin-gonic/gin) - 高性能HTTP Web框架
+- [SQLite](https://www.sqlite.org/) & [modernc.org/sqlite](https://github.com/modernc/sqlite) - 轻量级数据库
+- [base64Captcha](https://github.com/mojocn/base64Captcha) - 验证码生成
+- [UUID](https://github.com/google/uuid) - 唯一标识符生成
+- [godotenv](https://github.com/joho/godotenv) - 环境变量管理
+- [email](https://github.com/jordan-wright/email) - 邮件发送
+- [resty](https://github.com/go-resty/resty) - HTTP客户端
+
+**前端技术栈：**
+- [Vue.js 3](https://vuejs.org/) - 渐进式JavaScript框架
+- [Naive UI](https://naiveui.com/) - Vue 3组件库
+- [Vue Router](https://router.vuejs.org/) - 路由管理
+- [Pinia](https://pinia.vuejs.org/) - 状态管理
+- [VueUse](https://vueuse.org/) - Vue组合式API工具集
+- [ECharts](https://echarts.apache.org/) - 数据可视化图表库
+- [Vue Flow](https://vueflow.dev/) - 工作流可视化
+- [Axios](https://axios-http.com/) - HTTP客户端
+- [Vite](https://vitejs.dev/) - 前端构建工具
+- [Turbo](https://turbo.build/) - 单体仓库构建系统
+
+**云服务商SDK：**
+- [阿里云](https://www.aliyun.com/) - 阿里云各服务SDK
+- [腾讯云](https://cloud.tencent.com/) - 腾讯云SSL和DNSPod SDK
+- [华为云](https://www.huaweicloud.com/) - 华为云CDN SDK
+- [百度云](https://cloud.baidu.com/) - 百度云BCE SDK
+- [火山引擎](https://www.volcengine.com/) - 字节跳动云服务SDK
+- [京东云](https://www.jdcloud.com/) - 京东云API SDK
+- [七牛云](https://www.qiniu.com/) - 七牛云存储SDK
+- [Microsoft Azure](https://azure.microsoft.com/) - Azure DNS SDK
+- [Amazon AWS](https://aws.amazon.com/) - AWS Route53 SDK
+- [Cloudflare](https://www.cloudflare.com/) - Cloudflare API
+
+**证书颁发机构：**
+- [Let's Encrypt](https://letsencrypt.org/) - 免费SSL证书
+- [ZeroSSL](https://zerossl.com/) - 免费SSL证书
+- [Google Trust Services](https://pki.goog/) - Google证书服务
+- [SSL.com](https://www.ssl.com/) - 商业SSL证书
+- [BuyPass](https://www.buypass.com/) - 挪威免费SSL证书
+- [TrustAsia](https://www.trustasia.com/) - 亚洲诚信
+- [Racent](https://www.racent.com/) - 锐成信息
+
+**特别感谢：**
+- 所有DNS服务商和CDN提供商对API的开放支持
 
 **感谢以下用户对本项目的支持和贡献：**
 - [@寒雨馨](https://www.hanyuxin.cn/)
