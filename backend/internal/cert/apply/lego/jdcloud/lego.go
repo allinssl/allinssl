@@ -1,3 +1,7 @@
+// This file is originally from Certimate by fudiwei
+// Source: https://github.com/usual2970/certimate/blob/main/internal/pkg/core/applicant/acme-dns-01/lego-providers/jdcloud/jdcloud.go
+// License: MIT
+
 package jdcloud
 
 import (
