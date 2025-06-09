@@ -214,7 +214,7 @@ allinssl 17: 卸载ALLinSSL 🗑️
 - [Let's Encrypt](https://letsencrypt.org/) - 免费SSL证书颁发机构
 - [lego](https://github.com/go-acme/lego) - Go语言ACME客户端，为本项目提供核心证书申请功能
 - [acme.sh](https://github.com/acmesh-official/acme.sh) - 纯Shell脚本实现的ACME客户端
-- [certimate](https://github.com/usual2970/certimate) - 工作流部分DNS服务商实现方式参考
+- [certimate](https://github.com/usual2970/certimate) - 工作流部分设计参考，以及使用了其京东云DNS的代码实现
 - [certd](https://github.com/certd/certd) - 工作流部分的设计参考
 - [Certbot](https://certbot.eff.org/) - EFF官方ACME客户端
 - [Caddy](https://caddyserver.com/) - 自动HTTPS Web服务器
