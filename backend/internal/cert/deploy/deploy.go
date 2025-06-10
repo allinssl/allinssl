@@ -1,6 +1,8 @@
 package deploy
 
 import (
+	"ALLinSSL/backend/internal/cert/deploy/doge"
+	"ALLinSSL/backend/internal/cert/deploy/plugin"
 	"ALLinSSL/backend/public"
 	"fmt"
 )
@@ -87,9 +89,12 @@ func Deploy(cfg map[string]any, logger *public.Logger) error {
 	case "volcengine-dcdn":
 		logger.Debug("部署到火山DCDN...")
 		return DeployVolcEngineDCdn(cfg)
-	// case "plugin":
-	// 	logger.Debug("使用插件部署...")
-	// 	return DeployPlugin(cfg)
+	case "doge-cdn":
+		logger.Debug("部署到多吉云CDN...")
+		return doge.DeployCdn(cfg)
+	case "plugin":
+		logger.Debug("使用插件部署...")
+		return plugin.Deploy(cfg, logger)
 	default:
 		return fmt.Errorf("不支持的部署: %s", providerName)
 	}

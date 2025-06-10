@@ -2,6 +2,7 @@ package plugin
 
 import (
 	"ALLinSSL/backend/internal/access"
+	"ALLinSSL/backend/public"
 	"encoding/json"
 	"fmt"
 	"strconv"
@@ -13,7 +14,7 @@ type CertDeployPlugin struct {
 	Cert   string
 }
 
-func Deploy(cfg map[string]any) error {
+func Deploy(cfg map[string]any, logger *public.Logger) error {
 	cert, ok := cfg["certificate"].(map[string]any)
 	if !ok {
 		return fmt.Errorf("证书不存在")
@@ -52,9 +53,9 @@ func Deploy(cfg map[string]any) error {
 	if !ok {
 		return fmt.Errorf("插件配置错误")
 	}
-	pluginParams, ok := pluginConfig["params"].(string)
+	pluginParams, ok := cfg["params"].(string)
 	if !ok {
-		return fmt.Errorf("插件参数错误：")
+		return fmt.Errorf("插件参数错误：params")
 	}
 	var paramsMap map[string]any
 	err = json.Unmarshal([]byte(pluginParams), &paramsMap)
@@ -76,12 +77,13 @@ func Deploy(cfg map[string]any) error {
 		return fmt.Errorf("证书错误：cert")
 	}
 
-	params := map[string]any{
-		"config": pluginConfig,
-		"key":    keyPem,
-		"cert":   certPem,
-	}
-	rep, err := CallPlugin(pluginName, action, params)
+	pluginConfig["key"] = keyPem
+	pluginConfig["cert"] = certPem
+
+	// 调用插件
+	logger.Debug(fmt.Sprintf("调用插件%s:%s", pluginName, action))
+
+	rep, err := CallPlugin(pluginName, action, pluginConfig, logger)
 	if err != nil {
 		return fmt.Errorf("调用插件失败：%v", err)
 	}

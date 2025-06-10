@@ -1,9 +1,11 @@
 package public
 
 import (
+	"fmt"
 	"log"
 	"os"
 	"path/filepath"
+	"strings"
 	"sync"
 	"time"
 )
@@ -89,27 +91,33 @@ func (l *Logger) Close() {
 }
 
 // write 写日志，内部使用锁保证线程安全
-func (l *Logger) write(level string, msg string) {
+func (l *Logger) write(level string, args ...interface{}) {
 	l.mutex.Lock()
 	defer l.mutex.Unlock()
 
 	timestamp := time.Now().Format("2006-01-02 15:04:05")
-	logLine := "[" + level + "] " + timestamp + " - " + msg
+	message := fmt.Sprintln(args...) // 自动拼接参数并换行
+	logLine := "[" + level + "] " + timestamp + " - " + message
+	logLine = strings.TrimRight(logLine, "\n") // 去掉 Sprintln 自动加的换行
 	l.logger.Println(logLine)
 }
 
 // Info 输出 info 级别日志
-func (l *Logger) Info(msg string) {
-	l.write("INFO", msg)
+func (l *Logger) Info(args ...interface{}) {
+	l.write("INFO", args...)
 }
 
 // Error 输出 error 级别日志
-func (l *Logger) Error(msg string) {
-	l.write("ERROR", msg)
+func (l *Logger) Error(args ...interface{}) {
+	l.write("ERROR", args...)
 }
-func (l *Logger) Debug(msg string) {
-	l.write("Debug", msg)
+
+// Debug 输出 debug 级别日志
+func (l *Logger) Debug(args ...interface{}) {
+	l.write("DEBUG", args...)
 }
+
+// 获取底层 logger 实例
 func (l *Logger) GetLogger() *log.Logger {
 	return l.logger
 }

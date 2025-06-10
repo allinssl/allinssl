@@ -97,28 +97,29 @@ func getMetadata(path string) (PluginMetadata, error) {
 	return meta, nil
 }
 
-func CallPlugin(name, action string, params map[string]interface{}) (*Response, error) {
+func CallPlugin(name, action string, params map[string]interface{}, logger *public.Logger) (*Response, error) {
 	// 第一次尝试
-	resp, err := tryCallPlugin(name, action, params)
+	resp, err := tryCallPlugin(name, action, params, logger)
 	if err == nil {
 		return resp, nil
 	}
 
 	// 如果是插件或 action 不存在，则刷新插件列表并再试一次
 	if errors.Is(err, ErrPluginNotFound) || errors.Is(err, ErrActionNotFound) {
-		fmt.Println("🔄 尝试刷新插件列表...")
+		logger.Debug("插件或插件内方法不存在，尝试刷新插件列表...")
 		_, scanErr := scanPlugins("plugins")
 		if scanErr != nil {
+			logger.Error("插件刷新失败", scanErr)
 			return nil, fmt.Errorf("插件刷新失败: %v", scanErr)
 		}
-		return tryCallPlugin(name, action, params)
+		return tryCallPlugin(name, action, params, logger)
 	}
 
 	// 其他错误直接返回
 	return nil, err
 }
 
-func tryCallPlugin(name, action string, params map[string]interface{}) (*Response, error) {
+func tryCallPlugin(name, action string, params map[string]interface{}, logger *public.Logger) (*Response, error) {
 	plugin, ok := pluginRegistry[name]
 	if !ok {
 		return nil, ErrPluginNotFound
@@ -133,6 +134,7 @@ func tryCallPlugin(name, action string, params map[string]interface{}) (*Respons
 		}
 	}
 	if !found {
+		logger.Debug("插件不支持该 action", "plugin", name, "action", action)
 		return nil, ErrActionNotFound
 	}
 
@@ -148,30 +150,37 @@ func tryCallPlugin(name, action string, params map[string]interface{}) (*Respons
 
 	stdin, err := cmd.StdinPipe()
 	if err != nil {
+		logger.Error("开启标准输入管道失败", err)
 		return nil, err
 	}
 	stdout, err := cmd.StdoutPipe()
 	if err != nil {
+		logger.Error("开启标准输出管道失败", err)
 		return nil, err
 	}
 	if err := cmd.Start(); err != nil {
+		logger.Error("启动插件失败", err)
 		return nil, err
 	}
 
 	if err := json.NewEncoder(stdin).Encode(req); err != nil {
+		logger.Error("发送插件请求失败", err)
 		return nil, err
 	}
 	stdin.Close()
 
 	respBytes, err := io.ReadAll(stdout)
 	if err != nil {
+		logger.Error("读取插件响应失败", err)
 		return nil, err
 	}
 	var resp Response
 	if err := json.Unmarshal(respBytes, &resp); err != nil {
+		logger.Error("解析插件响应失败", err, "内容", string(respBytes))
 		return nil, fmt.Errorf("解析插件响应失败: %v\n内容: %s", err, respBytes)
 	}
 	cmd.Wait()
+	logger.Debug("插件响应", "plugin", name, "action", action, "response", resp)
 
 	return &resp, nil
 }
