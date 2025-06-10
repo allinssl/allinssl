@@ -39,6 +39,11 @@
 curl -sSO http://download.allinssl.com/install_allinssl.sh && bash install_allinssl.sh allinssl
 ```
 
+### 极速安装（备用）
+```bash
+curl -sSO https://cnb.cool/allinssl/install.sh/-/git/raw/main/install_allinssl.sh && bash install_allinssl.sh allinssl
+```
+
 ### Docker安装
 ```bash 
 docker run -itd \
@@ -196,7 +201,7 @@ allinssl 17: 卸载ALLinSSL 🗑️
 
 ## 🤝 参与贡献
 欢迎通过以下方式参与项目：
-1. 提交Issue报告问题 🐛
+1. 提交Issue报告问题 
 2. 发起Pull Request改进代码 💻
 3. 完善项目文档 📖
 4. 分享使用案例 ✨
