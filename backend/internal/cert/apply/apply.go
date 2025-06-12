@@ -5,9 +5,6 @@ import (
 	"ALLinSSL/backend/internal/cert"
 	"ALLinSSL/backend/internal/cert/apply/lego/jdcloud"
 	"ALLinSSL/backend/public"
-	"crypto/ecdsa"
-	"crypto/elliptic"
-	"crypto/rand"
 	"encoding/json"
 	"fmt"
 	azcorecloud "github.com/Azure/azure-sdk-for-go/sdk/azcore/cloud"
@@ -67,7 +64,7 @@ func GetSqlite() (*public.Sqlite, error) {
 	if err != nil {
 		return nil, err
 	}
-	s.TableName = "_accounts"
+	s.TableName = "accounts"
 	return s, nil
 }
 
@@ -200,7 +197,62 @@ func GetDNSProvider(providerName string, creds map[string]string, httpClient *ht
 	}
 }
 
-func GetAcmeClient(db *public.Sqlite, email, algorithm, eabId, ca string, httpClient *http.Client, logger *public.Logger) (*lego.Client, error) {
+func GetZeroSSLEabFromEmail(email string, httpClient *http.Client) (map[string]any, error) {
+	APIPath := "https://api.zerossl.com/acme/eab-credentials-email"
+	data := map[string]any{
+		"email": email,
+	}
+	jsonData, err := json.Marshal(data)
+	if err != nil {
+		return nil, err
+	}
+	req, err := http.NewRequest("POST", APIPath, strings.NewReader(string(jsonData)))
+	if err != nil {
+		return nil, err
+	}
+	req.Header.Set("Content-Type", "application/json")
+	if httpClient == nil {
+		httpClient = &http.Client{}
+	}
+	resp, err := httpClient.Do(req)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("获取ZeroSSL EAB信息失败，状态码：%d", resp.StatusCode)
+	}
+	var result map[string]any
+	err = json.NewDecoder(resp.Body).Decode(&result)
+	if err != nil {
+		return nil, fmt.Errorf("解析ZeroSSL EAB信息失败：%v", err)
+	}
+	if result["eab_kid"] == nil || result["eab_hmac_key"] == nil {
+		return nil, fmt.Errorf("ZeroSSL EAB信息不完整，缺少kid或hmacEncoded")
+	}
+	return map[string]any{
+		"Kid":         result["eab_kid"],
+		"HmacEncoded": result["eab_hmac_key"],
+	}, nil
+}
+
+func getEABFromAccData(accData map[string]any, eabData *map[string]any) bool {
+	if accData == nil {
+		return false
+	}
+	kid := accData["Kid"]
+	hmac := accData["HmacEncoded"]
+	if kid != nil && hmac != nil {
+		*eabData = map[string]any{
+			"Kid":         kid,
+			"HmacEncoded": hmac,
+		}
+		return true
+	}
+	return false
+}
+
+func GetAcmeClient(email, algorithm, eabId, ca string, httpClient *http.Client, logger *public.Logger) (*lego.Client, error) {
 	var (
 		eabData map[string]any
 		err     error
@@ -229,28 +281,45 @@ func GetAcmeClient(db *public.Sqlite, email, algorithm, eabId, ca string, httpCl
 			return nil, fmt.Errorf("HmacEncoded不能为空")
 		}
 		ca = eabData["ca"].(string)
-		if ca == "sslcom" {
-			switch algorithm[0] {
-			case 'R', 'r':
-				ca = "sslcom-rsa"
-			case 'E', 'e':
-				ca = "sslcom-ecc"
-			}
-		}
 	}
 
-	user, err := LoadUserFromDB(db, email, ca)
-	if err != nil {
-		logger.Debug("acme账号不存在，注册新账号")
-		privateKey, _ := ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
-		user = &MyUser{
-			Email: email,
-			key:   privateKey,
+	CADirURL := CADirURLMap[ca]
+	if ca == "sslcom" {
+		if algorithm == "EC256" || algorithm == "EC384" {
+			CADirURL = CADirURLMap["sslcom-ecc"]
+		} else {
+			CADirURL = CADirURLMap["sslcom-rsa"]
 		}
 	}
+	db, err := GetSqlite()
+	var accData map[string]any
+	if err != nil {
+		logger.Debug("获取数据库连接失败", err)
+		if ca != "Let's Encrypt" && ca != "zerossl" && ca != "buypass" {
+			return nil, fmt.Errorf("当前CA【%s】 需要从数据库获取预设账号，但是连接数据库失败，请稍后重试，err:%w", ca, err)
+		}
+	} else {
+		defer db.Close()
+		accData, err = GetAccount(db, email, ca)
+		if err != nil || accData == nil {
+			logger.Debug("获取acme账号信息失败")
+			if ca != "Let's Encrypt" && ca != "zerossl" && ca != "buypass" {
+				return nil, fmt.Errorf("未找到%s账号信息，请先在账号管理中添加%s账号, email:%s", ca, ca, email)
+			}
+		}
+		if CADirURL == "" {
+			accCADirURL, ok := accData["CADirURL"].(string)
+			if !ok || accCADirURL == "" {
+				logger.Debug("未找到此CA的请求地址")
+				return nil, fmt.Errorf("未找到CA【%s】请求地址，请先在账号管理中检查%s账号, email:%s", ca, ca, email)
+			}
+			CADirURL = accCADirURL
+		}
+	}
+	user := GetAcmeUser(email, logger, accData)
 	config := lego.NewConfig(user)
 	config.Certificate.KeyType = AlgorithmMap[algorithm]
-	config.CADirURL = CADirURLMap[ca]
+	config.CADirURL = CADirURL
 	if httpClient != nil {
 		config.HTTPClient = httpClient
 	}
@@ -260,6 +329,20 @@ func GetAcmeClient(db *public.Sqlite, email, algorithm, eabId, ca string, httpCl
 	}
 	if user.Registration == nil {
 		logger.Debug("正在注册账号：" + email)
+		if eabData == nil {
+			// 走新的逻辑，eab已合并到账号中
+			if !getEABFromAccData(accData, &eabData) {
+				switch ca {
+				case "zerossl":
+					eabData, err = GetZeroSSLEabFromEmail(email, httpClient)
+					if err != nil {
+						return nil, fmt.Errorf("获取ZeroSSL EAB信息失败: %v", err)
+					}
+				case "sslcom", "google":
+					return nil, fmt.Errorf("未找到EAB信息，请在账号管理中添加%s账号", ca)
+				}
+			}
+		}
 		var reg *registration.Resource
 		if eabData != nil {
 			Kid := eabData["Kid"].(string)
@@ -279,7 +362,7 @@ func GetAcmeClient(db *public.Sqlite, email, algorithm, eabId, ca string, httpCl
 
 		err = SaveUserToDB(db, user, ca)
 		if err != nil {
-			return nil, err
+			logger.Debug("acme账号注册成功，但保存到数据库失败", err)
 		}
 		logger.Debug("acme账号注册并保存成功")
 	}
@@ -350,12 +433,7 @@ func GetCert(runId string, domainArr []string, endDay int, logger *public.Logger
 
 func Apply(cfg map[string]any, logger *public.Logger) (map[string]any, error) {
 	log.Logger = logger.GetLogger()
-	db, err := GetSqlite()
-	if err != nil {
-		return nil, err
-	}
-	defer db.Close()
-
+	var err error
 	email, ok := cfg["email"].(string)
 	if !ok {
 		return nil, fmt.Errorf("参数错误：email")
@@ -575,7 +653,7 @@ func Apply(cfg map[string]any, logger *public.Logger) (map[string]any, error) {
 	logger.Debug("正在申请证书，域名: " + domains)
 	os.Setenv("LEGO_DISABLE_CNAME_SUPPORT", strconv.FormatBool(closeCname))
 	// 创建 ACME 客户端
-	client, err := GetAcmeClient(db, email, algorithm, eabId, ca, httpClient, logger)
+	client, err := GetAcmeClient(email, algorithm, eabId, ca, httpClient, logger)
 	if err != nil {
 		return nil, err
 	}

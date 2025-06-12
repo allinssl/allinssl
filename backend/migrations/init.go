@@ -278,7 +278,7 @@ func init() {
 	Isql := fmt.Sprintf(
 		`INSERT INTO settings (key, value, create_time, update_time, active, type) VALUES ('log_path', 'logs/ALLinSSL.log', '2025-04-15 15:58', '2025-04-15 15:58', 1, null);
 INSERT INTO settings (key, value, create_time, update_time, active, type) VALUES ( 'workflow_log_path', 'logs/workflows/', '2025-04-15 15:58', '2025-04-15 15:58', 1, null);
-INSERT INTO settings (key, value, create_time, update_time, active, type) VALUES ( 'timeout', '3600', '2025-04-15 15:58', '2025-04-15 15:58', 1, null);
+INSERT INTO settings (key, value, create_time, update_time, active, type) VALUES ( 'timeout', '86400', '2025-04-15 15:58', '2025-04-15 15:58', 1, null);
 INSERT INTO settings (key, value, create_time, update_time, active, type) VALUES ( 'https', '0', '2025-04-15 15:58', '2025-04-15 15:58', 1, null);
 INSERT INTO settings (key, value, create_time, update_time, active, type) VALUES ('session_key', '%s', '2025-04-15 15:58', '2025-04-15 15:58', 1, null);
 INSERT INTO settings (key, value, create_time, update_time, active, type) VALUES ('secure', '/%s', '2025-04-15 15:58', '2025-04-15 15:58', 1, null);
@@ -304,34 +304,30 @@ INSERT INTO settings (key, value, create_time, update_time, active, type) VALUES
 	_, err = dbAcc.Exec(`
 	PRAGMA journal_mode=WAL;
 
-	create table IF NOT EXISTS _accounts
-	(
-	    id          integer not null
-	        constraint _accounts_pk
-	            primary key autoincrement,
-	    private_key TEXT    not null,
-	    reg         TEXT    not null,
-	    email       TEXT    not null,
-	    create_time TEXT,
-	    update_time TEXT,
-	    type        TEXT
-	);
-
-	create table IF NOT EXISTS _eab
+	create table if not exists accounts
 	(
 		id          integer not null
-			constraint _eab_pk
+			constraint _accounts_pk
 				primary key autoincrement,
-		name        TEXT,
-		Kid         TEXT    not null,
-		HmacEncoded TEXT    not null,
-		ca          TEXT    not null,
+		private_key TEXT    ,
+		reg         TEXT    ,
+		email       TEXT    not null,
+		type        TEXT    not null,
+		Kid         TEXT    ,
+		HmacEncoded         TEXT    ,
+		CADirURL         TEXT    ,
 		create_time TEXT,
-		update_time TEXT,
-		mail        TEXT    not null
+		update_time TEXT
 	);
-
        `)
+	insertSql := `
+	insert into accounts (id, private_key, reg, email, create_time, update_time, type, Kid, HmacEncoded)
+	select a.id, a.private_key, a.reg, a.email, a.create_time, a.update_time, case when a.type like 'sslcom%' then 'sslcom' else a.type end, b.Kid,b.HmacEncoded
+	from _accounts a
+	left join _eab b
+		on a.email = b.mail and a.type like b.ca||'%';
+`
+	insertDefaultData(dbAcc, "accounts", insertSql)
 }
 
 func insertDefaultData(db *sql.DB, table, insertSQL string) {
