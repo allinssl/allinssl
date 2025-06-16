@@ -52,6 +52,14 @@ func Register(r *gin.Engine) {
 		access.POST("/upd_eab", api.UpdEAB)
 		access.POST("/get_all_eab", api.GetAllEAB)
 	}
+	// acme账户
+	acmeAccount := v1.Group("/acme_account")
+	{
+		acmeAccount.POST("/get_list", api.GetAccountList)
+		acmeAccount.POST("/add_account", api.AddAccount)
+		acmeAccount.POST("/del_account", api.DelAccount)
+		acmeAccount.POST("/upd_account", api.UpdateAccount)
+	}
 	cert := v1.Group("/cert")
 	{
 		cert.POST("/get_list", api.GetCertList)

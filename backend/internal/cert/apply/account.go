@@ -164,7 +164,7 @@ func UpdateAccount(id, email, ca, Kid, HmacEncoded, CADirURL string) error {
 	return nil
 }
 
-func DeleteAccount(id string) error {
+func DelAccount(id string) error {
 	db, err := GetSqlite()
 	if err != nil {
 		return fmt.Errorf("failed to get sqlite: %w", err)
@@ -176,10 +176,10 @@ func DeleteAccount(id string) error {
 	return nil
 }
 
-func GetAccountList(search, ca string, p, limit int64) ([]map[string]interface{}, error) {
+func GetAccountList(search, ca string, p, limit int64) ([]map[string]interface{}, int, error) {
 	db, err := GetSqlite()
 	if err != nil {
-		return nil, fmt.Errorf("failed to get sqlite: %w", err)
+		return nil, 0, fmt.Errorf("failed to get sqlite: %w", err)
 	}
 	whereSql := "1=1"
 	var whereArgs []any
@@ -203,5 +203,10 @@ func GetAccountList(search, ca string, p, limit int64) ([]map[string]interface{}
 			whereArgs = append(whereArgs, ca)
 		}
 	}
-	return db.Where(whereSql, whereArgs).Limit(limits).Select()
+	count, err := db.Where(whereSql, whereArgs).Count()
+	data, err := db.Where(whereSql, whereArgs).Limit(limits).Select()
+	if err != nil {
+		return nil, 0, fmt.Errorf("failed to get account list: %w", err)
+	}
+	return data, int(count), nil
 }
