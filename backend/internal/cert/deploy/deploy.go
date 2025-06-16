@@ -1,6 +1,7 @@
 package deploy
 
 import (
+	"ALLinSSL/backend/internal/cert/deploy/aliyun"
 	"ALLinSSL/backend/internal/cert/deploy/doge"
 	"ALLinSSL/backend/internal/cert/deploy/plugin"
 	"ALLinSSL/backend/public"
@@ -62,6 +63,9 @@ func Deploy(cfg map[string]any, logger *public.Logger) error {
 	case "aliyun-waf":
 		logger.Debug("部署到阿里云WAF...")
 		return DeployAliyunWaf(cfg)
+	case "aliyun-esa":
+		logger.Debug("部署到阿里云ESA...")
+		return aliyun.DeployAliyunESA(cfg)
 	case "safeline-site":
 		logger.Debug("部署雷池WAF网站...")
 		return DeploySafeLineWafSite(cfg, logger)
