@@ -204,6 +204,9 @@ func GetAccountList(search, ca string, p, limit int64) ([]map[string]interface{}
 		if ca == "custom" {
 			whereSql += `and type not in ('Let's Encrypt','buypass', 'google', 'sslcom', 'zerossl')`
 		} else {
+			if ca == "letsencrypt" {
+				ca = "Let's Encrypt"
+			}
 			whereSql += " and type=?"
 			whereArgs = append(whereArgs, ca)
 		}
@@ -217,6 +220,7 @@ func GetAccountList(search, ca string, p, limit int64) ([]map[string]interface{}
 		data[i]["ca"] = data[i]["type"]
 		delete(data[i], "private_key")
 		delete(data[i], "reg")
+		delete(data[i], "type")
 	}
 
 	return data, int(count), nil

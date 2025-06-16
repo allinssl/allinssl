@@ -87,11 +87,11 @@ func DeployAliyunESA(cfg map[string]any) error {
 	if err != nil {
 		return fmt.Errorf("创建 ESA 客户端失败: %w", err)
 	}
-	certPEM, ok := cert["cert_pem"].(string)
+	certPEM, ok := cert["cert"].(string)
 	if !ok {
 		return fmt.Errorf("证书内容不存在或格式错误")
 	}
-	privkeyPEM, ok := cert["privkey_pem"].(string)
+	privkeyPEM, ok := cert["key"].(string)
 	if !ok {
 		return fmt.Errorf("私钥内容不存在或格式错误")
 	}

@@ -1,6 +1,7 @@
 package doge
 
 import (
+	"ALLinSSL/backend/internal/access"
 	"ALLinSSL/backend/public"
 	"crypto/hmac"
 	"crypto/sha1"
@@ -10,6 +11,7 @@ import (
 	"io"
 	"net/http"
 	"net/url"
+	"strconv"
 	"strings"
 )
 
@@ -26,28 +28,46 @@ func NewAuth(accessKey, secretKey string) *Auth {
 }
 
 func DeployCdn(cfg map[string]any) error {
-	if cfg == nil {
-		return fmt.Errorf("config cannot be nil")
+	cert, ok := cfg["certificate"].(map[string]any)
+	if !ok {
+		return fmt.Errorf("证书不存在")
 	}
-	certStr, ok := cfg["cert"].(string)
-	if !ok || certStr == "" {
-		return fmt.Errorf("cert is required and must be a string")
+	var providerID string
+	switch v := cfg["provider_id"].(type) {
+	case float64:
+		providerID = strconv.Itoa(int(v))
+	case string:
+		providerID = v
+	default:
+		return fmt.Errorf("参数错误：provider_id")
 	}
-	keyStr, ok := cfg["key"].(string)
-	if !ok || keyStr == "" {
-		return fmt.Errorf("key is required and must be a string")
+	//
+	providerData, err := access.GetAccess(providerID)
+	if err != nil {
+		return err
 	}
-	accessKey, ok := cfg["access_key"].(string)
-	if !ok || accessKey == "" {
-		return fmt.Errorf("access_key is required and must be a string")
+	providerConfigStr, ok := providerData["config"].(string)
+	if !ok {
+		return fmt.Errorf("api配置错误")
 	}
-	secretKey, ok := cfg["secret_key"].(string)
-	if !ok || secretKey == "" {
-		return fmt.Errorf("secret_key is required and must be a string")
+	// 解析 JSON 配置
+	var providerConfig map[string]string
+	err = json.Unmarshal([]byte(providerConfigStr), &providerConfig)
+	if err != nil {
+		return err
 	}
+
 	domain, ok := cfg["domain"].(string)
 	if !ok || domain == "" {
 		return fmt.Errorf("domain is required and must be a string")
+	}
+	certStr, ok := cert["cert"].(string)
+	if !ok || certStr == "" {
+		return fmt.Errorf("cert is required and must be a string")
+	}
+	keyStr, ok := cert["key"].(string)
+	if !ok || keyStr == "" {
+		return fmt.Errorf("key is required and must be a string")
 	}
 	sha256, err := public.GetSHA256(certStr)
 	if err != nil {
@@ -55,7 +75,7 @@ func DeployCdn(cfg map[string]any) error {
 	}
 	note := fmt.Sprintf("allinssl-%s", sha256)
 
-	a := NewAuth(accessKey, secretKey)
+	a := NewAuth(providerConfig["access_key"], providerConfig["secret_key"])
 	// 检查证书是否已存在于 CDN
 	certList, err := a.listCertFromCdn()
 	if err != nil {
