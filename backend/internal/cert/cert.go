@@ -37,10 +37,10 @@ func GetList(search string, p, limit int64) ([]map[string]any, int, error) {
 
 	if search != "" {
 		count, err = s.Where("domains like ?", []interface{}{"%" + search + "%"}).Count()
-		data, err = s.Where("domains like ?", []interface{}{"%" + search + "%"}).Limit(limits).Order("create_time", "desc").Select()
+		data, err = s.Where("domains like ?", []interface{}{"%" + search + "%"}).Limit(limits).Order("end_time", "esc").Select()
 	} else {
 		count, err = s.Count()
-		data, err = s.Order("create_time", "desc").Limit(limits).Select()
+		data, err = s.Order("end_time", "esc").Limit(limits).Select()
 	}
 	if err != nil {
 		return data, 0, err

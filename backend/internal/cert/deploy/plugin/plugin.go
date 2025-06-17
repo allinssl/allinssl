@@ -19,8 +19,9 @@ var (
 )
 
 type ActionInfo struct {
-	Name        string `json:"name"`
-	Description string `json:"description"`
+	Name        string         `json:"name"`
+	Description string         `json:"description"`
+	Params      map[string]any `json:"params,omitempty"` // 可选参数
 }
 
 type PluginMetadata struct {

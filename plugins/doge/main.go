@@ -12,8 +12,9 @@ import (
 )
 
 type ActionInfo struct {
-	Name        string `json:"name"`
-	Description string `json:"description"`
+	Name        string         `json:"name"`
+	Description string         `json:"description"`
+	Params      map[string]any `json:"params,omitempty"`
 }
 
 type Request struct {
@@ -32,8 +33,18 @@ var pluginMeta = map[string]interface{}{
 	"description": "部署到多吉云",
 	"version":     "1.0.0",
 	"author":      "主包",
+	"config": map[string]interface{}{
+		"access_key": "多吉云 AccessKey",
+		"secret_key": "多吉云 SecretKey",
+	},
 	"actions": []ActionInfo{
-		{Name: "cdn", Description: "部署到多吉云cdn"},
+		{
+			Name:        "cdn",
+			Description: "部署到多吉云cdn",
+			Params: map[string]any{
+				"domain": "CDN 域名",
+			},
+		},
 	},
 }
 
