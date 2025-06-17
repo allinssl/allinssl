@@ -217,6 +217,9 @@ func GetAccountList(search, ca string, p, limit int64) ([]map[string]interface{}
 		return nil, 0, fmt.Errorf("failed to get account list: %w", err)
 	}
 	for i := range data {
+		if data[i]["type"] == "Let's Encrypt" {
+			data[i]["type"] = "letsencrypt"
+		}
 		data[i]["ca"] = data[i]["type"]
 		delete(data[i], "private_key")
 		delete(data[i], "reg")
