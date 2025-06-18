@@ -13,7 +13,7 @@ import EmptyState from '@components/TableEmptyState'
 export default defineComponent({
 	name: 'CertManage',
 	setup() {
-		const { CertTable, CertTablePage, fetch, data, param, openUploadModal, getRowClassName } = useController()
+		const { TableComponent, PageComponent, fetch, data, param, openUploadModal, getRowClassName } = useController()
 		const cssVar = useThemeCssVar(['contentPadding', 'borderColor', 'headerHeight', 'iconColorHover'])
 		// 挂载时请求数据
 		onMounted(() => fetch())
@@ -51,16 +51,18 @@ export default defineComponent({
 							),
 							content: () => (
 								<div class="rounded-lg">
-									<CertTable size="medium" rowClassName={getRowClassName}>
-										{{
+									<TableComponent
+										size="medium"
+										rowClassName={getRowClassName}
+										v-slots={{
 											empty: () => <EmptyState addButtonText={$t('t_1_1747047213009')} onAddClick={openUploadModal} />,
 										}}
-									</CertTable>
+									/>
 								</div>
 							),
 							footerRight: () => (
 								<div class="mt-4 flex justify-end">
-									<CertTablePage
+									<PageComponent
 										v-slots={{
 											prefix: () => (
 												<span>

@@ -16,8 +16,8 @@ export default defineComponent({
 	name: 'WorkflowManager',
 	setup() {
 		const {
-			WorkflowTable,
-			WorkflowTablePage,
+			TableComponent,
+			PageComponent,
 			isDetectionAddWorkflow,
 			isDetectionOpenCAManage,
 			isDetectionOpenAddCAForm,
@@ -87,18 +87,19 @@ export default defineComponent({
 								),
 								content: () => (
 									<div class="rounded-lg ">
-										<WorkflowTable size="medium">
-											{{
+										<TableComponent
+											size="medium"
+											v-slots={{
 												empty: () => (
 													<EmptyState addButtonText={$t('t_0_1747047213730')} onAddClick={handleAddWorkflow} />
 												),
 											}}
-										</WorkflowTable>
+										/>
 									</div>
 								),
 								footerRight: () => (
 									<div class="mt-4 flex justify-end">
-										<WorkflowTablePage
+										<PageComponent
 											v-slots={{
 												prefix: () => <span>{$t('t_0_1746773350551', [data.value.total])}</span>,
 											}}

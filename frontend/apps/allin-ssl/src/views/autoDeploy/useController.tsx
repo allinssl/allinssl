@@ -1,21 +1,12 @@
 import { NSwitch, NTag, NButton, NSpace, NFlex, NText, NFormItem, NSelect } from 'naive-ui'
 import { useRoute, useRouter } from 'vue-router'
 import { useStore } from '@autoDeploy/useStore'
-import {
-	useDialog,
-	useTable,
-	useTablePage,
-	useModal,
-	useFormHooks,
-	useForm,
-	useModalHooks,
-	useMessage,
-} from '@baota/naive-ui/hooks'
+import { useDialog, useTable, useModal, useFormHooks, useForm, useModalHooks, useMessage } from '@baota/naive-ui/hooks'
 import { useStore as useWorkflowViewStore } from '@autoDeploy/children/workflowView/useStore'
 import { useError } from '@baota/hooks/error'
 import AddWorkflowModal from './components/WorkflowModal'
 import HistoryModal from './components/HistoryModal'
-import HistoryLogsModal from './components/HistoryLogsModal'
+import HistoryLogsModal from './components/historyLogsModal'
 import CAManageModal from './components/CAManageModal'
 import { $t } from '@/locales'
 import { router } from '@router/index'
@@ -41,6 +32,7 @@ const {
 	caFormData,
 	fetchEabList,
 	addNewEab,
+	updateExistingEab,
 	deleteExistingEab,
 	resetCaForm,
 } = useStore()
@@ -127,7 +119,13 @@ export const useController = () => {
 			width: 180,
 			render: (row: WorkflowItem) => row.create_time || '-',
 		},
-		statusCol<WorkflowItem>('last_run_status', $t('t_0_1746677882486')),
+		{
+			title: $t('t_1_1750129254278'),
+			key: 'last_run_time',
+			width: 180,
+			render: (row: WorkflowItem) => row.last_run_time || '-',
+		},
+		statusCol<WorkflowItem>('last_run_status', $t('t_2_1750129253921')),
 		{
 			title: $t('t_8_1745215914610'),
 			key: 'actions',
@@ -154,32 +152,13 @@ export const useController = () => {
 	]
 
 	// 表格实例
-	const {
-		component: WorkflowTable,
-		loading,
-		param,
-		data,
-		total,
-		fetch,
-	} = useTable<WorkflowItem, WorkflowListParams>({
+	const { TableComponent, PageComponent, loading, param, data, fetch } = useTable<WorkflowItem, WorkflowListParams>({
 		config: createColumns(),
 		request: fetchWorkflowList,
-		defaultValue: {
-			p: 1,
-			limit: 10,
-			search: '',
-		},
+		storage: 'autoDeployPageSize',
+		defaultValue: { p: 1, limit: 10, search: '' },
+		alias: { page: 'p', pageSize: 'limit' },
 		watchValue: ['p', 'limit'],
-	})
-
-	// 分页实例
-	const { component: WorkflowTablePage } = useTablePage({
-		param,
-		total,
-		alias: {
-			page: 'p',
-			pageSize: 'limit',
-		},
 	})
 
 	// 节流渲染
@@ -354,8 +333,8 @@ export const useController = () => {
 	}
 
 	return {
-		WorkflowTable,
-		WorkflowTablePage,
+		TableComponent,
+		PageComponent,
 		isDetectionAddWorkflow, // 检测是否需要添加工作流
 		isDetectionOpenCAManage, // 检测是否需要打开CA授权管理弹窗
 		isDetectionOpenAddCAForm, // 检测是否需要打开添加CA授权弹窗
@@ -502,38 +481,31 @@ export const useHistoryController = (id: string) => {
 	]
 
 	// 表格实例
-	const {
-		component: WorkflowHistoryTable,
-		loading,
-		param,
-		total,
-		fetch,
-	} = useTable<WorkflowHistoryItem, WorkflowHistoryParams>({
+	const { TableComponent, PageComponent, loading, fetch } = useTable<WorkflowHistoryItem, WorkflowHistoryParams>({
 		config: createColumns(),
 		request: fetchWorkflowHistory,
-		defaultValue: {
-			id,
-			p: 1,
-			limit: 10,
-		},
+		defaultValue: { id, p: 1, limit: 10 },
+		alias: { page: 'p', pageSize: 'limit' },
 		watchValue: ['p', 'limit'],
-	})
-
-	const { component: WorkflowHistoryTablePage } = useTablePage({
-		param,
-		total,
-		alias: {
-			page: 'p',
-			pageSize: 'limit',
-		},
+		storage: 'autoDeployHistoryPageSize',
 	})
 
 	return {
-		WorkflowHistoryTable,
-		WorkflowHistoryTablePage,
+		TableComponent,
+		PageComponent,
 		loading,
 		fetch,
 	}
+}
+
+/**
+ * @description 处理CA授权类型
+ * @param type - CA授权类型
+ * @returns 返回CA授权类型名称
+ */
+const handleCertAuth = (type: string) => {
+	const name = type.replaceAll('.', '').replaceAll("'", '').replaceAll(' ', '').toLowerCase() // 处理类型中的特殊字符
+	return CACertificateAuthorization[name as keyof typeof CACertificateAuthorization].type
 }
 
 /**
@@ -543,17 +515,10 @@ export const useHistoryController = (id: string) => {
 export const useCAManageController = (props: { type: string }) => {
 	const { handleError } = useError()
 	// 表格配置
-	const columns = [
-		{
-			title: $t('t_2_1745289353944'),
-			key: 'name',
-			ellipsis: {
-				tooltip: true,
-			},
-		},
+	const columns: DataTableColumn<EabItem>[] = [
 		{
 			title: $t('t_1_1745735764953'),
-			key: 'mail',
+			key: 'email',
 			ellipsis: {
 				tooltip: true,
 			},
@@ -561,13 +526,16 @@ export const useCAManageController = (props: { type: string }) => {
 		{
 			title: $t('t_9_1747903669360'),
 			key: 'ca',
-			width: 120,
-			render: (row: EabItem) => (
-				<NFlex align="center">
-					<SvgIcon icon={`cert-${row.ca}`} size="2rem" />
-					<NText>{CACertificateAuthorization[row.ca as keyof typeof CACertificateAuthorization].name}</NText>
-				</NFlex>
-			),
+			width: 200,
+			render: (row: EabItem) => {
+				const name = handleCertAuth(row.ca)
+				return (
+					<NFlex align="center">
+						<SvgIcon icon={`cert-${name}`} size="2rem" />
+						<NText>{name}</NText>
+					</NFlex>
+				)
+			},
 		},
 		{
 			title: $t('t_7_1745215914189'),
@@ -578,11 +546,14 @@ export const useCAManageController = (props: { type: string }) => {
 		{
 			title: $t('t_8_1745215914610'),
 			key: 'actions',
-			width: 80,
+			width: 120,
 			align: 'right' as const,
 			fixed: 'right' as const,
 			render: (row: EabItem) => (
 				<NSpace justify="end">
+					<NButton size="tiny" strong secondary type="primary" onClick={() => handleEdit(row)}>
+						{$t('t_11_1745215915429')}
+					</NButton>
 					<NButton size="tiny" strong secondary type="error" onClick={() => confirmDelete(row.id.toString())}>
 						{$t('t_12_1745215914312')}
 					</NButton>
@@ -592,31 +563,24 @@ export const useCAManageController = (props: { type: string }) => {
 	]
 
 	// 表格实例
-	const {
-		component: CATable,
-		loading,
-		param,
-		total,
-		fetch,
-	} = useTable<EabItem, EabListParams>({
+	const { TableComponent, PageComponent, loading, param, total, fetch } = useTable<EabItem, EabListParams>({
 		config: columns,
 		request: fetchEabList,
-		defaultValue: {
-			p: 1,
-			limit: 10,
-		},
+		defaultValue: { p: 1, limit: 10 },
+		alias: { page: 'p', pageSize: 'limit' },
 		watchValue: ['p', 'limit'],
+		storage: 'caManagePageSize',
 	})
 
-	// 分页实例
-	const { component: CATablePage } = useTablePage({
-		param,
-		total,
-		alias: {
-			page: 'p',
-			pageSize: 'limit',
-		},
-	})
+	// // 分页实例
+	// const { component: CATablePage } = useTablePage({
+	// 	param,
+	// 	total,
+	// 	alias: {
+	// 		page: 'p',
+	// 		pageSize: 'limit',
+	// 	},
+	// })
 
 	/**
 	 * 确认删除CA授权
@@ -633,6 +597,31 @@ export const useCAManageController = (props: { type: string }) => {
 				} catch (error) {
 					handleError(error)
 				}
+			},
+		})
+	}
+
+	/**
+	 * 编辑CA授权
+	 * @param {EabItem} row - CA授权数据
+	 */
+	const handleEdit = (row: EabItem) => {
+		// 填充表单数据 - 添加编辑模式标识
+		Object.assign(caFormData.value, {
+			email: row.email,
+			ca: row.ca,
+			Kid: row.Kid || '',
+			HmacEncoded: row.HmacEncoded || '',
+			CADirURL: row.CADirURL || '',
+		})
+		useModal({
+			title: $t('t_3_1750129254533'),
+			area: 500,
+			component: () => import('./components/CAManageForm').then((m) => m.default),
+			footer: true,
+			componentProps: { isEdit: true, editId: row.id.toString() },
+			onUpdateShow: (show) => {
+				if (!show) fetch()
 			},
 		})
 	}
@@ -660,13 +649,14 @@ export const useCAManageController = (props: { type: string }) => {
 	})
 
 	return {
-		CATable,
-		CATablePage,
+		TableComponent,
+		PageComponent,
 		loading,
 		param,
 		total,
 		fetch,
 		handleOpenAddForm,
+		handleEdit,
 	}
 }
 
@@ -674,46 +664,60 @@ export const useCAManageController = (props: { type: string }) => {
  * @description CA授权表单控制器
  * @returns {Object} 返回CA授权表单控制器对象
  */
-export const useCAFormController = () => {
+export const useCAFormController = (props?: { isEdit?: boolean; editId?: string }) => {
 	const { handleError } = useError()
 	const message = useMessage()
 	const { confirm } = useModalHooks()
 	const { useFormInput, useFormCustom } = useFormHooks()
 
-	// 表单验证规则
-	const formRules = {
-		name: {
-			required: true,
-			message: $t('t_25_1746773349596'),
-			trigger: ['blur', 'input'],
-		},
-		mail: {
-			required: true,
-			message: $t('t_6_1747817644358'),
-			trigger: ['blur', 'input'],
-			validator: (rule: any, value: string) => {
-				if (!value) return true
-				if (!isEmail(value)) {
-					return new Error($t('t_7_1747817613773'))
-				}
-				return true
+	// 动态验证规则
+	const getFormRules = () => {
+		const rules: any = {
+			email: {
+				required: true,
+				message: $t('t_6_1747817644358'),
+				trigger: ['blur', 'input'],
+				validator: (rule: any, value: string) => {
+					if (!value) return new Error($t('t_6_1747817644358'))
+					if (!isEmail(value)) {
+						return new Error($t('t_7_1747817613773'))
+					}
+					return true
+				},
 			},
-		},
-		Kid: {
-			required: true,
-			message: $t('t_5_1747903671439'),
-			trigger: ['blur', 'input'],
-		},
-		HmacEncoded: {
-			required: true,
-			message: $t('t_6_1747903672931'),
-			trigger: ['blur', 'input'],
-		},
-		ca: {
-			required: true,
-			message: $t('t_7_1747903678624'),
-			trigger: 'change',
-		},
+			ca: {
+				required: true,
+				message: $t('t_7_1747903678624'),
+				trigger: 'change',
+			},
+		}
+
+		const currentCa = caFormData.value.ca
+
+		// SSL.com 和 Google 必填 EAB 参数
+		if (currentCa === 'sslcom' || currentCa === 'google') {
+			rules.Kid = {
+				required: true,
+				message: $t('t_5_1747903671439'),
+				trigger: ['blur', 'input'],
+			}
+			rules.HmacEncoded = {
+				required: true,
+				message: $t('t_6_1747903672931'),
+				trigger: ['blur', 'input'],
+			}
+		}
+
+		// 自定义类型必填 CADirURL
+		if (currentCa === 'custom') {
+			rules.CADirURL = {
+				required: true,
+				message: $t('t_4_1750129259795'),
+				trigger: ['blur', 'input'],
+			}
+		}
+
+		return rules
 	}
 
 	// 渲染标签函数
@@ -745,12 +749,27 @@ export const useCAFormController = () => {
 		value: item.type,
 	}))
 
+	// 判断是否显示EAB字段
+	const shouldShowEab = computed(() => {
+		const ca = caFormData.value.ca
+		// Buypass和Letsencrypt不显示EAB字段
+		return ca !== 'buypass' && ca !== 'letsencrypt'
+	})
+
+	// 判断是否显示CADirURL字段
+	const shouldShowCADirURL = computed(() => {
+		return caFormData.value.ca === 'custom'
+	})
+
+	// 判断是否显示必填标记
+	const shouldShowRequireMark = computed(() => {
+		const ca = caFormData.value.ca
+		return ca !== 'zerossl' && ca !== 'custom'
+	})
+
 	// 表单配置
-	const formConfig = [
-		useFormInput($t('t_2_1745289353944'), 'name', {
-			placeholder: $t('t_8_1747903675532'),
-		}),
-		useFormInput($t('t_1_1745735764953'), 'mail', {
+	const formConfig = computed(() => [
+		useFormInput($t('t_1_1745735764953'), 'email', {
 			placeholder: $t('t_0_1747965909665'),
 		}),
 		useFormCustom(() => {
@@ -773,21 +792,49 @@ export const useCAFormController = () => {
 				</NFormItem>
 			)
 		}),
-		useFormInput($t('t_10_1747903662994'), 'Kid', {
-			placeholder: $t('t_11_1747903674802'),
-		}),
-		useFormInput($t('t_12_1747903662994'), 'HmacEncoded', {
-			type: 'textarea',
-			placeholder: $t('t_13_1747903673007'),
-			rows: 3,
-		}),
-	]
+		// 条件显示CADirURL字段
+		...(shouldShowCADirURL.value
+			? [
+					useFormInput($t('t_5_1750129253961'), 'CADirURL', {
+						placeholder: $t('t_6_1750129255766'),
+					}),
+				]
+			: []),
+		// 条件显示EAB字段
+		...(shouldShowEab.value
+			? [
+					useFormInput(
+						$t('t_10_1747903662994'),
+						'Kid',
+						{
+							placeholder: $t('t_11_1747903674802'),
+						},
+						{ showRequireMark: shouldShowRequireMark.value },
+					),
+					useFormInput(
+						$t('t_12_1747903662994'),
+						'HmacEncoded',
+						{
+							type: 'textarea',
+							placeholder: $t('t_13_1747903673007'),
+							rows: 3,
+						},
+						{ showRequireMark: shouldShowRequireMark.value },
+					),
+				]
+			: []),
+	])
 
 	// 提交表单
 	const submitForm = async (formData: any) => {
 		try {
-			await addNewEab(formData)
-			message.success($t('t_40_1745289355715'))
+			if (props?.isEdit && props?.editId) {
+				// 编辑模式
+				await updateExistingEab({ ...formData, id: props.editId })
+			} else {
+				// 新增模式
+				await addNewEab(formData)
+			}
 			return true
 		} catch (error) {
 			handleError(error)
@@ -798,7 +845,7 @@ export const useCAFormController = () => {
 	// 表单实例
 	const { component: CAForm } = useForm({
 		config: formConfig,
-		rules: formRules,
+		rules: getFormRules(),
 		defaultValue: caFormData,
 		request: submitForm,
 	})

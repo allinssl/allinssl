@@ -1,5 +1,4 @@
 import {
-	FormInst,
 	FormItemRule,
 	FormProps,
 	FormRules,
@@ -14,13 +13,13 @@ import {
 	NSpace,
 	NTag,
 	NText,
+	NTooltip,
 	type DataTableColumns,
 } from 'naive-ui'
 import {
 	useModal,
 	useDialog,
 	useTable,
-	useTablePage,
 	useModalHooks,
 	useFormHooks,
 	useForm,
@@ -47,9 +46,12 @@ import type {
 	BunnyAccessConfig,
 	GcoreAccessConfig,
 	JdcloudAccessConfig,
+	DogeAccessConfig,
+	PluginAccessConfig,
 } from '@/types/access'
 import type { VNode, Ref } from 'vue'
-import { testAccess } from '@/api/access'
+import { testAccess, getPlugins } from '@/api/access'
+// import { useLocalStorage } from '@vueuse/core'
 
 import ApiManageForm from './components/ApiManageModel'
 import SvgIcon from '@components/SvgIcon'
@@ -63,8 +65,8 @@ import { JSX } from 'vue/jsx-runtime'
 interface AuthApiManageControllerExposes {
 	loading: Ref<boolean>
 	fetch: () => Promise<void>
-	ApiTable: (props: Record<string, unknown>, context: Record<string, unknown>) => JSX.Element
-	ApiTablePage: (props: Record<string, unknown>, context: Record<string, unknown>) => JSX.Element
+	TableComponent: (props: Record<string, unknown>, context: Record<string, unknown>) => VNode
+	PageComponent: (props: Record<string, unknown>, context: Record<string, unknown>) => VNode
 	param: Ref<AccessListParams>
 	total: Ref<number>
 	openAddForm: () => void
@@ -181,30 +183,16 @@ export const useController = (): AuthApiManageControllerExposes => {
 	]
 
 	// 表格实例
-	const {
-		component: ApiTable,
-		loading,
-		param,
-		total,
-		fetch,
-	} = useTable<AccessItem, AccessListParams>({
+	const { TableComponent, PageComponent, loading, param, total, fetch } = useTable<AccessItem, AccessListParams>({
 		config: createColumns(),
 		request: fetchAccessList,
+		watchValue: ['p', 'limit'],
+		storage: 'authApiManage',
+		alias: { page: 'p', pageSize: 'limit' },
 		defaultValue: {
 			p: 1,
 			limit: 10,
 			search: '',
-		},
-		watchValue: ['p', 'limit'],
-	})
-
-	// 分页实例
-	const { component: ApiTablePage } = useTablePage({
-		param,
-		total,
-		alias: {
-			page: 'p',
-			pageSize: 'limit',
 		},
 	})
 
@@ -265,8 +253,8 @@ export const useController = (): AuthApiManageControllerExposes => {
 	return {
 		loading,
 		fetch,
-		ApiTable,
-		ApiTablePage,
+		TableComponent,
+		PageComponent,
 		param,
 		total,
 		openAddForm,
@@ -278,6 +266,15 @@ export const useController = (): AuthApiManageControllerExposes => {
  */
 interface ApiFormControllerProps {
 	data?: AccessItem
+}
+
+interface PluginOption {
+	label: string
+	value: string
+	description?: string
+	pluginName?: string
+	config?: Record<string, any>
+	params?: string
 }
 
 /**
@@ -293,6 +290,10 @@ export const useApiFormController = (props: ApiFormControllerProps): ApiFormCont
 	const param = (props.data?.id ? ref({ ...props.data, config: JSON.parse(props.data.config) }) : apiFormProps) as Ref<
 		AddAccessParams | UpdateAccessParams
 	>
+	const pluginActionTips = ref('')
+
+	// 插件列表
+	const pluginList = ref<Array<PluginOption>>([])
 
 	// 表单规则
 	const rules = {
@@ -403,14 +404,30 @@ export const useApiFormController = (props: ApiFormControllerProps): ApiFormCont
 				trigger: 'input',
 			},
 			access_key_id: {
-				required: true,
-				message: $t('t_4_1745317314054'),
 				trigger: 'input',
+				validator: (rule: FormItemRule, value: string, callback: (error?: Error) => void) => {
+					if (!value) {
+						const mapTips = {
+							aliyun: $t('t_4_1745317314054'),
+							doge: '请输入多吉云AccessKeyId',
+						}
+						return callback(new Error(mapTips[param.value.type as keyof typeof mapTips] || $t('t_4_1745317314054')))
+					}
+					callback()
+				},
 			},
 			access_key_secret: {
-				required: true,
-				message: $t('t_5_1745317315285'),
 				trigger: 'input',
+				validator: (rule: FormItemRule, value: string, callback: (error?: Error) => void) => {
+					if (!value) {
+						const mapTips = {
+							aliyun: $t('t_5_1745317315285'),
+							doge: '请输入多吉云AccessKeySecret',
+						}
+						return callback(new Error(mapTips[param.value.type as keyof typeof mapTips] || $t('t_5_1745317315285')))
+					}
+					callback()
+				},
 			},
 			secret_access_key: {
 				required: true,
@@ -490,6 +507,11 @@ export const useApiFormController = (props: ApiFormControllerProps): ApiFormCont
 					}
 					callback()
 				},
+			},
+			'config.name': {
+				required: true,
+				message: $t('t_0_1750144125193'),
+				trigger: 'change',
 			},
 		},
 	}
@@ -689,6 +711,73 @@ export const useApiFormController = (props: ApiFormControllerProps): ApiFormCont
 					useFormInput('Secret Access Key', 'config.secret_access_key', { allowInput: noSideSpace }),
 				)
 				break
+			case 'doge':
+				items.push(
+					useFormInput('AccessKeyId', 'config.access_key_id', { allowInput: noSideSpace }),
+					useFormInput('AccessKeySecret', 'config.access_key_secret', { allowInput: noSideSpace }),
+				)
+				break
+			case 'plugin':
+				items.push(
+					useFormCustom(() => {
+						return (
+							<NFormItem label={$t('t_1_1750144122230')} path="config.name" showRequireMark={true}>
+								<NSelect
+									class="w-full"
+									options={pluginList.value}
+									placeholder={$t('t_2_1750144123753')}
+									filterable
+									renderLabel={renderPluginLabel}
+									renderTag={renderPluginTag}
+									v-model:value={(param.value.config as PluginAccessConfig).name}
+									onUpdateValue={(value: string, option: PluginOption) => {
+										;(param.value.config as PluginAccessConfig).name = value
+										pluginActionTips.value = renderPluginTips(option.config || {})
+									}}
+									v-slots={{
+										empty: () => {
+											return <span class="text-[1.4rem]">{$t('t_0_1750210698345')}</span>
+										},
+									}}
+								/>
+							</NFormItem>
+						)
+					}),
+						useFormCustom(() => {
+							const pluginConfig = param.value.config as PluginAccessConfig
+							const getConfigValue = () => {
+								return typeof pluginConfig.config === 'string'
+									? pluginConfig.config
+									: JSON.stringify(pluginConfig.config, null, 2)
+							}
+							return (
+								<NFormItem
+									path="config.params"
+									v-slots={{
+										label: () => (
+											<div>
+												<NText>自定义参数</NText>
+												<NTooltip
+													v-slots={{
+														trigger: () => (
+															<span class="inline-flex ml-2 -mt-1 cursor-pointer text-base rounded-full w-[14px] h-[14px] justify-center items-center  text-orange-600 border border-orange-600">
+																?
+															</span>
+														),
+													}}
+												>
+													{pluginActionTips.value}
+												</NTooltip>
+											</div>
+										),
+									}}
+								>
+									<NInput type="textarea" value={getConfigValue()} placeholder={pluginActionTips.value} rows={4} />
+								</NFormItem>
+							)
+						}),
+				)
+				break
 			default:
 				break
 		}
@@ -813,9 +902,46 @@ export const useApiFormController = (props: ApiFormControllerProps): ApiFormCont
 						secret_access_key: '',
 					} as JdcloudAccessConfig
 					break
+				case 'doge':
+					param.value.config = {
+						access_key_id: '',
+						access_key_secret: '',
+					} as DogeAccessConfig
+					break
+				case 'plugin':
+					param.value.config = {
+						name: pluginList.value[0]?.value || '',
+						config: '',
+					} as PluginAccessConfig
+					break
 			}
 		},
 	)
+
+	// 获取插件列表
+	const loadPlugins = async (): Promise<void> => {
+		try {
+			const { data } = await getPlugins().fetch()
+			if (data && Array.isArray(data)) {
+				// 处理插件数据，将每个插件的 actions 展开为选项
+				const pluginOptions: Array<PluginOption> = []
+				data.forEach((plugin: { name: string; actions: { name: string; description: string }[] }) => {
+					// 如果没有 actions，直接使用插件名称
+					pluginOptions.push({
+						label: plugin.name,
+						value: plugin.name,
+						description: plugin.actions.map((action: { description: string }) => action.description).join('、'),
+						pluginName: plugin.name,
+						config: plugin.config,
+					})
+				})
+				pluginList.value = pluginOptions
+				pluginActionTips.value = renderPluginTips(pluginOptions[0]?.config || {})
+			}
+		} catch (error) {
+			console.error($t('t_1_1750210699272'), error)
+		}
+	}
 
 	/**
 	 * 渲染单选标签
@@ -839,23 +965,54 @@ export const useApiFormController = (props: ApiFormControllerProps): ApiFormCont
 	 * @param {Record<string, any>} option - 选项
 	 * @returns {VNode} 渲染后的VNode
 	 */
-	const renderLabel = (option: { value: string; label: string; access: string[] }): VNode => {
+	const renderLabel = (option: PluginOption): VNode => {
 		return (
 			<NFlex justify="space-between" class="w-[38rem]">
 				<NFlex align="center" size="small">
 					<SvgIcon icon={`resources-${option.value}`} size="1.6rem" />
 					<NText>{option.label}</NText>
+					{option.description && <div class="text-[1.2rem] text-gray-500 mt-[0.2rem]">{option.description}</div>}
 				</NFlex>
-				<NFlex class="pr-[1rem]">
-					{option.access &&
-						option.access.map((item: string) => {
-							return (
-								<NTag type={item === 'dns' ? 'success' : 'info'} size="small" key={item}>
-									{accessTypeMap[item as keyof typeof accessTypeMap]}
-								</NTag>
-							)
-						})}
+			</NFlex>
+		)
+	}
+
+	/**
+	 * 渲染插件标签
+	 * @param {Record<string, any>} option - 选项
+	 * @returns {VNode} 渲染后的VNode
+	 */
+	const renderPluginLabel = (option: PluginOption): VNode => {
+		return (
+			<NFlex justify="space-between" class="w-full">
+				<NFlex align="center" size="small">
+					<SvgIcon icon={`resources-${option.value}`} size="1.6rem" />
+					<div>
+						<NText>{option.label}</NText>
+						{option.description && <div class="text-[1.2rem] text-gray-500 mt-[0.2rem]">{option.description}</div>}
+					</div>
 				</NFlex>
+			</NFlex>
+		)
+	}
+
+	/**
+	 * 渲染插件选中标签
+	 * @param props - 属性对象
+	 * @returns {VNode} 渲染后的VNode
+	 */
+	const renderPluginTag = (props: { option: PluginOption }): VNode => {
+		const { option } = props
+		return (
+			<NFlex class="w-full">
+				{option?.label ? (
+					<NFlex align="center" size="small">
+						<SvgIcon icon={`resources-${option.value}`} size="1.4rem" />
+						<NText>{option.label}</NText>
+					</NFlex>
+				) : (
+					<span class="text-[1.4rem] text-gray-400">{$t('t_2_1750210698518')}</span>
+				)}
 			</NFlex>
 		)
 	}
@@ -865,10 +1022,7 @@ export const useApiFormController = (props: ApiFormControllerProps): ApiFormCont
 	 * @param {UpdateAccessParams | AddAccessParams} param 请求参数
 	 * @param {Ref<FormInst>} formRef 表单实例
 	 */
-	const submitApiManageForm = async (
-		param: UpdateAccessParams | AddAccessParams,
-		_formRef: Ref<FormInst>,
-	): Promise<void> => {
+	const submitApiManageForm = async (param: UpdateAccessParams | AddAccessParams): Promise<void> => {
 		try {
 			const data = { ...param, config: JSON.stringify(param.config) } as UpdateAccessParams<string>
 			if ('id' in param) {
@@ -880,6 +1034,15 @@ export const useApiFormController = (props: ApiFormControllerProps): ApiFormCont
 		} catch (error) {
 			throw handleError(new Error($t('t_4_1746667590873')))
 		}
+	}
+
+	/**
+	 * @description 渲染插件tips
+	 * @param {PluginOption} option - 插件选项
+	 * @returns {VNode} 渲染后的VNode
+	 */
+	const renderPluginTips = (tips: Record<string, any>): string => {
+		return $t('t_3_1750210706775') + JSON.stringify(tips || {})
 	}
 
 	// 使用表单hooks
@@ -904,8 +1067,10 @@ export const useApiFormController = (props: ApiFormControllerProps): ApiFormCont
 		}
 	})
 
+	// 组件初始化时获取插件列表
+	onMounted(loadPlugins)
+
 	return {
 		ApiManageForm,
 	}
 }
-

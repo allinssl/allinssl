@@ -18,7 +18,7 @@ export default defineComponent({
 	name: 'MonitorManage',
 	setup() {
 		// 使用控制器获取数据和方法
-		const { MonitorTable, MonitorTablePage, param, fetch, data, openAddForm, isDetectionAddMonitor } = useController()
+		const { TableComponent, PageComponent, param, fetch, data, openAddForm, isDetectionAddMonitor } = useController()
 
 		// 获取主题CSS变量
 		const cssVar = useThemeCssVar(['contentPadding', 'borderColor', 'headerHeight', 'iconColorHover'])
@@ -67,17 +67,18 @@ export default defineComponent({
 							// 内容区域 - 监控表格
 							content: () => (
 								<div class="rounded-lg">
-									<MonitorTable size="medium">
-										{{
+									<TableComponent
+										size="medium"
+										v-slots={{
 											empty: () => <EmptyState addButtonText={$t('t_11_1745289354516')} onAddClick={openAddForm} />,
 										}}
-									</MonitorTable>
+									/>
 								</div>
 							),
 							// 底部右侧区域 - 分页组件
 							footerRight: () => (
 								<div class="mt-4 flex justify-end">
-									<MonitorTablePage
+									<PageComponent
 										v-slots={{
 											prefix: () => (
 												<span>

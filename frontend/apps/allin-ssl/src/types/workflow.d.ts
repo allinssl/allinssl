@@ -17,6 +17,7 @@ export interface WorkflowItem {
 	exec_time: string // 执行时间配置
 	last_run_status: 'success' | 'failed' | 'running' // 最后执行状态
 	cron: string // 执行时间
+	last_run_time: string // 最后执行时间
 	update_time: string // 更新时间
 	create_time: string | null // 创建时间
 }

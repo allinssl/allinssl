@@ -25,6 +25,10 @@ export interface UseTableOptions<T = Record<string, any>, Z extends Record<strin
 	defaultValue?: Ref<Z> | Z
 	/** 监听参数 */
 	watchValue?: string[] | boolean
+	/** 本地存储 */
+	storage?: string
+	/** 分页字段别名映射 */
+	alias?: { page: string; pageSize: string }
 }
 
 /**
@@ -33,9 +37,11 @@ export interface UseTableOptions<T = Record<string, any>, Z extends Record<strin
  */
 export interface TableInstanceWithComponent<T = Record<string, unknown>, Z = Record<string, unknown>> {
 	/** 表格渲染组件：用于渲染整个表格的Vue组件 */
-	component: (props: Record<string, unknown>, context: Record<string, unknown>) => JSX.Element
+	TableComponent: (props: Record<string, unknown>, context: Record<string, unknown>) => JSX.Element
+	/** 分页渲染组件：用于渲染分页组件的Vue组件 */
+	PageComponent: (props: Record<string, unknown>, context: Record<string, unknown>) => JSX.Element
 	loading: Ref<boolean> // 加载状态
-	alias: Ref<{ total: string; list: string }> // 表格别名
+	tableAlias: Ref<{ total: string; list: string }> // 表格别名
 	data: Ref<{ list: T[]; total: number }> // 表格数据引用
 	total: Ref<number> // 总条数
 	param: Ref<Z> // 表格请求参数引用
@@ -44,6 +50,9 @@ export interface TableInstanceWithComponent<T = Record<string, unknown>, Z = Rec
 	reset: () => Promise<void> // 重置方法
 	fetch: <T>() => Promise<T> // 触发方法
 	example: Ref<DataTableInst> // 表格实例引用
+	handlePageChange: (currentPage: number) => void // 分页改变
+	handlePageSizeChange: (size: number) => void // 分页大小改变
+	pageSizeOptions: Ref<number[]> // 分页大小选项
 }
 
 /**

@@ -9,6 +9,7 @@ export interface DnsProviderOption {
 	label: string
 	value: string
 	type: string
+	data: Record<string, any>
 }
 
 /**

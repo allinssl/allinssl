@@ -58,7 +58,9 @@ export interface AddAccessParams<
 		| NamedotcomAccessConfig
 		| BunnyAccessConfig
 		| GcoreAccessConfig
-		| JdcloudAccessConfig,
+		| JdcloudAccessConfig
+		| DogeAccessConfig
+		| PluginAccessConfig,
 > {
 	name: string
 	type: string
@@ -89,7 +91,9 @@ export interface UpdateAccessParams<
 		| NamedotcomAccessConfig
 		| BunnyAccessConfig
 		| GcoreAccessConfig
-		| JdcloudAccessConfig,
+		| JdcloudAccessConfig
+		| DogeAccessConfig
+		| PluginAccessConfig,
 > extends AddAccessParams<T> {
 	id: string
 }
@@ -260,6 +264,22 @@ export interface JdcloudAccessConfig {
 	secret_access_key: string
 }
 
+/**
+ * 多吉云授权配置
+ */
+export interface DogeAccessConfig {
+	access_key_id: string
+	access_key_secret: string
+}
+
+/**
+ * Plugin 授权配置
+ */
+export interface PluginAccessConfig {
+	name: string
+	config: Record<string, any> | string
+}
+
 /** 删除授权请求参数 */
 export interface DeleteAccessParams {
 	id: string
@@ -283,69 +303,104 @@ export interface GetAccessAllListResponse extends AxiosResponseData {
 }
 
 /**
- * 获取CA授权列表的请求参数
+ * 获取ACME账户列表的请求参数
  */
+export interface AcmeAccountListParams {
+	search?: string
+	p: string
+	limit: string
+	ca?: string
+}
+
+/**
+ * ACME账户项目
+ */
+export interface AcmeAccountItem {
+	id: number
+	email: string
+	ca: string
+	Kid?: string
+	HmacEncoded?: string
+	CADirURL?: string
+	create_time: string
+	update_time: string
+	config?: string
+}
+
+/**
+ * 获取ACME账户列表的响应
+ */
+export interface AcmeAccountListResponse extends AxiosResponseData {
+	data: AcmeAccountItem[]
+}
+
+/**
+ * 添加ACME账户的请求参数
+ */
+export interface AcmeAccountAddParams {
+	email: string
+	ca: string
+	Kid?: string
+	HmacEncoded?: string
+	CADirURL?: string
+}
+
+/**
+ * 修改ACME账户的请求参数
+ */
+export interface AcmeAccountUpdateParams extends AcmeAccountAddParams {
+	id: string
+}
+
+/**
+ * 删除ACME账户的请求参数
+ */
+export interface AcmeAccountDeleteParams {
+	id: string
+}
+
+// 保持向后兼容的类型别名
 export interface EabListParams {
 	p: number
 	limit: number
 }
 
-/**
- * CA授权项目
- */
 export interface EabItem {
 	id: number
-	name: string
-	Kid: string
-	HmacEncoded: string
-	mail: string
+	type: string
+	email: string
+	Kid?: string
+	HmacEncoded?: string
 	ca: string
+	CADirURL?: string
 	create_time: string
 	update_time: string
 }
 
-/**
- * 获取CA授权列表的响应
- */
 export interface EabListResponse extends AxiosResponseData {
 	data: EabItem[]
 }
 
-/**
- * 添加CA授权的请求参数
- */
 export interface EabAddParams {
-	name: string
-	Kid: string
-	HmacEncoded: string
+	email: string
 	ca: string
-	mail: string
+	Kid?: string
+	HmacEncoded?: string
+	CADirURL?: string
 }
 
-/**
- * 修改CA授权的请求参数
- */
 export interface EabUpdateParams extends EabAddParams {
 	id: string
 }
 
-/**
- * 删除CA授权的请求参数
- */
 export interface EabDeleteParams {
 	id: string
 }
 
-/**
- * 获取CA授权列表下拉框的请求参数
- */
 export interface EabGetAllListParams {
 	ca: string
 }
 
-/**
- * 获取CA授权列表下拉框的响应
- */
 export interface EabGetAllListResponse extends AxiosResponseData {
 	data: EabItem[]
 }
@@ -374,4 +429,37 @@ export interface GetSitesParams {
  */
 export interface GetSitesResponse extends AxiosResponseData {
 	data: { siteName: string; id: string }[]
+}
+
+/**
+ * 获取插件列表的请求参数
+ * @param {string} name 插件名称
+ */
+export interface GetPluginsActionsParams {
+	name: string
+}
+
+/**
+ * @description 获取插件列表的响应
+ */
+export interface GetPluginsResponse extends AxiosResponseData {
+	data: {
+		Path: string
+		actions: { name: string; description: string; params: Record<string, any> }[]
+		author: string
+		description: string
+		name: string
+		version: string
+	}[]
+}
+
+/**
+ * 获取插件列表的响应
+ */
+export interface GetPluginsActionsResponse extends AxiosResponseData {
+	data: {
+		name: string
+		description: string
+		params: string
+	}[]
 }

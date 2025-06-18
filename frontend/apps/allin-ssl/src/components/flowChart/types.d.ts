@@ -246,12 +246,14 @@ export interface DeployConfig<
 		| 'aliyun-cdn'
 		| 'aliyun-oss'
 		| 'aliyun-waf'
+		| 'doge-cdn'
 		| 'baidu-cdn'
 		| 'qiniu-cdn'
 		| 'qiniu-oss'
 		| 'safeline-site'
 		| 'safeline-panel'
-		| 'btpanel-dockersite',
+		| 'btpanel-dockersite'
+		| 'plugin', // 新增插件类型
 > {
 	provider: T
 	provider_id: string
@@ -321,6 +323,12 @@ export interface DeployBTPanelDockerSiteConfig extends DeployBTPanelSiteConfig {
 	[key: string]: unknown
 }
 
+// 部署插件配置
+export interface DeployPluginConfig {
+	action: string // 插件方法名称
+	params: string // 用户自定义参数（JSON字符串）
+}
+
 // 部署节点配置
 export type DeployNodeConfig = DeployConfig<
 	| DeploySSHConfig // 部署节点配置（ssh）
@@ -335,6 +343,7 @@ export type DeployNodeConfig = DeployConfig<
 	| DeploySafelineConfig // 部署节点配置（雷池WAF）
 	| DeploySafelineSiteConfig // 部署节点配置（雷池WAF站点）
 	| DeployBTPanelDockerSiteConfig // 部署节点配置（宝塔docker站点）
+	| DeployPluginConfig // 部署节点配置（插件）
 >
 
 // 部署节点输入配置

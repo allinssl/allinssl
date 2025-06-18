@@ -53,6 +53,7 @@ interface AuthApiManageStoreExposes {
 		const accessTypeMap = {
 			dns: $t('t_3_1745735765112'),
 			host: $t('t_0_1746754500246'),
+			plugin: '插件',
 		}
 
 		// -------------------- 请求方法 --------------------

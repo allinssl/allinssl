@@ -129,9 +129,9 @@ export const useLayoutStore = defineStore('layout-store', (): LayoutStoreInterfa
 	}
 
 	/**
-	 * @description 获取DNS提供商
+	 * @description 获取提供商
 	 * @param type - 类型 (简化了联合类型，实际使用时可根据需要定义更精确的类型别名)
-	 * @returns DNS提供商
+	 * @returns 提供商
 	 */
 	const fetchDnsProvider = async (type: string = ''): Promise<void> => {
 		try {
@@ -142,6 +142,7 @@ export const useLayoutStore = defineStore('layout-store', (): LayoutStoreInterfa
 					label: item.name,
 					value: item.id.toString(),
 					type: item.type,
+					data: item,
 				})) || []
 		} catch (error) {
 			dnsProvider.value = []

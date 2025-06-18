@@ -7,7 +7,7 @@ import EmptyState from '@components/TableEmptyState'
 import BaseComponent from '@components/BaseLayout'
 
 /**
- * CA授权管理模态框组件
+ * ACME账户管理模态框组件
  */
 export default defineComponent({
 	name: 'CAManageModal',
@@ -18,7 +18,7 @@ export default defineComponent({
 		},
 	},
 	setup(props) {
-		const { CATable, CATablePage, handleOpenAddForm, total } = useCAManageController(props)
+		const { TableComponent, PageComponent, handleOpenAddForm, total } = useCAManageController(props)
 		return () => (
 			<BaseComponent
 				v-slots={{
@@ -30,7 +30,7 @@ export default defineComponent({
 					),
 					content: () => (
 						<div class="rounded-lg">
-							<CATable
+							<TableComponent
 								size="medium"
 								v-slots={{
 									empty: () => <EmptyState addButtonText={$t('t_4_1747903685371')} onAddClick={handleOpenAddForm} />,
@@ -40,7 +40,7 @@ export default defineComponent({
 					),
 					footerRight: () => (
 						<div class="flex justify-end mt-4">
-							<CATablePage
+							<PageComponent
 								v-slots={{
 									prefix: () => (
 										<span>

@@ -11,13 +11,7 @@ import {
 import { translation, TranslationModule, type TranslationLocale } from '../locals/translation'
 import { useMessage } from './useMessage'
 
-import type {
-	UseTableOptions,
-	TableInstanceWithComponent,
-	TableResponse,
-	TablePageInstanceWithComponent,
-	TablePageProps,
-} from '../types/table'
+import type { UseTableOptions, TableInstanceWithComponent, TableResponse } from '../types/table'
 
 // 获取当前语言
 const currentLocale = localStorage.getItem('locale-active') || 'zhCN'
@@ -31,6 +25,47 @@ const hookT = (key: string, params?: string) => {
 		] || translation.zhCN.useTable[key as keyof typeof translation.zhCN.useTable]
 	return typeof translationFn === 'function' ? translationFn(params || '') : translationFn
 }
+
+/**
+ * 从本地存储获取pageSize的纯函数
+ * @param storage 存储的key
+ * @param defaultSize 默认大小
+ * @param pageSizeOptions 可选的页面大小选项
+ * @returns 页面大小
+ */
+const getStoredPageSize = (
+	storage: string,
+	defaultSize: number = 10,
+	pageSizeOptions: number[] = [10, 20, 50, 100, 200],
+): number => {
+	try {
+		if (!storage) return defaultSize
+		const stored = localStorage.getItem(storage)
+		if (stored) {
+			const parsedSize = parseInt(stored, 10)
+			// 验证存储的值是否在可选项中
+			if (pageSizeOptions.includes(parsedSize)) {
+				return parsedSize
+			}
+		}
+	} catch (error) {
+		console.warn('读取本地存储pageSize失败:', error)
+	}
+	return defaultSize
+}
+
+/**
+ * 保存pageSize到本地存储的纯函数
+ * @param storage 存储的key
+ * @param size 页面大小
+ */
+const savePageSizeToStorage = (storage: string, size: number): void => {
+	try {
+		if (size && storage) localStorage.setItem(storage, size.toString())
+	} catch (error) {
+		console.warn('保存pageSize到本地存储失败:', error)
+	}
+}
 /**
  * 表格钩子函数
  * @param options 表格配置选项
@@ -41,21 +76,56 @@ export default function useTable<T = Record<string, any>, Z extends Record<strin
 	request, // 数据请求函数
 	defaultValue = ref({}) as Ref<Z>, // 默认请求参数，支持响应式
 	watchValue = false, // 监听参数
-}: UseTableOptions<T, Z>) {
+	alias = { page: 'page', pageSize: 'page_size' }, // 分页字段别名映射
+	storage = '', // 本地存储的key
+}: UseTableOptions<T, Z> & {}) {
 	const scope = effectScope() // 创建一个作用域，用于管理副作用
-
 	return scope.run(() => {
 		// 表格状态
 		const columns = shallowRef(config) // 表格列配置
 		const loading = ref(false) // 加载状态
 		const data = ref({ list: [], total: 0 }) as Ref<{ list: T[]; total: number }> // 表格数据
-		const alias = ref({ total: 'total', list: 'list' }) // 表格别名
+		const tableAlias = ref({ total: 'total', list: 'list' }) // 表格别名
 		const example = ref() // 表格引用
 		const param = (isRef(defaultValue) ? defaultValue : ref({ ...(defaultValue as Z) })) as Ref<Z> // 表格请求参数
 		const total = ref(0) // 分页参数
 		const props = shallowRef({}) as ShallowRef<DataTableProps> // 表格属性
-		// const watchData = ref([]) // 监听参数
 		const { error: errorMsg } = useMessage()
+
+		// 分页相关状态
+		const { page, pageSize } = alias
+		const pageSizeOptionsRef = ref([10, 20, 50, 100, 200]) // 分页选项
+
+		// 初始化分页参数
+		if ((param.value as Record<string, unknown>)[page]) {
+			;(param.value as Record<string, unknown>)[page] = 1 // 当前页码
+		}
+		console.log(param.value, pageSize)
+		if ((param.value as Record<string, unknown>)[pageSize]) {
+			;(param.value as Record<string, unknown>)[pageSize] = getStoredPageSize(storage, 10, pageSizeOptionsRef.value) // 每页条数
+			console.log('初始化每页条数', (param.value as Record<string, unknown>)[pageSize])
+		}
+
+		/**
+		 * 更新页码
+		 * @param currentPage 当前页码
+		 */
+		const handlePageChange = (currentPage: number) => {
+			;(param.value as Record<string, unknown>)[page] = currentPage
+			fetchData()
+		}
+
+		/**
+		 * 更新每页条数
+		 * @param size 每页条数
+		 */
+		const handlePageSizeChange = (size: number) => {
+			// 保存到本地存储
+			savePageSizeToStorage(storage, size)
+			;(param.value as Record<string, unknown>)[page] = 1 // 重置页码为1
+			;(param.value as Record<string, unknown>)[pageSize] = size
+			fetchData()
+		}
 
 		/**
 		 * 获取表格数据
@@ -64,10 +134,10 @@ export default function useTable<T = Record<string, any>, Z extends Record<strin
 			try {
 				loading.value = true
 				const rdata: TableResponse<T> = await request(param.value)
-				total.value = rdata[alias.value.total as keyof TableResponse<T>] as number
+				total.value = rdata[tableAlias.value.total as keyof TableResponse<T>] as number
 				data.value = {
-					list: rdata[alias.value.list as keyof TableResponse<T>] as [],
-					total: rdata[alias.value.total as keyof TableResponse<T>] as number,
+					list: rdata[tableAlias.value.list as keyof TableResponse<T>] as [],
+					total: rdata[tableAlias.value.total as keyof TableResponse<T>] as number,
 				}
 				return data.value
 			} catch (error: any) {
@@ -110,14 +180,34 @@ export default function useTable<T = Record<string, any>, Z extends Record<strin
 			)
 		}
 
+		/**
+		 * 渲染分页组件
+		 */
+		const paginationComponent = (paginationProps: PaginationProps = {}, context: { slots?: PaginationSlots } = {}) => {
+			const mergedSlots = {
+				...(context?.slots || {}),
+			}
+			return (
+				<NPagination
+					page={(param.value as Record<string, unknown>)[page] as number}
+					pageSize={(param.value as Record<string, unknown>)[pageSize] as number}
+					itemCount={total.value}
+					pageSizes={pageSizeOptionsRef.value}
+					showSizePicker={true}
+					onUpdatePage={handlePageChange}
+					onUpdatePageSize={handlePageSizeChange}
+					{...paginationProps}
+					v-slots={mergedSlots}
+				/>
+			)
+		}
+
 		// 检测到参数变化时，重新请求数据
 		if (Array.isArray(watchValue)) {
 			// 只监听指定的字段
 			const source = computed(() => watchValue.map((key) => param.value[key]))
 			watch(source, fetchData, { deep: true })
 		}
-		// 检测到默认参数变化时，合并参数
-		// watch(defaultValue, () => (param.value = { ...defaultValue.value, ...param.value }), { deep: true })
 
 		onUnmounted(() => {
 			scope.stop() // 停止作用域
@@ -128,109 +218,21 @@ export default function useTable<T = Record<string, any>, Z extends Record<strin
 			loading,
 			example,
 			data,
-			alias,
+			tableAlias,
 			param,
 			total,
 			reset: reset<T>,
 			fetch: fetchData<T>,
-			component,
+			TableComponent: component,
+			PageComponent: paginationComponent,
 			config: columns,
 			props,
-		}
-	}) as TableInstanceWithComponent<T, Z>
-}
-
-/**
- * @description 扩展表格实例方法
- */
-const useTablePage = <T extends Record<string, any> = Record<string, any>>({
-	param,
-	total,
-	alias = { page: 'page', pageSize: 'page_size' }, // 字段别名映射
-	props = {},
-	slot = {},
-	refresh = () => {},
-}: TablePageProps<T> & { refresh?: () => void }) => {
-	const scope = effectScope() // 创建一个作用域，用于管理副作用
-	return scope.run(() => {
-		const { page, pageSize } = { ...{ page: 'page', pageSize: 'page_size' }, ...alias }
-		const pageSizeOptionsRef = ref([10, 20, 50, 100, 200]) // 当前页码
-		const propsRef = ref({ ...props })
-
-		// 如果分页参数不存在，则设置默认值
-		if (!(param.value as Record<string, unknown>)[page]) {
-			;(param.value as Record<string, unknown>)[page] = 1 // 当前页码
-		}
-
-		// 如果分页参数不存在，则设置默认值
-		if (!(param.value as Record<string, unknown>)[pageSize]) {
-			;(param.value as Record<string, unknown>)[pageSize] = 20 // 每页条数
-		}
-
-		/**
-		 * @description 更新页码
-		 * @param {number} currentPage 当前页码
-		 */
-		const handlePageChange = (currentPage: number) => {
-			param.value = {
-				...param.value,
-				[page]: currentPage,
-			}
-			if (refresh) {
-				refresh()
-			}
-		}
-
-		/**
-		 * @description 更新每页条数
-		 * @param {number} size 每页条数
-		 */
-		const handlePageSizeChange = (size: number) => {
-			param.value = {
-				...param.value,
-				[page]: 1, // 重置页码为1
-				[pageSize]: size,
-			}
-			if (refresh) {
-				refresh()
-			}
-		}
-
-		// 渲染分页组件
-		const component = (props: PaginationProps, context: { slots?: PaginationSlots }) => {
-			// 处理插槽
-			const mergedSlots = {
-				...slot,
-				...(context.slots || {}),
-			}
-			return (
-				<NPagination
-					page={param.value[page]}
-					pageSize={param.value[pageSize]}
-					itemCount={total.value}
-					pageSizes={pageSizeOptionsRef.value}
-					showSizePicker={true}
-					onUpdatePage={handlePageChange}
-					onUpdatePageSize={handlePageSizeChange}
-					{...propsRef.value}
-					{...props}
-					v-slots={mergedSlots}
-				/>
-			)
-		}
-
-		// 组件卸载
-		onUnmounted(() => {
-			scope.stop() // 停止作用域
-		}) // 清理副作用
-
-		return {
-			component,
+			storage,
 			handlePageChange,
 			handlePageSizeChange,
 			pageSizeOptions: pageSizeOptionsRef,
 		}
-	}) as TablePageInstanceWithComponent
+	}) as TableInstanceWithComponent<T, Z>
 }
 
 /**
@@ -285,4 +287,4 @@ const useTableOperation = (
 	}
 }
 
-export { useTablePage, useTableOperation }
+export { useTableOperation }

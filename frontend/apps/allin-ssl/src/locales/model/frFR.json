@@ -644,5 +644,19 @@
   "t_3_1749263104237": "Lorsque la pré-vérification échoue",
   "t_4_1749263101853": "Continuer",
   "t_5_1749263101934": "Arrêter",
-  "t_6_1749263103891": "Envoyer une demande de vérification à CA"
+  "t_6_1749263103891": "Envoyer une demande de vérification à CA",
+  "t_0_1750129254226": "DoggyCloud",
+  "t_1_1750129254278": "Dernière heure d'exécution",
+  "t_2_1750129253921": "État final d'exécution",
+  "t_3_1750129254533": "Modifier l'autorisation CA",
+  "t_4_1750129259795": "Veuillez entrer l'URL du répertoire CA, il ne peut pas être vide",
+  "t_5_1750129253961": "URL du répertoire CA",
+  "t_6_1750129255766": "Veuillez entrer l'URL du répertoire CA",
+  "t_0_1750144125193": "Veuillez sélectionner un plugin, il ne peut pas être vide",
+  "t_1_1750144122230": "Nom du plugin",
+  "t_2_1750144123753": "Veuillez sélectionner le nom du plugin",
+  "t_0_1750210698345": "Aucune donnée de plugin disponible",
+  "t_1_1750210699272": "Échec de la récupération de la liste des plugins :",
+  "t_2_1750210698518": "Veuillez sélectionner un plugin",
+  "t_3_1750210706775": "Veuillez saisir les paramètres au format JSON, par exemple :"
 }

@@ -10979,5 +10979,243 @@
       "arDZ": "إرسال طلب التحقق إلى CA"
     },
     "timestamp": "2025-06-07T02:25:05.074Z"
+  },
+  "多吉云": {
+    "text": "多吉云",
+    "key": "t_0_1750129254226",
+    "translations": {
+      "zhCN": "多吉云",
+      "zhTW": "多吉雲",
+      "enUS": "DoggyCloud",
+      "jaJP": "ドギークラウド",
+      "koKR": "도기 클라우드",
+      "ruRU": "ДогиКлауд",
+      "ptBR": "DoggyCloud",
+      "frFR": "DoggyCloud",
+      "esAR": "DoggyCloud",
+      "arDZ": "دوجي كلاود"
+    },
+    "timestamp": "2025-06-17T03:00:59.796Z"
+  },
+  "最后执行时间": {
+    "text": "最后执行时间",
+    "key": "t_1_1750129254278",
+    "translations": {
+      "zhCN": "最后执行时间",
+      "zhTW": "最後執行時間",
+      "enUS": "Last execution time",
+      "jaJP": "最終実行時間",
+      "koKR": "마지막 실행 시간",
+      "ruRU": "Время последнего выполнения",
+      "ptBR": "Hora da última execução",
+      "frFR": "Dernière heure d'exécution",
+      "esAR": "Hora de la última ejecución",
+      "arDZ": "وقت التنفيذ الأخير"
+    },
+    "timestamp": "2025-06-17T03:00:59.797Z"
+  },
+  "最后执行状态": {
+    "text": "最后执行状态",
+    "key": "t_2_1750129253921",
+    "translations": {
+      "zhCN": "最后执行状态",
+      "zhTW": "最後執行狀態",
+      "enUS": "Final execution status",
+      "jaJP": "最終実行ステータス",
+      "koKR": "최종 실행 상태",
+      "ruRU": "Финальный статус выполнения",
+      "ptBR": "Status final da execução",
+      "frFR": "État final d'exécution",
+      "esAR": "Estado final de ejecución",
+      "arDZ": "حالة التنفيذ النهائية"
+    },
+    "timestamp": "2025-06-17T03:00:59.797Z"
+  },
+  "编辑CA授权": {
+    "text": "编辑CA授权",
+    "key": "t_3_1750129254533",
+    "translations": {
+      "zhCN": "编辑CA授权",
+      "zhTW": "編輯CA授權",
+      "enUS": "Edit CA Authorization",
+      "jaJP": "CA認証を編集",
+      "koKR": "CA 인증 편집",
+      "ruRU": "Редактировать авторизацию CA",
+      "ptBR": "Editar Autorização CA",
+      "frFR": "Modifier l'autorisation CA",
+      "esAR": "Editar Autorización CA",
+      "arDZ": "تحرير تفويض CA"
+    },
+    "timestamp": "2025-06-17T03:00:59.797Z"
+  },
+  "请输入CA目录URL，不能为空": {
+    "text": "请输入CA目录URL，不能为空",
+    "key": "t_4_1750129259795",
+    "translations": {
+      "zhCN": "请输入CA目录URL，不能为空",
+      "zhTW": "請輸入CA目錄URL，不能為空",
+      "enUS": "Please enter the CA directory URL, it cannot be empty",
+      "jaJP": "CAディレクトリURLを入力してください。空にはできません",
+      "koKR": "CA 디렉토리 URL을 입력하십시오. 비워 둘 수 없습니다",
+      "ruRU": "Введите URL каталога CA, он не может быть пустым",
+      "ptBR": "Por favor, insira o URL do diretório CA, não pode estar vazio",
+      "frFR": "Veuillez entrer l'URL du répertoire CA, il ne peut pas être vide",
+      "esAR": "Por favor ingrese la URL del directorio CA, no puede estar vacío",
+      "arDZ": "الرجاء إدخال عنوان URL لدليل CA، لا يمكن أن يكون فارغًا"
+    },
+    "timestamp": "2025-06-17T03:00:59.797Z"
+  },
+  "CA目录URL": {
+    "text": "CA目录URL",
+    "key": "t_5_1750129253961",
+    "translations": {
+      "zhCN": "CA目录URL",
+      "zhTW": "CA目錄URL",
+      "enUS": "CA directory URL",
+      "jaJP": "CAディレクトリURL",
+      "koKR": "CA 디렉토리 URL",
+      "ruRU": "URL каталога CA",
+      "ptBR": "URL do diretório CA",
+      "frFR": "URL du répertoire CA",
+      "esAR": "URL del directorio CA",
+      "arDZ": "رابط دليل CA"
+    },
+    "timestamp": "2025-06-17T03:00:59.797Z"
+  },
+  "请输入CA目录URL": {
+    "text": "请输入CA目录URL",
+    "key": "t_6_1750129255766",
+    "translations": {
+      "zhCN": "请输入CA目录URL",
+      "zhTW": "請輸入CA目錄URL",
+      "enUS": "Please enter the CA directory URL",
+      "jaJP": "CAディレクトリURLを入力してください",
+      "koKR": "CA 디렉토리 URL을 입력하세요",
+      "ruRU": "Пожалуйста, введите URL каталога CA",
+      "ptBR": "Por favor, insira o URL do diretório CA",
+      "frFR": "Veuillez entrer l'URL du répertoire CA",
+      "esAR": "Por favor, ingrese la URL del directorio CA",
+      "arDZ": "الرجاء إدخال عنوان URL الخاص بدليل CA"
+    },
+    "timestamp": "2025-06-17T03:00:59.797Z"
+  },
+  "请选择插件，不能为空": {
+    "text": "请选择插件，不能为空",
+    "key": "t_0_1750144125193",
+    "translations": {
+      "zhCN": "请选择插件，不能为空",
+      "zhTW": "請選擇插件，不能為空",
+      "enUS": "Please select a plugin, it cannot be empty",
+      "jaJP": "プラグインを選択してください、空にはできません",
+      "koKR": "플러그인을 선택하십시오, 비워 둘 수 없습니다",
+      "ruRU": "Пожалуйста, выберите плагин, он не может быть пустым",
+      "ptBR": "Por favor, selecione um plugin, não pode estar vazio",
+      "frFR": "Veuillez sélectionner un plugin, il ne peut pas être vide",
+      "esAR": "Por favor seleccione un plugin, no puede estar vacío",
+      "arDZ": "يرجى اختيار الملحق، لا يمكن أن يكون فارغا"
+    },
+    "timestamp": "2025-06-17T07:08:45.193Z"
+  },
+  "插件名称": {
+    "text": "插件名称",
+    "key": "t_1_1750144122230",
+    "translations": {
+      "zhCN": "插件名称",
+      "zhTW": "插件名稱",
+      "enUS": "Plugin name",
+      "jaJP": "プラグイン名",
+      "koKR": "플러그인 이름",
+      "ruRU": "Название плагина",
+      "ptBR": "Nome do plugin",
+      "frFR": "Nom du plugin",
+      "esAR": "Nombre del plugin",
+      "arDZ": "اسم الإضافة"
+    },
+    "timestamp": "2025-06-17T07:08:45.195Z"
+  },
+  "请选择插件名称": {
+    "text": "请选择插件名称",
+    "key": "t_2_1750144123753",
+    "translations": {
+      "zhCN": "请选择插件名称",
+      "zhTW": "請選擇插件名稱",
+      "enUS": "Please select the plugin name",
+      "jaJP": "プラグイン名を選択してください",
+      "koKR": "플러그인 이름을 선택하세요",
+      "ruRU": "Пожалуйста, выберите название плагина",
+      "ptBR": "Por favor, selecione o nome do plugin",
+      "frFR": "Veuillez sélectionner le nom du plugin",
+      "esAR": "Por favor, selecciona el nombre del plugin",
+      "arDZ": "يرجى اختيار اسم البرنامج المساعد"
+    },
+    "timestamp": "2025-06-17T07:08:45.195Z"
+  },
+  "暂无插件数据": {
+    "text": "暂无插件数据",
+    "key": "t_0_1750210698345",
+    "translations": {
+      "zhCN": "暂无插件数据",
+      "zhTW": "暫無插件數據",
+      "enUS": "No plugin data available",
+      "jaJP": "プラグインデータがありません",
+      "koKR": "플러그인 데이터 없음",
+      "ruRU": "Нет данных о плагинах",
+      "ptBR": "Nenhum dado de plugin disponível",
+      "frFR": "Aucune donnée de plugin disponible",
+      "esAR": "No hay datos de complementos disponibles",
+      "arDZ": "لا توجد بيانات ملحقات متاحة"
+    },
+    "timestamp": "2025-06-18T01:38:26.775Z"
+  },
+  "获取插件列表失败:": {
+    "text": "获取插件列表失败:",
+    "key": "t_1_1750210699272",
+    "translations": {
+      "zhCN": "获取插件列表失败:",
+      "zhTW": "获取插件列表失敗:",
+      "enUS": "Failed to get plugin list:",
+      "jaJP": "プラグインリストの取得に失敗しました:",
+      "koKR": "플러그인 목록 가져오기 실패:",
+      "ruRU": "Не удалось получить список плагинов:",
+      "ptBR": "Falha ao obter lista de plugins:",
+      "frFR": "Échec de la récupération de la liste des plugins :",
+      "esAR": "Error al obtener la lista de complementos:",
+      "arDZ": "فشل الحصول على قائمة الإضافات:"
+    },
+    "timestamp": "2025-06-18T01:38:26.776Z"
+  },
+  "请选择插件": {
+    "text": "请选择插件",
+    "key": "t_2_1750210698518",
+    "translations": {
+      "zhCN": "请选择插件",
+      "zhTW": "請選擇插件",
+      "enUS": "Please select a plugin",
+      "jaJP": "プラグインを選択してください",
+      "koKR": "플러그인을 선택하세요",
+      "ruRU": "Пожалуйста, выберите плагин",
+      "ptBR": "Por favor, selecione um plugin",
+      "frFR": "Veuillez sélectionner un plugin",
+      "esAR": "Por favor selecciona un plugin",
+      "arDZ": "الرجاء تحديد المكون الإضافي"
+    },
+    "timestamp": "2025-06-18T01:38:26.776Z"
+  },
+  "请输入JSON格式的参数，例如:": {
+    "text": "请输入JSON格式的参数，例如:",
+    "key": "t_3_1750210706775",
+    "translations": {
+      "zhCN": "请输入JSON格式的参数，例如:",
+      "zhTW": "請輸入JSON格式的參數，例如:",
+      "enUS": "Please enter parameters in JSON format, for example:",
+      "jaJP": "JSON形式でパラメータを入力してください，例:",
+      "koKR": "JSON 형식의 매개변수를 입력하세요, 예:",
+      "ruRU": "Пожалуйста, введите параметры в формате JSON, например:",
+      "ptBR": "Insira os parâmetros no formato JSON, por exemplo:",
+      "frFR": "Veuillez saisir les paramètres au format JSON, par exemple :",
+      "esAR": "Ingrese parámetros en formato JSON, por ejemplo:",
+      "arDZ": "الرجاء إدخال المعلمات بتنسيق JSON، على سبيل المثال:"
+    },
+    "timestamp": "2025-06-18T01:38:26.776Z"
   }
 }

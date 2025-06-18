@@ -15,7 +15,7 @@ export default defineComponent({
 		},
 	},
 	setup(props) {
-		const { WorkflowHistoryTable, WorkflowHistoryTablePage, fetch } = useHistoryController(props.id)
+		const { TableComponent, PageComponent, fetch } = useHistoryController(props.id)
 		onMounted(() => {
 			fetch()
 		})
@@ -30,8 +30,8 @@ export default defineComponent({
 								</NButton>
 							</div>
 						),
-						content: () => <WorkflowHistoryTable />,
-						footerRight: () => <WorkflowHistoryTablePage />,
+						content: () => <TableComponent />,
+						footerRight: () => <PageComponent />,
 					}}
 				></BaseComponent>
 			</div>

@@ -1,0 +1,172 @@
+[
+	{
+		"name": "获取ACME账户列表",
+		"url": "/acme_account/get_list",
+		"param": {
+			"search": "-",
+			"p": "1",
+			"limit": "10",
+			"ca": "-"
+		},
+		"response": {
+			"code": 200,
+			"count": 0,
+			"data": [
+				{
+					"config": "{\"secret_id\": \"xxxxxxx\", \"secret_key\": \"xxxxxxxx\"}",
+					"create_time": "2025-04-21 11:10:48",
+					"id": 3,
+					"name": "vvvv",
+					"type": "tencentcloud",
+					"update_time": "2025-04-21 11:10:48"
+				},
+				{
+					"config": "{\"secret_id\": \"xxxxxxx\", \"secret_key\": \"xxxxxxxx\"}",
+					"create_time": "2025-04-21 11:12:53",
+					"id": 4,
+					"name": "xxx",
+					"type": "tencentcloud",
+					"update_time": "2025-04-21 11:12:53"
+				},
+				{
+					"config": "{\"secret_id\": \"xxxxxxx\", \"secret_key\": \"xxxxxxxx\"}",
+					"create_time": "2025-04-21 11:13:09",
+					"id": 5,
+					"name": "1111",
+					"type": "tencentcloud",
+					"update_time": "2025-04-21 11:13:09"
+				}
+			],
+			"message": "success",
+			"status": true
+		}
+	},
+	{
+		"name": "添加ACME账户",
+		"url": "/acme_account/add_account",
+		"param": {
+			"email": "111@66.com",
+			"ca": "buypass",
+			"Kid": "-",
+			"HmacEncoded": "-",
+			"CADirURL": "-"
+		},
+		"response": {
+			"code": 200,
+			"count": 0,
+			"data": [
+				{
+					"config": "{\"secret_id\": \"xxxxxxx\", \"secret_key\": \"xxxxxxxx\"}",
+					"create_time": "2025-04-21 11:10:48",
+					"id": 3,
+					"name": "vvvv",
+					"type": "tencentcloud",
+					"update_time": "2025-04-21 11:10:48"
+				},
+				{
+					"config": "{\"secret_id\": \"xxxxxxx\", \"secret_key\": \"xxxxxxxx\"}",
+					"create_time": "2025-04-21 11:12:53",
+					"id": 4,
+					"name": "xxx",
+					"type": "tencentcloud",
+					"update_time": "2025-04-21 11:12:53"
+				},
+				{
+					"config": "{\"secret_id\": \"xxxxxxx\", \"secret_key\": \"xxxxxxxx\"}",
+					"create_time": "2025-04-21 11:13:09",
+					"id": 5,
+					"name": "1111",
+					"type": "tencentcloud",
+					"update_time": "2025-04-21 11:13:09"
+				}
+			],
+			"message": "success",
+			"status": true
+		}
+	},
+	{
+		"name": "更新ACME账户",
+		"url": "/acme_account/upd_account",
+		"param": {
+			"id": "7",
+			"email": "dfas@66.com",
+			"ca": "buypass",
+			"Kid": "-",
+			"HmacEncoded": "-",
+			"CADirURL": "-"
+		},
+		"response": {
+			"code": 200,
+			"count": 0,
+			"data": [
+				{
+					"config": "{\"secret_id\": \"xxxxxxx\", \"secret_key\": \"xxxxxxxx\"}",
+					"create_time": "2025-04-21 11:10:48",
+					"id": 3,
+					"name": "vvvv",
+					"type": "tencentcloud",
+					"update_time": "2025-04-21 11:10:48"
+				},
+				{
+					"config": "{\"secret_id\": \"xxxxxxx\", \"secret_key\": \"xxxxxxxx\"}",
+					"create_time": "2025-04-21 11:12:53",
+					"id": 4,
+					"name": "xxx",
+					"type": "tencentcloud",
+					"update_time": "2025-04-21 11:12:53"
+				},
+				{
+					"config": "{\"secret_id\": \"xxxxxxx\", \"secret_key\": \"xxxxxxxx\"}",
+					"create_time": "2025-04-21 11:13:09",
+					"id": 5,
+					"name": "1111",
+					"type": "tencentcloud",
+					"update_time": "2025-04-21 11:13:09"
+				}
+			],
+			"message": "success",
+			"status": true
+		}
+	},
+	{
+		"name": "删除ACME账户",
+		"url": "/acme_account/del_account",
+		"param": {
+			"api_token": "{{api_token}}",
+			"timestamp": "{{timestamp}}",
+			"id": "7"
+		},
+		"response": {
+			"code": 200,
+			"count": 0,
+			"data": [
+				{
+					"config": "{\"secret_id\": \"xxxxxxx\", \"secret_key\": \"xxxxxxxx\"}",
+					"create_time": "2025-04-21 11:10:48",
+					"id": 3,
+					"name": "vvvv",
+					"type": "tencentcloud",
+					"update_time": "2025-04-21 11:10:48"
+				},
+				{
+					"config": "{\"secret_id\": \"xxxxxxx\", \"secret_key\": \"xxxxxxxx\"}",
+					"create_time": "2025-04-21 11:12:53",
+					"id": 4,
+					"name": "xxx",
+					"type": "tencentcloud",
+					"update_time": "2025-04-21 11:12:53"
+				},
+				{
+					"config": "{\"secret_id\": \"xxxxxxx\", \"secret_key\": \"xxxxxxxx\"}",
+					"create_time": "2025-04-21 11:13:09",
+					"id": 5,
+					"name": "1111",
+					"type": "tencentcloud",
+					"update_time": "2025-04-21 11:13:09"
+				}
+			],
+			"message": "success",
+			"status": true
+		}
+	}
+]

@@ -30,6 +30,9 @@ export const CACertificateAuthorization = {
 	zerossl: { name: 'ZeroSSL', type: 'zerossl' },
 	google: { name: 'Google', type: 'google' },
 	sslcom: { name: 'SSL.COM', type: 'sslcom' },
+	buypass: { name: 'Buypass', type: 'buypass' },
+	letsencrypt: { name: "Let's Encrypt", type: 'letsencrypt' },
+	custom: { name: '自定义', type: 'custom' },
 }
 
 // 授权API管理
@@ -220,6 +223,22 @@ export const ApiProjectConfig: Record<string, ApiProjectType> = {
 		icon: 'jdcloud',
 		type: ['dns'],
 		sort: 25,
+	},
+	doge: {
+		name: $t('t_0_1750129254226'),
+		icon: 'doge',
+		type: ['host'],
+		hostRelated: {
+			cdn: { name: $t('t_0_1750129254226') + 'CDN' },
+		},
+		sort: 26,
+	},
+	plugin: {
+		name: '插件',
+		icon: 'plugin',
+		type: ['host'],
+		hostRelated: { default: { name: '插件' } },
+		sort: 27,
 	},
 }
 

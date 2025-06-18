@@ -23,6 +23,7 @@ export function useDnsProviderSelectController(props: DnsProviderSelectProps, em
 		label: '',
 		value: '',
 		type: '',
+		data: {},
 	})
 	const dnsProviderRef = ref<DnsProviderOption[]>([])
 	const isLoading = ref(false)
@@ -51,6 +52,7 @@ export function useDnsProviderSelectController(props: DnsProviderSelectProps, em
 				label: selectedProvider.label,
 				value: props.valueType === 'value' ? selectedProvider.value : selectedProvider.type,
 				type: props.valueType === 'value' ? selectedProvider.type : selectedProvider.value,
+				data: selectedProvider,
 			}
 			emit('update:value', { ...param.value })
 		} else {
@@ -61,6 +63,7 @@ export function useDnsProviderSelectController(props: DnsProviderSelectProps, em
 					label: dnsProvider.value[0]?.label || '',
 					value: props.valueType === 'value' ? dnsProvider.value[0]?.value || '' : dnsProvider.value[0]?.type || '',
 					type: props.valueType === 'value' ? dnsProvider.value[0]?.type || '' : dnsProvider.value[0]?.value || '',
+					data: dnsProvider.value[0] || {},
 				}
 				emit('update:value', { ...param.value })
 			}
@@ -125,6 +128,7 @@ export function useDnsProviderSelectController(props: DnsProviderSelectProps, em
 					label: item.label,
 					value: props.valueType === 'value' ? item.value : item.type,
 					type: props.valueType === 'value' ? item.type : item.value, // 确保 type 也被正确映射
+					data: item,
 				})) || []
 
 			// 当 dnsProvider 列表更新后，重新评估 param 的值

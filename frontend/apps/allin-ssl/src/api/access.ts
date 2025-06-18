@@ -20,6 +20,9 @@ import type {
 	TestAccessParams,
 	GetSitesParams,
 	GetSitesResponse,
+	GetPluginsActionsParams,
+	GetPluginsResponse,
+	GetPluginsActionsResponse,
 } from '@/types/access' // Sorted types
 import type { AxiosResponseData } from '@/types/public'
 
@@ -63,7 +66,7 @@ export const deleteAccess = (params?: DeleteAccessParams): useAxiosReturn<AxiosR
 	useApi<AxiosResponseData, DeleteAccessParams>('/v1/access/del_access', params)
 
 /**
- * @description 获取DNS提供商列表
+ * @description 获取提供商列表
  * @param {GetAccessAllListParams} [params] 请求参数
  * @returns {useAxiosReturn<GetAccessAllListResponse, GetAccessAllListParams>} 获取DNS提供商列表的组合式 API 调用封装。包含响应数据、加载状态及执行函数。
  */
@@ -73,36 +76,36 @@ export const getAccessAllList = (
 	useApi<GetAccessAllListResponse, GetAccessAllListParams>('/v1/access/get_all', params)
 
 /**
- * @description 获取CA授权列表
+ * @description 获取ACME账户列表
  * @param {EabListParams} [params] 请求参数
- * @returns {useAxiosReturn<EabListResponse, EabListParams>} 获取CA授权列表的组合式 API 调用封装。包含响应数据、加载状态及执行函数。
+ * @returns {useAxiosReturn<EabListResponse, EabListParams>} 获取ACME账户列表的组合式 API 调用封装。包含响应数据、加载状态及执行函数。
  */
 export const getEabList = (params?: EabListParams): useAxiosReturn<EabListResponse, EabListParams> =>
-	useApi<EabListResponse, EabListParams>('/v1/access/get_eab_list', params)
+	useApi<EabListResponse, EabListParams>('/v1/acme_account/get_list', params)
 
 /**
- * @description 添加CA授权
+ * @description 添加ACME账户
  * @param {EabAddParams} [params] 请求参数
- * @returns {useAxiosReturn<AxiosResponseData, EabAddParams>} 添加CA授权的组合式 API 调用封装。包含响应数据、加载状态及执行函数。
+ * @returns {useAxiosReturn<AxiosResponseData, EabAddParams>} 添加ACME账户的组合式 API 调用封装。包含响应数据、加载状态及执行函数。
  */
 export const addEab = (params?: EabAddParams): useAxiosReturn<AxiosResponseData, EabAddParams> =>
-	useApi<AxiosResponseData, EabAddParams>('/v1/access/add_eab', params)
+	useApi<AxiosResponseData, EabAddParams>('/v1/acme_account/add_account', params)
 
 /**
- * @description 修改CA授权
+ * @description 修改ACME账户
  * @param {EabUpdateParams} [params] 请求参数
- * @returns {useAxiosReturn<AxiosResponseData, EabUpdateParams>} 修改CA授权的组合式 API 调用封装。包含响应数据、加载状态及执行函数。
+ * @returns {useAxiosReturn<AxiosResponseData, EabUpdateParams>} 修改ACME账户的组合式 API 调用封装。包含响应数据、加载状态及执行函数。
  */
 export const updateEab = (params?: EabUpdateParams): useAxiosReturn<AxiosResponseData, EabUpdateParams> =>
-	useApi<AxiosResponseData, EabUpdateParams>('/v1/access/upd_eab', params)
+	useApi<AxiosResponseData, EabUpdateParams>('/v1/acme_account/upd_account', params)
 
 /**
- * @description 删除CA授权
+ * @description 删除ACME账户
  * @param {EabDeleteParams} [params] 请求参数
- * @returns {useAxiosReturn<AxiosResponseData, EabDeleteParams>} 删除CA授权的组合式 API 调用封装。包含响应数据、加载状态及执行函数。
+ * @returns {useAxiosReturn<AxiosResponseData, EabDeleteParams>} 删除ACME账户的组合式 API 调用封装。包含响应数据、加载状态及执行函数。
  */
 export const deleteEab = (params?: EabDeleteParams): useAxiosReturn<AxiosResponseData, EabDeleteParams> =>
-	useApi<AxiosResponseData, EabDeleteParams>('/v1/access/del_eab', params)
+	useApi<AxiosResponseData, EabDeleteParams>('/v1/acme_account/del_account', params)
 
 /**
  * @description 获取CA授权列表下拉框
@@ -129,3 +132,23 @@ export const testAccess = (params?: TestAccessParams): useAxiosReturn<AxiosRespo
  */
 export const getSites = (params?: GetSitesParams): useAxiosReturn<GetSitesResponse, GetSitesParams> =>
 	useApi<GetSitesResponse, GetSitesParams>('/v1/access/get_sites', params)
+
+/**
+ * @description 获取插件列表
+ * @returns {useAxiosReturn<AxiosResponseData, void>} 获取插件列表的组合式 API 调用封装。包含响应数据、加载状态及执行函数。
+ */
+export const getPlugins = (): useAxiosReturn<GetPluginsResponse, void> =>
+	useApi<GetPluginsResponse, void>('/v1/access/get_plugins')
+
+/**
+ * @description 获取插件列表
+ * @param {GetPluginsParams} [params] 请求参数
+ * @returns {useAxiosReturn<GetPluginsResponse, GetPluginsActionsParams>} 获取插件列表的组合式 API 调用封装。包含响应数据、加载状态及执行函数。
+ */
+export const getPluginsActions = (
+	params: GetPluginsActionsParams,
+): useAxiosReturn<GetPluginsActionsResponse, GetPluginsActionsParams> =>
+	useApi<GetPluginsActionsResponse, GetPluginsActionsParams>('/v1/access/get_plugin_actions', params)
+
+
+

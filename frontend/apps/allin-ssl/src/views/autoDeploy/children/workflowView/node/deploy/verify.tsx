@@ -60,4 +60,7 @@ export default {
 	// 存储桶相关字段验证
 	region: validator.required('region', $t('t_25_1745735766651'), 'input'),
 	bucket: validator.required('bucket', $t('t_26_1745735767144'), 'input'),
+
+	// 插件相关字段验证
+	action: validator.required('action', '请选择插件方法', 'select'),
 } as FormRules

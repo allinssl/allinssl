@@ -6,7 +6,6 @@ import { FormRules, NButton, NSpace, NSwitch, type DataTableColumns } from 'naiv
 import {
 	useModal,
 	useTable,
-	useTablePage,
 	useDialog,
 	useModalHooks,
 	useForm,
@@ -37,8 +36,8 @@ import type {
  */
 interface MonitorControllerExposes {
 	// 表格相关
-	MonitorTable: ReturnType<typeof useTable>['component']
-	MonitorTablePage: ReturnType<typeof useTablePage>['component']
+	TableComponent: ReturnType<typeof useTable>['TableComponent']
+	PageComponent: ReturnType<typeof useTable>['PageComponent']
 	loading: Ref<boolean>
 	param: Ref<SiteMonitorListParams>
 	data: Ref<{ list: SiteMonitorItem[]; total: number }>
@@ -197,36 +196,27 @@ export const useController = (): MonitorControllerExposes => {
 	 * 表格实例
 	 * @description 创建表格实例并管理相关状态
 	 */
-	const {
-		component: MonitorTable,
-		loading,
-		param,
-		data,
-		total,
-		fetch,
-	} = useTable<SiteMonitorItem, SiteMonitorListParams>({
+	const { TableComponent, PageComponent, loading, param, data, total, fetch } = useTable<
+		SiteMonitorItem,
+		SiteMonitorListParams
+	>({
 		config: createColumns(),
 		request: fetchMonitorList,
-		defaultValue: {
-			p: 1,
-			limit: 10,
-			search: '',
-		},
+		defaultValue: { p: 1, limit: 10, search: '' },
+		alias: { page: 'p', pageSize: 'limit' },
 		watchValue: ['p', 'limit'],
+		storage: 'monitorPageSize',
 	})
 
-	/**
-	 * 分页实例
-	 * @description 创建表格分页组件
-	 */
-	const { component: MonitorTablePage } = useTablePage({
-		param,
-		total,
-		alias: {
-			page: 'p',
-			pageSize: 'limit',
-		},
-	})
+	// /**
+	//  * 分页实例
+	//  * @description 创建表格分页组件
+	//  */
+	// const { component: MonitorTablePage } = useTablePage({
+	// 	param,
+	// 	total,
+	// 	,
+	// })
 
 	/**
 	 * 打开添加监控弹窗
@@ -305,8 +295,8 @@ export const useController = (): MonitorControllerExposes => {
 	return {
 		loading,
 		fetch,
-		MonitorTable,
-		MonitorTablePage,
+		TableComponent,
+		PageComponent,
 		isDetectionAddMonitor,
 		param,
 		data,

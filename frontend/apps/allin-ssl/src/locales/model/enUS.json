@@ -644,5 +644,19 @@
   "t_3_1749263104237": "When the pre-check fails",
   "t_4_1749263101853": "Continue",
   "t_5_1749263101934": "Stop",
-  "t_6_1749263103891": "Initiate verification request to CA"
+  "t_6_1749263103891": "Initiate verification request to CA",
+  "t_0_1750129254226": "DoggyCloud",
+  "t_1_1750129254278": "Last execution time",
+  "t_2_1750129253921": "Final execution status",
+  "t_3_1750129254533": "Edit CA Authorization",
+  "t_4_1750129259795": "Please enter the CA directory URL, it cannot be empty",
+  "t_5_1750129253961": "CA directory URL",
+  "t_6_1750129255766": "Please enter the CA directory URL",
+  "t_0_1750144125193": "Please select a plugin, it cannot be empty",
+  "t_1_1750144122230": "Plugin name",
+  "t_2_1750144123753": "Please select the plugin name",
+  "t_0_1750210698345": "No plugin data available",
+  "t_1_1750210699272": "Failed to get plugin list:",
+  "t_2_1750210698518": "Please select a plugin",
+  "t_3_1750210706775": "Please enter parameters in JSON format, for example:"
 }

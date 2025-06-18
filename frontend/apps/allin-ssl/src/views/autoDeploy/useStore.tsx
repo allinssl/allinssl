@@ -7,7 +7,7 @@ import {
 	enableWorkflow,
 	stopWorkflow,
 } from '@/api/workflow'
-import { getEabList, addEab, deleteEab } from '@/api/access'
+import { getEabList, addEab, deleteEab, updateEab } from '@/api/access'
 import { useError } from '@baota/hooks/error'
 // import { useMessage } from '@baota/naive-ui/hooks'
 import { $t } from '@locales/index'
@@ -18,9 +18,8 @@ import type {
 	WorkflowItem,
 	UpdateWorkflowExecTypeParams,
 	EnableWorkflowParams,
-	StopWorkflowParams,
 } from '@/types/workflow'
-import type { EabItem, EabListParams, EabAddParams } from '@/types/access'
+import type { EabItem, EabListParams, EabAddParams, EabUpdateParams } from '@/types/access'
 import type { TableResponse } from '@baota/naive-ui/types/table'
 
 const { handleError } = useError()
@@ -46,12 +45,13 @@ export const useWorkflowStore = defineStore('workflow-store', () => {
 	])
 
 	// CA授权管理相关数据
-	// CA授权表单数据
-	const caFormData = ref<EabAddParams>({
-		name: '',
+	// ACME账户表单数据
+	const caFormData = ref<EabAddParams & { id?: string }>({
+		email: '',
 		Kid: '',
 		HmacEncoded: '',
 		ca: 'zerossl',
+		CADirURL: '',
 	})
 
 	// -------------------- 工具方法 --------------------
@@ -197,6 +197,21 @@ export const useWorkflowStore = defineStore('workflow-store', () => {
 	}
 
 	/**
+	 * 更新CA授权
+	 * @param {EabUpdateParams} params - CA授权更新数据
+	 */
+	const updateExistingEab = async (formData: EabUpdateParams): Promise<void> => {
+		try {
+			const { message, fetch } = updateEab(formData)
+			message.value = true
+			await fetch()
+			resetCaForm() // 重置表单
+		} catch (error) {
+			handleError(error)
+		}
+	}
+
+	/**
 	 * 删除CA授权
 	 * @param {string} id - CA授权ID
 	 */
@@ -211,14 +226,15 @@ export const useWorkflowStore = defineStore('workflow-store', () => {
 	}
 
 	/**
-	 * 重置CA表单
+	 * 重置ACME账户表单
 	 */
 	const resetCaForm = () => {
 		caFormData.value = {
-			name: '',
+			email: '',
 			Kid: '',
 			HmacEncoded: '',
 			ca: 'zerossl',
+			CADirURL: '',
 		}
 	}
 
@@ -240,6 +256,7 @@ export const useWorkflowStore = defineStore('workflow-store', () => {
 		setWorkflowExecType,
 		fetchEabList,
 		addNewEab,
+		updateExistingEab,
 		deleteExistingEab,
 		resetCaForm,
 	}

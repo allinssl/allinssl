@@ -15,7 +15,7 @@ import BaseComponent from '@components/BaseLayout'
 export default defineComponent({
 	name: 'AuthApiManage',
 	setup() {
-		const { ApiTable, ApiTablePage, param, fetch, total, openAddForm } = useController()
+		const { TableComponent, PageComponent, param, fetch, total, openAddForm } = useController()
 		const cssVar = useThemeCssVar(['contentPadding', 'borderColor', 'headerHeight', 'iconColorHover'])
 
 		return () => (
@@ -50,7 +50,7 @@ export default defineComponent({
 							),
 							content: () => (
 								<div class="rounded-lg">
-									<ApiTable
+									<TableComponent
 										size="medium"
 										v-slots={{
 											empty: () => <EmptyState addButtonText={$t('t_0_1745289355714')} onAddClick={openAddForm} />,
@@ -60,7 +60,7 @@ export default defineComponent({
 							),
 							footerRight: () => (
 								<div class="mt-4 flex justify-end">
-									<ApiTablePage
+									<PageComponent
 										v-slots={{
 											prefix: () => (
 												<span>

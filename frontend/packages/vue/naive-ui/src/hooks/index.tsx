@@ -1,5 +1,5 @@
 import useForm, { useFormHooks } from './useForm' // 表单
-import useTable, { useTablePage, useTableOperation } from './useTable' // 表格
+import useTable, { useTableOperation } from './useTable' // 表格
 import useTabs from './useTabs' // 标签页
 import useDialog from './useDialog' // 对话框
 import useMessage from './useMessage' // 消息
@@ -38,6 +38,5 @@ export {
 	useBatchTable,
 	useFullScreen,
 	useLoadingMask,
-	useTablePage,
 	useTableOperation,
 }

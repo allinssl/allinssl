@@ -1,9 +1,9 @@
-import { NButton, NCard, NStep, NSteps, NText, NTooltip, NTabs, NTabPane, NInput, NDivider } from 'naive-ui'
+import { NButton, NCard, NStep, NSteps, NText, NTooltip, NTabs, NTabPane, NInput, NDivider, NFormItem } from 'naive-ui'
 import { useForm, useModalClose, useModalOptions, useMessage } from '@baota/naive-ui/hooks'
 import { useThemeCssVar } from '@baota/naive-ui/theme'
 import { useError } from '@baota/hooks/error'
 import { useStore } from '@components/FlowChart/useStore'
-import { getSites } from '@api/access'
+import { getSites, getPlugins } from '@api/access'
 
 import { $t } from '@locales/index'
 import { deepClone } from '@baota/utils/data'
@@ -84,6 +84,12 @@ export default defineComponent({
 		const siteOptions = ref<FormOption[]>([])
 		// 网站选项加载状态
 		const siteOptionsLoading = ref(false)
+		// 插件选项
+		const pluginOptions = ref<FormOption[]>([])
+		// 插件方法选项
+		const pluginActionOptions = ref<FormOption[]>([])
+		// 插件方法选项加载状态
+		const pluginActionOptionsLoading = ref(false)
 		// 当前步骤
 		const current = ref(1)
 		// 是否是下一步
@@ -94,6 +100,9 @@ export default defineComponent({
 		const currentTab = ref(DeployCategories.ALL)
 		// 搜索关键字
 		const searchKeyword = ref('')
+
+		// 插件方法提示
+		const pluginActionTips = ref('')
 
 		// 表单参数
 		const param = ref(deepClone(props.node.config))
@@ -125,7 +134,7 @@ export default defineComponent({
 							value: param.value.provider_id,
 							valueType: 'value' as const,
 							isAddMode: true,
-							'onUpdate:value': (val: { value: number | string; type: string }) => {
+							'onUpdate:value': (val: { value: number | string; type: string; data: string }) => {
 								if (
 									val.value !== '' &&
 									param.value.provider_id !== '' &&
@@ -136,6 +145,7 @@ export default defineComponent({
 								}
 								param.value.provider_id = val.value
 								param.value.type = val.type
+								param.value.provider_data = val?.data || ''
 							},
 						}
 						return (<DnsProviderSelect {...dnsProviderProps} />) as VNode
@@ -155,7 +165,6 @@ export default defineComponent({
 				}),
 			)
 
-			console.log(param.value.provider)
 			// 根据不同的部署类型添加不同的表单配置
 			switch (param.value.provider) {
 				case 'localhost':
@@ -198,6 +207,7 @@ export default defineComponent({
 				case 'qiniu-cdn':
 				case 'qiniu-oss':
 				case 'huaweicloud-cdn':
+				case 'doge-cdn':
 					config.push(...formConfig.cdnDeploy())
 					break
 				case 'volcengine-cdn':
@@ -215,6 +225,60 @@ export default defineComponent({
 				case 'aliyun-oss':
 					config.push(...formConfig.storageDeploy())
 					break
+				case 'plugin':
+					// 插件部署配置
+					config.push(
+						// ...formConfig.pluginDeploy(param, pluginActionOptions, pluginActionOptionsLoading, pluginActionTips.value),
+						...[
+							formConfig.select('插件方法', 'action', pluginActionOptions.value, {
+								placeholder: '请选择插件方法',
+								filterable: true,
+								clearable: true,
+								loading: pluginActionOptionsLoading.value,
+								onUpdateValue: (value: string, option: FormOption) => {
+									param.value.action = value
+									pluginActionTips.value = renderPluginActionTips(option?.params || {})
+								},
+							}),
+							{
+								type: 'custom' as const,
+								render: () => {
+									return (
+										<NFormItem
+											label="自定义参数"
+											path="params"
+											v-slots={{
+												label: () => (
+													<div>
+														<NText>自定义参数</NText>
+														<NTooltip
+															v-slots={{
+																trigger: () => (
+																	<span class="inline-flex ml-2 -mt-1 cursor-pointer text-base rounded-full w-[14px] h-[14px] justify-center items-center  text-orange-600 border border-orange-600">
+																		?
+																	</span>
+																),
+															}}
+														>
+															{pluginActionTips.value}
+														</NTooltip>
+													</div>
+												),
+											}}
+										>
+											<NInput
+												type="textarea"
+												v-model:value={param.value['params']}
+												placeholder={pluginActionTips.value}
+												rows={4}
+											/>
+										</NFormItem>
+									)
+								},
+							},
+						],
+					)
+					break
 			}
 
 			// 添加跳过选项
@@ -224,7 +288,13 @@ export default defineComponent({
 
 		watch(
 			() => param.value.provider_id,
-			() => handleSiteSearch(''),
+			() => {
+				handleSiteSearch('')
+				// 如果是插件类型，加载插件方法
+				if (param.value.provider === 'plugin') {
+					loadPluginActions()
+				}
+			},
 		)
 
 		/**
@@ -255,6 +325,47 @@ export default defineComponent({
 				siteOptionsLoading.value = false
 			}
 		}, 1000)
+
+		/**
+		 * @description 渲染插件方法提示
+		 */
+		const renderPluginActionTips = (tips: Record<string, any>): string => {
+			return '请输入JSON格式的参数，例如: ' + JSON.stringify(tips || {})
+		}
+
+		/**
+		 * 加载插件方法
+		 */
+		const loadPluginActions = async (): Promise<void> => {
+			if (!param.value.provider_id) return
+			try {
+				pluginActionOptionsLoading.value = true
+				// 先获取插件列表，找到对应的插件
+				const config = JSON.parse(param.value.provider_data?.data?.config || '{}')
+				if (config.name) {
+					const { data } = await getPlugins().fetch()
+					const selectedPlugin = data?.find((plugin: { name: string }) => plugin.name === config.name)
+					const actions = selectedPlugin?.actions || []
+					pluginActionOptions.value = actions.map((item: any) => ({
+						label: `${item.description}`,
+						value: item.name,
+						params: item.params,
+					}))
+					if (!param.value.action) {
+						const action = actions[0]
+						param.value.action = action?.name
+						pluginActionTips.value = renderPluginActionTips(action?.params || {})
+					}
+
+					delete param.value.provider_data
+				}
+			} catch (error) {
+				handleError(error)
+				pluginActionOptions.value = []
+			} finally {
+				pluginActionOptionsLoading.value = false
+			}
+		}
 
 		/**
 		 * 下一步
@@ -344,6 +455,10 @@ export default defineComponent({
 						param.value.siteName = param.value.siteName.split(',').filter(Boolean)
 					}
 					handleSiteSearch('')
+				}
+				// 如果是插件类型，加载插件方法
+				if (param.value.provider === 'plugin') {
+					loadPluginActions()
 				}
 				nextStep()
 			}

@@ -1,13 +1,13 @@
-import { NButton, NSpace, NTag, useMessage, type DataTableColumns } from 'naive-ui'
+import { NButton, NSpace, NTag, type DataTableColumns } from 'naive-ui'
 import {
 	useModal,
 	useTable,
-	useTablePage,
 	useDialog,
 	useFormHooks,
 	useModalHooks,
 	useForm,
 	useLoadingMask,
+	useMessage,
 } from '@baota/naive-ui/hooks'
 import { useError } from '@baota/hooks/error'
 import { $t } from '@locales/index'
@@ -126,32 +126,13 @@ export const useController = () => {
 	}
 
 	// 表格实例
-	const {
-		component: CertTable,
-		loading,
-		param,
-		data,
-		total,
-		fetch,
-	} = useTable<CertItem, CertListParams>({
+	const { TableComponent, PageComponent, loading, param, data, fetch } = useTable<CertItem, CertListParams>({
 		config: createColumns(),
 		request: fetchCertList,
-		defaultValue: {
-			p: 1,
-			limit: 10,
-			search: '',
-		},
+		defaultValue: { p: 1, limit: 10, search: '' },
+		alias: { page: 'p', pageSize: 'limit' },
 		watchValue: ['p', 'limit'],
-	})
-
-	// 分页实例
-	const { component: CertTablePage } = useTablePage({
-		param,
-		total,
-		alias: {
-			page: 'p',
-			pageSize: 'limit',
-		},
+		storage: 'certManagePageSize',
 	})
 
 	/**
@@ -211,8 +192,8 @@ export const useController = () => {
 	return {
 		loading,
 		fetch,
-		CertTable,
-		CertTablePage,
+		TableComponent,
+		PageComponent,
 		getRowClassName,
 		param,
 		data,
