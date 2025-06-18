@@ -269,6 +269,13 @@ func RunNode(node *WorkflowNode, ctx *ExecutionContext) error {
 			lastStatus := ctx.GetStatus(node.Config["fromNodeId"].(string))
 			for _, branch := range node.ConditionNodes {
 				if branch.Config["type"] == string(lastStatus) {
+					if branch.ChildNode != nil {
+						fromNodeData, ok := ctx.GetOutput(node.Config["fromNodeId"].(string))
+						if !ok {
+							fromNodeData = nil
+						}
+						branch.ChildNode.Config["fromNodeData"] = fromNodeData
+					}
 					err := RunNode(branch, ctx)
 					if err != nil {
 						return fmt.Errorf("执行条件分支失败: %v", err)

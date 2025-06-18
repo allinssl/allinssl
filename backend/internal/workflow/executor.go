@@ -34,7 +34,7 @@ func Executors(exec string, params map[string]any) (any, error) {
 
 func apply(params map[string]any) (any, error) {
 	logger := params["logger"].(*public.Logger)
-	
+
 	logger.Info("=============申请证书=============")
 	certificate, err := certApply.Apply(params, logger)
 	if err != nil {
@@ -73,7 +73,7 @@ func deploy(params map[string]any) (any, error) {
 		logger.Info("=============部署失败=============")
 		return nil, err
 	}
-	
+
 	s, err := public.NewSqlite("data/data.db", "")
 	if err != nil {
 		logger.Error("新建数据库连接失败" + err.Error())
@@ -96,7 +96,7 @@ func deploy(params map[string]any) (any, error) {
 		logger.Info("=============部署失败=============")
 		return nil, err
 	}
-	
+
 	if params["skip"] != nil {
 		var skip int
 		switch v := params["skip"].(type) {
@@ -118,12 +118,14 @@ func deploy(params map[string]any) (any, error) {
 				if beSha256 == nowSha256 && deployData[0]["status"].(string) == "success" {
 					logger.Info("与上次部署的证书sha256相同且上次部署成功，跳过重复部署")
 					logger.Info("=============部署成功=============")
-					return nil, nil
+					return map[string]any{
+						"skip": true,
+					}, nil
 				}
 			}
 		}
 	}
-	
+
 	err = certDeploy.Deploy(params, logger)
 	var status string
 	if err != nil {
@@ -166,7 +168,7 @@ func upload(params map[string]any) (any, error) {
 			return nil, err
 		}
 		logger.Info("=============上传成功=============")
-		
+
 		return params, nil
 	} else {
 		certId := ""
@@ -202,6 +204,34 @@ func notify(params map[string]any) (any, error) {
 	// fmt.Println("通知:", params)
 	logger := params["logger"].(*public.Logger)
 	logger.Info("=============发送通知=============")
+	fmt.Println(params)
+
+	if fromNodeData, ok := params["fromNodeData"].(map[string]any); ok && fromNodeData != nil {
+		if v, ok := fromNodeData["skip"].(bool); ok && v {
+			// 如果 skip 是 true，则跳过通知
+			var skip bool
+			switch v := fromNodeData["skip"].(type) {
+			case int:
+				skip = v == 1
+			case float64:
+				skip = v == 1
+			case string:
+				skip = v == "1" || v == "true"
+			case bool:
+				skip = v
+			default:
+				skip = false
+			}
+			if skip {
+				logger.Debug("上个节点已跳过操作，跳过通知")
+				logger.Info("=============发送执行完成=============")
+				return map[string]any{
+					"skip": true,
+				}, nil
+			}
+		}
+	}
+
 	logger.Debug(fmt.Sprintf("发送通知：%s", params["subject"].(string)))
 	err := report.Notify(params)
 	if err != nil {

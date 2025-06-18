@@ -428,6 +428,7 @@ func GetCert(runId string, domainArr []string, endDay int, logger *public.Logger
 		"cert":       maxItem["cert"],
 		"key":        maxItem["key"],
 		"issuerCert": maxItem["issuer_cert"],
+		"skip":       true,
 	}, nil
 }
 

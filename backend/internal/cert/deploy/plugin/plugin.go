@@ -183,6 +183,9 @@ func tryCallPlugin(name, action string, params map[string]interface{}, logger *p
 	}
 	cmd.Wait()
 	logger.Debug("插件响应", "plugin", name, "action", action, "response", resp)
+	if resp.Status != "success" {
+		return nil, fmt.Errorf("插件响应错误: %s", resp.Message)
+	}
 
 	return &resp, nil
 }
