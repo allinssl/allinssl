@@ -198,7 +198,7 @@ func GetVersion() (map[string]string, error) {
 			"update":      update,
 			"log":         "",
 			"date":        "",
-		}, err
+		}, nil
 	}
 	defer newVersionObj.Body.Close()
 
