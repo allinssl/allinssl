@@ -11285,5 +11285,73 @@
       "arDZ": "إرسال"
     },
     "timestamp": "2025-06-19T08:04:01.428Z"
+  },
+  "ACME服务URL地址": {
+    "text": "ACME服务URL地址",
+    "key": "t_0_1750399513983",
+    "translations": {
+      "zhCN": "ACME服务URL地址",
+      "zhTW": "ACME服務URL地址",
+      "enUS": "ACME service URL address",
+      "jaJP": "ACMEサービスURLアドレス",
+      "koKR": "ACME 서비스 URL 주소",
+      "ruRU": "URL-адрес службы ACME",
+      "ptBR": "Endereço URL do serviço ACME",
+      "frFR": "URL du service ACME",
+      "esAR": "Dirección URL del servicio ACME",
+      "arDZ": "عنوان URL لخدمة ACME"
+    },
+    "timestamp": "2025-06-20T06:05:16.161Z"
+  },
+  "请输入ACME服务URL地址": {
+    "text": "请输入ACME服务URL地址",
+    "key": "t_1_1750399516161",
+    "translations": {
+      "zhCN": "请输入ACME服务URL地址",
+      "zhTW": "請輸入ACME服務URL地址",
+      "enUS": "Please enter the ACME service URL address",
+      "jaJP": "ACMEサービスURLアドレスを入力してください",
+      "koKR": "ACME 서비스 URL 주소를 입력하세요",
+      "ruRU": "Введите URL-адрес службы ACME",
+      "ptBR": "Por favor, insira o URL do serviço ACME",
+      "frFR": "Veuillez entrer l'URL du service ACME",
+      "esAR": "Por favor, ingrese la URL del servicio ACME",
+      "arDZ": "يرجى إدخال عنوان URL لخدمة ACME"
+    },
+    "timestamp": "2025-06-20T06:05:16.165Z"
+  },
+  "上次异常时间": {
+    "text": "上次异常时间",
+    "key": "t_2_1750399515511",
+    "translations": {
+      "zhCN": "上次异常时间",
+      "zhTW": "上次異常時間",
+      "enUS": "Last exception time",
+      "jaJP": "最終異常時間",
+      "koKR": "마지막 예외 시간",
+      "ruRU": "Время последнего исключения",
+      "ptBR": "Hora da última exceção",
+      "frFR": "Heure de la dernière exception",
+      "esAR": "Hora de la última excepción",
+      "arDZ": "وقت آخر استثناء"
+    },
+    "timestamp": "2025-06-20T06:05:16.165Z"
+  },
+  "证书CA": {
+    "text": "证书CA",
+    "key": "t_3_1750399513606",
+    "translations": {
+      "zhCN": "证书CA",
+      "zhTW": "證書CA",
+      "enUS": "Certificate CA",
+      "jaJP": "証明書CA",
+      "koKR": "인증서 CA",
+      "ruRU": "Сертификат CA",
+      "ptBR": "Certificado CA",
+      "frFR": "Certificat CA",
+      "esAR": "Certificado CA",
+      "arDZ": "شهادة CA"
+    },
+    "timestamp": "2025-06-20T06:05:16.165Z"
   }
 }

@@ -242,7 +242,7 @@ export default defineComponent({
 						return (
 							<NSpin show={isLoadingCA.value}>
 								<NGrid cols={24}>
-									<NFormItemGi span={13} label={$t('证书CA')} path="ca" showRequireMark={true}>
+									<NFormItemGi span={13} label={$t('t_3_1750399513606')} path="ca" showRequireMark={true}>
 										<NSelect
 											value={param.value.ca}
 											options={caOptions.value}
@@ -263,7 +263,7 @@ export default defineComponent({
 									</NFormItemGi>
 									<NFormItemGi span={11}>
 										<NButton class="mx-[8px]" onClick={goToAddCAProvider}>
-											{$t('添加CA授权')}
+											{$t('t_4_1747903685371')}
 										</NButton>
 										<NButton onClick={loadCAOptions} loading={isLoadingCA.value}>
 											{$t('t_0_1746497662220')}

@@ -291,10 +291,10 @@ export default defineComponent({
 
 		watch(
 			() => param.value.provider_id,
-			() => {
+			(newId, oldId) => {
 				handleSiteSearch('')
-				// 如果是插件类型，加载插件方法
-				if (param.value.provider === 'plugin') {
+				// 如果是插件类型且provider_id发生变化，加载插件方法
+				if (param.value.provider === 'plugin' && newId && newId !== oldId) {
 					loadPluginActions()
 				}
 			},
@@ -343,24 +343,46 @@ export default defineComponent({
 			if (!param.value.provider_id) return
 			try {
 				pluginActionOptionsLoading.value = true
-				// 先获取插件列表，找到对应的插件
-				const config = JSON.parse(param.value.provider_data?.data?.config || '{}')
-				if (config.name) {
+
+				// 获取插件配置信息
+				let pluginName = ''
+
+				// 如果有 provider_data，从中获取插件名称
+				if (param.value.provider_data?.data?.config) {
+					const config = JSON.parse(param.value.provider_data.data.config || '{}')
+					pluginName = config.name
+				} else if (param.value.type) {
+					// 编辑模式下，从 type 字段获取插件名称
+					pluginName = param.value.type
+				}
+
+				if (pluginName) {
 					const { data } = await getPlugins().fetch()
-					const selectedPlugin = data?.find((plugin: { name: string }) => plugin.name === config.name)
+					const selectedPlugin = data?.find((plugin: { name: string }) => plugin.name === pluginName)
 					const actions = selectedPlugin?.actions || []
 					pluginActionOptions.value = actions.map((item: any) => ({
 						label: `${item.description}`,
 						value: item.name,
 						params: item.params,
 					}))
-					if (!param.value.action) {
+
+					// 如果当前已有选择的方法，设置对应的提示
+					if (param.value.action) {
+						const selectedAction = actions.find((action: any) => action.name === param.value.action)
+						if (selectedAction) {
+							pluginActionTips.value = renderPluginActionTips(selectedAction.params || {})
+						}
+					} else if (actions.length > 0) {
+						// 如果没有选择方法，默认选择第一个
 						const action = actions[0]
 						param.value.action = action?.name
 						pluginActionTips.value = renderPluginActionTips(action?.params || {})
 					}
 
-					delete param.value.provider_data
+					// // 只在创建模式下删除 provider_data
+					// if (param.value.provider_data) {
+					// 	delete param.value.provider_data
+					// }
 				}
 			} catch (error) {
 				handleError(error)

@@ -130,13 +130,13 @@ export const useController = (): AuthApiManageControllerExposes => {
 		{
 			title: $t('t_1_1746754499371'),
 			key: 'type',
-			width: 120,
+			width: 140,
 			render: (row) => <TypeIcon icon={row.type} type="success" />,
 		},
 		{
 			title: $t('t_2_1746754500270'),
 			key: 'type',
-			width: 180,
+			width: 200,
 			render: (row) => (
 				<NSpace>
 					{row.access_type?.map((type) => {
@@ -162,7 +162,7 @@ export const useController = (): AuthApiManageControllerExposes => {
 		{
 			title: $t('t_8_1745215914610'),
 			key: 'actions',
-			width: 240,
+			width: 200,
 			align: 'right',
 			fixed: 'right',
 			render: (row) => {
@@ -756,6 +756,9 @@ export const useApiFormController = (props: ApiFormControllerProps): ApiFormCont
 								? pluginConfig.config
 								: JSON.stringify(pluginConfig.config, null, 2)
 						}
+						const handleConfigUpdate = (value: string) => {
+							;(param.value.config as PluginAccessConfig).config = value
+						}
 						return (
 							<NFormItem
 								path="config.params"
@@ -778,7 +781,13 @@ export const useApiFormController = (props: ApiFormControllerProps): ApiFormCont
 									),
 								}}
 							>
-								<NInput type="textarea" value={getConfigValue()} placeholder={pluginActionTips.value} rows={4} />
+								<NInput
+									type="textarea"
+									value={getConfigValue()}
+									onUpdateValue={handleConfigUpdate}
+									placeholder={pluginActionTips.value}
+									rows={4}
+								/>
 							</NFormItem>
 						)
 					}),

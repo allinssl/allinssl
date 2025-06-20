@@ -147,19 +147,19 @@ export const useController = (): MonitorControllerExposes => {
 			render: (row: SiteMonitorItem) => row.end_time + '(' + row.end_day + ')',
 		},
 		{
-			title: $t('上次异常时间'),
+			title: $t('t_2_1750399515511'),
 			key: 'except_end_time',
 			width: 150,
 			render: (row: SiteMonitorItem) => row.except_end_time || '-',
 		},
 		{
-			title: $t('上次检查时间'),
+			title: $t('t_19_1745289354676'),
 			key: 'last_time',
 			width: 150,
 			render: (row: SiteMonitorItem) => row.last_time || '-',
 		},
 		{
-			title: $t('更新时间'),
+			title: $t('t_0_1745295228865'),
 			key: 'update_time',
 			width: 150,
 			render: (row: SiteMonitorItem) => row.update_time || '-',

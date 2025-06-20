@@ -1,9 +1,4 @@
 {
-  "t_11_1747280809178": "Passer",
-  "t_0_1750320239265": "Veuillez entrer la clé d'accès DogeCloud",
-  "t_1_1750320241427": "Veuillez entrer la SecretKey de DogeCloud",
-  "t_2_1750320237611": "Ignorer l'envoi de notification",
-  "t_3_1750320237991": "Envoyer",
   "t_0_1744098811152": "Avertissement : Vous avez entré dans une zone inconnue, la page que vous visitez n'existe pas, veuillez cliquer sur le bouton pour revenir à la page d'accueil.",
   "t_1_1744098801860": "Retour à l'accueil",
   "t_2_1744098804908": "Avis de sécurité : Si vous pensez que c'est une erreur, veuillez contacter l'administrateur immédiatement",
@@ -534,6 +529,7 @@
   "t_8_1747280809382": "Seau",
   "t_9_1747280810169": "Déploiement répété",
   "t_10_1747280816952": "Lorsque le certificat est identique au dernier déploiement et que le dernier déploiement a réussi",
+  "t_11_1747280809178": "Passer",
   "t_12_1747280809893": "Ne pas sauter",
   "t_13_1747280810369": "Redéploiement",
   "t_14_1747280811231": "Rechercher le type de déploiement",
@@ -662,5 +658,13 @@
   "t_0_1750210698345": "Aucune donnée de plugin disponible",
   "t_1_1750210699272": "Échec de la récupération de la liste des plugins :",
   "t_2_1750210698518": "Veuillez sélectionner un plugin",
-  "t_3_1750210706775": "Veuillez saisir les paramètres au format JSON, par exemple :"
+  "t_3_1750210706775": "Veuillez saisir les paramètres au format JSON, par exemple :",
+  "t_0_1750320239265": "Veuillez entrer la clé d'accès DogeCloud",
+  "t_1_1750320241427": "Veuillez entrer la SecretKey de DogeCloud",
+  "t_2_1750320237611": "Ignorer l'envoi de notification",
+  "t_3_1750320237991": "Envoyer",
+  "t_0_1750399513983": "URL du service ACME",
+  "t_1_1750399516161": "Veuillez entrer l'URL du service ACME",
+  "t_2_1750399515511": "Heure de la dernière exception",
+  "t_3_1750399513606": "Certificat CA"
 }

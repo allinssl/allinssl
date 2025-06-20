@@ -259,6 +259,8 @@ export interface DeployConfig<
 	provider: T
 	provider_id: string
 	skip: 1 | 0
+	type?: string // 插件类型名称，用于插件部署
+	provider_data?: any // 提供商数据，用于存储选择时的额外信息
 	[key: string]: Z
 }
 

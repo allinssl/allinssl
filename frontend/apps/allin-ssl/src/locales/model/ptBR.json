@@ -1,9 +1,4 @@
 {
-  "t_11_1747280809178": "Pular",
-  "t_0_1750320239265": "Por favor, insira o AccessKey do DogeCloud",
-  "t_1_1750320241427": "Por favor, insira a SecretKey do DogeCloud",
-  "t_2_1750320237611": "Pular envio de notificação",
-  "t_3_1750320237991": "Enviar",
   "t_0_1744098811152": "Aviso: Você entrou em uma área desconhecida, a página que você está visitando não existe, por favor, clique no botão para voltar para a página inicial.",
   "t_1_1744098801860": "Voltar para a homepage",
   "t_2_1744098804908": "Dica de Segurança: Se você acha que isso é um erro, entre em contato com o administrador imediatamente",
@@ -534,6 +529,7 @@
   "t_8_1747280809382": "Balde",
   "t_9_1747280810169": "Implantações repetidas",
   "t_10_1747280816952": "Quando o certificado é o mesmo da última implantação e a última implantação foi bem-sucedida",
+  "t_11_1747280809178": "Pular",
   "t_12_1747280809893": "Não pular",
   "t_13_1747280810369": "Reimplantação",
   "t_14_1747280811231": "Pesquisar tipo de implantação",
@@ -662,5 +658,13 @@
   "t_0_1750210698345": "Nenhum dado de plugin disponível",
   "t_1_1750210699272": "Falha ao obter lista de plugins:",
   "t_2_1750210698518": "Por favor, selecione um plugin",
-  "t_3_1750210706775": "Insira os parâmetros no formato JSON, por exemplo:"
+  "t_3_1750210706775": "Insira os parâmetros no formato JSON, por exemplo:",
+  "t_0_1750320239265": "Por favor, insira o AccessKey do DogeCloud",
+  "t_1_1750320241427": "Por favor, insira a SecretKey do DogeCloud",
+  "t_2_1750320237611": "Pular envio de notificação",
+  "t_3_1750320237991": "Enviar",
+  "t_0_1750399513983": "Endereço URL do serviço ACME",
+  "t_1_1750399516161": "Por favor, insira o URL do serviço ACME",
+  "t_2_1750399515511": "Hora da última exceção",
+  "t_3_1750399513606": "Certificado CA"
 }

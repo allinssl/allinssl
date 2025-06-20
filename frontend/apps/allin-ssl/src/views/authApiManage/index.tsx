@@ -33,6 +33,7 @@ export default defineComponent({
 								<div class="rounded-lg">
 									<TableComponent
 										size="medium"
+										scroll-x="1560"
 										v-slots={{
 											empty: () => <EmptyState addButtonText={$t('t_0_1745289355714')} onAddClick={openAddForm} />,
 										}}

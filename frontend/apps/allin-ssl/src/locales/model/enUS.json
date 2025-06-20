@@ -1,9 +1,4 @@
 {
-  "t_11_1747280809178": "Skip",
-  "t_0_1750320239265": "Please enter DogeCloud AccessKey",
-  "t_1_1750320241427": "Please enter DogeCloud SecretKey",
-  "t_2_1750320237611": "Skip sending notification",
-  "t_3_1750320237991": "Send",
   "t_0_1744098811152": "Warning: You have entered an unknown area, the page you are visiting does not exist, please click the button to return to the homepage.",
   "t_1_1744098801860": "Return Home",
   "t_2_1744098804908": "Safety Tip: If you think this is an error, please contact the administrator immediately",
@@ -534,6 +529,7 @@
   "t_8_1747280809382": "Bucket",
   "t_9_1747280810169": "Repeated deployment",
   "t_10_1747280816952": "When the certificate is the same as the last deployment and the last deployment was successful",
+  "t_11_1747280809178": "Skip",
   "t_12_1747280809893": "Do not skip",
   "t_13_1747280810369": "Re-deployment",
   "t_14_1747280811231": "Search deployment type",
@@ -662,5 +658,13 @@
   "t_0_1750210698345": "No plugin data available",
   "t_1_1750210699272": "Failed to get plugin list:",
   "t_2_1750210698518": "Please select a plugin",
-  "t_3_1750210706775": "Please enter parameters in JSON format, for example:"
+  "t_3_1750210706775": "Please enter parameters in JSON format, for example:",
+  "t_0_1750320239265": "Please enter DogeCloud AccessKey",
+  "t_1_1750320241427": "Please enter DogeCloud SecretKey",
+  "t_2_1750320237611": "Skip sending notification",
+  "t_3_1750320237991": "Send",
+  "t_0_1750399513983": "ACME service URL address",
+  "t_1_1750399516161": "Please enter the ACME service URL address",
+  "t_2_1750399515511": "Last exception time",
+  "t_3_1750399513606": "Certificate CA"
 }

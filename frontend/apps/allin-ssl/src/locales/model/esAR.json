@@ -1,9 +1,4 @@
 {
-  "t_11_1747280809178": "Saltar",
-  "t_0_1750320239265": "Por favor ingrese la AccessKey de DogeCloud",
-  "t_1_1750320241427": "Por favor ingrese la SecretKey de DogeCloud",
-  "t_2_1750320237611": "Omitir el envío de notificación",
-  "t_3_1750320237991": "Enviar",
   "t_0_1744098811152": "Advertencia: Ha ingresado a una zona desconocida, la página que intenta visitar no existe, por favor, haga clic en el botón para regresar a la página de inicio.",
   "t_1_1744098801860": "Volver al inicio",
   "t_2_1744098804908": "Consejo de seguridad: Si piensa que es un error, póngase en contacto con el administrador inmediatamente",
@@ -534,6 +529,7 @@
   "t_8_1747280809382": "Cubo",
   "t_9_1747280810169": "Implementación repetida",
   "t_10_1747280816952": "Cuando el certificado es el mismo que el último despliegue y el último despliegue fue exitoso",
+  "t_11_1747280809178": "Saltar",
   "t_12_1747280809893": "No omitir",
   "t_13_1747280810369": "Redespliegue",
   "t_14_1747280811231": "Buscar tipo de implementación",
@@ -662,5 +658,13 @@
   "t_0_1750210698345": "No hay datos de complementos disponibles",
   "t_1_1750210699272": "Error al obtener la lista de complementos:",
   "t_2_1750210698518": "Por favor selecciona un plugin",
-  "t_3_1750210706775": "Ingrese parámetros en formato JSON, por ejemplo:"
+  "t_3_1750210706775": "Ingrese parámetros en formato JSON, por ejemplo:",
+  "t_0_1750320239265": "Por favor ingrese la AccessKey de DogeCloud",
+  "t_1_1750320241427": "Por favor ingrese la SecretKey de DogeCloud",
+  "t_2_1750320237611": "Omitir el envío de notificación",
+  "t_3_1750320237991": "Enviar",
+  "t_0_1750399513983": "Dirección URL del servicio ACME",
+  "t_1_1750399516161": "Por favor, ingrese la URL del servicio ACME",
+  "t_2_1750399515511": "Hora de la última excepción",
+  "t_3_1750399513606": "Certificado CA"
 }

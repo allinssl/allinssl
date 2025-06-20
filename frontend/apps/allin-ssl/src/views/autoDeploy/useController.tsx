@@ -840,8 +840,8 @@ export const useCAFormController = (props?: { isEdit?: boolean; editId?: string 
 					useFormInput('CA名称', 'caName', {
 						placeholder: '请输入CA提供商名称',
 					}),
-					useFormInput($t('ACME服务URL地址'), 'CADirURL', {
-						placeholder: $t('请输入ACME服务URL地址'),
+					useFormInput($t('t_0_1750399513983'), 'CADirURL', {
+						placeholder: $t('t_1_1750399516161'),
 					}),
 				]
 			: []),
