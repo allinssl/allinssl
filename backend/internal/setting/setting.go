@@ -188,7 +188,7 @@ func Restart() {
 }
 
 func GetVersion() (map[string]string, error) {
-	version := "v1.0.5"
+	version := "v1.0.6"
 	update := "0"
 	newVersionObj, err := http.Get("https://download.allinssl.com/version.json")
 	if err != nil {
