@@ -49,9 +49,19 @@ func Deploy(cfg map[string]any, logger *public.Logger) error {
 	if !ok {
 		return fmt.Errorf("插件名称错误")
 	}
-	pluginConfig, ok := providerConfig["config"].(map[string]any)
-	if !ok {
-		return fmt.Errorf("插件配置错误")
+	var pluginConfig map[string]any
+	switch v := providerConfig["config"].(type) {
+	case map[string]any:
+		pluginConfig = v
+	case string:
+		err = json.Unmarshal([]byte(v), &pluginConfig)
+		if err != nil {
+			fmt.Println(v)
+			return fmt.Errorf("插件配置解析错误：%v", err)
+		}
+	default:
+		fmt.Println(v)
+		return fmt.Errorf("插件配置格式错误")
 	}
 	pluginParams, ok := cfg["params"].(string)
 	if !ok {
