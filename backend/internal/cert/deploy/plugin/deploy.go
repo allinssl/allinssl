@@ -83,10 +83,10 @@ func Deploy(cfg map[string]any, logger *public.Logger) error {
 	// 调用插件
 	logger.Debug(fmt.Sprintf("调用插件%s:%s", pluginName, action))
 
-	rep, err := CallPlugin(pluginName, action, pluginConfig, logger)
+	_, err = CallPlugin(pluginName, action, pluginConfig, logger)
 	if err != nil {
 		return fmt.Errorf("调用插件失败：%v", err)
 	}
-	fmt.Println(rep)
+	//fmt.Println(rep)
 	return err
 }

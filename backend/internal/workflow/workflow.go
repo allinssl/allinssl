@@ -286,6 +286,10 @@ func RunNode(node *WorkflowNode, ctx *ExecutionContext) error {
 	}
 
 	if node.ChildNode != nil {
+		fromNodeData, ok := ctx.GetOutput(node.Id)
+		if ok && fromNodeData != nil && node.ChildNode.Config["fromNodeData"] == nil {
+			node.ChildNode.Config["fromNodeData"] = fromNodeData
+		}
 		return RunNode(node.ChildNode, ctx)
 	}
 	return nil

@@ -228,3 +228,34 @@ func GetAccountList(search, ca string, p, limit int64) ([]map[string]interface{}
 
 	return data, int(count), nil
 }
+
+func GetCaList() ([]string, int, error) {
+	db, err := GetSqlite()
+	if err != nil {
+		return nil, 0, fmt.Errorf("failed to get sqlite: %w", err)
+	}
+	data, err := db.Field([]string{"type"}).GroupBy("type").Select()
+	if err != nil {
+		return nil, 0, fmt.Errorf("failed to get CA list: %w", err)
+	}
+	caList := []string{"letsencrypt", "buypass", "zerossl"}
+	for i := range data {
+		if data[i]["type"] == "Let's Encrypt" {
+			data[i]["type"] = "letsencrypt"
+		}
+		if !containsString(caList, data[i]["type"].(string)) {
+			caList = append(caList, data[i]["type"].(string))
+		}
+	}
+	count := len(caList)
+	return caList, count, nil
+}
+
+func containsString(slice []string, target string) bool {
+	for _, v := range slice {
+		if v == target {
+			return true
+		}
+	}
+	return false
+}

@@ -60,6 +60,7 @@ func Register(r *gin.Engine) {
 	acmeAccount := v1.Group("/acme_account")
 	{
 		acmeAccount.POST("/get_list", api.GetAccountList)
+		acmeAccount.POST("/get_ca_list", api.GetCaList)
 		acmeAccount.POST("/add_account", api.AddAccount)
 		acmeAccount.POST("/del_account", api.DelAccount)
 		acmeAccount.POST("/upd_account", api.UpdateAccount)

@@ -343,8 +343,15 @@ func GetAcmeClient(email, algorithm, eabId, ca string, httpClient *http.Client, 
 				}
 			}
 		}
-		var reg *registration.Resource
+		var (
+			reg              *registration.Resource
+			Kid, HmacEncoded string
+		)
 		if eabData != nil {
+			Kid = eabData["Kid"].(string)
+			HmacEncoded = eabData["HmacEncoded"].(string)
+		}
+		if Kid != "" && HmacEncoded != "" {
 			Kid := eabData["Kid"].(string)
 			HmacEncoded := eabData["HmacEncoded"].(string)
 			reg, err = client.Registration.RegisterWithExternalAccountBinding(registration.RegisterEABOptions{

@@ -125,3 +125,13 @@ func GetAccountList(c *gin.Context) {
 	}
 	public.SuccessData(c, accounts, total)
 }
+
+func GetCaList(c *gin.Context) {
+	cas, total, err := apply.GetCaList()
+	if err != nil {
+		public.FailMsg(c, err.Error())
+		return
+	}
+	public.SuccessData(c, cas, total)
+
+}
