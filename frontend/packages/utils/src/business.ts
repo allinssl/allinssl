@@ -161,6 +161,13 @@ export const isEnhancedDomain = R.test(ENHANCED_DOMAIN_REGEX)
 export const isWildcardDomain = R.test(WILDCARD_DOMAIN_REGEX)
 
 /**
+ * 判断是否为域名或通配符域名
+ * @param {string} domain - 要判断的域名
+ * @returns {boolean} 如果域名或通配符域名是有效的，则返回 true，否则返回 false
+ */
+export const isDomainOrWildcardDomain = (domain: string): boolean => isDomain(domain) || isWildcardDomain(domain)
+
+/**
  * 判断域名组，通过特定字符串分割
  * @param {string} domain - 要判断的域名
  * @param {string} separator - 分割符

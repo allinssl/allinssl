@@ -1,7 +1,7 @@
 import { FormRules } from 'naive-ui'
 import { $t } from '@locales/index'
 import { createNodeValidator } from '@workflowView/lib/NodeValidator'
-import { isDomain, isWildcardDomain } from '@baota/utils/business'
+import { isDomainOrWildcardDomain } from '@baota/utils/business'
 
 // 创建部署节点验证器
 const validator = createNodeValidator($t('t_11_1747817612051'))
@@ -51,8 +51,9 @@ export default {
 		if (!value) {
 			return new Error($t('t_0_1744958839535'))
 		}
-		if (!isWildcardDomain(value)) {
-			return new Error($t('t_0_1744958839535'))
+
+		if (!isDomainOrWildcardDomain(value)) {
+			return new Error($t('域名格式错误'))
 		}
 		return true
 	}, 'input'),
