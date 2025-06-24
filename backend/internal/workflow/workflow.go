@@ -245,7 +245,12 @@ func RunNode(node *WorkflowNode, ctx *ExecutionContext) error {
 			var wg sync.WaitGroup
 			errChan := make(chan error, len(node.ConditionNodes))
 			for _, branch := range node.ConditionNodes {
-				branch.ChildNode.Config["fromNodeData"] = node.Config["fromNodeData"]
+				if branch.ChildNode != nil {
+					if branch.ChildNode.ChildNode == nil {
+						branch.ChildNode.Config = make(map[string]any)
+					}
+					branch.ChildNode.Config["fromNodeData"] = node.Config["fromNodeData"]
+				}
 				wg.Add(1)
 				go func(node *WorkflowNode) {
 					defer wg.Done()
@@ -271,6 +276,9 @@ func RunNode(node *WorkflowNode, ctx *ExecutionContext) error {
 			for _, branch := range node.ConditionNodes {
 				if branch.Config["type"] == string(lastStatus) {
 					if branch.ChildNode != nil {
+						if branch.ChildNode.Config == nil {
+							branch.ChildNode.Config = make(map[string]any)
+						}
 						fromNodeData, ok := ctx.GetOutput(node.Config["fromNodeId"].(string))
 						if !ok {
 							fromNodeData = nil

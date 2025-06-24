@@ -39,7 +39,11 @@ func main() {
 				if public.GetSettingIgnoreError("https") == "1" {
 					http = "https"
 				}
-				url := fmt.Sprintf("%s://127.0.0.1:%s%s", http, public.Port, public.Secure)
+				secure := "/login"
+				if public.Secure != "" {
+					secure = public.Secure
+				}
+				url := fmt.Sprintf("%s://127.0.0.1:%s%s", http, public.Port, secure)
 				err := exec.Command("rundll32", "url.dll,FileProtocolHandler", url).Start()
 				if err != nil {
 					fmt.Println("无法打开浏览器，请手动访问：", url)

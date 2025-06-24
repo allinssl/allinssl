@@ -33,6 +33,11 @@ func SessionAuthMiddleware() gin.HandlerFunc {
 		session := sessions.Default(c)
 		now := time.Now()
 		gob.Register(time.Time{})
+		if public.Secure == "" && session.Get("secure") == nil {
+			session.Set("secure", true)
+			session.Set("lastRequestTime", now)
+			session.Save()
+		}
 		last := session.Get("lastRequestTime")
 
 		if routePath == public.Secure {
