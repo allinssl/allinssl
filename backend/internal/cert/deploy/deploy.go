@@ -53,7 +53,7 @@ func Deploy(cfg map[string]any, logger *public.Logger) error {
 		return Deploy1panelSite(cfg)
 	case "ssh":
 		logger.Debug("使用ssh部署到指定路径...")
-		return DeploySSH(cfg)
+		return DeploySSH(cfg, logger)
 	case "aliyun-cdn":
 		logger.Debug("部署到阿里云CDN...")
 		return DeployAliCdn(cfg)

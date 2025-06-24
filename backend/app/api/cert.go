@@ -41,7 +41,7 @@ func UploadCert(c *gin.Context) {
 	}
 	form.Key = strings.TrimSpace(form.Key)
 	form.Cert = strings.TrimSpace(form.Cert)
-	
+
 	if form.Key == "" {
 		public.FailMsg(c, "名称不能为空")
 		return
@@ -83,7 +83,7 @@ func DelCert(c *gin.Context) {
 
 func DownloadCert(c *gin.Context) {
 	ID := c.Query("id")
-	
+
 	if ID == "" {
 		public.FailMsg(c, "ID不能为空")
 		return
@@ -93,35 +93,66 @@ func DownloadCert(c *gin.Context) {
 		public.FailMsg(c, err.Error())
 		return
 	}
-	
+
 	// 构建 zip 包（内存中）
 	buf := new(bytes.Buffer)
 	zipWriter := zip.NewWriter(buf)
-	
-	for filename, content := range certData {
-		if filename == "cert" || filename == "key" {
-			writer, err := zipWriter.Create(filename + ".pem")
-			if err != nil {
-				public.FailMsg(c, err.Error())
-				return
-			}
-			_, err = writer.Write([]byte(content))
-			if err != nil {
-				public.FailMsg(c, err.Error())
-				return
-			}
+
+	// 写入PEM文件
+	// cert.pem
+	certStr := certData["cert"]
+	certWriter, err := zipWriter.Create("Nginx/cert.pem")
+	if err != nil {
+		public.FailMsg(c, err.Error())
+		return
+	}
+	if _, err := certWriter.Write([]byte(certStr)); err != nil {
+		public.FailMsg(c, err.Error())
+		return
+	}
+	// key.pem
+	keyStr := certData["key"]
+	keyWriter, err := zipWriter.Create("Nginx/key.pem")
+	if err != nil {
+		public.FailMsg(c, err.Error())
+		return
+	}
+	if _, err := keyWriter.Write([]byte(keyStr)); err != nil {
+		public.FailMsg(c, err.Error())
+		return
+	}
+	// cert.pfx
+	pfxPassword := "allinssl"
+	pfxData, err := public.PEMToPFX(certStr, keyStr, pfxPassword)
+	if err == nil && len(pfxData) > 0 {
+		pfxWriter, err := zipWriter.Create("IIS/cert.pfx")
+		if err != nil {
+			public.FailMsg(c, err.Error())
+			return
+		}
+		if _, err := pfxWriter.Write(pfxData); err != nil {
+			public.FailMsg(c, err.Error())
+			return
+		}
+		txtWriter, err := zipWriter.Create("IIS/passwd.txt")
+		if err != nil {
+			public.FailMsg(c, err.Error())
+			return
+		}
+		if _, err := txtWriter.Write([]byte(pfxPassword)); err != nil {
+			public.FailMsg(c, err.Error())
+			return
 		}
 	}
+
 	// 关闭 zipWriter
 	if err := zipWriter.Close(); err != nil {
 		public.FailMsg(c, err.Error())
 		return
 	}
 	// 设置响应头
-	
 	zipName := strings.ReplaceAll(certData["domains"], ".", "_")
 	zipName = strings.ReplaceAll(zipName, ",", "-")
-	
 	c.Header("Content-Type", "application/zip")
 	c.Header("Content-Disposition", "attachment; filename="+zipName+".zip")
 	c.Data(200, "application/zip", buf.Bytes())

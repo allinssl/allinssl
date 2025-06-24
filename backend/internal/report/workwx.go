@@ -48,7 +48,7 @@ func NotifyWorkWx(params map[string]any) error {
 		return err
 	}
 	configStr := providerData["config"].(string)
-	fmt.Println(configStr)
+	//fmt.Println(configStr)
 	var config map[string]string
 	err = json.Unmarshal([]byte(configStr), &config)
 	if err != nil {

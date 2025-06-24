@@ -30,25 +30,34 @@ func buildAuthMethods(password, privateKey string) ([]ssh.AuthMethod, error) {
 	var methods []ssh.AuthMethod
 
 	if privateKey != "" {
-		signer, err := ssh.ParsePrivateKey([]byte(privateKey))
-		if err != nil {
-			return nil, fmt.Errorf("unable to parse private key: %v", err)
+		var signer ssh.Signer
+		var err error
+		if password != "" {
+			signer, err = ssh.ParsePrivateKeyWithPassphrase([]byte(privateKey), []byte(password))
+			if err != nil {
+				return nil, fmt.Errorf("无法解析带密码的私钥: %v", err)
+			}
+		} else {
+			signer, err = ssh.ParsePrivateKey([]byte(privateKey))
+			if err != nil {
+				return nil, fmt.Errorf("无法解析私钥: %v", err)
+			}
 		}
 		methods = append(methods, ssh.PublicKeys(signer))
 	}
 
-	if password != "" {
+	if password != "" && privateKey == "" {
 		methods = append(methods, ssh.Password(password))
 	}
 
 	if len(methods) == 0 {
-		return nil, fmt.Errorf("no authentication methods provided")
+		return nil, fmt.Errorf("未提供有效的认证方式")
 	}
 
 	return methods, nil
 }
 
-func writeMultipleFilesViaSSH(config SSHConfig, files []RemoteFile, preCmd, postCmd string) error {
+func writeMultipleFilesViaSSH(config SSHConfig, files []RemoteFile, preCmd, postCmd string, logger *public.Logger) error {
 	var port string
 	switch v := config.Port.(type) {
 	case float64:
@@ -91,8 +100,9 @@ func writeMultipleFilesViaSSH(config SSHConfig, files []RemoteFile, preCmd, post
 		return fmt.Errorf("会话创建失败: %v", err)
 	}
 	defer session.Close()
-
-	var script bytes.Buffer
+	var script, stdoutBuf, stderrBuf bytes.Buffer
+	session.Stdout = &stdoutBuf
+	session.Stderr = &stderrBuf
 
 	if preCmd != "" {
 		script.WriteString(preCmd + " && ")
@@ -115,14 +125,14 @@ func writeMultipleFilesViaSSH(config SSHConfig, files []RemoteFile, preCmd, post
 
 	cmd := script.String()
 
-	if err := session.Run(cmd); err != nil {
-		return fmt.Errorf("运行出错: %v", err)
-	}
+	err = session.Run(cmd)
+	logger.Debug("[STDOUT]", stdoutBuf.String())
+	logger.Debug("[STDERR]", stderrBuf.String())
 
-	return nil
+	return err
 }
 
-func DeploySSH(cfg map[string]any) error {
+func DeploySSH(cfg map[string]any, logger *public.Logger) error {
 	cert, ok := cfg["certificate"].(map[string]any)
 	if !ok {
 		return fmt.Errorf("证书不存在")
@@ -180,7 +190,7 @@ func DeploySSH(cfg map[string]any) error {
 		{Path: certPath, Content: certPem},
 		{Path: keyPath, Content: keyPem},
 	}
-	err = writeMultipleFilesViaSSH(providerConfig, files, beforeCmd, afterCmd)
+	err = writeMultipleFilesViaSSH(providerConfig, files, beforeCmd, afterCmd, logger)
 	if err != nil {
 		return fmt.Errorf("SSH 部署失败: %v", err)
 	}

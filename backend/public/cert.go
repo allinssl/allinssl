@@ -12,6 +12,8 @@ import (
 	"encoding/pem"
 	"errors"
 	"fmt"
+	"software.sslmate.com/src/go-pkcs12"
+	"strings"
 	"time"
 )
 
@@ -137,4 +139,48 @@ func GetSHA256(certStr string) (string, error) {
 
 	sha256Hash := sha256.Sum256(cert.Raw)
 	return hex.EncodeToString(sha256Hash[:]), nil
+}
+
+// PEMToPFX 将PEM格式的证书和私钥转换为PFX格式
+func PEMToPFX(certPEM, keyPEM, pfxPassword string) ([]byte, error) {
+	// 使用默认密码如果未提供
+	if pfxPassword == "" {
+		pfxPassword = "allinssl"
+	}
+
+	// 解析证书PEM
+	certBlock, _ := pem.Decode([]byte(certPEM))
+	if certBlock == nil || certBlock.Type != "CERTIFICATE" {
+		return nil, fmt.Errorf("无效的证书PEM格式")
+	}
+
+	// 解析私钥PEM
+	keyBlock, _ := pem.Decode([]byte(keyPEM))
+	if keyBlock == nil || (!strings.Contains(keyBlock.Type, "PRIVATE KEY")) {
+		return nil, fmt.Errorf("无效的私钥PEM格式")
+	}
+
+	// 解析X.509证书
+	cert, err := x509.ParseCertificate(certBlock.Bytes)
+	if err != nil {
+		return nil, fmt.Errorf("解析证书失败: %v", err)
+	}
+
+	// 尝试解析私钥(PKCS8或PKCS1格式)
+	var privKey interface{}
+	privKey, err = x509.ParsePKCS8PrivateKey(keyBlock.Bytes)
+	if err != nil {
+		privKey, err = x509.ParsePKCS1PrivateKey(keyBlock.Bytes)
+		if err != nil {
+			return nil, fmt.Errorf("解析私钥失败: %v", err)
+		}
+	}
+
+	// 编码为PFX格式
+	pfxData, err := pkcs12.Encode(rand.Reader, privKey, cert, nil, pfxPassword)
+	if err != nil {
+		return nil, fmt.Errorf("编码PFX失败: %v", err)
+	}
+
+	return pfxData, nil
 }
