@@ -209,7 +209,7 @@ func notify(params map[string]any) (any, error) {
 		if v, ok := fromNodeData["skip"].(bool); ok && v {
 			// 如果 skip 是 true，则跳过通知
 			var skip bool
-			switch v := fromNodeData["skip"].(type) {
+			switch v := params["skip"].(type) {
 			case int:
 				skip = v == 1
 			case float64:

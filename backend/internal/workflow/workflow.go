@@ -246,7 +246,7 @@ func RunNode(node *WorkflowNode, ctx *ExecutionContext) error {
 			errChan := make(chan error, len(node.ConditionNodes))
 			for _, branch := range node.ConditionNodes {
 				if branch.ChildNode != nil {
-					if branch.ChildNode.ChildNode == nil {
+					if branch.ChildNode.Config == nil {
 						branch.ChildNode.Config = make(map[string]any)
 					}
 					branch.ChildNode.Config["fromNodeData"] = node.Config["fromNodeData"]
