@@ -55,7 +55,7 @@ func SaveUserToDB(db *public.Sqlite, user *MyUser, Type string) error {
 		return err
 	}
 	if len(data) > 0 {
-		_, err = db.Update(map[string]interface{}{
+		_, err = db.Where("id=?", []any{data[0]["id"]}).Update(map[string]interface{}{
 			"private_key": string(pemBytes),
 			"reg":         regBytes,
 			"update_time": now,
