@@ -144,6 +144,28 @@ func DownloadCert(c *gin.Context) {
 			return
 		}
 	}
+	// cert.jks
+	jksData, err := public.PfxToJks(pfxData, pfxPassword, pfxPassword, "allinssl")
+	if err == nil && jksData != nil {
+		jksWriter, err := zipWriter.Create("Tomcat/cert.jks")
+		if err != nil {
+			public.FailMsg(c, err.Error())
+			return
+		}
+		if _, err := jksWriter.Write(jksData.Bytes()); err != nil {
+			public.FailMsg(c, err.Error())
+			return
+		}
+		txtWriter, err := zipWriter.Create("Tomcat/passwd.txt")
+		if err != nil {
+			public.FailMsg(c, err.Error())
+			return
+		}
+		if _, err := txtWriter.Write([]byte(pfxPassword)); err != nil {
+			public.FailMsg(c, err.Error())
+			return
+		}
+	}
 
 	// 关闭 zipWriter
 	if err := zipWriter.Close(); err != nil {

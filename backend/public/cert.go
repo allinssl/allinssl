@@ -1,6 +1,7 @@
 package public
 
 import (
+	"bytes"
 	"crypto"
 	"crypto/ecdsa"
 	"crypto/ed25519"
@@ -12,6 +13,7 @@ import (
 	"encoding/pem"
 	"errors"
 	"fmt"
+	"github.com/pavlo-v-chernykh/keystore-go/v4"
 	"software.sslmate.com/src/go-pkcs12"
 	"strings"
 	"time"
@@ -183,4 +185,56 @@ func PEMToPFX(certPEM, keyPEM, pfxPassword string) ([]byte, error) {
 	}
 
 	return pfxData, nil
+}
+
+// PfxToJks 将PFX格式证书转换为JKS格式
+func PfxToJks(pfxData []byte, pfxPassword, jksPassword, alias string) (*bytes.Buffer, error) {
+	if pfxPassword == "" {
+		return nil, fmt.Errorf("PFX 密码不能为空")
+	}
+	if jksPassword == "" {
+		jksPassword = pfxPassword
+	}
+	if alias == "" {
+		alias = "mycert"
+	}
+	// 解析 PFX，提取私钥、证书链
+	priv, cert, caCerts, err := pkcs12.DecodeChain(pfxData, pfxPassword)
+	if err != nil {
+		return nil, fmt.Errorf("解析 PFX 失败: %w", err)
+	}
+
+	// 序列化私钥，兼容多种类型
+	pkBytes, err := x509.MarshalPKCS8PrivateKey(priv)
+	if err != nil {
+		return nil, fmt.Errorf("私钥序列化失败: %w", err)
+	}
+
+	// 构建证书链
+	certChain := make([]keystore.Certificate, 0, len(caCerts)+1)
+	certChain = append(certChain, keystore.Certificate{
+		Type:    "X.509",
+		Content: cert.Raw,
+	})
+	for _, c := range caCerts {
+		certChain = append(certChain, keystore.Certificate{
+			Type:    "X.509",
+			Content: c.Raw,
+		})
+	}
+
+	// 创建 JKS 并写入条目
+	ks := keystore.New()
+	ks.SetPrivateKeyEntry(alias, keystore.PrivateKeyEntry{
+		PrivateKey:       pkBytes,
+		CertificateChain: certChain,
+	}, []byte(jksPassword))
+
+	// 写入到 Buffer
+	var buf bytes.Buffer
+	if err := ks.Store(&buf, []byte(jksPassword)); err != nil {
+		return nil, fmt.Errorf("生成 JKS 失败: %w", err)
+	}
+
+	return &buf, nil
 }

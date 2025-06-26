@@ -27,12 +27,14 @@ require (
 	github.com/jordan-wright/email v4.0.1-0.20210109023952-943e75fe5223+incompatible
 	github.com/mitchellh/go-ps v1.0.0
 	github.com/mojocn/base64Captcha v1.3.8
+	github.com/pavlo-v-chernykh/keystore-go/v4 v4.5.0
 	github.com/qiniu/go-sdk/v7 v7.25.3
 	github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/common v1.0.1128
 	github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/ssl v1.0.1124
 	github.com/volcengine/volcengine-go-sdk v1.1.11
 	golang.org/x/crypto v0.37.0
 	modernc.org/sqlite v1.37.0
+	software.sslmate.com/src/go-pkcs12 v0.5.0
 )
 
 require (
