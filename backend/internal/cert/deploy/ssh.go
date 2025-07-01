@@ -4,10 +4,13 @@ import (
 	"ALLinSSL/backend/internal/access"
 	"ALLinSSL/backend/public"
 	"bytes"
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
+	"github.com/pkg/sftp"
 	"golang.org/x/crypto/ssh"
 	"os"
+	"path"
 	"path/filepath"
 	"strconv"
 )
@@ -69,11 +72,13 @@ func writeMultipleFilesViaSSH(config SSHConfig, files []RemoteFile, preCmd, post
 	default:
 		port = "22"
 	}
+
 	IPtype := public.CheckIPType(config.Host)
 	if IPtype == "IPv6" {
 		config.Host = "[" + config.Host + "]"
 	}
 	addr := fmt.Sprintf("%s:%s", config.Host, port)
+
 	if config.Mode == "" || config.Mode == "password" {
 		config.PrivateKey = ""
 	}
@@ -95,41 +100,100 @@ func writeMultipleFilesViaSSH(config SSHConfig, files []RemoteFile, preCmd, post
 	}
 	defer client.Close()
 
+	// 执行前置命令
+	if preCmd != "" {
+		stdout, stderr, err := runSSHCommand(client, preCmd)
+		logger.Debug("[前置命令 STDOUT]", stdout)
+		logger.Debug("[前置命令 STDERR]", stderr)
+		if err != nil {
+			return fmt.Errorf("执行前置命令失败: %v", err)
+		}
+	}
+
+	// 上传文件：先尝试 SFTP
+	var uploadErr error
+	sftpClient, sftpErr := sftp.NewClient(client)
+	if sftpErr == nil {
+		defer sftpClient.Close()
+
+		uploadErr = func() error {
+			for _, file := range files {
+				remoteDir := path.Dir(file.Path)
+				if err := sftpClient.MkdirAll(remoteDir); err != nil {
+					return fmt.Errorf("创建远程目录失败 %s: %v", remoteDir, err)
+				}
+				dstFile, err := sftpClient.Create(file.Path)
+				if err != nil {
+					return fmt.Errorf("创建远程文件失败 %s: %v", file.Path, err)
+				}
+				_, err = dstFile.Write([]byte(file.Content))
+				dstFile.Close()
+				if err != nil {
+					return fmt.Errorf("写入远程文件失败 %s: %v", file.Path, err)
+				}
+				logger.Info("SFTP 上传文件成功: ", file.Path)
+			}
+			return nil
+		}()
+		if uploadErr == nil {
+			logger.Info("全部文件通过 SFTP 上传成功")
+		} else {
+			logger.Debug("SFTP 上传失败，改用 SSH 命令上传，错误: ", uploadErr)
+		}
+	} else {
+		logger.Debug("创建 SFTP 客户端失败，改用 SSH 命令上传，错误: ", sftpErr)
+		uploadErr = sftpErr
+	}
+
+	// 如果 SFTP 上传失败，改用 ssh 命令上传文件
+	if uploadErr != nil {
+		for _, file := range files {
+			mkdirCmd := fmt.Sprintf("mkdir -p $(dirname %q)", file.Path)
+			stdout, stderr, err := runSSHCommand(client, mkdirCmd)
+			logger.Debug("[mkdir 命令 STDOUT]", stdout)
+			logger.Debug("[mkdir 命令 STDERR]", stderr)
+			if err != nil {
+				return fmt.Errorf("创建目录失败: %v", err)
+			}
+
+			contentBase64 := base64.StdEncoding.EncodeToString([]byte(file.Content))
+			writeCmd := fmt.Sprintf("echo %s | base64 -d > %s", contentBase64, file.Path)
+			stdout, stderr, err = runSSHCommand(client, writeCmd)
+			logger.Debug("[写文件命令 STDOUT]", stdout)
+			logger.Debug("[写文件命令 STDERR]", stderr)
+			if err != nil {
+				return fmt.Errorf("写文件失败: %v", err)
+			}
+			logger.Info("SSH 命令上传文件成功: ", file.Path)
+		}
+	}
+
+	// 执行后置命令
+	if postCmd != "" {
+		stdout, stderr, err := runSSHCommand(client, postCmd)
+		logger.Debug("[后置命令 STDOUT]", stdout)
+		logger.Debug("[后置命令 STDERR]", stderr)
+		if err != nil {
+			return fmt.Errorf("执行后置命令失败: %v", err)
+		}
+	}
+
+	return nil
+}
+
+func runSSHCommand(client *ssh.Client, cmd string) (string, string, error) {
 	session, err := client.NewSession()
 	if err != nil {
-		return fmt.Errorf("会话创建失败: %v", err)
+		return "", "", fmt.Errorf("新建会话失败: %v", err)
 	}
 	defer session.Close()
-	var script, stdoutBuf, stderrBuf bytes.Buffer
+
+	var stdoutBuf, stderrBuf bytes.Buffer
 	session.Stdout = &stdoutBuf
 	session.Stderr = &stderrBuf
 
-	if preCmd != "" {
-		script.WriteString(preCmd + " && ")
-	}
-
-	for i, file := range files {
-		if i > 0 {
-			script.WriteString(" && ")
-		}
-
-		dirCmd := fmt.Sprintf("mkdir -p $(dirname %q)", file.Path)
-		writeCmd := fmt.Sprintf("printf %%s '%s' > %s", file.Content, file.Path)
-
-		script.WriteString(dirCmd + " && " + writeCmd)
-	}
-
-	if postCmd != "" {
-		script.WriteString(" && " + postCmd)
-	}
-
-	cmd := script.String()
-
 	err = session.Run(cmd)
-	logger.Debug("[STDOUT]", stdoutBuf.String())
-	logger.Debug("[STDERR]", stderrBuf.String())
-
-	return err
+	return stdoutBuf.String(), stderrBuf.String(), err
 }
 
 func DeploySSH(cfg map[string]any, logger *public.Logger) error {
