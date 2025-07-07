@@ -11353,5 +11353,22 @@
       "arDZ": "شهادة CA"
     },
     "timestamp": "2025-06-20T06:05:16.165Z"
+  },
+  "域名格式错误": {
+    "text": "域名格式错误",
+    "key": "t_0_1750469182154",
+    "translations": {
+      "zhCN": "域名格式错误",
+      "zhTW": "網域名稱格式錯誤",
+      "enUS": "Domain name format is incorrect",
+      "jaJP": "ドメイン名の形式が間違っています",
+      "koKR": "도메인 이름 형식이 잘못되었습니다",
+      "ruRU": "Неверный формат доменного имени",
+      "ptBR": "Formato do nome de domínio incorreto",
+      "frFR": "Format du nom de domaine incorrect",
+      "esAR": "Formato de nombre de dominio incorrecto",
+      "arDZ": "صيغة اسم المجال خاطئة"
+    },
+    "timestamp": "2025-06-21T01:26:22.154Z"
   }
 }

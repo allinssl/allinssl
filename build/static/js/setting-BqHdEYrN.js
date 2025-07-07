@@ -1,0 +1,1 @@
+import{c as t}from"./index-jviZh_iP.js";const e=e=>t("/v1/setting/get_setting",e),r=e=>t("/v1/setting/save_setting",e),s=e=>t("/v1/report/add_report",e),o=e=>t("/v1/report/upd_report",e),p=e=>t("/v1/report/del_report",e),a=e=>t("/v1/report/notify_test",e),i=e=>t("/v1/report/get_list",e);export{i as a,s as b,p as d,e as g,r as s,a as t,o as u};

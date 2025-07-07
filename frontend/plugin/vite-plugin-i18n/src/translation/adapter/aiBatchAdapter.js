@@ -11,7 +11,8 @@ import config from '../../config/config.js'
 export class AIBatchAdapter extends TranslationAdapter {
 	constructor() {
 		super()
-		this.translator = new DeepSeekAITranslator(config.apiKey[config.translateMethod])
+		// this.translator = new DeepSeekAITranslator(config.apiKey[config.translateMethod])
+		this.translator = new QianwenAITranslator(config.apiKey[config.translateMethod])
 		console.log(`当前翻译模型：${this.translator.model}`)
 	}
 

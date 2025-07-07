@@ -1,0 +1,1 @@
+import{c as o,d as s}from"./index-DuE5FJUK.js";const e=s=>o("/v1/login/sign",s),g=()=>s.get("/v1/login/get_code"),i=()=>o("/v1/login/sign-out",{}),v=s=>o("/v1/overview/get_overviews",s);export{g as a,v as g,e as l,i as s};

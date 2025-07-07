@@ -51,10 +51,6 @@ export default {
 		if (!value) {
 			return new Error($t('t_0_1744958839535'))
 		}
-
-		if (!isDomainOrWildcardDomain(value)) {
-			return new Error($t('域名格式错误'))
-		}
 		return true
 	}, 'input'),
 
