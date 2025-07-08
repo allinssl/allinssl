@@ -120,16 +120,8 @@ start - 启动 ALLinSSL
 			fmt.Print("请输入安全入口: ")
 			fmt.Scanln(&secure)
 		}
-		if len(secure) < 5 {
-			fmt.Println("安全入口至少需要5位")
-			return
-		}
-		if secure[0] != '/' {
+		if secure != "" && secure[0] != '/' {
 			secure = "/" + secure
-		}
-		if secure == "/login" {
-			fmt.Println("安全入口不能是/login")
-			return
 		}
 		err := public.UpdateSetting("secure", secure)
 		if err != nil {

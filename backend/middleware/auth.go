@@ -33,6 +33,10 @@ func SessionAuthMiddleware() gin.HandlerFunc {
 		session := sessions.Default(c)
 		now := time.Now()
 		gob.Register(time.Time{})
+		if public.Secure == "/" || public.Secure == "/login" {
+			// 如果安全入口是根目录或登录页，则不需要特殊处理
+			public.Secure = ""
+		}
 		if public.Secure == "" && session.Get("secure") == nil {
 			session.Set("secure", true)
 			session.Set("lastRequestTime", now)

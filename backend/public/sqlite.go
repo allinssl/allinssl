@@ -58,11 +58,6 @@ func NewSqlite(DbFile string, PreFix string) (*Sqlite, error) {
 	if err != nil {
 		return nil, err
 	}
-	_, err = s.Conn.Exec("PRAGMA busy_timeout = 5000;")
-	if err != nil {
-		s.Close()
-		return nil, fmt.Errorf("设置PRAGMA busy_timeout失败: %w", err)
-	}
 
 	return &s, nil
 }
@@ -80,7 +75,8 @@ func FileExists(file string) bool {
  * @return error 错误信息
  */
 func (s *Sqlite) Connect() error {
-	conn, err := sql.Open("sqlite", s.DbFile)
+	dsn := fmt.Sprintf("file:%s?_pragma=busy_timeout(60000)", s.DbFile)
+	conn, err := sql.Open("sqlite", dsn)
 	if err == nil {
 		s.Conn = conn
 		s.closed = false

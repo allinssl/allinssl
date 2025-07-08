@@ -28,7 +28,9 @@ require (
 	github.com/mitchellh/go-ps v1.0.0
 	github.com/mojocn/base64Captcha v1.3.8
 	github.com/pavlo-v-chernykh/keystore-go/v4 v4.5.0
+	github.com/pkg/sftp v1.13.9
 	github.com/qiniu/go-sdk/v7 v7.25.3
+	github.com/tealeg/xlsx v1.0.5
 	github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/common v1.0.1128
 	github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/ssl v1.0.1124
 	github.com/volcengine/volcengine-go-sdk v1.1.11
@@ -94,6 +96,7 @@ require (
 	github.com/jmespath/go-jmespath v0.4.0 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
 	github.com/klauspost/cpuid/v2 v2.2.10 // indirect
+	github.com/kr/fs v0.1.0 // indirect
 	github.com/kylelemons/godebug v1.1.0 // indirect
 	github.com/leodido/go-urn v1.4.0 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect

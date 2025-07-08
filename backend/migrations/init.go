@@ -192,47 +192,6 @@ func init() {
 		fmt.Println("错误:", err)
 	}
 
-	db1, err := sql.Open("sqlite", "data/site_monitor.db")
-	if err != nil {
-		// fmt.Println("创建数据库失败:", err)
-		return
-	}
-	defer db1.Close()
-	// 创建表
-	_, err = db1.Exec(`
-	PRAGMA journal_mode=WAL;
- 
-	create table IF NOT EXISTS site_monitor
-	(
-	    id              integer not null
-	        constraint site_monitor_pk
-	            primary key autoincrement,
-	    name            TEXT    not null,
-	    site_domain     TEXT    not null,
-	    cycle           integer not null,
-	    report_type     TEXT    not null,
-	    cert_domain     TEXT,
-	    ca              TEXT,
-	    active          integer,
-	    end_time        TEXT,
-	    end_day         TEXT,
-	    last_time       TEXT,
-	    except_end_time TEXT,
-	    create_time     TEXT,
-	    state           TEXT,
-	    update_time     TEXT,
-	    repeat_send_gap INTEGER
-	);
-       `)
-
-	err = sqlite_migrate.EnsureDatabaseWithTables(
-		"data/settings.db",
-		"data/data.db",
-		[]string{"settings", "users"}, // 你要迁移的表
-	)
-	if err != nil {
-		fmt.Println("错误:", err)
-	}
 	dbSetting, err := sql.Open("sqlite", "data/settings.db")
 	if err != nil {
 		//fmt.Println("创建 settings 数据库失败:", err)
@@ -331,6 +290,82 @@ INSERT INTO settings (key, value, create_time, update_time, active, type) VALUES
 		on a.email = b.mail and a.type like b.ca||'%';
 `
 	insertDefaultData(dbAcc, "accounts", insertSql)
+
+	sourceDBPath := "data/site_monitor.db"
+	if _, err := os.Stat(sourceDBPath); err != nil {
+		sourceDBPath = "data/data.db"
+	}
+
+	columnMapping := map[string]string{
+		"name":            "name",
+		"site_domain":     "target",
+		"report_type":     "report_types",
+		"active":          "active",
+		"last_time":       "last_time",
+		"except_end_time": "except_end_time",
+		"update_time":     "update_time",
+		"create_time":     "create_time",
+		"cycle":           "cycle",
+		"repeat_send_gap": "repeat_send_gap",
+	}
+
+	createTableSQL := `
+create table monitor
+(
+    id              integer                 not null
+        constraint monitor_pk
+            primary key autoincrement,
+    name            TEXT                    not null,
+    target          TEXT                    not null,
+    monitor_type    TEXT    default 'https' not null,
+    report_types    TEXT                    not null,
+    active          integer default 1,
+    info            TEXT,
+    last_time       TEXT,
+    except_end_time TEXT,
+    update_time     TEXT,
+    create_time     TEXT,
+    cycle           integer,
+    repeat_send_gap integer default 10,
+    advance_day     integer default 30,
+    valid           INTEGER default 0       not null
+);`
+
+	err = sqlite_migrate.MigrateSQLiteTable(
+		sourceDBPath,
+		"site_monitor",
+		"data/monitor.db",
+		"monitor",
+		columnMapping,
+		createTableSQL,
+		1000,
+	)
+	if err != nil {
+		//fmt.Println("迁移失败:", err)
+		return
+	}
+
+	dbMonitor, err := sql.Open("sqlite", "data/monitor.db")
+	if err != nil {
+		// fmt.Println("创建 monitor 数据库失败:", err)
+		return
+	}
+	defer dbMonitor.Close()
+	// 创建表
+	_, err = dbMonitor.Exec(`
+	PRAGMA journal_mode=WAL;
+	create table if not exists err_record
+	(
+		id          TEXT    not null
+			constraint err_record_pk
+				primary key,
+		monitor_id  INTEGER not null,
+		create_time TEXT    not null,
+		info        TEXT    not null,
+		msg         TEXT    not null
+	);
+`)
+
 }
 
 func insertDefaultData(db *sql.DB, table, insertSQL string) {

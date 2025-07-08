@@ -2,7 +2,10 @@ package route
 
 import (
 	"ALLinSSL/backend/app/api"
+	"ALLinSSL/backend/app/api/monitor"
+	"ALLinSSL/static"
 	"github.com/gin-gonic/gin"
+	"io/fs"
 	"net/http"
 )
 
@@ -15,14 +18,20 @@ func Register(r *gin.Engine) {
 		login.POST("/sign-out", api.SignOut)
 		login.GET("/get_code", api.GetCode)
 	}
-	siteMonitor := v1.Group("/siteMonitor")
+
+	_monitor := v1.Group("/monitor")
 	{
-		siteMonitor.POST("/get_list", api.GetMonitorList)
-		siteMonitor.POST("/add_site_monitor", api.AddMonitor)
-		siteMonitor.POST("/upd_site_monitor", api.UpdMonitor)
-		siteMonitor.POST("/del_site_monitor", api.DelMonitor)
-		siteMonitor.POST("/set_site_monitor", api.SetMonitor)
+		_monitor.POST("/get_list", monitor.GetMonitorList)
+		_monitor.POST("/add_monitor", monitor.AddMonitor)
+		_monitor.POST("/upd_monitor", monitor.UpdMonitor)
+		_monitor.POST("/del_monitor", monitor.DelMonitor)
+		_monitor.POST("/set_monitor", monitor.SetMonitor)
+		_monitor.POST("/get_monitor_info", monitor.GetMonitorInfo)
+		_monitor.POST("/get_err_record", monitor.GetErrRecord)
+		_monitor.POST("/file_add_monitor", monitor.FileAddMonitor)
+		_monitor.GET("/template", monitor.GetTemplate)
 	}
+
 	workflow := v1.Group("/workflow")
 	{
 		workflow.POST("/get_list", api.GetWorkflowList)
@@ -93,20 +102,28 @@ func Register(r *gin.Engine) {
 		overview.POST("/get_overviews", api.GetOverview)
 	}
 
-	// 1. 提供静态文件服务
-	r.StaticFS("/static", http.Dir("./frontend/static"))             // 静态资源路径
-	r.StaticFS("/auto-deploy/static", http.Dir("./frontend/static")) // 静态资源路径
-	// 返回 favicon.ico
+	// 静态资源：/static -> build/static
+	staticFS, _ := fs.Sub(static.BuildFS, "build/static")
+	r.StaticFS("/static", http.FS(staticFS))
+	r.StaticFS("/auto-deploy/static", http.FS(staticFS))
+
+	// favicon.ico
 	r.GET("/favicon.ico", func(c *gin.Context) {
-		c.File("./frontend/favicon.ico")
+		data, err := static.BuildFS.ReadFile("build/favicon.ico")
+		if err != nil {
+			c.Status(http.StatusNotFound)
+			return
+		}
+		c.Data(http.StatusOK, "image/x-icon", data)
 	})
 
-	// 3. 前端路由托管：匹配所有其他路由并返回 index.html
+	// 其他路由：返回 index.html
 	r.NoRoute(func(c *gin.Context) {
-		c.File("./frontend/index.html")
+		data, err := static.BuildFS.ReadFile("build/index.html")
+		if err != nil {
+			c.String(http.StatusInternalServerError, "页面加载失败")
+			return
+		}
+		c.Data(http.StatusOK, "text/html; charset=utf-8", data)
 	})
-	// v2 := r.Group("/v2")
-	// {
-	// 	v2.POST("/submit")
-	// }
 }

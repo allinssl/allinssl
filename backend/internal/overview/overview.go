@@ -65,15 +65,15 @@ func GetCertCount() (map[string]int, error) {
 	return result, nil
 }
 
-func GetSiteMonitorCount() (map[string]any, error) {
-	s, err := public.NewSqlite("data/site_monitor.db", "")
+func GetMonitorCount() (map[string]any, error) {
+	s, err := public.NewSqlite("data/monitor.db", "")
 	if err != nil {
 		return nil, err
 	}
 	defer s.Close()
 	cert, err := s.Query(`select count(*) as count,
-	   count(case when state='异常' then 1 end ) as exception
-	   from site_monitor`)
+	   count(case when valid=-1 then 1 end ) as exception
+	   from monitor`)
 	if err != nil {
 		return nil, err
 	}
@@ -144,18 +144,18 @@ func GetOverviewData() (map[string]any, error) {
 	if err != nil {
 		return nil, err
 	}
-	siteMonitorCount, err := GetSiteMonitorCount()
+	workflowHistory, err := GetWorkflowHistory()
 	if err != nil {
 		return nil, err
 	}
-	workflowHistory, err := GetWorkflowHistory()
+	monitorCount, err := GetMonitorCount()
 	if err != nil {
 		return nil, err
 	}
 	result := make(map[string]any)
 	result["workflow"] = workflowCount
 	result["cert"] = certCount
-	result["site_monitor"] = siteMonitorCount
+	result["monitor"] = monitorCount
 	result["workflow_history"] = workflowHistory
 	return result, nil
 }

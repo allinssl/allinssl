@@ -8,7 +8,7 @@ import (
 
 // 你的任务列表
 var funcs = []func(){
-	SiteMonitor,
+	Monitor,
 	RunWorkflows,
 }
 
