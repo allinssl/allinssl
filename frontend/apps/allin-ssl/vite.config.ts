@@ -116,7 +116,7 @@ export default defineConfig({
 			localSync: [
 				{
 					source: 'apps/allin-ssl/dist',
-					target: ['.sync-git/allinssl-gitlab/build', '.sync-git/allinssl-github/build'],
+					target: ['.sync-git/allinssl-gitlab/static/build', '.sync-git/allinssl-github/static/build'],
 					mode: 'copy',
 					clearTarget: true,
 					exclude: ['node_modules', '.git'],
