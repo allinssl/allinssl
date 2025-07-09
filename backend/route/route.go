@@ -3,10 +3,12 @@ package route
 import (
 	"ALLinSSL/backend/app/api"
 	"ALLinSSL/backend/app/api/monitor"
+	"ALLinSSL/backend/public"
 	"ALLinSSL/static"
 	"github.com/gin-gonic/gin"
 	"io/fs"
 	"net/http"
+	"strings"
 )
 
 func Register(r *gin.Engine) {
@@ -119,6 +121,11 @@ func Register(r *gin.Engine) {
 
 	// 其他路由：返回 index.html
 	r.NoRoute(func(c *gin.Context) {
+		// 如果是 API 请求，返回 JSON 的 404
+		if strings.HasPrefix(c.Request.URL.Path, "/v1/") {
+			public.FailMsg(c, "请求的资源不存在")
+			return
+		}
 		data, err := static.BuildFS.ReadFile("build/index.html")
 		if err != nil {
 			c.String(http.StatusInternalServerError, "页面加载失败")
