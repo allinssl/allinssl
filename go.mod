@@ -7,6 +7,7 @@ require (
 	github.com/alibabacloud-go/cas-20200407/v4 v4.0.0
 	github.com/alibabacloud-go/cdn-20180510/v6 v6.0.0
 	github.com/alibabacloud-go/darabonba-openapi/v2 v2.1.7
+	github.com/alibabacloud-go/dcdn-20180115/v3 v3.5.0
 	github.com/alibabacloud-go/esa-20240910/v2 v2.34.0
 	github.com/alibabacloud-go/market-20151101/v4 v4.1.0
 	github.com/alibabacloud-go/openapi-util v0.1.1
@@ -93,6 +94,8 @@ require (
 	github.com/gorilla/context v1.1.2 // indirect
 	github.com/gorilla/securecookie v1.1.2 // indirect
 	github.com/gorilla/sessions v1.4.0 // indirect
+	github.com/hashicorp/go-cleanhttp v0.5.2 // indirect
+	github.com/hashicorp/go-retryablehttp v0.7.7 // indirect
 	github.com/jmespath/go-jmespath v0.4.0 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
 	github.com/klauspost/cpuid/v2 v2.2.10 // indirect

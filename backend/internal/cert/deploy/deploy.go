@@ -66,6 +66,9 @@ func Deploy(cfg map[string]any, logger *public.Logger) error {
 	case "aliyun-esa":
 		logger.Debug("部署到阿里云ESA...")
 		return aliyun.DeployAliyunESA(cfg)
+	case "aliyun-dcdn":
+		logger.Debug("部署到阿里云DCDN...")
+		return aliyun.DeployAliyunDcdn(cfg)
 	case "safeline-site":
 		logger.Debug("部署雷池WAF网站...")
 		return DeploySafeLineWafSite(cfg, logger)

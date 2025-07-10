@@ -20,6 +20,7 @@ import (
 	"github.com/go-acme/lego/v4/providers/dns/bunny"
 	"github.com/go-acme/lego/v4/providers/dns/cloudflare"
 	"github.com/go-acme/lego/v4/providers/dns/cloudns"
+	"github.com/go-acme/lego/v4/providers/dns/constellix"
 	"github.com/go-acme/lego/v4/providers/dns/gcore"
 	"github.com/go-acme/lego/v4/providers/dns/godaddy"
 	"github.com/go-acme/lego/v4/providers/dns/huaweicloud"
@@ -78,8 +79,12 @@ func GetDNSProvider(providerName string, creds map[string]string, httpClient *ht
 		return tencentcloud.NewDNSProviderConfig(config)
 	case "cloudflare":
 		config := cloudflare.NewDefaultConfig()
-		config.AuthEmail = creds["email"]
-		config.AuthKey = creds["api_key"]
+		if creds["email"] == "" {
+			config.AuthToken = creds["api_key"]
+		} else {
+			config.AuthEmail = creds["email"]
+			config.AuthKey = creds["api_key"]
+		}
 		config.PropagationTimeout = maxWait
 		return cloudflare.NewDNSProviderConfig(config)
 	case "aliyun":
@@ -191,6 +196,12 @@ func GetDNSProvider(providerName string, creds map[string]string, httpClient *ht
 		config.RegionId = "cn-north-1"
 		config.PropagationTimeout = maxWait
 		return jdcloud.NewDNSProviderConfig(config)
+	case "constellix":
+		config := constellix.NewDefaultConfig()
+		config.APIKey = creds["api_key"]
+		config.SecretKey = creds["secret_key"]
+		config.PropagationTimeout = maxWait
+		return constellix.NewDNSProviderConfig(config)
 
 	default:
 		return nil, fmt.Errorf("不支持的 DNS Provider: %s", providerName)
