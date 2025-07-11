@@ -238,9 +238,9 @@ func DeployLeCDN(cfg map[string]any) error {
 	default:
 		return fmt.Errorf("参数错误：provider_id")
 	}
-	domainName, ok := cfg["domain_name"].(string)
+	domainName, ok := cfg["domain"].(string)
 	if !ok || domainName == "" {
-		return fmt.Errorf("参数错误：domain_name")
+		return fmt.Errorf("参数错误：domain")
 	}
 	var siteId int
 	switch v := cfg["site_id"].(type) {

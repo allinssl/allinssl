@@ -54,7 +54,7 @@ func DeployToTX(cfg map[string]any) error {
 	if !ok {
 		return fmt.Errorf("证书错误：cert")
 	}
-	
+
 	var providerID string
 	switch v := cfg["provider_id"].(type) {
 	case float64:
@@ -84,16 +84,16 @@ func DeployToTX(cfg map[string]any) error {
 		region = r
 	}
 	client := ClientTencentcloud(providerConfig["secret_id"], providerConfig["secret_key"], region)
-	
+
 	// 上传证书
 	certificateId, err := UploadToTX(client, strings.TrimSpace(keyPem), strings.TrimSpace(certPem))
 	if err != nil {
 		return err
 	}
 	// fmt.Println(certificateId)
-	
+
 	request := ssl.NewDeployCertificateInstanceRequest()
-	
+
 	request.CertificateId = common.StringPtr(certificateId)
 	resourceType := cfg["resource_type"].(string)
 	switch resourceType {
@@ -128,16 +128,24 @@ func DeployToTX(cfg map[string]any) error {
 		request.InstanceIdList = common.StringPtrs([]string{fmt.Sprintf("%s|%s|%s", region, bucket, domain)})
 		request.ResourceType = common.StringPtr("cos")
 	}
-	
+
 	// 返回的resp是一个DeployCertificateInstanceResponse的实例，与请求对象对应
 	response, err := client.DeployCertificateInstance(request)
 	if _, ok := err.(*errors.TencentCloudSDKError); ok {
 		return err
 	}
 	if err != nil {
-		panic(err)
+		if _, ok := err.(*errors.TencentCloudSDKError); ok {
+			return fmt.Errorf("腾讯云 API 错误: %v", err)
+		}
+		return fmt.Errorf("部署证书失败: %v", err)
 	}
-	fmt.Println(response.Response.DeployRecordId)
+	if response == nil || response.Response == nil {
+		return fmt.Errorf("部署证书失败: 响应为空")
+	}
+	if *response.Response.DeployStatus != 1 {
+		return fmt.Errorf("腾讯云当前存在部署中的任务，未创建新的部署任务，部署中的任务ID为：%d", *response.Response.DeployRecordId)
+	}
 	return nil
 }
 
@@ -146,27 +154,27 @@ func TencentCloudAPITest(providerID string) error {
 	if err != nil {
 		return err
 	}
-	
+
 	providerConfigStr, ok := providerData["config"].(string)
 	if !ok {
 		return fmt.Errorf("api配置错误")
 	}
-	
+
 	// 解析 JSON 配置
 	var providerConfig map[string]string
 	err = json.Unmarshal([]byte(providerConfigStr), &providerConfig)
 	if err != nil {
 		return err
 	}
-	
+
 	// 创建客户端
 	client := ClientTencentcloud(providerConfig["secret_id"], providerConfig["secret_key"], "")
-	
+
 	request := ssl.NewDescribeCertificatesRequest()
 	_, err = client.DescribeCertificates(request)
 	if err != nil {
 		return fmt.Errorf("测试请求失败: %v", err)
 	}
-	
+
 	return nil
 }
