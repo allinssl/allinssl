@@ -2,6 +2,7 @@ import {
 	FormItemRule,
 	FormProps,
 	FormRules,
+	NAlert,
 	NButton,
 	NFlex,
 	NFormItem,
@@ -37,6 +38,7 @@ import type {
 	AddAccessParams,
 	SshAccessConfig,
 	UpdateAccessParams,
+	PanelAccessConfig,
 	NamecheapAccessConfig,
 	NS1AccessConfig,
 	CloudnsAccessConfig,
@@ -49,6 +51,8 @@ import type {
 	JdcloudAccessConfig,
 	DogeAccessConfig,
 	PluginAccessConfig,
+	LecdnAccessConfig,
+	ConstellixAccessConfig,
 } from '@/types/access'
 import type { VNode, Ref } from 'vue'
 import { testAccess, getPlugins } from '@/api/access'
@@ -343,9 +347,18 @@ export const useApiFormController = (props: ApiFormControllerProps): ApiFormCont
 				message: $t('t_3_1744164839524'),
 			},
 			username: {
-				required: true,
-				message: $t('t_0_1747365600180'),
 				trigger: 'input',
+				validator: (rule: FormItemRule, value: string, callback: (error?: Error) => void) => {
+					if (!value) {
+						const mapTips = {
+							westcn: $t('t_0_1747365600180'),
+							namedotcom: '请输入用户名',
+							lecdn: '请输入用户名',
+						}
+						return callback(new Error(mapTips[param.value.type as keyof typeof mapTips] || $t('t_0_1747365600180')))
+					}
+					callback()
+				},
 			},
 			password: {
 				trigger: 'input',
@@ -354,6 +367,7 @@ export const useApiFormController = (props: ApiFormControllerProps): ApiFormCont
 						const mapTips = {
 							westcn: $t('t_1_1747365603108'),
 							ssh: $t('t_0_1747711335067'),
+							lecdn: '请输入密码',
 						}
 						return callback(new Error(mapTips[param.value.type as keyof typeof mapTips]))
 					}
@@ -374,6 +388,7 @@ export const useApiFormController = (props: ApiFormControllerProps): ApiFormCont
 							btpanel: $t('t_2_1745317314362'),
 							btwaf: $t('t_0_1747271295174'),
 							safeline: $t('t_0_1747300383756'),
+							lecdn: '请输入正确的URL地址',
 						}
 						return callback(new Error(mapTips[param.value.type as keyof typeof mapTips]))
 					}
@@ -391,6 +406,7 @@ export const useApiFormController = (props: ApiFormControllerProps): ApiFormCont
 							godaddy: $t('t_0_1747984137443'),
 							ns1: '请输入API Key',
 							namecheap: '请输入API Key',
+							constellix: '请输入API Key',
 						}
 						return callback(new Error(mapTips[param.value.type as keyof typeof mapTips]))
 					}
@@ -504,6 +520,7 @@ export const useApiFormController = (props: ApiFormControllerProps): ApiFormCont
 							baidu: $t('t_4_1747271294621'),
 							volcengine: $t('t_4_1747365600137'),
 							doge: $t('t_1_1750320241427'),
+							constellix: '请输入Secret Key',
 						}
 						return callback(new Error(mapTips[param.value.type as keyof typeof mapTips]))
 					}
@@ -513,6 +530,10 @@ export const useApiFormController = (props: ApiFormControllerProps): ApiFormCont
 			email: {
 				trigger: 'input',
 				validator: (rule: FormItemRule, value: string, callback: (error?: Error) => void) => {
+					if (param.value.type === 'cloudflare' && (!value || value.trim() === '')) {
+						return callback()
+					}
+
 					if (!isEmail(value)) {
 						return callback(new Error($t('t_5_1747042965911')))
 					}
@@ -553,7 +574,7 @@ export const useApiFormController = (props: ApiFormControllerProps): ApiFormCont
 						<NSelect
 							class="w-full"
 							options={typeList}
-							renderLabel={renderLabel}
+							renderLabel={renderTypeLabel}
 							renderTag={renderSingleSelectTag}
 							disabled={!!props.data?.id}
 							filterable
@@ -606,6 +627,44 @@ export const useApiFormController = (props: ApiFormControllerProps): ApiFormCont
 				)
 				break
 			case '1panel':
+				items.push(
+					// 1Panel版本选择下拉框
+					useFormCustom(() => {
+						const config = param.value.config as PanelAccessConfig
+						// 如果version为空或者没有version字段，默认为v1
+						const currentVersion = config.version || 'v1'
+
+						return (
+							<NFormItem label="版本" path="config.version" showRequireMark={false}>
+								<NSelect
+									class="w-full"
+									options={[
+										{ label: 'v1', value: 'v1' },
+										{ label: 'v2', value: 'v2' },
+									]}
+									placeholder="请选择版本"
+									value={currentVersion}
+									onUpdateValue={(value: 'v1' | 'v2') => {
+										;(param.value.config as PanelAccessConfig).version = value
+									}}
+								/>
+							</NFormItem>
+						)
+					}),
+					useFormInput(typeUrlMap.get(param.value.type) || '', 'config.url', {
+						allowInput: noSideSpace,
+					}),
+					useFormInput($t('t_55_1745289355715'), 'config.api_key', {
+						allowInput: noSideSpace,
+					}),
+					useFormSwitch(
+						$t('t_3_1746667592270'),
+						'config.ignore_ssl',
+						{ checkedValue: '1', uncheckedValue: '0' },
+						{ showRequireMark: false },
+					),
+				)
+				break
 			case 'btpanel':
 			case 'btwaf':
 			case 'safeline':
@@ -651,8 +710,15 @@ export const useApiFormController = (props: ApiFormControllerProps): ApiFormCont
 				break
 			case 'cloudflare':
 				items.push(
-					useFormInput('邮箱', 'config.email', { allowInput: noSideSpace }),
+					useFormInput('邮箱', 'config.email', { allowInput: noSideSpace }, { showRequireMark: false }),
 					useFormInput('APIKey', 'config.api_key', { allowInput: noSideSpace }),
+					useFormCustom(() => {
+						return (
+							<NAlert type="error" class="mt-[1.2rem] whitespace-nowrap" showIcon={false}>
+								<span class="text-[1.3rem]">使用API令牌时不要填写邮箱，否则将作为Global Key请求Cloudflare</span>
+							</NAlert>
+						)
+					}),
 				)
 				break
 			case 'westcn':
@@ -721,6 +787,25 @@ export const useApiFormController = (props: ApiFormControllerProps): ApiFormCont
 				items.push(
 					useFormInput('Access Key ID', 'config.access_key_id', { allowInput: noSideSpace }),
 					useFormInput('Secret Access Key', 'config.secret_access_key', { allowInput: noSideSpace }),
+				)
+				break
+			case 'lecdn':
+				items.push(
+					useFormInput('URL', 'config.url', { allowInput: noSideSpace }),
+					useFormInput('Username', 'config.username', { allowInput: noSideSpace }),
+					useFormInput('Password', 'config.password', { allowInput: noSideSpace }),
+					useFormSwitch(
+						$t('t_3_1746667592270'),
+						'config.ignore_ssl',
+						{ checkedValue: '1', uncheckedValue: '0' },
+						{ showRequireMark: false },
+					),
+				)
+				break
+			case 'constellix':
+				items.push(
+					useFormInput('API Key', 'config.api_key', { allowInput: noSideSpace }),
+					useFormInput('Secret Key', 'config.secret_key', { allowInput: noSideSpace }),
 				)
 				break
 			case 'plugin':
@@ -814,6 +899,13 @@ export const useApiFormController = (props: ApiFormControllerProps): ApiFormCont
 					} as SshAccessConfig
 					break
 				case '1panel':
+					param.value.config = {
+						url: '',
+						api_key: '',
+						ignore_ssl: '0',
+						version: 'v1', // 默认选择 v1 版本
+					} as PanelAccessConfig
+					break
 				case 'btpanel':
 				case 'btwaf':
 					param.value.config = {
@@ -917,6 +1009,20 @@ export const useApiFormController = (props: ApiFormControllerProps): ApiFormCont
 						secret_access_key: '',
 					} as JdcloudAccessConfig
 					break
+				case 'lecdn':
+					param.value.config = {
+						url: '',
+						username: '',
+						password: '',
+						ignore_ssl: '0',
+					} as LecdnAccessConfig
+					break
+				case 'constellix':
+					param.value.config = {
+						api_key: '',
+						secret_key: '',
+					} as ConstellixAccessConfig
+					break
 				case 'doge':
 					param.value.config = {
 						access_key: '',
@@ -967,7 +1073,7 @@ export const useApiFormController = (props: ApiFormControllerProps): ApiFormCont
 		return (
 			<NFlex class="w-full">
 				{option.label ? (
-					renderLabel(option)
+					renderTypeLabel(option)
 				) : (
 					<span class="text-[1.4rem] text-gray-400">{$t('t_0_1745833934390')}</span>
 				)}
@@ -976,18 +1082,39 @@ export const useApiFormController = (props: ApiFormControllerProps): ApiFormCont
 	}
 
 	/**
-	 * 渲染标签
-	 * @param {Record<string, any>} option - 选项
+	 * 类型选项接口
+	 */
+	interface TypeOption {
+		label: string
+		value: string
+		access: string[]
+	}
+
+	/**
+	 * 渲染类型选择器标签
+	 * @param {TypeOption} option - 类型选项
 	 * @returns {VNode} 渲染后的VNode
 	 */
-	const renderLabel = (option: PluginOption): VNode => {
+	const renderTypeLabel = (option: TypeOption): VNode => {
+		const accessTypeMap = {
+			dns: $t('t_3_1745735765112'),
+			host: $t('t_0_1746754500246'),
+			plugin: '插件',
+		}
+
 		return (
-			<NFlex justify="space-between" class="w-[38rem]">
-				<NFlex align="center" size="small">
-					<SvgIcon icon={`resources-${option.value}`} size="1.6rem" />
-					<NText>{option.label}</NText>
-					{option.description && <div class="text-[1.2rem] text-gray-500 mt-[0.2rem]">{option.description}</div>}
-				</NFlex>
+			<NFlex align="center" size="small" class="w-full py-1">
+				<SvgIcon icon={`resources-${option.value}`} size="1.6rem" />
+				<NText class="flex-1">{option.label}</NText>
+				{option.access && option.access.length > 0 && (
+					<NFlex size="small" class="ml-auto">
+						{option.access.map((type: string) => (
+							<NTag key={type} type={type === 'dns' ? 'success' : 'info'} size="small">
+								{accessTypeMap[type as keyof typeof accessTypeMap] || type}
+							</NTag>
+						))}
+					</NFlex>
+				)}
 			</NFlex>
 		)
 	}
@@ -999,13 +1126,11 @@ export const useApiFormController = (props: ApiFormControllerProps): ApiFormCont
 	 */
 	const renderPluginLabel = (option: PluginOption): VNode => {
 		return (
-			<NFlex justify="space-between" class="w-full">
+			<NFlex justify="space-between" class="w-[38rem]">
 				<NFlex align="center" size="small">
 					<SvgIcon icon={`resources-${option.value}`} size="1.6rem" />
-					<div>
-						<NText>{option.label}</NText>
-						{option.description && <div class="text-[1.2rem] text-gray-500 mt-[0.2rem]">{option.description}</div>}
-					</div>
+					<NText>{option.label}</NText>
+					{option.description && <div class="text-[1.2rem] text-gray-500 mt-[0.2rem]">{option.description}</div>}
 				</NFlex>
 			</NFlex>
 		)

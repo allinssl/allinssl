@@ -60,7 +60,9 @@ export interface AddAccessParams<
 		| GcoreAccessConfig
 		| JdcloudAccessConfig
 		| DogeAccessConfig
-		| PluginAccessConfig,
+		| PluginAccessConfig
+		| LecdnAccessConfig
+		| ConstellixAccessConfig,
 > {
 	name: string
 	type: string
@@ -93,7 +95,9 @@ export interface UpdateAccessParams<
 		| GcoreAccessConfig
 		| JdcloudAccessConfig
 		| DogeAccessConfig
-		| PluginAccessConfig,
+		| PluginAccessConfig
+		| LecdnAccessConfig
+		| ConstellixAccessConfig,
 > extends AddAccessParams<T> {
 	id: string
 }
@@ -130,6 +134,7 @@ export interface PanelAccessConfig {
 	url: string
 	api_key: string
 	ignore_ssl: '0' | '1'
+	version?: 'v1' | 'v2' // 1Panel版本选择，可选字段
 }
 
 /**
@@ -278,6 +283,24 @@ export interface DogeAccessConfig {
 export interface PluginAccessConfig {
 	name: string
 	config: Record<string, any> | string
+}
+
+/**
+ * Lecdn 授权配置
+ */
+export interface LecdnAccessConfig {
+	url: string
+	username: string
+	password: string
+	ignore_ssl: string
+}
+
+/**
+ * Constellix 授权配置
+ */
+export interface ConstellixAccessConfig {
+	api_key: string
+	secret_key: string
 }
 
 /** 删除授权请求参数 */

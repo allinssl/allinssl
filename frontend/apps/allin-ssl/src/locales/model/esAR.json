@@ -1,5 +1,4 @@
 {
-  "t_0_1750469182154": "Formato de nombre de dominio incorrecto",
   "t_0_1744098811152": "Advertencia: Ha ingresado a una zona desconocida, la página que intenta visitar no existe, por favor, haga clic en el botón para regresar a la página de inicio.",
   "t_1_1744098801860": "Volver al inicio",
   "t_2_1744098804908": "Consejo de seguridad: Si piensa que es un error, póngase en contacto con el administrador inmediatamente",
@@ -667,5 +666,6 @@
   "t_0_1750399513983": "Dirección URL del servicio ACME",
   "t_1_1750399516161": "Por favor, ingrese la URL del servicio ACME",
   "t_2_1750399515511": "Hora de la última excepción",
-  "t_3_1750399513606": "Certificado CA"
+  "t_3_1750399513606": "Certificado CA",
+  "t_0_1750469182154": "Formato de nombre de dominio incorrecto"
 }

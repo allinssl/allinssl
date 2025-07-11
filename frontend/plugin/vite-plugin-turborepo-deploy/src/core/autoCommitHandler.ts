@@ -4,6 +4,7 @@ import simpleGit, { SimpleGit, SimpleGitOptions } from "simple-git";
 import fs from "fs-extra";
 import path from "path";
 import { createError } from "./utils";
+import { smartCheckoutBranch } from "./gitHandler";
 
 const DEFAULT_COMMIT_SEPARATOR = "/** 提交分隔符 **/";
 const DEFAULT_MAX_SCAN_COUNT = 50;
@@ -67,7 +68,14 @@ export async function performAutoCommit(
         const currentBranch = (await git.branchLocal()).current;
         if (currentBranch !== project.branch) {
           logger.info(`切换到分支 ${project.branch}...`);
-          await git.checkout(project.branch);
+          // 使用智能分支检出函数
+          await smartCheckoutBranch(
+            git,
+            project.branch,
+            projectName,
+            logger,
+            false,
+          );
         }
       }
 

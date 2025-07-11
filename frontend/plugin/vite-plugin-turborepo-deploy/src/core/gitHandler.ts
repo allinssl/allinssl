@@ -48,6 +48,83 @@ async function hasUncommittedChanges(git: SimpleGit, logger: Logger): Promise<bo
 }
 
 /**
+ * 智能分支检出函数
+ * 按以下策略检出分支：
+ * 1. 检查本地分支是否存在，存在则直接检出
+ * 2. 检查远程分支是否存在，存在则创建本地分支并检出
+ * 3. 都不存在则抛出清晰的错误信息
+ *
+ * @param git SimpleGit实例
+ * @param branchName 要检出的分支名称
+ * @param projectName 项目名称（用于日志）
+ * @param logger 日志记录器
+ * @param forceCheckout 是否强制检出
+ * @returns Promise<void>
+ */
+export async function smartCheckoutBranch(
+  git: SimpleGit,
+  branchName: string,
+  projectName: string,
+  logger: Logger,
+  forceCheckout: boolean = false
+): Promise<void> {
+  try {
+    // 1. 检查本地分支是否存在
+    const localBranches = await git.branchLocal();
+    const localBranchExists = localBranches.all.includes(branchName);
+
+    if (localBranchExists) {
+      logger.info(`${projectName}: 本地分支 ${branchName} 存在，直接检出...`);
+      if (forceCheckout) {
+        await git.checkout(["-f", branchName]);
+        logger.info(`${projectName}: 成功强制检出本地分支 ${branchName}`);
+      } else {
+        await git.checkout(branchName);
+        logger.info(`${projectName}: 成功检出本地分支 ${branchName}`);
+      }
+      return;
+    }
+
+    // 2. 检查远程分支是否存在
+    logger.info(`${projectName}: 本地分支 ${branchName} 不存在，检查远程分支...`);
+    const remoteBranches = await git.branch(['-r']);
+    const remoteBranchName = `origin/${branchName}`;
+    const remoteBranchExists = remoteBranches.all.some(branch =>
+      branch.includes(remoteBranchName) || branch.includes(branchName)
+    );
+
+    if (remoteBranchExists) {
+      logger.info(`${projectName}: 远程分支 ${remoteBranchName} 存在，创建并检出本地分支...`);
+      if (forceCheckout) {
+        await git.checkout(["-b", branchName, remoteBranchName, "-f"]);
+        logger.info(`${projectName}: 成功强制创建并检出分支 ${branchName} (来源: ${remoteBranchName})`);
+      } else {
+        await git.checkout(["-b", branchName, remoteBranchName]);
+        logger.info(`${projectName}: 成功创建并检出分支 ${branchName} (来源: ${remoteBranchName})`);
+      }
+      return;
+    }
+
+    // 3. 分支完全不存在
+    const availableBranches = [...localBranches.all, ...remoteBranches.all];
+    throw new Error(
+      `分支 '${branchName}' 在本地和远程都不存在。` +
+      `可用的分支有: ${availableBranches.join(', ')}`
+    );
+
+  } catch (error: any) {
+    // 如果是我们自己抛出的错误，直接重新抛出
+    if (error.message.includes('在本地和远程都不存在')) {
+      throw error;
+    }
+
+    // 处理其他Git操作错误
+    logger.error(`${projectName}: 分支检出过程中出错: ${error.message}`);
+    throw new Error(`无法检出分支 '${branchName}': ${error.message}`);
+  }
+}
+
+/**
  * 安全地丢弃工作区中的所有更改
  * @param git SimpleGit实例
  * @param projectName 项目名称
@@ -188,16 +265,26 @@ export async function updateGitProjects(
               `${projectName}: 需要从分支 ${currentBranch} 切换到分支 ${config.branch}...`,
             );
             try {
-              await git.checkout(config.branch);
-              logger.info(`${projectName}: 成功切换到分支 ${config.branch}`);
+              // 使用智能分支检出函数
+              await smartCheckoutBranch(
+                git,
+                config.branch,
+                projectName,
+                logger,
+                false,
+              );
             } catch (checkoutError: any) {
               if (config.discardChanges) {
                 logger.warn(
                   `${projectName}: 切换分支失败: ${checkoutError.message}，尝试强制切换...`,
                 );
-                await git.checkout(["-f", config.branch]);
-                logger.info(
-                  `${projectName}: 成功强制切换到分支 ${config.branch}`,
+                // 使用强制检出
+                await smartCheckoutBranch(
+                  git,
+                  config.branch,
+                  projectName,
+                  logger,
+                  true,
                 );
               } else {
                 throw checkoutError;

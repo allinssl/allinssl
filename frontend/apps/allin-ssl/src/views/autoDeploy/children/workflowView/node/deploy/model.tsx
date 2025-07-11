@@ -141,7 +141,9 @@ export default defineComponent({
 									param.value.provider_id !== val.value &&
 									SITE_SELECTOR_PROVIDERS.includes(param.value.provider)
 								) {
-									param.value.siteName = MULTIPLE_SITE_PROVIDERS.includes(param.value.provider) ? [] : ''
+									param.value.provider === '1panel-site'
+										? (param.value.site_id = MULTIPLE_SITE_PROVIDERS.includes(param.value.provider) ? [] : '')
+										: (param.value.siteName = MULTIPLE_SITE_PROVIDERS.includes(param.value.provider) ? [] : '')
 								}
 								param.value.provider_id = val.value
 								param.value.type = val.type
@@ -227,6 +229,9 @@ export default defineComponent({
 					break
 				case 'aliyun-esa':
 					config.push(...formConfig.aliyunEsaDeploy())
+					break
+				case 'lecdn':
+					config.push(...formConfig.leCdnDeploy())
 					break
 				case 'plugin':
 					// 插件部署配置

@@ -105,7 +105,6 @@ export default defineConfig({
 				// 	targetDir: 'allinssl-gitlab',
 				// 	discardChanges: true,
 				// },
-
 				{
 					repo: 'https://github.com/allinssl/allinssl.git',
 					branch: '1.0.7',
@@ -220,7 +219,7 @@ export default defineConfig({
 			'/api': {
 				// target: `http://${'192.168.168.25'}:${37628}`,
 				// target: `http://${'192.168.168.121'}:${33488}`,
-				target: `http://${'192.168.69.167'}:${40255}`,
+				target: `http://${'192.168.168.64'}:${20773}`,
 				changeOrigin: true, // 是否改变源
 				rewrite: (path: string) => path.replace(/^\/api/, ''), // 重写路径
 				secure: false, // 如果是https接口，需要配置这个参数

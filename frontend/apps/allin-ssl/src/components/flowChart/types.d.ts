@@ -254,6 +254,7 @@ export interface DeployConfig<
 		| 'safeline-site'
 		| 'safeline-panel'
 		| 'btpanel-dockersite'
+		| 'lecdn' // LeCDN 部署类型
 		| 'plugin', // 新增插件类型
 > {
 	provider: T
@@ -331,6 +332,12 @@ export interface DeployBTPanelDockerSiteConfig extends DeployBTPanelSiteConfig {
 	[key: string]: unknown
 }
 
+// 部署LeCDN配置
+export interface DeployLeCDNConfig {
+	site_id: string // 站点ID
+	domain: string // 域名
+}
+
 // 部署插件配置
 export interface DeployPluginConfig {
 	action: string // 插件方法名称
@@ -352,6 +359,7 @@ export type DeployNodeConfig = DeployConfig<
 	| DeploySafelineConfig // 部署节点配置（雷池WAF）
 	| DeploySafelineSiteConfig // 部署节点配置（雷池WAF站点）
 	| DeployBTPanelDockerSiteConfig // 部署节点配置（宝塔docker站点）
+	| DeployLeCDNConfig // 部署节点配置（LeCDN）
 	| DeployPluginConfig // 部署节点配置（插件）
 >
 

@@ -225,6 +225,19 @@ export const ApiProjectConfig: Record<string, ApiProjectType> = {
 		type: ['dns'],
 		sort: 25,
 	},
+	lecdn: {
+		name: 'LeCDN',
+		icon: 'lecdn',
+		type: ['dns', 'host'],
+		hostRelated: { default: { name: 'LeCDN' } },
+		sort: 26,
+	},
+	constellix: {
+		name: 'Constellix',
+		icon: 'constellix',
+		type: ['dns'],
+		sort: 27,
+	},
 	doge: {
 		name: $t('t_0_1750129254226'),
 		icon: 'doge',
@@ -232,14 +245,14 @@ export const ApiProjectConfig: Record<string, ApiProjectType> = {
 		hostRelated: {
 			cdn: { name: $t('t_0_1750129254226') + 'CDN' },
 		},
-		sort: 26,
+		sort: 28,
 	},
 	plugin: {
 		name: '插件',
 		icon: 'plugin',
 		type: ['host'],
 		hostRelated: { default: { name: '插件' } },
-		sort: 27,
+		sort: 29,
 	},
 }
 

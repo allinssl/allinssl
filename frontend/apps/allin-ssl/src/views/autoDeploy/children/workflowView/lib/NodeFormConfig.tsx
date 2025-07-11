@@ -197,6 +197,16 @@ export function createNodeFormConfig() {
 		},
 
 		/**
+		 * 创建LeCDN相关字段
+		 */
+		leCdnDeploy() {
+			return [
+				this.input('站点ID', 'site_id', { placeholder: '请输入LeCDN站点ID' }),
+				this.input($t('t_17_1745227838561'), 'domain', { placeholder: $t('t_0_1744958839535') }),
+			]
+		},
+
+		/**
 		 * 创建跳过选项字段
 		 * @param valueRef 值引用
 		 */
