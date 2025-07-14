@@ -15,7 +15,7 @@ import styles from './index.module.css'
 export default defineComponent({
 	name: 'LoginView',
 	setup() {
-		const { loading, error, rememberMe, handleSubmit, handleKeyup, loginData, handleGetCode, codeImg, mustCode } =
+		const { loading, error, rememberMe, handleSubmit, handleKeyup, loginData, handleGetCode, codeImg, mustCode, formRef } =
 			useController()
 		const { isDark } = useTheme()
 		const cssVar = useThemeCssVar(['textColor2', 'actionColor', 'errorColor', 'primaryColor', 'primaryColorSuppl'])
@@ -39,7 +39,7 @@ export default defineComponent({
 						<div class={styles.rightSection}>
 							<div class={styles.formContainer}>
 								<h1 class={styles.title}>{$t('t_2_1744164839713')}</h1>
-								<NForm onSubmit={handleSubmit} class={styles.formWrapper}>
+								<NForm ref={formRef} model={loginData.value} onSubmit={handleSubmit} class={styles.formWrapper}>
 									<div class={styles.formContent}>
 										<div class={styles.formInputs}>
 											<NFormItem
@@ -84,7 +84,11 @@ export default defineComponent({
 												<NFormItem
 													show-label={false}
 													path="code"
-													rule={{ required: true, message: $t('t_25_1745289355721'), trigger: ['input', 'blur'] }}
+													rule={{
+														required: mustCode.value,
+														message: $t('t_25_1745289355721'),
+														trigger: ['input', 'blur']
+													}}
 												>
 													<NInput
 														onKeyup={handleKeyup}

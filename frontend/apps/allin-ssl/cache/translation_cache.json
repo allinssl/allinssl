@@ -11370,5 +11370,39 @@
       "arDZ": "صيغة اسم المجال خاطئة"
     },
     "timestamp": "2025-06-21T01:26:22.154Z"
+  },
+  "阿里云DCDN": {
+    "text": "阿里云DCDN",
+    "key": "t_0_1752230148946",
+    "translations": {
+      "zhCN": "阿里云DCDN",
+      "zhTW": "阿里雲DCDN",
+      "enUS": "Alibaba Cloud DCDN",
+      "jaJP": "アリババクラウドDCDN",
+      "koKR": "알리바바 클라우드 DCDN",
+      "ruRU": "Alibaba Cloud DCDN",
+      "ptBR": "Alibaba Cloud DCDN",
+      "frFR": "Alibaba Cloud DCDN",
+      "esAR": "Alibaba Cloud DCDN",
+      "arDZ": "Alibaba Cloud DCDN"
+    },
+    "timestamp": "2025-07-11T10:35:48.946Z"
+  },
+  "阿里云ESA": {
+    "text": "阿里云ESA",
+    "key": "t_1_1752230146379",
+    "translations": {
+      "zhCN": "阿里云ESA",
+      "zhTW": "阿里雲ESA",
+      "enUS": "Aliyun ESA",
+      "jaJP": "アリババクラウドESA",
+      "koKR": "알리바바 클라우드 ESA",
+      "ruRU": "Алибаба Клауд ESA",
+      "ptBR": "Aliyun ESA",
+      "frFR": "Aliyun ESA",
+      "esAR": "Aliyun ESA",
+      "arDZ": "علي بابا كلاود ESA"
+    },
+    "timestamp": "2025-07-11T10:35:48.948Z"
   }
 }

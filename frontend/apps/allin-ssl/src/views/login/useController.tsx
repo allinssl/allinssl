@@ -1,12 +1,12 @@
 // External Libraries
 import md5 from 'crypto-js/md5'
+import type { FormInst } from 'naive-ui'
 
 // Type Imports
 import type { LoginParams } from '@/types/login'
 
 // Absolute Internal Imports
 import { useError } from '@baota/hooks/error'
-import { $t } from '@locales/index'
 
 // Relative Internal Imports
 import { useStore } from './useStore'
@@ -51,6 +51,7 @@ const setRememberData = (username: string, password: string): void => {
  */
 interface LoginControllerExposes extends ReturnType<typeof useStore> {
 	// 继承自 useStore 的返回类型
+	formRef: Ref<FormInst | null>
 	handleSubmit: (event: Event) => Promise<void>
 	handleKeyup: (event: KeyboardEvent) => void
 	handleLogin: (params: LoginParams) => Promise<void> // 覆盖 store 中的 handleLogin
@@ -69,25 +70,14 @@ export const useController = (): LoginControllerExposes => {
 	// 从 store 中解构需要的状态和方法
 	const { error, loginData, handleLogin: storeHandleLogin, rememberMe, checkMustCode, mustCode, handleGetCode } = store
 
+	// 表单引用
+	const formRef = ref<FormInst | null>(null)
+
 	/**
 	 * @description 处理登录业务逻辑，包括表单验证和密码加密
 	 * @param params - 登录参数 (用户名、密码等)
 	 */
 	const handleLoginBusiness = async (params: LoginParams): Promise<void> => {
-		// 表单验证
-		if (!params.username.trim()) {
-			error.value = $t('t_3_1744164839524') // 请输入用户名
-			return
-		}
-		if (!params.password.trim()) {
-			error.value = $t('t_4_1744164840458') // 请输入密码
-			return
-		}
-		if (mustCode.value && !params.code?.trim()) {
-			error.value = $t('t_25_1745289355721') // 请输入验证码
-			return
-		}
-
 		try {
 			const encryptedPassword = encryptPassword(params.password)
 			await storeHandleLogin({ ...params, password: encryptedPassword }) // 调用 store 中的登录方法
@@ -117,7 +107,18 @@ export const useController = (): LoginControllerExposes => {
 	 */
 	const handleSubmit = async (event: Event): Promise<void> => {
 		event.preventDefault()
-		await handleLoginBusiness(loginData.value)
+
+		// 使用 NForm 的校验机制
+		if (!formRef.value) return
+
+		try {
+			await formRef.value.validate()
+			// 校验通过，执行登录逻辑
+			await handleLoginBusiness(loginData.value)
+		} catch (validationErrors) {
+			// 校验失败，NForm 会自动显示错误信息
+			console.log('表单校验失败:', validationErrors)
+		}
 	}
 
 	/**
@@ -163,6 +164,7 @@ export const useController = (): LoginControllerExposes => {
 	// ==================== 返回值 ====================
 	return {
 		...store, // 暴露 store 中的所有属性和方法
+		formRef,
 		handleSubmit,
 		handleKeyup,
 		handleLogin: handleLoginBusiness, // 控制器封装的登录逻辑

@@ -205,6 +205,7 @@ export default defineComponent({
 				case 'tencentcloud-waf':
 				case 'tencentcloud-teo':
 				case 'aliyun-cdn':
+				case 'aliyun-dcdn':
 				case 'baidu-cdn':
 				case 'qiniu-cdn':
 				case 'qiniu-oss':

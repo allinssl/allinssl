@@ -244,6 +244,7 @@ export interface DeployConfig<
 		| 'tencentcloud-waf'
 		| 'tencentcloud-teo'
 		| 'aliyun-cdn'
+		| 'aliyun-dcdn'
 		| 'aliyun-oss'
 		| 'aliyun-waf'
 		| 'aliyun-esa'

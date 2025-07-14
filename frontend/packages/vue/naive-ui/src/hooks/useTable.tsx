@@ -96,6 +96,10 @@ export default function useTable<T = Record<string, any>, Z extends Record<strin
 		const { page, pageSize } = alias
 		const pageSizeOptionsRef = ref([10, 20, 50, 100, 200]) // 分页选项
 
+		// 防重复请求相关状态
+		const lastDirectRequestTime = ref(0) // 记录最后一次直接请求的时间
+		const REQUEST_DEBOUNCE_DELAY = 100 // 防抖延迟时间（毫秒）
+
 		// 初始化分页参数
 		if ((param.value as Record<string, unknown>)[page]) {
 			;(param.value as Record<string, unknown>)[page] = 1 // 当前页码
@@ -111,6 +115,8 @@ export default function useTable<T = Record<string, any>, Z extends Record<strin
 		 * @param currentPage 当前页码
 		 */
 		const handlePageChange = (currentPage: number) => {
+			// 记录直接请求时间，防止 watch 重复触发
+			lastDirectRequestTime.value = Date.now()
 			;(param.value as Record<string, unknown>)[page] = currentPage
 			fetchData()
 		}
@@ -120,6 +126,8 @@ export default function useTable<T = Record<string, any>, Z extends Record<strin
 		 * @param size 每页条数
 		 */
 		const handlePageSizeChange = (size: number) => {
+			// 记录直接请求时间，防止 watch 重复触发
+			lastDirectRequestTime.value = Date.now()
 			// 保存到本地存储
 			savePageSizeToStorage(storage, size)
 			;(param.value as Record<string, unknown>)[page] = 1 // 重置页码为1
@@ -211,7 +219,20 @@ export default function useTable<T = Record<string, any>, Z extends Record<strin
 		if (Array.isArray(watchValue)) {
 			// 只监听指定的字段
 			const source = computed(() => watchValue.map((key) => param.value[key]))
-			watch(source, (value) => fetchData(), { deep: true })
+			watch(
+				source,
+				() => {
+					// 检查是否刚刚有直接请求，如果是则跳过此次 watch 触发的请求
+					const timeSinceLastDirectRequest = Date.now() - lastDirectRequestTime.value
+					if (timeSinceLastDirectRequest < REQUEST_DEBOUNCE_DELAY) {
+						console.log('跳过 watch 触发的重复请求，距离上次直接请求:', timeSinceLastDirectRequest, 'ms')
+						return
+					}
+					console.log('watch 触发请求，距离上次直接请求:', timeSinceLastDirectRequest, 'ms')
+					fetchData()
+				},
+				{ deep: true },
+			)
 		}
 
 		onUnmounted(() => {

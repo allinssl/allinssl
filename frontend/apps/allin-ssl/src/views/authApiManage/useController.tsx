@@ -618,6 +618,8 @@ export const useApiFormController = (props: ApiFormControllerProps): ApiFormCont
 					]),
 					(param.value.config as SshAccessConfig)?.mode === 'password'
 						? useFormInput($t('t_48_1745289355714'), 'config.password', {
+								type: 'password',
+								showPasswordOn: 'click',
 								allowInput: noSideSpace,
 							})
 						: useFormTextarea($t('t_1_1746667588689'), 'config.key', {
@@ -655,6 +657,8 @@ export const useApiFormController = (props: ApiFormControllerProps): ApiFormCont
 						allowInput: noSideSpace,
 					}),
 					useFormInput($t('t_55_1745289355715'), 'config.api_key', {
+						type: 'password',
+						showPasswordOn: 'click',
 						allowInput: noSideSpace,
 					}),
 					useFormSwitch(
@@ -676,6 +680,8 @@ export const useApiFormController = (props: ApiFormControllerProps): ApiFormCont
 						param.value.type === 'safeline' ? $t('t_1_1747617105179') : $t('t_55_1745289355715'),
 						param.value.type === 'safeline' ? 'config.api_token' : 'config.api_key',
 						{
+							type: 'password',
+							showPasswordOn: 'click',
 							allowInput: noSideSpace,
 						},
 					),
@@ -690,13 +696,21 @@ export const useApiFormController = (props: ApiFormControllerProps): ApiFormCont
 			case 'aliyun':
 				items.push(
 					useFormInput('AccessKeyId', 'config.access_key_id', { allowInput: noSideSpace }),
-					useFormInput('AccessKeySecret', 'config.access_key_secret', { allowInput: noSideSpace }),
+					useFormInput('AccessKeySecret', 'config.access_key_secret', {
+						type: 'password',
+						showPasswordOn: 'click',
+						allowInput: noSideSpace,
+					}),
 				)
 				break
 			case 'tencentcloud':
 				items.push(
 					useFormInput('SecretId', 'config.secret_id', { allowInput: noSideSpace }),
-					useFormInput('SecretKey', 'config.secret_key', { allowInput: noSideSpace }),
+					useFormInput('SecretKey', 'config.secret_key', {
+						type: 'password',
+						showPasswordOn: 'click',
+						allowInput: noSideSpace,
+					}),
 				)
 				break
 			case 'huaweicloud':
@@ -705,13 +719,21 @@ export const useApiFormController = (props: ApiFormControllerProps): ApiFormCont
 			case 'doge':
 				items.push(
 					useFormInput('AccessKey', 'config.access_key', { allowInput: noSideSpace }),
-					useFormInput('SecretKey', 'config.secret_key', { allowInput: noSideSpace }),
+					useFormInput('SecretKey', 'config.secret_key', {
+						type: 'password',
+						showPasswordOn: 'click',
+						allowInput: noSideSpace,
+					}),
 				)
 				break
 			case 'cloudflare':
 				items.push(
 					useFormInput('邮箱', 'config.email', { allowInput: noSideSpace }, { showRequireMark: false }),
-					useFormInput('APIKey', 'config.api_key', { allowInput: noSideSpace }),
+					useFormInput('APIKey', 'config.api_key', {
+						type: 'password',
+						showPasswordOn: 'click',
+						allowInput: noSideSpace,
+					}),
 					useFormCustom(() => {
 						return (
 							<NAlert type="error" class="mt-[1.2rem] whitespace-nowrap" showIcon={false}>
@@ -724,76 +746,144 @@ export const useApiFormController = (props: ApiFormControllerProps): ApiFormCont
 			case 'westcn':
 				items.push(
 					useFormInput('Username', 'config.username', { allowInput: noSideSpace }),
-					useFormInput('Password', 'config.password', { allowInput: noSideSpace }),
+					useFormInput('Password', 'config.password', {
+						type: 'password',
+						showPasswordOn: 'click',
+						allowInput: noSideSpace,
+					}),
 				)
 				break
 			case 'godaddy':
 				items.push(
-					useFormInput('API Key', 'config.api_key', { allowInput: noSideSpace }),
-					useFormInput('API Secret', 'config.api_secret', { allowInput: noSideSpace }),
+					useFormInput('API Key', 'config.api_key', {
+						type: 'password',
+						showPasswordOn: 'click',
+						allowInput: noSideSpace,
+					}),
+					useFormInput('API Secret', 'config.api_secret', {
+						type: 'password',
+						showPasswordOn: 'click',
+						allowInput: noSideSpace,
+					}),
 				)
 				break
 			case 'qiniu':
 				items.push(
 					useFormInput('AccessKey', 'config.access_key', { allowInput: noSideSpace }),
-					useFormInput('AccessSecret', 'config.access_secret', { allowInput: noSideSpace }),
+					useFormInput('AccessSecret', 'config.access_secret', {
+						type: 'password',
+						showPasswordOn: 'click',
+						allowInput: noSideSpace,
+					}),
 				)
 				break
 			case 'namecheap':
 				items.push(
 					useFormInput('API User', 'config.api_user', { allowInput: noSideSpace }),
-					useFormInput('API Key', 'config.api_key', { allowInput: noSideSpace }),
+					useFormInput('API Key', 'config.api_key', {
+						type: 'password',
+						showPasswordOn: 'click',
+						allowInput: noSideSpace,
+					}),
 				)
 				break
 			case 'ns1':
-				items.push(useFormInput('API Key', 'config.api_key', { allowInput: noSideSpace }))
+				items.push(
+					useFormInput('API Key', 'config.api_key', {
+						type: 'password',
+						showPasswordOn: 'click',
+						allowInput: noSideSpace,
+					}),
+				)
 				break
 			case 'cloudns':
 				items.push(
 					useFormInput('Auth ID', 'config.auth_id', { allowInput: noSideSpace }),
-					useFormInput('Auth Password', 'config.auth_password', { allowInput: noSideSpace }),
+					useFormInput('Auth Password', 'config.auth_password', {
+						type: 'password',
+						showPasswordOn: 'click',
+						allowInput: noSideSpace,
+					}),
 				)
 				break
 			case 'aws':
 				items.push(
 					useFormInput('Access Key ID', 'config.access_key_id', { allowInput: noSideSpace }),
-					useFormInput('Secret Access Key', 'config.secret_access_key', { allowInput: noSideSpace }),
+					useFormInput('Secret Access Key', 'config.secret_access_key', {
+						type: 'password',
+						showPasswordOn: 'click',
+						allowInput: noSideSpace,
+					}),
 				)
 				break
 			case 'azure':
 				items.push(
 					useFormInput('Tenant ID', 'config.tenant_id', { allowInput: noSideSpace }),
 					useFormInput('Client ID', 'config.client_id', { allowInput: noSideSpace }),
-					useFormInput('Client Secret', 'config.client_secret', { allowInput: noSideSpace }),
+					useFormInput('Client Secret', 'config.client_secret', {
+						type: 'password',
+						showPasswordOn: 'click',
+						allowInput: noSideSpace,
+					}),
 					useFormInput('Environment', 'config.environment', { allowInput: noSideSpace, placeholder: 'public' }),
 				)
 				break
 			case 'namesilo':
-				items.push(useFormInput('API Key', 'config.api_key', { allowInput: noSideSpace }))
+				items.push(
+					useFormInput('API Key', 'config.api_key', {
+						type: 'password',
+						showPasswordOn: 'click',
+						allowInput: noSideSpace,
+					}),
+				)
 				break
 			case 'namedotcom':
 				items.push(
 					useFormInput('Username', 'config.username', { allowInput: noSideSpace }),
-					useFormInput('API Token', 'config.api_token', { allowInput: noSideSpace }),
+					useFormInput('API Token', 'config.api_token', {
+						type: 'password',
+						showPasswordOn: 'click',
+						allowInput: noSideSpace,
+					}),
 				)
 				break
 			case 'bunny':
-				items.push(useFormInput('API Key', 'config.api_key', { allowInput: noSideSpace }))
+				items.push(
+					useFormInput('API Key', 'config.api_key', {
+						type: 'password',
+						showPasswordOn: 'click',
+						allowInput: noSideSpace,
+					}),
+				)
 				break
 			case 'gcore':
-				items.push(useFormInput('API Token', 'config.api_token', { allowInput: noSideSpace }))
+				items.push(
+					useFormInput('API Token', 'config.api_token', {
+						type: 'password',
+						showPasswordOn: 'click',
+						allowInput: noSideSpace,
+					}),
+				)
 				break
 			case 'jdcloud':
 				items.push(
 					useFormInput('Access Key ID', 'config.access_key_id', { allowInput: noSideSpace }),
-					useFormInput('Secret Access Key', 'config.secret_access_key', { allowInput: noSideSpace }),
+					useFormInput('Secret Access Key', 'config.secret_access_key', {
+						type: 'password',
+						showPasswordOn: 'click',
+						allowInput: noSideSpace,
+					}),
 				)
 				break
 			case 'lecdn':
 				items.push(
 					useFormInput('URL', 'config.url', { allowInput: noSideSpace }),
 					useFormInput('Username', 'config.username', { allowInput: noSideSpace }),
-					useFormInput('Password', 'config.password', { allowInput: noSideSpace }),
+					useFormInput('Password', 'config.password', {
+						type: 'password',
+						showPasswordOn: 'click',
+						allowInput: noSideSpace,
+					}),
 					useFormSwitch(
 						$t('t_3_1746667592270'),
 						'config.ignore_ssl',
@@ -804,8 +894,16 @@ export const useApiFormController = (props: ApiFormControllerProps): ApiFormCont
 				break
 			case 'constellix':
 				items.push(
-					useFormInput('API Key', 'config.api_key', { allowInput: noSideSpace }),
-					useFormInput('Secret Key', 'config.secret_key', { allowInput: noSideSpace }),
+					useFormInput('API Key', 'config.api_key', {
+						type: 'password',
+						showPasswordOn: 'click',
+						allowInput: noSideSpace,
+					}),
+					useFormInput('Secret Key', 'config.secret_key', {
+						type: 'password',
+						showPasswordOn: 'click',
+						allowInput: noSideSpace,
+					}),
 				)
 				break
 			case 'plugin':

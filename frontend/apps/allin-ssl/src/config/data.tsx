@@ -85,9 +85,10 @@ export const ApiProjectConfig: Record<string, ApiProjectType> = {
 		type: ['host', 'dns'],
 		hostRelated: {
 			cdn: { name: $t('t_16_1745735766712') },
+			dcdn: { name: $t('t_0_1752230148946') },
 			oss: { name: $t('t_2_1746697487164') },
 			waf: { name: $t('t_10_1744958860078') },
-			esa: { name: '阿里云ESA' },
+			esa: { name: $t('t_1_1752230146379') },
 		},
 		sort: 6,
 	},
@@ -255,5 +256,3 @@ export const ApiProjectConfig: Record<string, ApiProjectType> = {
 		sort: 29,
 	},
 }
-
-

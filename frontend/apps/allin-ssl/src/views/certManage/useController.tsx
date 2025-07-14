@@ -12,6 +12,7 @@ import {
 } from '@baota/naive-ui/hooks'
 import { useError } from '@baota/hooks/error'
 import { $t } from '@locales/index'
+import { getDaysDiff } from '@baota/utils/date'
 
 import { useStore } from './useStore'
 
@@ -22,6 +23,41 @@ const { useFormTextarea } = useFormHooks()
 const { fetchCertList, downloadExistingCert, deleteExistingCert, uploadNewCert, uploadForm, resetUploadForm } =
 	useStore()
 const { confirm } = useModalHooks()
+/**
+ * 计算证书剩余天数
+ * @param cert 证书项
+ * @returns 剩余天数，如果无法计算则返回 null
+ */
+const calculateRemainingDays = (cert: CertItem): number | null => {
+	// 首先尝试使用后端提供的 end_day 字段
+	const endDay = Number(cert.end_day)
+	if (!isNaN(endDay) && endDay !== 0) {
+		return endDay
+	}
+
+	// 如果 end_day 无效，则根据 end_time 计算
+	if (cert.end_time) {
+		try {
+			const endTime = new Date(cert.end_time)
+			const currentTime = new Date()
+
+			// 检查日期是否有效
+			if (isNaN(endTime.getTime())) {
+				return null
+			}
+
+			// 计算剩余天数
+			const endDay = getDaysDiff(currentTime, endTime)
+			return endDay
+		} catch (error) {
+			console.warn('计算证书剩余天数失败:', error)
+			return null
+		}
+	}
+
+	return null
+}
+
 /**
  * useController
  * @description 证书管理业务逻辑控制器
@@ -60,13 +96,27 @@ export const useController = () => {
 			key: 'end_day',
 			width: 100,
 			render: (row: CertItem) => {
-				const endDay = Number(row.end_day)
+				const endDay = calculateRemainingDays(row)
+
+				// 如果无法计算剩余天数，显示获取失败
+				if (endDay === null) {
+					return (
+						<NTag type="error" size="small">
+							获取失败
+						</NTag>
+					)
+				}
+
+				// 根据剩余天数确定显示样式和文本
 				const config = [
 					[endDay <= 0, 'error', $t('t_0_1746001199409')],
-					[endDay < 30, 'warning', $t('t_1_1745999036289', { days: row.end_day })],
-					[endDay > 30, 'success', $t('t_0_1745999035681', { days: row.end_day })],
+					[endDay < 30, 'warning', $t('t_1_1745999036289', { days: endDay })],
+					[endDay >= 30, 'success', $t('t_0_1745999035681', { days: endDay })],
 				] as [boolean, 'success' | 'error' | 'warning' | 'default' | 'info' | 'primary', string][]
-				const [_, type, text] = config.find((item) => item[0]) ?? ['default', 'error', '获取失败']
+
+				const matchedConfig = config.find((item) => item[0])
+				const [, type, text] = matchedConfig ?? ['default', 'error', '获取失败']
+
 				return (
 					<NTag type={type} size="small">
 						{text}
@@ -116,7 +166,13 @@ export const useController = () => {
 	 *          - 空字符串：其他情况。
 	 */
 	const getRowClassName = (row: CertItem): string => {
-		const endDay = Number(row.end_day)
+		const endDay = calculateRemainingDays(row)
+
+		// 如果无法计算剩余天数，不应用特殊样式
+		if (endDay === null) {
+			return ''
+		}
+
 		if (endDay <= 0) {
 			return 'bg-red-500/10' // Tailwind class for light red background
 		}
