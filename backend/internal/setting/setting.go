@@ -103,7 +103,7 @@ func Save(setting *Setting) error {
 		public.TimeOut = setting.Timeout
 		restart = true
 	}
-	if setting.Secure != "" && setting.Secure != public.Secure {
+	if setting.Secure != public.Secure {
 		s.Where("key = 'secure'", []interface{}{}).Update(map[string]interface{}{"value": setting.Secure})
 		public.TimeOut = setting.Timeout
 		restart = true

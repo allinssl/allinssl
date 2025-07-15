@@ -6,6 +6,7 @@ import (
 	"ALLinSSL/backend/public"
 	"encoding/json"
 	"fmt"
+	"runtime"
 	"strconv"
 	"strings"
 	"sync"
@@ -78,6 +79,10 @@ func Monitor() {
 					defer func() {
 						if r := recover(); r != nil {
 							fmt.Printf("监控任务发生错误: %v\n", r)
+							// 打印堆栈
+							buf := make([]byte, 1<<16) // 64KB
+							n := runtime.Stack(buf, false)
+							fmt.Println("堆栈信息:\n", string(buf[:n]))
 						}
 					}()
 					defer wg.Done()
@@ -98,7 +103,7 @@ func Monitor() {
 					}
 
 					if Err != nil {
-						checkErr = strings.Split(Err.Error(), "：")[0] // 只取错误信息的第一部分
+						checkErr = Err.Error()
 					} else {
 						if certInfo.VerifyError != "" && (!certInfo.Valid || certInfo.DaysLeft <= int(advanceDay)) {
 							checkErr = certInfo.VerifyError
@@ -157,7 +162,7 @@ func Monitor() {
 									"provider":    reportType,
 									"provider_id": strconv.FormatInt(rdata[0]["id"].(int64), 10),
 									"subject":     "ALLinSSL 监控通知",
-									"body":        fmt.Sprintf(MonitorErrTemplate, v["name"], monitorType, v["target"], checkErr, now.Format("2006-01-02 15:04:05")),
+									"body":        fmt.Sprintf(MonitorErrTemplate, v["name"], monitorType, v["target"], strings.Split(checkErr, "：")[0], now.Format("2006-01-02 15:04:05")),
 								})
 							}
 						}

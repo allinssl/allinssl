@@ -3,6 +3,7 @@ package deploy
 import (
 	"ALLinSSL/backend/internal/cert/deploy/aliyun"
 	"ALLinSSL/backend/internal/cert/deploy/doge"
+	"ALLinSSL/backend/internal/cert/deploy/lecdn"
 	"ALLinSSL/backend/internal/cert/deploy/plugin"
 	"ALLinSSL/backend/public"
 	"fmt"
@@ -99,6 +100,9 @@ func Deploy(cfg map[string]any, logger *public.Logger) error {
 	case "doge-cdn":
 		logger.Debug("部署到多吉云CDN...")
 		return doge.DeployCdn(cfg)
+	case "lecdn":
+		logger.Debug("部署到LeCDN...")
+		return lecdn.DeployLeCDN(cfg)
 	case "plugin":
 		logger.Debug("使用插件部署...")
 		return plugin.Deploy(cfg, logger)
