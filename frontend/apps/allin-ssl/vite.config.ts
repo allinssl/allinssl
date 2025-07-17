@@ -105,6 +105,7 @@ export default defineConfig({
 				// 	targetDir: 'allinssl-gitlab',
 				// 	discardChanges: true,
 				// },
+
 				{
 					repo: 'https://github.com/allinssl/allinssl.git',
 					branch: '1.0.7',

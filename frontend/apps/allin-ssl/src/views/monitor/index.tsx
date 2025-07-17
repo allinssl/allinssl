@@ -1,9 +1,10 @@
 import { defineComponent, onMounted } from 'vue'
-import { NButton, NInput } from 'naive-ui'
+import { NButton, NSpace } from 'naive-ui'
 import { Search } from '@vicons/carbon'
 
 import { $t } from '@locales/index'
 import { useThemeCssVar } from '@baota/naive-ui/theme'
+import { RouterView } from '@baota/router'
 
 import { useController } from './useController'
 
@@ -18,8 +19,17 @@ export default defineComponent({
 	name: 'MonitorManage',
 	setup() {
 		// 使用控制器获取数据和方法
-		const { TableComponent, PageComponent, SearchComponent, fetch, openAddForm, isDetectionAddMonitor } =
-			useController()
+		const {
+			TableComponent,
+			PageComponent,
+			ColumnSettingsComponent,
+			SearchComponent,
+			fetch,
+			openAddForm,
+			openImportForm,
+			isDetectionAddMonitor,
+			hasChildRoutes,
+		} = useController()
 
 		// 获取主题CSS变量
 		const cssVar = useThemeCssVar(['contentPadding', 'borderColor', 'headerHeight', 'iconColorHover'])
@@ -36,36 +46,50 @@ export default defineComponent({
 		return () => (
 			<div class="h-full flex flex-col" style={cssVar.value}>
 				<div class="mx-auto max-w-[1600px] w-full p-6">
-					<BaseComponent
-						v-slots={{
-							// 头部左侧区域 - 添加按钮
-							headerLeft: () => (
-								<NButton type="primary" size="large" class="px-5" onClick={openAddForm}>
-									{$t('t_11_1745289354516')}
-								</NButton>
-							),
-							// 头部右侧区域 - 搜索框
-							headerRight: () => <SearchComponent placeholder={$t('t_12_1745289356974')} />,
-							// 内容区域 - 监控表格
-							content: () => (
-								<div class="rounded-lg">
-									<TableComponent
-										size="medium"
-										scroll-x="1800"
-										v-slots={{
-											empty: () => <EmptyState addButtonText={$t('t_11_1745289354516')} onAddClick={openAddForm} />,
-										}}
-									/>
-								</div>
-							),
-							// 底部右侧区域 - 分页组件
-							footerRight: () => (
-								<div class="mt-4 flex justify-end">
-									<PageComponent />
-								</div>
-							),
-						}}
-					></BaseComponent>
+					{hasChildRoutes.value ? (
+						<RouterView />
+					) : (
+						<BaseComponent
+							v-slots={{
+								// 头部左侧区域 - 添加按钮和导入按钮
+								headerLeft: () => (
+									<NSpace>
+										<NButton type="primary" size="large" class="px-5" onClick={openAddForm}>
+											{$t('t_11_1745289354516')}
+										</NButton>
+										<NButton type="default" size="large" class="px-5" onClick={openImportForm}>
+											{$t('t_0_1753000000001')}
+										</NButton>
+									</NSpace>
+								),
+								// 头部右侧区域 - 搜索框和列设置
+								headerRight: () => (
+									<NSpace align="center" size="medium">
+										<SearchComponent placeholder={$t('t_12_1745289356974')} />
+										<ColumnSettingsComponent />
+									</NSpace>
+								),
+								// 内容区域 - 监控表格
+								content: () => (
+									<div class="rounded-lg">
+										<TableComponent
+											size="medium"
+											scroll-x="1800"
+											v-slots={{
+												empty: () => <EmptyState addButtonText={$t('t_11_1745289354516')} onAddClick={openAddForm} />,
+											}}
+										/>
+									</div>
+								),
+								// 底部右侧区域 - 分页组件
+								footerRight: () => (
+									<div class="mt-4 flex justify-end">
+										<PageComponent />
+									</div>
+								),
+							}}
+						></BaseComponent>
+					)}
 				</div>
 			</div>
 		)

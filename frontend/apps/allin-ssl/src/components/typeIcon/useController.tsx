@@ -53,34 +53,65 @@ if (ApiProjectConfig.btwaf) {
 
 /**
  * @function useAuthApiTypeIconController
- * @description AuthApiTypeIcon 组件的控制器逻辑。
+ * @description AuthApiTypeIcon 组件的控制器逻辑，支持单个或多个图标。
  * @param props - 组件的 props。
  * @returns {AuthApiTypeIconControllerExposes} 控制器暴露给视图的数据和方法。
  */
 export function useAuthApiTypeIconController(props: AuthApiTypeIconProps): AuthApiTypeIconControllerExposes {
 	/**
 	 * @computed iconPath
-	 * @description 根据 props.icon 计算 SvgIcon 所需的图标名称。
+	 * @description 根据 props.icon 计算 SvgIcon 所需的图标名称。支持单个或多个图标。
 	 */
 	const iconPath = computed<string>(() => {
-		const isNotify = notifyKeys.has(props.icon)
+		// 如果是数组，取第一个作为主要图标
+		const iconKey = Array.isArray(props.icon) ? props.icon[0] : props.icon
+		if (!iconKey) return 'resources-default'
+
+		const isNotify = notifyKeys.has(iconKey)
 		const RESOURCE_PREFIX = isNotify ? 'notify-' : 'resources-'
 		// 从映射表中获取图标文件名，如果找不到则使用 'default'
-		const iconStem = iconFileMap[props.icon] || 'default'
+		const iconStem = iconFileMap[iconKey] || 'default'
 		return RESOURCE_PREFIX + iconStem
 	})
 
 	/**
 	 * @computed typeName
-	 * @description 根据 props.icon 获取对应的显示名称。
+	 * @description 根据 props.icon 获取对应的显示名称。支持单个或多个名称。
 	 */
 	const typeName = computed<string>(() => {
-		// 从映射表中获取显示名称，如果找不到则直接使用 props.icon
-		return typeNamesMap[props.icon] || props.icon
+		if (Array.isArray(props.icon)) {
+			// 如果是数组，组合多个名称
+			return props.icon
+				.filter(Boolean)
+				.map((iconKey) => typeNamesMap[iconKey] || iconKey)
+				.join(', ')
+		} else {
+			// 单个图标的处理
+			return typeNamesMap[props.icon] || props.icon
+		}
+	})
+
+	/**
+	 * @computed iconItems
+	 * @description 计算所有图标项，用于多图标显示
+	 */
+	const iconItems = computed(() => {
+		const icons = Array.isArray(props.icon) ? props.icon : [props.icon]
+		return icons.filter(Boolean).map((iconKey) => {
+			const isNotify = notifyKeys.has(iconKey)
+			const RESOURCE_PREFIX = isNotify ? 'notify-' : 'resources-'
+			const iconStem = iconFileMap[iconKey] || 'default'
+			return {
+				iconPath: RESOURCE_PREFIX + iconStem,
+				typeName: typeNamesMap[iconKey] || iconKey,
+				key: iconKey,
+			}
+		})
 	})
 
 	return {
 		iconPath,
 		typeName,
+		iconItems,
 	}
 }

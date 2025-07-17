@@ -1,6 +1,30 @@
 import type { DataTableColumns, DataTableInst, DataTableProps } from 'naive-ui'
 import type { Ref } from 'vue'
 
+/** 列可见性配置接口 */
+export interface ColumnVisibility {
+	/** 列的显示状态，key为列的key，value为是否显示 */
+	[columnKey: string]: boolean
+}
+
+/** 列设置状态接口 */
+export interface ColumnSettingsState {
+	/** 列可见性配置 */
+	visibility: ColumnVisibility
+	/** 表格唯一标识 */
+	tableId: string
+}
+
+/** 列设置组件属性接口 */
+export interface ColumnSettingsProps {
+	/** 表格列配置 */
+	columns: DataTableColumns
+	/** 列可见性状态 */
+	visibility: ColumnVisibility
+	/** 可见性变更回调 */
+	onVisibilityChange: (visibility: ColumnVisibility) => void
+}
+
 /** 表格请求参数接口 */
 export interface TableRequestParams {
 	/** 其他可能的查询参数 */
@@ -40,6 +64,8 @@ export interface TableInstanceWithComponent<T = Record<string, unknown>, Z = Rec
 	TableComponent: (props: Record<string, unknown>, context: Record<string, unknown>) => JSX.Element
 	/** 分页渲染组件：用于渲染分页组件的Vue组件 */
 	PageComponent: (props: Record<string, unknown>, context: Record<string, unknown>) => JSX.Element
+	/** 列设置渲染组件：用于渲染列设置下拉组件的Vue组件 */
+	ColumnSettingsComponent: () => JSX.Element
 	loading: Ref<boolean> // 加载状态
 	tableAlias: Ref<{ total: string; list: string }> // 表格别名
 	data: Ref<{ list: T[]; total: number }> // 表格数据引用
@@ -53,6 +79,12 @@ export interface TableInstanceWithComponent<T = Record<string, unknown>, Z = Rec
 	handlePageChange: (currentPage: number) => void // 分页改变
 	handlePageSizeChange: (size: number) => void // 分页大小改变
 	pageSizeOptions: Ref<number[]> // 分页大小选项
+	/** 列可见性状态 */
+	columnVisibility: Ref<ColumnVisibility>
+	/** 切换列可见性 */
+	toggleColumnVisibility: (columnKey: string) => void
+	/** 重置列设置 */
+	resetColumnSettings: () => void
 }
 
 /**

@@ -27,6 +27,11 @@ type TranslationTemplate = {
 	}
 	useTable: {
 		operation: string
+		columnSettings: string
+		showColumn: string
+		hideColumn: string
+		resetColumns: string
+		allColumns: string
 	}
 }
 
@@ -80,6 +85,11 @@ export const translation = {
 		useTable: {
 			operation: '操作',
 			total: (total: number) => formatString('共 {} 条', total),
+			columnSettings: '列设置',
+			showColumn: '显示列',
+			hideColumn: '隐藏列',
+			resetColumns: '重置列设置',
+			allColumns: '全部列',
 		},
 	}),
 	zhTW: createTranslation({
@@ -142,6 +152,11 @@ export const translation = {
 		useTable: {
 			operation: 'Operation',
 			total: (total: number) => formatString('Total {} items', total),
+			columnSettings: 'Column Settings',
+			showColumn: 'Show Column',
+			hideColumn: 'Hide Column',
+			resetColumns: 'Reset Columns',
+			allColumns: 'All Columns',
 		},
 	}),
 	jaJP: createTranslation({

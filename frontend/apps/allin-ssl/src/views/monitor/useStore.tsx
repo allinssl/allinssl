@@ -51,9 +51,13 @@ export const useMonitorStore = defineStore('monitor-store', (): MonitorStoreExpo
 	const monitorForm = ref<AddSiteMonitorParams & UpdateSiteMonitorParams>({
 		id: 0,
 		name: '',
-		domain: '',
+		target: '',
+		monitor_type: 'https', // 默认协议类型为HTTPS
+		report_types: [], // 默认为空数组，支持多选
 		cycle: 1,
-		report_type: '',
+		repeat_send_gap: 10, // 默认重复发送间隔10次
+		active: 1, // 默认启用状态
+		advance_day: 90, // 默认提前90天
 	})
 
 	// -------------------- 方法定义 --------------------
@@ -84,7 +88,13 @@ export const useMonitorStore = defineStore('monitor-store', (): MonitorStoreExpo
 	 */
 	const addNewMonitor = async (params: AddSiteMonitorParams): Promise<boolean> => {
 		try {
-			const { fetch, message } = addSiteMonitor(params)
+			// 转换 report_types 数组为逗号分隔的字符串
+			const processedParams = {
+				...params,
+				report_types: Array.isArray(params.report_types) ? params.report_types.join(',') : params.report_types || '',
+			}
+
+			const { fetch, message } = addSiteMonitor(processedParams)
 			message.value = true
 			await fetch()
 			return true
@@ -102,7 +112,13 @@ export const useMonitorStore = defineStore('monitor-store', (): MonitorStoreExpo
 	 */
 	const updateExistingMonitor = async (params: UpdateSiteMonitorParams): Promise<boolean> => {
 		try {
-			const { fetch, message } = updateSiteMonitor(params)
+			// 转换 report_types 数组为逗号分隔的字符串
+			const processedParams = {
+				...params,
+				report_types: Array.isArray(params.report_types) ? params.report_types.join(',') : params.report_types || '',
+			}
+
+			const { fetch, message } = updateSiteMonitor(processedParams)
 			message.value = true
 			await fetch()
 			return true
@@ -150,12 +166,37 @@ export const useMonitorStore = defineStore('monitor-store', (): MonitorStoreExpo
 
 	/**
 	 * 更新监控表单
-	 * @description 用于编辑时填充表单数据
+	 * @description 用于编辑时填充表单数据，支持单选到多选的数据转换
 	 * @param {UpdateSiteMonitorParams | null} params - 更新监控参数
 	 */
 	const updateMonitorForm = (params: UpdateSiteMonitorParams | null = monitorForm.value): void => {
-		const { id, name, domain, cycle, report_type } = params || monitorForm.value
-		monitorForm.value = { id, name, domain, cycle, report_type }
+		const { id, name, target, monitor_type, report_types, cycle, repeat_send_gap, active, advance_day } =
+			params || monitorForm.value
+
+		// 处理 report_types 的数据格式转换
+		let processedReportTypes: string[]
+		if (typeof report_types === 'string') {
+			// 如果是逗号分隔的字符串，转换为数组
+			processedReportTypes = report_types ? report_types.split(',').filter(Boolean) : []
+		} else if (Array.isArray(report_types)) {
+			// 如果已经是数组，直接使用
+			processedReportTypes = report_types
+		} else {
+			// 其他情况，设为空数组
+			processedReportTypes = []
+		}
+
+		monitorForm.value = {
+			id,
+			name,
+			target,
+			monitor_type,
+			report_types: processedReportTypes,
+			cycle,
+			repeat_send_gap,
+			active,
+			advance_day,
+		}
 	}
 
 	/**
@@ -166,9 +207,13 @@ export const useMonitorStore = defineStore('monitor-store', (): MonitorStoreExpo
 		monitorForm.value = {
 			id: 0,
 			name: '',
-			domain: '',
+			target: '',
+			monitor_type: 'https', // 默认协议类型为HTTPS
+			report_types: [], // 重置为空数组
 			cycle: 1,
-			report_type: '',
+			repeat_send_gap: 10, // 默认重复发送间隔10次
+			active: 1, // 默认启用状态
+			advance_day: 90, // 默认提前90天
 		}
 	}
 

@@ -4,6 +4,7 @@ import useRouterEach from './each' // 全局路由守卫
 
 // 获取路由
 const { routeGroup, routes } = createRoutes() // 获取路由配置
+console.log(routeGroup, routes)
 
 // 创建路由
 const router = useCreateRouter({

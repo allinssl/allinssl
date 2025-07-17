@@ -363,10 +363,20 @@ export const useApiFormController = (props: ApiFormControllerProps): ApiFormCont
 			password: {
 				trigger: 'input',
 				validator: (rule: FormItemRule, value: string, callback: (error?: Error) => void) => {
+					// SSH 类型的密码字段在密码模式下是必填的，在密钥模式下是可选的
+					if (param.value.type === 'ssh') {
+						const sshConfig = param.value.config as SshAccessConfig
+						if (sshConfig?.mode === 'password' && !value) {
+							return callback(new Error($t('t_0_1747711335067')))
+						}
+						// 密钥模式下密码是可选的，不需要验证
+						callback()
+						return
+					}
+
 					if (!value) {
 						const mapTips = {
 							westcn: $t('t_1_1747365603108'),
-							ssh: $t('t_0_1747711335067'),
 							lecdn: '请输入密码',
 						}
 						return callback(new Error(mapTips[param.value.type as keyof typeof mapTips]))
@@ -593,8 +603,9 @@ export const useApiFormController = (props: ApiFormControllerProps): ApiFormCont
 
 		// 根据不同类型渲染不同的表单项
 		switch (param.value.type) {
-			case 'ssh':
-				items.push(
+			case 'ssh': {
+				// SSH 基础配置项
+				const sshBaseItems = [
 					useFormCustom(() => {
 						return (
 							<NGrid cols={24} xGap={4}>
@@ -616,18 +627,43 @@ export const useApiFormController = (props: ApiFormControllerProps): ApiFormCont
 						{ label: $t('t_48_1745289355714'), value: 'password' },
 						{ label: $t('t_1_1746667588689'), value: 'key' },
 					]),
-					(param.value.config as SshAccessConfig)?.mode === 'password'
-						? useFormInput($t('t_48_1745289355714'), 'config.password', {
+				]
+
+				// 根据认证模式添加对应的字段
+				const sshAuthItems = []
+				if ((param.value.config as SshAccessConfig)?.mode === 'password') {
+					sshAuthItems.push(
+						useFormInput($t('t_48_1745289355714'), 'config.password', {
+							type: 'password',
+							showPasswordOn: 'click',
+							allowInput: noSideSpace,
+						}),
+					)
+				} else if ((param.value.config as SshAccessConfig)?.mode === 'key') {
+					sshAuthItems.push(
+						useFormTextarea($t('t_1_1746667588689'), 'config.key', {
+							rows: 3,
+							placeholder: $t('t_0_1747709067998'),
+						}),
+						// 私钥密码输入框（使用 password 字段）
+						useFormInput(
+							'私钥密码',
+							'config.password',
+							{
 								type: 'password',
 								showPasswordOn: 'click',
 								allowInput: noSideSpace,
-							})
-						: useFormTextarea($t('t_1_1746667588689'), 'config.key', {
-								rows: 3,
-								placeholder: $t('t_0_1747709067998'),
-							}),
-				)
+								placeholder: '请输入私钥密码（可选）',
+							},
+							{ showRequireMark: false },
+						),
+					)
+				}
+
+				// 合并所有 SSH 配置项
+				items.push(...sshBaseItems, ...sshAuthItems)
 				break
+			}
 			case '1panel':
 				items.push(
 					// 1Panel版本选择下拉框

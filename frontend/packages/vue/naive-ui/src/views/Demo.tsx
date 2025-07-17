@@ -2,6 +2,7 @@ import { defineComponent, ref, computed } from 'vue'
 import { NSpace, NTabs, NTabPane, NBackTop, NButton } from 'naive-ui'
 import TableDemo from './tabs/TableDemo'
 import FormDemo from './tabs/FormDemo'
+import ColumnSettingsDemo from './tabs/ColumnSettingsDemo'
 import { useModal } from '../hooks/useModal'
 // import FormBuilder from '../components/FormBuilder'
 
@@ -14,6 +15,8 @@ export default defineComponent({
 				return '动态表格'
 			} else if (tabName.value === 'form') {
 				return '动态表单'
+			} else if (tabName.value === 'column-settings') {
+				return '列设置功能'
 			} else if (tabName.value === 'builder') {
 				return '表单构建器'
 			}
@@ -40,6 +43,9 @@ export default defineComponent({
 						</NTabPane>
 						<NTabPane name="form" tab="动态表单">
 							<FormDemo />
+						</NTabPane>
+						<NTabPane name="column-settings" tab="列设置功能">
+							<ColumnSettingsDemo />
 						</NTabPane>
 						<NTabPane name="builder" tab="表单构建器">
 							{/* <FormBuilder /> */}

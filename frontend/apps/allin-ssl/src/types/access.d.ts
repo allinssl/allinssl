@@ -109,7 +109,8 @@ type SshAccessConfig = {
 	host: string
 	port: number
 	user: string
-} & ({ mode: 'password'; password: string; key?: never } | { mode: 'key'; key: string; password?: never })
+	password?: string // 密码字段：密码模式下作为登录密码，密钥模式下作为私钥密码（可选）
+} & ({ mode: 'password'; key?: never } | { mode: 'key'; key: string })
 
 /**
  * 阿里云授权配置

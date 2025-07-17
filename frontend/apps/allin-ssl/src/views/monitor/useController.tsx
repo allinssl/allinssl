@@ -1,6 +1,6 @@
 import { computed, onMounted, onUnmounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { FormRules, NButton, NSpace, NSwitch, type DataTableColumns } from 'naive-ui'
+import { FormRules, NButton, NSpace, NSwitch, NText, NDivider, type DataTableColumns } from 'naive-ui'
 
 // 钩子和工具
 import {
@@ -20,11 +20,12 @@ import { $t } from '@locales/index'
 // Store和组件
 import { useStore } from './useStore'
 import MonitorForm from './components/AddMonitorModel'
-import NotifyProviderSelect from '@components/NotifyProviderSelect'
+import ImportMonitorModal from './components/ImportMonitorModal'
+import NotifyProviderMultiSelect from '@components/notifyProviderMultiSelect'
 import TypeIcon from '@components/TypeIcon'
 
 // 类型导入
-import type { Ref } from 'vue'
+import type { Ref, ComputedRef } from 'vue'
 import type {
 	AddSiteMonitorParams,
 	SiteMonitorItem,
@@ -39,6 +40,7 @@ interface MonitorControllerExposes {
 	// 表格相关
 	TableComponent: ReturnType<typeof useTable>['TableComponent']
 	PageComponent: ReturnType<typeof useTable>['PageComponent']
+	ColumnSettingsComponent: ReturnType<typeof useTable>['ColumnSettingsComponent']
 	SearchComponent: ReturnType<typeof useSearch>['SearchComponent']
 	loading: Ref<boolean>
 	// param: Ref<SiteMonitorListParams>
@@ -47,7 +49,12 @@ interface MonitorControllerExposes {
 
 	// 表单和操作相关
 	openAddForm: () => void
+	openImportForm: () => void
+	openDetailPage: (row: SiteMonitorItem) => void
 	isDetectionAddMonitor: () => void
+
+	// 路由相关
+	hasChildRoutes: ComputedRef<boolean>
 }
 
 // 从Store中获取方法
@@ -99,6 +106,9 @@ export const useController = (): MonitorControllerExposes => {
 	const route = useRoute()
 	const router = useRouter()
 
+	// 判断是否为子路由
+	const hasChildRoutes = computed(() => route.path !== '/monitor')
+
 	/**
 	 * 创建表格列配置
 	 * @description 定义监控表格的列结构和渲染方式
@@ -112,22 +122,27 @@ export const useController = (): MonitorControllerExposes => {
 		},
 		{
 			title: $t('t_17_1745227838561'),
-			key: 'site_domain',
+			key: 'target',
 			width: 180,
 			render: (row: SiteMonitorItem) => {
 				return (
-					<NButton tag="a" text type="primary" href={`https://${row.site_domain}`} target="_blank">
-						{row.site_domain}
-					</NButton>
+					<a
+						href={`https://${row.target}`}
+						target="_blank"
+						rel="noopener noreferrer"
+						style="color: var(--primary-color); text-decoration: none;"
+					>
+						{row.target}
+					</a>
 				)
 			},
 		},
 		{
 			title: $t('t_14_1745289354902'),
-			key: 'cert_domain',
+			key: 'common_name',
 			width: 180,
 			render: (row: SiteMonitorItem) => {
-				return row.cert_domain || '-'
+				return row.common_name || '-'
 			},
 		},
 		{
@@ -137,14 +152,29 @@ export const useController = (): MonitorControllerExposes => {
 		},
 		{
 			title: $t('t_16_1745289354902'),
-			key: 'state',
+			key: 'valid',
 			width: 100,
+			render: (row: SiteMonitorItem) => {
+				return row.valid === 1 ? '有效' : '无效'
+			},
 		},
 		{
 			title: $t('t_17_1745289355715'),
-			key: 'end_time',
+			key: 'not_after',
 			width: 150,
-			render: (row: SiteMonitorItem) => row.end_time + '(' + row.end_day + ')',
+			render: (row: SiteMonitorItem) => {
+				// 检查到期时间和剩余天数是否有效
+				const hasValidNotAfter = row.not_after && row.not_after !== 'undefined' && row.not_after.trim() !== ''
+				const hasValidDaysLeft = row.days_left !== undefined && row.days_left !== null && !isNaN(row.days_left)
+
+				// 如果任一数据无效，显示占位符
+				if (!hasValidNotAfter || !hasValidDaysLeft) {
+					return '-'
+				}
+
+				// 正常情况下显示完整的到期时间信息
+				return `${row.not_after}(${row.days_left}天)`
+			},
 		},
 		{
 			title: $t('t_2_1750399515511'),
@@ -166,10 +196,29 @@ export const useController = (): MonitorControllerExposes => {
 		},
 		{
 			title: $t('t_18_1745289354598'),
-			key: 'report_type',
-			width: 150,
+			key: 'report_types',
+			width: 200, // 增加宽度以适应多选标签
 			render: (row: SiteMonitorItem) => {
-				return <TypeIcon icon={row.report_type} />
+				// 确保 report_types 数据格式正确处理
+				let reportTypes: string | string[]
+
+				if (typeof row.report_types === 'string') {
+					// 如果是逗号分隔的字符串，转换为数组以支持多选显示
+					reportTypes = row.report_types ? row.report_types.split(',').filter(Boolean) : []
+				} else if (Array.isArray(row.report_types)) {
+					// 如果已经是数组，直接使用
+					reportTypes = row.report_types
+				} else {
+					// 其他情况，设为空数组
+					reportTypes = []
+				}
+
+				// 如果没有通知类型，显示占位符
+				if (!reportTypes || (Array.isArray(reportTypes) && reportTypes.length === 0)) {
+					return <span style="color: var(--n-text-color-disabled); font-size: 12px;">-</span>
+				}
+
+				return <TypeIcon icon={reportTypes} />
 			},
 		},
 		{
@@ -188,12 +237,15 @@ export const useController = (): MonitorControllerExposes => {
 		{
 			title: $t('t_8_1745215914610'),
 			key: 'actions',
-			width: 150,
+			width: 200,
 			fixed: 'right' as const,
 			align: 'right',
 			render: (row: SiteMonitorItem) => {
 				return (
 					<NSpace justify="end">
+						<NButton size="tiny" strong secondary type="info" onClick={() => openDetailPage(row)}>
+							详情
+						</NButton>
 						<NButton size="tiny" strong secondary type="primary" onClick={() => openEditForm(row)}>
 							{$t('t_11_1745215915429')}
 						</NButton>
@@ -210,13 +262,16 @@ export const useController = (): MonitorControllerExposes => {
 	 * 表格实例
 	 * @description 创建表格实例并管理相关状态
 	 */
-	const { TableComponent, PageComponent, loading, param, fetch } = useTable<SiteMonitorItem, SiteMonitorListParams>({
+	const { TableComponent, PageComponent, ColumnSettingsComponent, loading, param, fetch } = useTable<
+		SiteMonitorItem,
+		SiteMonitorListParams
+	>({
 		config: createColumns(),
 		request: fetchMonitorList,
 		defaultValue: { p: 1, limit: 10, search: '' },
 		alias: { page: 'p', pageSize: 'limit' },
 		watchValue: ['p', 'limit'],
-		storage: 'monitorPageSize',
+		storage: 'monitorColumnSettings',
 	})
 
 	// 搜索实例
@@ -244,6 +299,22 @@ export const useController = (): MonitorControllerExposes => {
 	}
 
 	/**
+	 * 打开导入监控弹窗
+	 * @description 显示导入监控的弹窗
+	 */
+	const openImportForm = (): void => {
+		useModal({
+			title: $t('t_0_1753000000001'),
+			area: 600,
+			component: ImportMonitorModal,
+			footer: false,
+			onUpdateShow(show) {
+				if (!show) fetch()
+			},
+		})
+	}
+
+	/**
 	 * 打开编辑监控弹窗
 	 * @description 显示编辑监控的表单弹窗
 	 * @param {SiteMonitorItem} data - 要编辑的监控项数据
@@ -258,6 +329,18 @@ export const useController = (): MonitorControllerExposes => {
 			onUpdateShow(show) {
 				if (!show) fetch()
 			},
+		})
+	}
+
+	/**
+	 * 打开监控详情页面
+	 * @description 跳转到监控详情页面
+	 * @param {SiteMonitorItem} row - 监控项数据
+	 */
+	const openDetailPage = (row: SiteMonitorItem): void => {
+		router.push({
+			path: '/monitor/detail',
+			query: { id: row.id.toString() },
 		})
 	}
 
@@ -302,13 +385,20 @@ export const useController = (): MonitorControllerExposes => {
 	}
 
 	return {
-		loading,
-		fetch,
+		// 表格相关
 		TableComponent,
 		PageComponent,
+		ColumnSettingsComponent,
 		SearchComponent,
-		isDetectionAddMonitor,
+		loading,
+		fetch,
+		// 表单和操作相关
 		openAddForm,
+		openImportForm,
+		openDetailPage,
+		isDetectionAddMonitor,
+		// 路由相关
+		hasChildRoutes,
 	}
 }
 
@@ -327,7 +417,7 @@ interface MonitorFormControllerExposes {
  */
 export const useMonitorFormController = (data: UpdateSiteMonitorParams | null = null): MonitorFormControllerExposes => {
 	// 表单工具
-	const { useFormInput, useFormCustom, useFormInputNumber } = useFormHooks()
+	const { useFormInput, useFormCustom, useFormInputNumber, useFormSelect, useFormSwitch } = useFormHooks()
 
 	// 加载遮罩
 	const { open: openLoad, close: closeLoad } = useLoadingMask({ text: '正在提交信息，请稍后...' })
@@ -336,25 +426,69 @@ export const useMonitorFormController = (data: UpdateSiteMonitorParams | null = 
 	const { confirm } = useModalHooks()
 
 	/**
+	 * 创建分组标题
+	 * @param title 分组标题文本
+	 * @returns 分组标题配置
+	 */
+	const createGroupTitle = (title: string) => {
+		return useFormCustom(() => <NDivider style="margin: 12px 0 8px 0; font-weight: 500;">{title}</NDivider>)
+	}
+
+	/**
 	 * 表单配置
 	 * @description 定义表单字段和布局
 	 */
 	const config = computed(() => [
 		useFormInput('名称', 'name'),
-		useFormInput('域名/IP地址', 'domain'),
+		useFormInput('域名/IP地址', 'target'),
+		useFormSelect('协议类型', 'monitor_type', [
+			{ label: 'HTTPS', value: 'https' },
+			{ label: 'SMTP', value: 'smtp' },
+		]),
 		useFormInputNumber('周期(分钟)', 'cycle', { class: 'w-full' }),
 		useFormCustom(() => {
+			// 确保 report_types 是数组格式
+			const currentValue = Array.isArray(monitorForm.value.report_types)
+				? monitorForm.value.report_types
+				: monitorForm.value.report_types
+					? typeof monitorForm.value.report_types === 'string'
+						? monitorForm.value.report_types.split(',').filter(Boolean)
+						: [monitorForm.value.report_types]
+					: []
+
 			return (
-				<NotifyProviderSelect
-					path="report_type"
+				<NotifyProviderMultiSelect
+					path="report_types"
 					isAddMode={true}
-					value={monitorForm.value.report_type}
+					value={currentValue}
 					valueType="type"
-					onUpdate:value={(item) => {
-						monitorForm.value.report_type = item.value
+					onUpdate:value={(items) => {
+						// 将选中的多个值转换为数组格式，存储类型值
+						monitorForm.value.report_types = items.map((item) => item.type || item.value)
 					}}
 				/>
 			)
+		}),
+		// 到期提醒设置分组
+		createGroupTitle('到期提醒设置'),
+		useFormInputNumber('提前天数', 'advance_day', { class: 'w-full', min: 1, max: 365 }),
+		useFormCustom(() => {
+			const advanceDay = monitorForm.value.advance_day || 90
+			return (
+				<NText
+					depth="3"
+					style="font-size: 12px; margin-top: -8px; margin-bottom: 8px; display: block; color: var(--n-text-color-disabled);"
+				>
+					系统将在证书到期前 {advanceDay} 天开始发送提醒通知
+				</NText>
+			)
+		}),
+		// 连续失败通知设置分组
+		createGroupTitle('连续失败通知设置'),
+		useFormInputNumber('重复发送间隔(次数)', 'repeat_send_gap', { class: 'w-full', min: 1, max: 100 }),
+		useFormSwitch('启用状态', 'active', {
+			checkedValue: 1,
+			uncheckedValue: 0,
 		}),
 	])
 
@@ -363,11 +497,11 @@ export const useMonitorFormController = (data: UpdateSiteMonitorParams | null = 
 	 */
 	const rules = {
 		name: { required: true, message: '请输入名称', trigger: 'input' },
-		domain: {
+		target: {
 			required: true,
 			message: '请输入正确的域名或IP地址',
 			trigger: 'input',
-			validator: (rule: any, value: any, callback: any) => {
+			validator: (_rule: any, value: any, callback: any) => {
 				if (!isDomainWithPort(value)) {
 					callback(new Error('请输入正确的域名或IP地址（支持域名:端口或IP:端口格式）'))
 				} else {
@@ -375,8 +509,30 @@ export const useMonitorFormController = (data: UpdateSiteMonitorParams | null = 
 				}
 			},
 		},
+		monitor_type: { required: true, message: '请选择协议类型', trigger: 'change' },
 		cycle: { required: true, message: '请输入周期', trigger: 'input', type: 'number', min: 1, max: 365 },
-		report_type: { required: true, message: '请选择消息通知类型', trigger: 'change' },
+		report_types: {
+			required: true,
+			message: '请选择消息通知类型',
+			trigger: 'change',
+			validator: (_rule: any, value: any, callback: any) => {
+				if (!value || (Array.isArray(value) && value.length === 0)) {
+					callback(new Error('请至少选择一种消息通知类型'))
+				} else {
+					callback()
+				}
+			},
+		},
+		advance_day: { required: true, message: '请输入提前天数', trigger: 'input', type: 'number', min: 1, max: 365 },
+		repeat_send_gap: {
+			required: true,
+			message: '请输入重复发送间隔',
+			trigger: 'input',
+			type: 'number',
+			min: 1,
+			max: 100,
+		},
+		active: { required: true, message: '请选择启用状态', trigger: 'change', type: 'number' },
 	} as FormRules
 
 	/**
@@ -387,10 +543,9 @@ export const useMonitorFormController = (data: UpdateSiteMonitorParams | null = 
 	const request = async (params: AddSiteMonitorParams | UpdateSiteMonitorParams): Promise<void> => {
 		try {
 			if (data) {
-				await updateExistingMonitor({ ...params, id: data.id })
+				await updateExistingMonitor({ ...params, id: data.id } as UpdateSiteMonitorParams)
 			} else {
-				const { id, ...rest } = params
-				await addNewMonitor(rest)
+				await addNewMonitor(params as AddSiteMonitorParams)
 			}
 		} catch (error) {
 			handleError(error).default('添加失败')

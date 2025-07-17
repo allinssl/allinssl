@@ -50,7 +50,7 @@ export const updateSiteMonitor = Mock.mock(/\/siteMonitor\/upd_site_monitor/, 'p
 }))
 
 // 删除站点监控
-export const deleteSiteMonitor = Mock.mock(/\/siteMonitor\/del_site_monitor/, 'post', () => ({
+export const deleteSiteMonitor = Mock.mock(/\/monitor\/del_monitor/, 'post', () => ({
 	code: 0,
 	count: 0,
 	data: null,

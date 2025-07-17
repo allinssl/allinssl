@@ -44,6 +44,9 @@
 	background-color: var(--n-merged-td-color);
 }
 
+.n-scrollbar > .n-scrollbar-rail.n-scrollbar-rail--horizontal--top, .n-scrollbar + .n-scrollbar-rail.n-scrollbar-rail--horizontal--top {
+	top: 40px !important;
+}
 
 .leftPanel .n-tabs-tab {
 	height: 3.2rem;

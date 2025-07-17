@@ -3,11 +3,12 @@
  */
 export interface AuthApiTypeIconProps {
 	/**
-	 * 图标类型键。
+	 * 图标类型键。支持单个字符串或字符串数组。
 	 * 该键用于从 /lib/data.tsx 配置中查找对应的图标和名称。
 	 * 如果未在配置中找到，将尝试使用 'default' 图标，并直接显示该键作为文本。
+	 * 当传入数组时，会显示多个图标标签。
 	 */
-	icon: string
+	icon: string | string[]
 	/**
 	 * NTag 的类型。
 	 * @default 'default'
@@ -21,6 +22,15 @@ export interface AuthApiTypeIconProps {
 }
 
 /**
+ * 图标项的类型定义
+ */
+export interface IconItem {
+	iconPath: string
+	typeName: string
+	key: string
+}
+
+/**
  * useAuthApiTypeIconController Composable 函数暴露的接口。
  */
 export interface AuthApiTypeIconControllerExposes {
@@ -28,6 +38,8 @@ export interface AuthApiTypeIconControllerExposes {
 	iconPath: globalThis.ComputedRef<string>
 	/** 计算得到的类型名称，用于显示 */
 	typeName: globalThis.ComputedRef<string>
+	/** 计算得到的所有图标项，用于多图标显示 */
+	iconItems: globalThis.ComputedRef<IconItem[]>
 }
 
 /**

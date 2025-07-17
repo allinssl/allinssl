@@ -2,16 +2,20 @@ import { ref, shallowRef, ShallowRef, Ref, effectScope, watch, onUnmounted, isRe
 import {
 	type DataTableProps,
 	type DataTableSlots,
+	type DataTableColumns,
 	type PaginationProps,
 	type PaginationSlots,
 	NDataTable,
 	NPagination,
 	NButton,
+	NDropdown,
+	NCheckbox,
+	NIcon,
 } from 'naive-ui'
 import { translation, TranslationModule, type TranslationLocale } from '../locals/translation'
 import { useMessage } from './useMessage'
 
-import type { UseTableOptions, TableInstanceWithComponent, TableResponse } from '../types/table'
+import type { UseTableOptions, TableInstanceWithComponent, TableResponse, ColumnVisibility } from '../types/table'
 
 // 获取当前语言
 const currentLocale = localStorage.getItem('locale-active') || 'zhCN'
@@ -66,6 +70,67 @@ const savePageSizeToStorage = (storage: string, size: number): void => {
 		console.warn('保存pageSize到本地存储失败:', error)
 	}
 }
+
+/**
+ * 从本地存储获取列可见性配置的纯函数
+ * @param storage 存储的key
+ * @param columns 表格列配置
+ * @returns 列可见性配置
+ */
+const getStoredColumnVisibility = (storage: string, columns: any[]): ColumnVisibility => {
+	try {
+		if (!storage) return getDefaultColumnVisibility(columns)
+		const stored = localStorage.getItem(`table-column-settings-${storage}`)
+		if (stored) {
+			const parsedVisibility = JSON.parse(stored) as ColumnVisibility
+			// 验证存储的配置是否与当前列配置匹配
+			const defaultVisibility = getDefaultColumnVisibility(columns)
+			const mergedVisibility: ColumnVisibility = {}
+
+			// 合并默认配置和存储配置，确保新增的列默认显示
+			Object.keys(defaultVisibility).forEach((key) => {
+				mergedVisibility[key] = Object.prototype.hasOwnProperty.call(parsedVisibility, key)
+					? parsedVisibility[key]
+					: defaultVisibility[key]
+			})
+
+			return mergedVisibility
+		}
+	} catch (error) {
+		console.warn('读取本地存储列设置失败:', error)
+	}
+	return getDefaultColumnVisibility(columns)
+}
+
+/**
+ * 保存列可见性配置到本地存储的纯函数
+ * @param storage 存储的key
+ * @param visibility 列可见性配置
+ */
+const saveColumnVisibilityToStorage = (storage: string, visibility: ColumnVisibility): void => {
+	try {
+		if (storage) localStorage.setItem(`table-column-settings-${storage}`, JSON.stringify(visibility))
+	} catch (error) {
+		console.warn('保存列设置到本地存储失败:', error)
+	}
+}
+
+/**
+ * 获取默认列可见性配置的纯函数
+ * @param columns 表格列配置
+ * @returns 默认列可见性配置
+ */
+const getDefaultColumnVisibility = (columns: any[]): ColumnVisibility => {
+	const visibility: ColumnVisibility = {}
+	columns.forEach((column) => {
+		// 使用类型断言来访问 key 属性
+		const col = column as any
+		if (col.key) {
+			visibility[col.key] = true // 默认所有列都显示
+		}
+	})
+	return visibility
+}
 /**
  * 表格钩子函数
  * @param options 表格配置选项
@@ -92,6 +157,70 @@ export default function useTable<T = Record<string, any>, Z extends Record<strin
 		const props = shallowRef({}) as ShallowRef<DataTableProps> // 表格属性
 		const { error: errorMsg } = useMessage()
 
+		// 列设置状态
+		const columnVisibility = ref<ColumnVisibility>(getStoredColumnVisibility(storage, config))
+
+		// 计算过滤后的列配置
+		const filteredColumns = computed(() => {
+			return config.filter((column) => {
+				const col = column as any
+				if (!col.key) return true // 没有key的列始终显示
+				return columnVisibility.value[col.key] !== false
+			})
+		})
+
+		// 计算可见列的详细宽度信息
+		const visibleColumnsWidth = computed(() => {
+			let normalColumnsWidth = 0
+			let fixedColumnsWidth = 0
+			let totalWidth = 0
+
+			filteredColumns.value.forEach((column) => {
+				const col = column as any
+				if (col.width) {
+					// 处理数字和字符串类型的宽度
+					const width = typeof col.width === 'string' ? parseInt(col.width) : col.width
+					if (!isNaN(width)) {
+						totalWidth += width
+						if (col.fixed) {
+							fixedColumnsWidth += width
+						} else {
+							normalColumnsWidth += width
+						}
+					}
+				}
+			})
+
+			return {
+				totalWidth,
+				normalColumnsWidth,
+				fixedColumnsWidth,
+			}
+		})
+
+		// 精确计算动态 scroll-x 值
+		const dynamicScrollX = computed(() => {
+			const { totalWidth, normalColumnsWidth, fixedColumnsWidth } = visibleColumnsWidth.value
+
+			if (totalWidth <= 0) {
+				return undefined
+			}
+
+			// 精确的表格补偿计算
+			// 基于 Naive UI DataTable 的实际渲染需求
+			const TABLE_BORDER = 2 // 表格边框 (左右各1px)
+			const TABLE_PADDING = 16 // 表格内边距 (Naive UI 默认)
+			const SCROLL_COMPENSATION = 4 // 滚动区域补偿
+
+			// 总补偿宽度：保守且精确
+			const totalCompensation = TABLE_BORDER + TABLE_PADDING + SCROLL_COMPENSATION
+
+			// 最终宽度 = 实际列宽度 + 精确补偿
+			const preciseWidth = totalWidth + totalCompensation
+
+			return preciseWidth
+		})
+
 		// 分页相关状态
 		const { page, pageSize } = alias
 		const pageSizeOptionsRef = ref([10, 20, 50, 100, 200]) // 分页选项
@@ -107,7 +236,6 @@ export default function useTable<T = Record<string, any>, Z extends Record<strin
 
 		if ((param.value as Record<string, unknown>)[pageSize]) {
 			;(param.value as Record<string, unknown>)[pageSize] = getStoredPageSize(storage, 10, pageSizeOptionsRef.value) // 每页条数
-			console.log('初始化每页条数', (param.value as Record<string, unknown>)[pageSize])
 		}
 
 		/**
@@ -133,6 +261,29 @@ export default function useTable<T = Record<string, any>, Z extends Record<strin
 			;(param.value as Record<string, unknown>)[page] = 1 // 重置页码为1
 			;(param.value as Record<string, unknown>)[pageSize] = size
 			fetchData()
+		}
+
+		/**
+		 * 切换列可见性
+		 * @param columnKey 列的key
+		 */
+		const toggleColumnVisibility = (columnKey: string) => {
+			columnVisibility.value = {
+				...columnVisibility.value,
+				[columnKey]: !columnVisibility.value[columnKey],
+			}
+			// 保存到本地存储
+			saveColumnVisibilityToStorage(storage, columnVisibility.value)
+		}
+
+		/**
+		 * 重置列设置
+		 */
+		const resetColumnSettings = () => {
+			const defaultVisibility = getDefaultColumnVisibility(config)
+			columnVisibility.value = defaultVisibility
+			// 保存到本地存储
+			saveColumnVisibilityToStorage(storage, defaultVisibility)
 		}
 
 		/**
@@ -172,19 +323,34 @@ export default function useTable<T = Record<string, any>, Z extends Record<strin
 		const component = (props: DataTableProps, context: { slots?: DataTableSlots }) => {
 			const { slots, ...attrs } = props as any
 			const s2 = context
+
+			// 合并动态 scroll-x 值
+			const mergedProps = {
+				...props,
+				...attrs,
+			}
+
+			// 精确的 scroll-x 处理：确保容器宽度与内容宽度完全匹配
+			if (dynamicScrollX.value) {
+				// 始终使用动态计算的精确宽度，确保无浏览器自动拉伸
+				mergedProps.scrollX = dynamicScrollX.value
+			}
+
 			return (
 				<NDataTable
 					remote
 					ref={example}
 					loading={loading.value}
 					data={data.value.list}
-					columns={columns.value}
-					{...props}
-					{...attrs}
+					columns={filteredColumns.value}
+					scrollbar-props={{
+						xPlacement: 'top',
+					}}
+					{...mergedProps}
 				>
 					{{
-						empty: () => (slots?.empty || s2?.slots?.empty ? slots?.empty() || s2?.slots?.empty() : null),
-						loading: () => (slots?.loading || s2?.slots?.loading ? slots?.loading() || s2?.slots?.loading() : null),
+						empty: () => (slots?.empty || s2?.slots?.empty ? slots?.empty?.() || s2?.slots?.empty?.() : null),
+						loading: () => (slots?.loading || s2?.slots?.loading ? slots?.loading?.() || s2?.slots?.loading?.() : null),
 					}}
 				</NDataTable>
 			)
@@ -215,6 +381,82 @@ export default function useTable<T = Record<string, any>, Z extends Record<strin
 			)
 		}
 
+		/**
+		 * 渲染列设置组件
+		 */
+		const columnSettingsComponent = () => {
+			// 生成下拉选项
+			const dropdownOptions = [
+				{
+					key: 'header',
+					type: 'render',
+					render: () => (
+						<div style="padding: 8px 12px; font-weight: 500; color: var(--n-text-color);">
+							{hookT('columnSettings')}
+						</div>
+					),
+				},
+				{
+					key: 'divider1',
+					type: 'divider',
+				},
+				...config
+					.filter((column) => (column as any).key)
+					.map((column) => {
+						const col = column as any
+						return {
+							key: col.key,
+							type: 'render',
+							render: () => (
+								<div
+									style="padding: 4px 12px; cursor: pointer; display: flex; align-items: center;"
+									onClick={(e: Event) => {
+										e.stopPropagation()
+										toggleColumnVisibility(col.key)
+									}}
+								>
+									<NCheckbox
+										checked={columnVisibility.value[col.key] !== false}
+										onUpdateChecked={() => toggleColumnVisibility(col.key)}
+										style="pointer-events: none;"
+									/>
+									<span style="margin-left: 8px; flex: 1;">{col.title || col.key}</span>
+								</div>
+							),
+						}
+					}),
+				{
+					key: 'divider2',
+					type: 'divider',
+				},
+				{
+					key: 'reset',
+					type: 'render',
+					render: () => (
+						<div
+							style="padding: 8px 12px; cursor: pointer; color: var(--n-color-target);"
+							onClick={() => resetColumnSettings()}
+						>
+							{hookT('resetColumns')}
+						</div>
+					),
+				},
+			]
+
+			return (
+				<NDropdown options={dropdownOptions} trigger="click" placement="bottom-end" showArrow={false}>
+					<NButton quaternary circle size="small" title={hookT('columnSettings')}>
+						<NIcon size={16}>
+							<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+								<path d="M3 4H21V6H3V4ZM3 11H15V13H3V11ZM3 18H21V20H3V18Z" fill="currentColor" />
+								<path d="M16 11H18V13H16V11ZM19 11H21V13H19V11Z" fill="currentColor" />
+							</svg>
+						</NIcon>
+					</NButton>
+				</NDropdown>
+			)
+		}
+
 		// 检测到参数变化时，重新请求数据
 		if (Array.isArray(watchValue)) {
 			// 只监听指定的字段
@@ -225,10 +467,8 @@ export default function useTable<T = Record<string, any>, Z extends Record<strin
 					// 检查是否刚刚有直接请求，如果是则跳过此次 watch 触发的请求
 					const timeSinceLastDirectRequest = Date.now() - lastDirectRequestTime.value
 					if (timeSinceLastDirectRequest < REQUEST_DEBOUNCE_DELAY) {
-						console.log('跳过 watch 触发的重复请求，距离上次直接请求:', timeSinceLastDirectRequest, 'ms')
 						return
 					}
-					console.log('watch 触发请求，距离上次直接请求:', timeSinceLastDirectRequest, 'ms')
 					fetchData()
 				},
 				{ deep: true },
@@ -251,12 +491,19 @@ export default function useTable<T = Record<string, any>, Z extends Record<strin
 			fetch: fetchData<T>,
 			TableComponent: component,
 			PageComponent: paginationComponent,
+			ColumnSettingsComponent: columnSettingsComponent,
 			config: columns,
 			props,
 			storage,
 			handlePageChange,
 			handlePageSizeChange,
 			pageSizeOptions: pageSizeOptionsRef,
+			columnVisibility,
+			toggleColumnVisibility,
+			resetColumnSettings,
+			filteredColumns,
+			visibleColumnsWidth,
+			dynamicScrollX,
 		}
 	}) as TableInstanceWithComponent<T, Z>
 }

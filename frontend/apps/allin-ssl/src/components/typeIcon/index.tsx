@@ -1,5 +1,5 @@
 import { defineComponent, PropType } from 'vue'
-import { NTag } from 'naive-ui'
+import { NTag, NFlex } from 'naive-ui'
 
 // 类型导入
 import type { AuthApiTypeIconProps } from './types'
@@ -24,11 +24,11 @@ export default defineComponent({
 	name: 'AuthApiTypeIcon',
 	props: {
 		/**
-		 * 图标类型键。
+		 * 图标类型键。支持单个字符串或字符串数组。
 		 * 该键用于从 /lib/data.tsx 配置中查找对应的图标和名称。
 		 */
 		icon: {
-			type: String as PropType<AuthApiTypeIconProps['icon']>,
+			type: [String, Array] as PropType<AuthApiTypeIconProps['icon']>,
 			required: true,
 		},
 		/**
@@ -47,17 +47,41 @@ export default defineComponent({
 		},
 	},
 	setup(props: AuthApiTypeIconProps) {
-		const { iconPath, typeName } = useAuthApiTypeIconController(props)
+		const { iconPath, typeName, iconItems } = useAuthApiTypeIconController(props)
 
-		return () => (
-			<NTag
-				type={props.type}
-				size="small"
-				class="w-auto text-ellipsis overflow-hidden whitespace-normal p-[.6rem] h-auto"
-			>
-				<SvgIcon icon={iconPath.value} size="1.2rem" class="mr-[0.4rem]" />
-				<span>{props.text && <span class="text-[12px]">{typeName.value}</span>}</span>
-			</NTag>
-		)
+		return () => {
+			// 如果是多个图标，显示多个标签
+			if (Array.isArray(props.icon) && props.icon.length > 1) {
+				return (
+					<NFlex size="small" wrap={true} style="gap: 4px; flex-wrap: wrap;">
+						{iconItems.value.map((item, index) => (
+							<NTag
+								key={item.key}
+								type={props.type}
+								size="small"
+								class="w-auto text-ellipsis overflow-hidden whitespace-normal p-[.6rem] h-auto mb-1"
+								style="margin-right: 4px; max-width: 100%;"
+							>
+								<SvgIcon icon={item.iconPath} size="1.2rem" class="mr-[0.4rem] flex-shrink-0" />
+								{props.text && <span class="text-[12px] truncate">{item.typeName}</span>}
+							</NTag>
+						))}
+					</NFlex>
+				)
+			}
+
+			// 单个图标的显示（包括数组只有一个元素的情况）
+			return (
+				<NTag
+					type={props.type}
+					size="small"
+					class="w-auto text-ellipsis overflow-hidden whitespace-normal p-[.6rem] h-auto"
+					style="max-width: 100%;"
+				>
+					<SvgIcon icon={iconPath.value} size="1.2rem" class="mr-[0.4rem] flex-shrink-0" />
+					{props.text && <span class="text-[12px] truncate">{typeName.value}</span>}
+				</NTag>
+			)
+		}
 	},
 })
