@@ -183,18 +183,6 @@ export default defineConfig({
 		chunkSizeWarningLimit: 800, // 警告阈值
 		assetsInlineLimit: 2048, // 小于2kb的资源内联
 		modulePreload: false, // 禁用预加载
-		// SPA路由支持：生成404.html作为回退页面
-		rollupOptions: {
-			input: {
-				main: path.resolve(__dirname, 'index.html'),
-			},
-			output: {
-				// 确保资源路径正确
-				assetFileNames: 'static/[ext]/[name]-[hash].[ext]',
-				chunkFileNames: 'static/js/[name]-[hash].js',
-				entryFileNames: 'static/js/[name]-[hash].js',
-			},
-		},
 		terserOptions: {
 			// 打包后移除console和注释
 			compress: {
@@ -208,7 +196,6 @@ export default defineConfig({
 			},
 			strictDeprecations: true, // 严格弃用
 			output: {
-				// 确保资源路径正确，支持SPA路由
 				entryFileNames: `${packPath}js/[name]-[hash].js`,
 				chunkFileNames: `${packPath}js/[name]-[hash].js`,
 				assetFileNames: (chunkInfo) => {
@@ -239,5 +226,8 @@ export default defineConfig({
 				ws: false, // 是否启用websocket
 			},
 		},
+	},
+	test: {
+		include: ['src/**/*.spec.ts'],
 	},
 })

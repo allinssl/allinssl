@@ -16,14 +16,6 @@ const useRouterEach = (router: Router) =>
 		beforeEach: (to: RouteLocationNormalized, _: RouteLocationNormalized, next: NavigationGuardNext) => {
 			// 开始加载
 			loadingBar.start()
-
-			// 处理SPA路由回退重定向
-			const redirectPath = sessionStorage.getItem('redirectPath')
-			if (redirectPath && to.path === '/') {
-				sessionStorage.removeItem('redirectPath')
-				return next(redirectPath)
-			}
-
 			// 判断当前路由是否存在，如果不存在，则跳转到 404
 			if (!router.hasRoute(to.name as string)) {
 				if (!to.path.includes('/404')) return next({ path: '/404' })
