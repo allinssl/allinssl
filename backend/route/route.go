@@ -108,6 +108,7 @@ func Register(r *gin.Engine) {
 	staticFS, _ := fs.Sub(static.BuildFS, "build/static")
 	r.StaticFS("/static", http.FS(staticFS))
 	r.StaticFS("/auto-deploy/static", http.FS(staticFS))
+	r.StaticFS("/monitor/static", http.FS(staticFS))
 
 	// favicon.ico
 	r.GET("/favicon.ico", func(c *gin.Context) {

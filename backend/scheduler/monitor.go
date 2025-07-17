@@ -118,11 +118,15 @@ func Monitor() {
 					// 此处应该发送错误邮件
 					if checkErr != "" {
 						// 更新监控记录
+						valid := -1 // 状态为异常
+						if certInfo != nil && certInfo.Valid {
+							valid = 1 // 状态为正常
+						}
 						gs.Where("id=?", []interface{}{id}).Update(map[string]any{
 							"last_time":       now.Format("2006-01-02 15:04:05"),
 							"except_end_time": now.Format("2006-01-02 15:04:05"),
 							"info":            certJson,
-							"valid":           -1, // 状态为异常
+							"valid":           valid, // 状态为异常
 						})
 						// 新增错误记录
 						if certInfo == nil || !certInfo.Valid {

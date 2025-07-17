@@ -87,6 +87,7 @@ func GetInfo(id string) (map[string]any, error) {
 		"target":       dataMap["target"],
 		"monitor_type": dataMap["monitor_type"],
 		"valid":        dataMap["valid"],
+		"last_time":    dataMap["last_time"],
 	}
 
 	info, ok := dataMap["info"].(string)

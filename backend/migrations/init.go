@@ -366,6 +366,8 @@ create table monitor
 		info        TEXT    not null,
 		msg         TEXT    not null
 	);
+	create index if not exists err_record_monitor_id_index
+    	on err_record (monitor_id);
 `)
 
 }
