@@ -51,12 +51,12 @@ export const useHomeStore = defineStore('home-store', (): HomeStoreExposes => {
 	const overviewData = ref<OverviewData>({
 		workflow: { count: 0, active: 0, failure: 0 },
 		cert: { count: 0, will: 0, end: 0 },
-		site_monitor: { count: 0, exception: 0 },
+		monitor: { count: 0, exception: 0 },
 		workflow_history: [],
-	});
+	})
 
 	// 错误处理
-	const { handleError } = useError();
+	const { handleError } = useError()
 
 	// -------------------- 请求方法 --------------------
 	/**
@@ -70,7 +70,7 @@ export const useHomeStore = defineStore('home-store', (): HomeStoreExposes => {
 			loading.value = true
 			const { data, status } = await getOverviews().fetch()
 			if (status) {
-				const { workflow, cert, site_monitor, workflow_history } = data
+				const { workflow, cert, monitor, workflow_history } = data
 				overviewData.value = {
 					workflow: {
 						count: workflow?.count || 0,
@@ -78,7 +78,7 @@ export const useHomeStore = defineStore('home-store', (): HomeStoreExposes => {
 						failure: workflow?.failure || 0,
 					},
 					cert: { count: cert?.count || 0, will: cert?.will || 0, end: cert?.end || 0 },
-					site_monitor: { count: site_monitor?.count || 0, exception: site_monitor?.exception || 0 },
+					monitor: { count: monitor?.count || 0, exception: monitor?.exception || 0 },
 					workflow_history: workflow_history || [],
 				}
 			}

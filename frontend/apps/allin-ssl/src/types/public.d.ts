@@ -61,7 +61,7 @@ export interface WorkflowHistoryItem {
 export interface OverviewData {
 	workflow: WorkflowOverview
 	cert: CertOverview
-	site_monitor: SiteMonitorOverview
+	monitor: SiteMonitorOverview
 	workflow_history: WorkflowHistoryItem[]
 }
 

@@ -131,7 +131,7 @@ export default defineComponent({
 											<div class="flex items-center xl:space-x-5 lg:space-x-4 md:space-x-3 space-x-3">
 												<div>
 													<span class="xl:text-[2.4rem] lg:text-[2.2rem] md:text-[2rem] text-[1.8rem] font-bold">
-														{overviewData.value.site_monitor.count}
+														{overviewData.value.monitor.count}
 													</span>
 													<p class={styles.tableText}>{$t('t_3_1746773348798')}</p>
 												</div>
@@ -139,7 +139,7 @@ export default defineComponent({
 													<div class="flex items-center space-x-1">
 														<span class={`w-4 h-4 rounded-full mr-[.6rem] ${styles.bgUtilError}`}></span>
 														<span class={styles.tableText}>
-															{$t('t_7_1746773349302')}: {overviewData.value.site_monitor.exception}
+															{$t('t_7_1746773349302')}: {overviewData.value.monitor.exception}
 														</span>
 													</div>
 												</div>

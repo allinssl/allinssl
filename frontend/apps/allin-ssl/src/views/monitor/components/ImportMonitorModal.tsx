@@ -1,11 +1,10 @@
 import { defineComponent, ref, computed } from 'vue'
 import { NTabs, NTabPane, NUpload, NUploadDragger, NButton, NSpace, NText, NIcon, NCard, NDivider } from 'naive-ui'
-import { CloudUploadOutline, DocumentOutline, DownloadOutline } from '@vicons/ionicons5'
+import { CloudUploadOutline, DocumentOutline, DownloadOutline, CheckmarkCircleOutline } from '@vicons/ionicons5'
 
 import { $t } from '@locales/index'
 import { useMessage } from '@baota/naive-ui/hooks'
 import { useError } from '@baota/hooks/error'
-import { fileImportMonitor, downloadMonitorTemplate } from '@/api/monitor'
 
 import type { UploadFileInfo } from 'naive-ui'
 import type { SupportedFileType, FileUploadStatus } from '@/types/monitor'
@@ -23,6 +22,9 @@ export default defineComponent({
 
 		// 当前激活的标签页
 		const activeTab = ref<'import' | 'template'>('import')
+
+		// 选中的文件
+		const selectedFile = ref<File | null>(null)
 
 		// 文件上传状态
 		const uploadStatus = ref<FileUploadStatus>({
@@ -47,9 +49,9 @@ export default defineComponent({
 		}
 
 		/**
-		 * 处理文件上传前的验证
+		 * 处理文件选择
 		 */
-		const handleBeforeUpload = (data: { file: UploadFileInfo; fileList: UploadFileInfo[] }): boolean => {
+		const handleFileSelect = (data: { file: UploadFileInfo; fileList: UploadFileInfo[] }): boolean => {
 			const file = data.file.file
 			if (!file) return false
 
@@ -65,18 +67,39 @@ export default defineComponent({
 				return false
 			}
 
-			return true
+			// 保存选中的文件，但不立即上传
+			selectedFile.value = file
+
+			// 重置上传状态
+			uploadStatus.value = {
+				uploading: false,
+				progress: 0,
+				success: false,
+			}
+
+			return false // 阻止自动上传
 		}
 
 		/**
-		 * 处理文件上传
+		 * 重置文件选择
 		 */
-		const handleFileUpload = async (options: {
-			file: UploadFileInfo
-			onProgress: (e: { percent: number }) => void
-		}) => {
-			const file = options.file.file
-			if (!file) return
+		const resetFileSelection = () => {
+			selectedFile.value = null
+			uploadStatus.value = {
+				uploading: false,
+				progress: 0,
+				success: false,
+			}
+		}
+
+		/**
+		 * 确认上传文件
+		 */
+		const handleConfirmUpload = async () => {
+			if (!selectedFile.value) {
+				message.error('请先选择文件')
+				return
+			}
 
 			try {
 				uploadStatus.value = {
@@ -89,13 +112,12 @@ export default defineComponent({
 				const progressInterval = setInterval(() => {
 					if (uploadStatus.value.progress < 90) {
 						uploadStatus.value.progress += 10
-						options.onProgress({ percent: uploadStatus.value.progress })
 					}
 				}, 200)
 
 				// 创建FormData并上传文件
 				const formData = new FormData()
-				formData.append('file', file)
+				formData.append('file', selectedFile.value)
 
 				// 使用原生fetch进行文件上传，因为useApi可能不支持FormData
 				const response = await fetch('/v1/monitor/file_add_monitor', {
@@ -117,8 +139,6 @@ export default defineComponent({
 					success: true,
 				}
 
-				options.onProgress({ percent: 100 })
-
 				// 显示上传结果
 				if (result.data) {
 					const { success_count, failed_count } = result.data
@@ -127,13 +147,17 @@ export default defineComponent({
 							.replace('{success}', success_count.toString())
 							.replace('{failed}', failed_count.toString()),
 					)
-
-					// 通知父组件刷新数据
-					emit('success')
 				} else {
 					message.success($t('t_4_1752724142308'))
-					emit('success')
 				}
+
+				// 通知父组件刷新数据
+				emit('success')
+
+				// 延迟重置状态，让用户看到成功状态
+				setTimeout(() => {
+					resetFileSelection()
+				}, 2000)
 			} catch (error) {
 				uploadStatus.value = {
 					uploading: false,
@@ -192,7 +216,15 @@ export default defineComponent({
 			if (uploadStatus.value.error) {
 				return uploadStatus.value.error
 			}
+			if (selectedFile.value) {
+				return `已选择文件: ${selectedFile.value.name}`
+			}
 			return $t('t_10_1752724143320')
+		})
+
+		// 计算是否可以上传
+		const canUpload = computed(() => {
+			return selectedFile.value && !uploadStatus.value.uploading
 		})
 
 		return () => (
@@ -206,21 +238,56 @@ export default defineComponent({
 									multiple={false}
 									accept=".txt,.csv,.json,.xlsx"
 									showFileList={false}
-									onBeforeUpload={handleBeforeUpload}
-									customRequest={handleFileUpload}
+									onBeforeUpload={handleFileSelect}
 								>
 									<NUploadDragger class="min-h-[200px]">
 										<div class="text-center">
-											<NIcon size={48} class="text-primary mb-4">
-												<CloudUploadOutline />
+											<NIcon size={48} class={`mb-4 ${uploadStatus.value.success ? 'text-green-500' : 'text-primary'}`}>
+												{uploadStatus.value.success ? <CheckmarkCircleOutline /> : <CloudUploadOutline />}
 											</NIcon>
 											<NText class="text-lg block mb-2">{uploadTipText.value}</NText>
 											<NText depth="3" class="text-sm">
-												{$t('t_13_1752724148548')}
+												{selectedFile.value ? '点击重新选择文件或拖拽新文件到此区域' : $t('t_13_1752724148548')}
 											</NText>
 										</div>
 									</NUploadDragger>
 								</NUpload>
+
+								{/* 上传进度条 */}
+								{uploadStatus.value.uploading && (
+									<div class="mt-4">
+										<NText class="text-sm text-gray-500 mb-2">上传进度: {uploadStatus.value.progress}%</NText>
+										<div class="w-full bg-gray-200 rounded-full h-2">
+											<div
+												class="bg-primary h-2 rounded-full transition-all duration-300"
+												style={{ width: `${uploadStatus.value.progress}%` }}
+											></div>
+										</div>
+									</div>
+								)}
+
+								{/* 操作按钮 */}
+								<div class="mt-4 flex justify-center gap-3">
+									{selectedFile.value && !uploadStatus.value.success && (
+										<NButton
+											type="default"
+											size="large"
+											disabled={uploadStatus.value.uploading}
+											onClick={resetFileSelection}
+										>
+											重新选择
+										</NButton>
+									)}
+									<NButton
+										type="primary"
+										size="large"
+										loading={uploadStatus.value.uploading}
+										disabled={!canUpload.value}
+										onClick={handleConfirmUpload}
+									>
+										{uploadStatus.value.uploading ? '上传中...' : uploadStatus.value.success ? '上传成功' : '确认上传'}
+									</NButton>
+								</div>
 							</NCard>
 
 							<NDivider />

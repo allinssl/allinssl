@@ -441,11 +441,23 @@ export const useMonitorFormController = (data: UpdateSiteMonitorParams | null = 
 	const config = computed(() => [
 		useFormInput('名称', 'name'),
 		useFormInput('域名/IP地址', 'target'),
-		useFormSelect('协议类型', 'monitor_type', [
-			{ label: 'HTTPS', value: 'https' },
-			{ label: 'SMTP', value: 'smtp' },
-		]),
-		useFormInputNumber('周期(分钟)', 'cycle', { class: 'w-full' }),
+		useFormSelect(
+			'协议类型',
+			'monitor_type',
+			[
+				{ label: 'HTTPS', value: 'https' },
+				{ label: 'SMTP', value: 'smtp' },
+			],
+			{
+				disabled: data !== null, // 编辑模式下禁用协议类型选择
+			},
+		),
+		useFormInputNumber('周期(分钟)', 'cycle', {
+			class: 'w-full',
+			min: 1,
+			max: 1440,
+			precision: 0, // 确保只接受整数
+		}),
 		useFormCustom(() => {
 			// 确保 report_types 是数组格式
 			const currentValue = Array.isArray(monitorForm.value.report_types)
@@ -471,9 +483,14 @@ export const useMonitorFormController = (data: UpdateSiteMonitorParams | null = 
 		}),
 		// 到期提醒设置分组
 		createGroupTitle('到期提醒设置'),
-		useFormInputNumber('提前天数', 'advance_day', { class: 'w-full', min: 1, max: 365 }),
+		useFormInputNumber('提前天数', 'advance_day', {
+			class: 'w-full',
+			min: 1,
+			max: 365,
+			precision: 0, // 确保只接受整数
+		}),
 		useFormCustom(() => {
-			const advanceDay = monitorForm.value.advance_day || 90
+			const advanceDay = monitorForm.value.advance_day || 30
 			return (
 				<NText
 					depth="3"
@@ -485,7 +502,12 @@ export const useMonitorFormController = (data: UpdateSiteMonitorParams | null = 
 		}),
 		// 连续失败通知设置分组
 		createGroupTitle('连续失败通知设置'),
-		useFormInputNumber('重复发送间隔(次数)', 'repeat_send_gap', { class: 'w-full', min: 1, max: 100 }),
+		useFormInputNumber('重复发送间隔(次数)', 'repeat_send_gap', {
+			class: 'w-full',
+			min: 1,
+			max: 100,
+			precision: 0, // 确保只接受整数
+		}),
 		useFormSwitch('启用状态', 'active', {
 			checkedValue: 1,
 			uncheckedValue: 0,
@@ -510,7 +532,21 @@ export const useMonitorFormController = (data: UpdateSiteMonitorParams | null = 
 			},
 		},
 		monitor_type: { required: true, message: '请选择协议类型', trigger: 'change' },
-		cycle: { required: true, message: '请输入周期', trigger: 'input', type: 'number', min: 1, max: 365 },
+		cycle: {
+			required: true,
+			message: '请输入周期(1-1440分钟)',
+			trigger: 'input',
+			type: 'number',
+			min: 1,
+			max: 1440,
+			validator: (_rule: any, value: any, callback: any) => {
+				if (value !== undefined && value !== null && !Number.isInteger(Number(value))) {
+					callback(new Error('周期必须为整数'))
+				} else {
+					callback()
+				}
+			},
+		},
 		report_types: {
 			required: true,
 			message: '请选择消息通知类型',
@@ -523,14 +559,35 @@ export const useMonitorFormController = (data: UpdateSiteMonitorParams | null = 
 				}
 			},
 		},
-		advance_day: { required: true, message: '请输入提前天数', trigger: 'input', type: 'number', min: 1, max: 365 },
+		advance_day: {
+			required: true,
+			message: '请输入提前天数(1-365天)',
+			trigger: 'input',
+			type: 'number',
+			min: 1,
+			max: 365,
+			validator: (_rule: any, value: any, callback: any) => {
+				if (value !== undefined && value !== null && !Number.isInteger(Number(value))) {
+					callback(new Error('提前天数必须为整数'))
+				} else {
+					callback()
+				}
+			},
+		},
 		repeat_send_gap: {
 			required: true,
-			message: '请输入重复发送间隔',
+			message: '请输入重复发送间隔(1-100次)',
 			trigger: 'input',
 			type: 'number',
 			min: 1,
 			max: 100,
+			validator: (_rule: any, value: any, callback: any) => {
+				if (value !== undefined && value !== null && !Number.isInteger(Number(value))) {
+					callback(new Error('重复发送间隔必须为整数'))
+				} else {
+					callback()
+				}
+			},
 		},
 		active: { required: true, message: '请选择启用状态', trigger: 'change', type: 'number' },
 	} as FormRules

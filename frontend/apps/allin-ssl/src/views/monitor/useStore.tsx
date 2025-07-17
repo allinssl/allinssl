@@ -57,7 +57,7 @@ export const useMonitorStore = defineStore('monitor-store', (): MonitorStoreExpo
 		cycle: 1,
 		repeat_send_gap: 10, // 默认重复发送间隔10次
 		active: 1, // 默认启用状态
-		advance_day: 90, // 默认提前90天
+		advance_day: 30, // 默认提前30天
 	})
 
 	// -------------------- 方法定义 --------------------
@@ -213,7 +213,7 @@ export const useMonitorStore = defineStore('monitor-store', (): MonitorStoreExpo
 			cycle: 1,
 			repeat_send_gap: 10, // 默认重复发送间隔10次
 			active: 1, // 默认启用状态
-			advance_day: 90, // 默认提前90天
+			advance_day: 30, // 默认提前30天
 		}
 	}
 
