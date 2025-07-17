@@ -54,9 +54,6 @@ export function createNodeValidator(nodeType: string) {
 					if (!value) {
 						return new Error($t('t_0_1744958839535'))
 					}
-					if (!isDomainGroup(value)) {
-						return new Error($t('t_5_1747817619337'))
-					}
 					return true
 				},
 			}
