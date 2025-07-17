@@ -58,7 +58,7 @@ export default defineComponent({
 											{$t('t_11_1745289354516')}
 										</NButton>
 										<NButton type="default" size="large" class="px-5" onClick={openImportForm}>
-											{$t('t_0_1753000000001')}
+											{$t('t_0_1752724141380')}
 										</NButton>
 									</NSpace>
 								),

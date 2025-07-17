@@ -53,7 +53,20 @@ const AutoCommitConfigSchema = z
 
 // Git项目配置模式
 const GitProjectConfigSchema = z.object({
-  repo: z.string().url({ message: "Invalid Git repository URL" }),
+  repo: z.string().refine(
+    (value) => {
+      // 支持HTTPS格式: https://github.com/user/repo.git
+      const httpsPattern = /^https:\/\/[^\s\/$.?#].[^\s]*\.git$/;
+      // 支持SSH格式: git@github.com:user/repo.git 或 ssh://git@host:port/path/repo.git
+      const sshPattern = /^(git@[^\s:]+:[^\s]+\.git|ssh:\/\/[^\s]+\.git)$/;
+
+      return httpsPattern.test(value) || sshPattern.test(value);
+    },
+    {
+      message:
+        "Invalid Git repository URL. Supported formats: https://github.com/user/repo.git or git@github.com:user/repo.git",
+    },
+  ),
   branch: z.string().min(1, { message: "Git branch cannot be empty" }),
   targetDir: z.string().min(1, { message: "Git targetDir cannot be empty" }),
   projectName: z.string().optional(),

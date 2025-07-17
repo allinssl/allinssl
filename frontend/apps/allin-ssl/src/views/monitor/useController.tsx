@@ -304,7 +304,7 @@ export const useController = (): MonitorControllerExposes => {
 	 */
 	const openImportForm = (): void => {
 		useModal({
-			title: $t('t_0_1753000000001'),
+			title: $t('t_0_1752724141380'),
 			area: 600,
 			component: ImportMonitorModal,
 			footer: false,

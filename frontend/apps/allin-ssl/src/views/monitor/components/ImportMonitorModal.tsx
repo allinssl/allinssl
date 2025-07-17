@@ -55,13 +55,13 @@ export default defineComponent({
 
 			// 验证文件类型
 			if (!validateFileType(file)) {
-				message.error($t('t_9_1753000000001'))
+				message.error($t('t_1_1752724147270'))
 				return false
 			}
 
 			// 验证文件大小
 			if (!validateFileSize(file)) {
-				message.error($t('t_10_1753000000001'))
+				message.error($t('t_2_1752724144669'))
 				return false
 			}
 
@@ -123,7 +123,7 @@ export default defineComponent({
 				if (result.data) {
 					const { success_count, failed_count } = result.data
 					message.success(
-						$t('t_14_1753000000001')
+						$t('t_3_1752724148992')
 							.replace('{success}', success_count.toString())
 							.replace('{failed}', failed_count.toString()),
 					)
@@ -131,7 +131,7 @@ export default defineComponent({
 					// 通知父组件刷新数据
 					emit('success')
 				} else {
-					message.success($t('t_15_1753000000001'))
+					message.success($t('t_4_1752724142308'))
 					emit('success')
 				}
 			} catch (error) {
@@ -139,9 +139,9 @@ export default defineComponent({
 					uploading: false,
 					progress: 0,
 					success: false,
-					error: $t('t_13_1753000000001'),
+					error: $t('t_39_1745227838696'),
 				}
-				handleError(error).default($t('t_16_1753000000001'))
+				handleError(error).default($t('t_5_1752724143078'))
 			}
 		}
 
@@ -175,33 +175,33 @@ export default defineComponent({
 				document.body.removeChild(link)
 				window.URL.revokeObjectURL(url)
 
-				message.success(`${type.toUpperCase()} ${$t('t_17_1753000000001')}`)
+				message.success(`${type.toUpperCase()} ${$t('t_6_1752724141819')}`)
 			} catch (error) {
-				handleError(error).default($t('t_18_1753000000001'))
+				handleError(error).default($t('t_7_1752724142049'))
 			}
 		}
 
 		// 计算上传提示文本
 		const uploadTipText = computed(() => {
 			if (uploadStatus.value.uploading) {
-				return `${$t('t_11_1753000000001')} ${uploadStatus.value.progress}%`
+				return `${$t('t_8_1752724140497')} ${uploadStatus.value.progress}%`
 			}
 			if (uploadStatus.value.success) {
-				return $t('t_12_1753000000001')
+				return $t('t_9_1752724142231')
 			}
 			if (uploadStatus.value.error) {
 				return uploadStatus.value.error
 			}
-			return $t('t_4_1753000000001')
+			return $t('t_10_1752724143320')
 		})
 
 		return () => (
 			<div class="import-monitor-modal">
 				<NTabs value={activeTab.value} onUpdateValue={(value) => (activeTab.value = value as 'import' | 'template')}>
 					{/* 文件导入标签页 */}
-					<NTabPane name="import" tab={$t('t_1_1753000000001')}>
+					<NTabPane name="import" tab={$t('t_11_1752724141334')}>
 						<div class="p-6">
-							<NCard title={$t('t_3_1753000000001')} class="mb-4">
+							<NCard title={$t('t_12_1752724142422')} class="mb-4">
 								<NUpload
 									multiple={false}
 									accept=".txt,.csv,.json,.xlsx"
@@ -216,7 +216,7 @@ export default defineComponent({
 											</NIcon>
 											<NText class="text-lg block mb-2">{uploadTipText.value}</NText>
 											<NText depth="3" class="text-sm">
-												{$t('t_5_1753000000001')}
+												{$t('t_13_1752724148548')}
 											</NText>
 										</div>
 									</NUploadDragger>
@@ -225,7 +225,7 @@ export default defineComponent({
 
 							<NDivider />
 
-							<NCard title={$t('t_6_1753000000001')} class="mt-4">
+							<NCard title={$t('t_14_1752724142256')} class="mt-4">
 								<div class="space-y-3">
 									<div>
 										<NText strong>CSV格式：</NText>
@@ -249,11 +249,11 @@ export default defineComponent({
 					</NTabPane>
 
 					{/* 模板下载标签页 */}
-					<NTabPane name="template" tab={$t('t_2_1753000000001')}>
+					<NTabPane name="template" tab={$t('t_15_1752724141047')}>
 						<div class="p-6">
-							<NCard title={$t('t_7_1753000000001')}>
+							<NCard title={$t('t_16_1752724141914')}>
 								<NText class="block mb-6" depth="3">
-									{$t('t_8_1753000000001')}
+									{$t('t_17_1752724150341')}
 								</NText>
 
 								<NSpace vertical size="large">

@@ -5,8 +5,12 @@
 		<link rel="icon" href="./favicon.ico" />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 		<title>AllinSSL</title>
-		<script type="module" crossorigin src="./static/js/main-Dh_LcPTD.js"></script>
-		<link rel="stylesheet" crossorigin href="./static/css/style-IFhjb5zS.css">
+		<script>
+			// SPA路由回退处理
+			// 将当前路径存储到sessionStorage，然后重定向到根路径
+			sessionStorage.setItem('redirectPath', location.pathname + location.search + location.hash);
+			location.replace('/');
+		</script>
 	</head>
 	<body>
 		<div id="app"></div>

@@ -11404,5 +11404,311 @@
       "arDZ": "علي بابا كلاود ESA"
     },
     "timestamp": "2025-07-11T10:35:48.948Z"
+  },
+  "导入监控": {
+    "text": "导入监控",
+    "key": "t_0_1752724141380",
+    "translations": {
+      "zhCN": "导入监控",
+      "zhTW": "匯入監控",
+      "enUS": "Import Monitoring",
+      "jaJP": "モニタリングのインポート",
+      "koKR": "모니터링 가져오기",
+      "ruRU": "Импорт мониторинга",
+      "ptBR": "Importar Monitoramento",
+      "frFR": "Importer le monitoring",
+      "esAR": "Importar Monitoreo",
+      "arDZ": "استيراد المراقبة"
+    },
+    "timestamp": "2025-07-17T03:49:10.341Z"
+  },
+  "不支持的文件格式，请上传 txt、csv、json 或 xlsx 文件": {
+    "text": "不支持的文件格式，请上传 txt、csv、json 或 xlsx 文件",
+    "key": "t_1_1752724147270",
+    "translations": {
+      "zhCN": "不支持的文件格式，请上传 txt、csv、json 或 xlsx 文件",
+      "zhTW": "不支援的檔案格式，請上傳 txt、csv、json 或 xlsx 檔案",
+      "enUS": "Unsupported file format, please upload a txt, csv, json, or xlsx file",
+      "jaJP": "サポートされていないファイル形式です。txt、csv、json、またはxlsxファイルをアップロードしてください。",
+      "koKR": "지원되지 않는 파일 형식입니다. txt, csv, json 또는 xlsx 파일을 업로드해주세요.",
+      "ruRU": "Неподдерживаемый формат файла. Пожалуйста, загрузите файл в формате txt, csv, json или xlsx.",
+      "ptBR": "Formato de arquivo não suportado, por favor, faça o upload de um arquivo txt, csv, json ou xlsx.",
+      "frFR": "Format de fichier non pris en charge, veuillez télécharger un fichier txt, csv, json ou xlsx.",
+      "esAR": "Formato de archivo no soportado, por favor suba un archivo txt, csv, json o xlsx.",
+      "arDZ": "تنسيق ملف غير مدعوم، يرجى تحميل ملف بصيغة txt أو csv أو json أو xlsx."
+    },
+    "timestamp": "2025-07-17T03:49:10.341Z"
+  },
+  "文件大小不能超过 10MB": {
+    "text": "文件大小不能超过 10MB",
+    "key": "t_2_1752724144669",
+    "translations": {
+      "zhCN": "文件大小不能超过 10MB",
+      "zhTW": "檔案大小不能超過 10MB",
+      "enUS": "File size cannot exceed 10MB",
+      "jaJP": "ファイルサイズは10MBを超えてはなりません",
+      "koKR": "파일 크기는 10MB를 초과할 수 없습니다",
+      "ruRU": "Размер файла не должен превышать 10МБ",
+      "ptBR": "O tamanho do arquivo não pode exceder 10MB",
+      "frFR": "La taille du fichier ne doit pas dépasser 10 Mo",
+      "esAR": "El tamaño del archivo no puede superar los 10MB",
+      "arDZ": "لا يمكن أن يتجاوز حجم الملف 10 ميغابايت"
+    },
+    "timestamp": "2025-07-17T03:49:10.341Z"
+  },
+  "导入完成！成功：{success} 条，失败：{failed} 条": {
+    "text": "导入完成！成功：{success} 条，失败：{failed} 条",
+    "key": "t_3_1752724148992",
+    "translations": {
+      "zhCN": "导入完成！成功：{success} 条，失败：{failed} 条",
+      "zhTW": "匯入完成！成功：{success} 筆，失敗：{failed} 筆",
+      "enUS": "Import completed! Success: {success} items, Failed: {failed} items",
+      "jaJP": "インポートが完了しました！成功：{success} 件、失敗：{failed} 件",
+      "koKR": "가져오기 완료! 성공: {success} 건, 실패: {failed} 건",
+      "ruRU": "Импорт завершен! Успешно: {success} элементов, Неудачно: {failed} элементов",
+      "ptBR": "Importação concluída! Sucesso: {success} itens, Falha: {failed} itens",
+      "frFR": "Importation terminée ! Succès : {success} éléments, Échec : {failed} éléments",
+      "esAR": "¡Importación completada! Éxito: {success} elementos, Falla: {failed} elementos",
+      "arDZ": "اكتملت الاستيراد! نجح: {success} عنصر، فشل: {failed} عنصر"
+    },
+    "timestamp": "2025-07-17T03:49:10.341Z"
+  },
+  "文件导入成功": {
+    "text": "文件导入成功",
+    "key": "t_4_1752724142308",
+    "translations": {
+      "zhCN": "文件导入成功",
+      "zhTW": "檔案導入成功",
+      "enUS": "File imported successfully",
+      "jaJP": "ファイルのインポートが成功しました",
+      "koKR": "파일이 성공적으로 가져와졌습니다",
+      "ruRU": "Файл успешно импортирован",
+      "ptBR": "Arquivo importado com sucesso",
+      "frFR": "Fichier importé avec succès",
+      "esAR": "Archivo importado con éxito",
+      "arDZ": "تم استيراد الملف بنجاح"
+    },
+    "timestamp": "2025-07-17T03:49:10.341Z"
+  },
+  "文件导入失败": {
+    "text": "文件导入失败",
+    "key": "t_5_1752724143078",
+    "translations": {
+      "zhCN": "文件导入失败",
+      "zhTW": "檔案匯入失敗",
+      "enUS": "File import failed",
+      "jaJP": "ファイルのインポートに失敗しました",
+      "koKR": "파일 가져오기 실패",
+      "ruRU": "Импорт файла не удался",
+      "ptBR": "A importação do arquivo falhou",
+      "frFR": "L'importation du fichier a échoué",
+      "esAR": "La importación del archivo falló",
+      "arDZ": "فشل استيراد الملف"
+    },
+    "timestamp": "2025-07-17T03:49:10.341Z"
+  },
+  "模板下载成功": {
+    "text": "模板下载成功",
+    "key": "t_6_1752724141819",
+    "translations": {
+      "zhCN": "模板下载成功",
+      "zhTW": "模板下載成功",
+      "enUS": "Template downloaded successfully",
+      "jaJP": "テンプレートのダウンロードが成功しました",
+      "koKR": "템플릿 다운로드가 성공했습니다",
+      "ruRU": "Шаблон успешно загружен",
+      "ptBR": "Modelo baixado com sucesso",
+      "frFR": "Modèle téléchargé avec succès",
+      "esAR": "Plantilla descargada con éxito",
+      "arDZ": "تم تنزيل القالب بنجاح"
+    },
+    "timestamp": "2025-07-17T03:49:10.341Z"
+  },
+  "模板下载失败": {
+    "text": "模板下载失败",
+    "key": "t_7_1752724142049",
+    "translations": {
+      "zhCN": "模板下载失败",
+      "zhTW": "模板下載失敗",
+      "enUS": "Template download failed",
+      "jaJP": "テンプレートのダウンロードに失敗しました",
+      "koKR": "템플릿 다운로드에 실패했습니다",
+      "ruRU": "Не удалось загрузить шаблон",
+      "ptBR": "Falha no download do modelo",
+      "frFR": "Échec du téléchargement du modèle",
+      "esAR": "Error en la descarga de la plantilla",
+      "arDZ": "فشل تحميل القالب"
+    },
+    "timestamp": "2025-07-17T03:49:10.341Z"
+  },
+  "正在上传...": {
+    "text": "正在上传...",
+    "key": "t_8_1752724140497",
+    "translations": {
+      "zhCN": "正在上传...",
+      "zhTW": "正在上傳...",
+      "enUS": "Uploading...",
+      "jaJP": "アップロードしています...",
+      "koKR": "업로드 중입니다...",
+      "ruRU": "Загрузка...",
+      "ptBR": "Fazendo upload...",
+      "frFR": "Téléchargement en cours...",
+      "esAR": "Subiendo...",
+      "arDZ": "جاري التحميل..."
+    },
+    "timestamp": "2025-07-17T03:49:10.341Z"
+  },
+  "上传成功！": {
+    "text": "上传成功！",
+    "key": "t_9_1752724142231",
+    "translations": {
+      "zhCN": "上传成功！",
+      "zhTW": "上傳成功！",
+      "enUS": "Upload successful!",
+      "jaJP": "アップロードに成功しました！",
+      "koKR": "업로드 성공!",
+      "ruRU": "Загрузка выполнена успешно!",
+      "ptBR": "Upload realizado com sucesso!",
+      "frFR": "Téléchargement réussi !",
+      "esAR": "¡Carga exitosa!",
+      "arDZ": "تم التحميل بنجاح!"
+    },
+    "timestamp": "2025-07-17T03:49:10.341Z"
+  },
+  "点击或拖拽文件到此区域进行上传": {
+    "text": "点击或拖拽文件到此区域进行上传",
+    "key": "t_10_1752724143320",
+    "translations": {
+      "zhCN": "点击或拖拽文件到此区域进行上传",
+      "zhTW": "點擊或拖拽文件到此區域進行上傳",
+      "enUS": "Click or drag files to this area to upload",
+      "jaJP": "ファイルをクリックまたはドラッグしてこの領域にアップロードします",
+      "koKR": "파일을 클릭하거나 끌어서 이 영역에 업로드하세요",
+      "ruRU": "Нажмите или перетащите файлы в эту область для загрузки",
+      "ptBR": "Clique ou arraste arquivos para esta área para fazer o upload",
+      "frFR": "Cliquez ou faites glisser des fichiers dans cette zone pour les télécharger",
+      "esAR": "Haga clic o arrastre archivos a esta área para subirlos",
+      "arDZ": "انقر أو اسحب الملفات إلى هذه المنطقة للتحميل"
+    },
+    "timestamp": "2025-07-17T03:49:10.341Z"
+  },
+  "文件导入": {
+    "text": "文件导入",
+    "key": "t_11_1752724141334",
+    "translations": {
+      "zhCN": "文件导入",
+      "zhTW": "檔案匯入",
+      "enUS": "File import",
+      "jaJP": "ファイルインポート",
+      "koKR": "파일 가져오기",
+      "ruRU": "Импорт файла",
+      "ptBR": "Importação de arquivo",
+      "frFR": "Importation de fichier",
+      "esAR": "Importación de archivo",
+      "arDZ": "استيراد الملف"
+    },
+    "timestamp": "2025-07-17T03:49:10.341Z"
+  },
+  "上传监控文件": {
+    "text": "上传监控文件",
+    "key": "t_12_1752724142422",
+    "translations": {
+      "zhCN": "上传监控文件",
+      "zhTW": "上傳監控檔案",
+      "enUS": "Upload monitoring file",
+      "jaJP": "監視ファイルをアップロードする",
+      "koKR": "감시 파일 업로드",
+      "ruRU": "Загрузить файл мониторинга",
+      "ptBR": "Fazer upload do arquivo de monitoramento",
+      "frFR": "Télécharger le fichier de surveillance",
+      "esAR": "Subir archivo de monitoreo",
+      "arDZ": "تحميل ملف المراقبة"
+    },
+    "timestamp": "2025-07-17T03:49:10.341Z"
+  },
+  "支持 CSV、JSON、Excel 格式，文件大小不超过 10MB": {
+    "text": "支持 CSV、JSON、Excel 格式，文件大小不超过 10MB",
+    "key": "t_13_1752724148548",
+    "translations": {
+      "zhCN": "支持 CSV、JSON、Excel 格式，文件大小不超过 10MB",
+      "zhTW": "支援 CSV、JSON、Excel 格式，檔案大小不超過 10MB",
+      "enUS": "Supports CSV, JSON, Excel formats, file size not exceeding 10MB",
+      "jaJP": "CSV、JSON、Excel形式をサポートし、ファイルサイズは10MBを超えないでください",
+      "koKR": "CSV, JSON, Excel 형식을 지원하며, 파일 크기는 10MB를 초과하지 않아야 합니다",
+      "ruRU": "Поддерживаемые форматы: CSV, JSON, Excel. Размер файла не должен превышать 10 МБ",
+      "ptBR": "Suporta formatos CSV, JSON, Excel, o tamanho do arquivo não deve exceder 10MB",
+      "frFR": "Prend en charge les formats CSV, JSON, Excel, la taille du fichier ne doit pas dépasser 10 Mo",
+      "esAR": "Soporta formatos CSV, JSON, Excel, el tamaño del archivo no debe superar los 10MB",
+      "arDZ": "يدعم تنسيقات CSV و JSON و Excel، ويجب ألا يتجاوز حجم الملف 10 ميغابايت"
+    },
+    "timestamp": "2025-07-17T03:49:10.341Z"
+  },
+  "文件格式说明": {
+    "text": "文件格式说明",
+    "key": "t_14_1752724142256",
+    "translations": {
+      "zhCN": "文件格式说明",
+      "zhTW": "檔案格式說明",
+      "enUS": "File format description",
+      "jaJP": "ファイル形式の説明",
+      "koKR": "파일 형식 설명",
+      "ruRU": "Описание формата файла",
+      "ptBR": "Descrição do formato de arquivo",
+      "frFR": "Description du format de fichier",
+      "esAR": "Descripción del formato de archivo",
+      "arDZ": "وصف تنسيق الملف"
+    },
+    "timestamp": "2025-07-17T03:49:10.341Z"
+  },
+  "下载模板": {
+    "text": "下载模板",
+    "key": "t_15_1752724141047",
+    "translations": {
+      "zhCN": "下载模板",
+      "zhTW": "下載範本",
+      "enUS": "Download template",
+      "jaJP": "テンプレートをダウンロード",
+      "koKR": "템플릿 다운로드",
+      "ruRU": "Скачать шаблон",
+      "ptBR": "Baixar modelo",
+      "frFR": "Télécharger le modèle",
+      "esAR": "Descargar plantilla",
+      "arDZ": "تنزيل القالب"
+    },
+    "timestamp": "2025-07-17T03:49:10.341Z"
+  },
+  "下载导入模板": {
+    "text": "下载导入模板",
+    "key": "t_16_1752724141914",
+    "translations": {
+      "zhCN": "下载导入模板",
+      "zhTW": "下載匯入模板",
+      "enUS": "Download import template",
+      "jaJP": "インポートテンプレートをダウンロード",
+      "koKR": "수입 템플릿 다운로드",
+      "ruRU": "Скачать шаблон для импорта",
+      "ptBR": "Baixar modelo de importação",
+      "frFR": "Télécharger le modèle d'importation",
+      "esAR": "Descargar plantilla de importación",
+      "arDZ": "تحميل قالب الاستيراد"
+    },
+    "timestamp": "2025-07-17T03:49:10.341Z"
+  },
+  "下载标准模板文件，编辑后上传导入": {
+    "text": "下载标准模板文件，编辑后上传导入",
+    "key": "t_17_1752724150341",
+    "translations": {
+      "zhCN": "下载标准模板文件，编辑后上传导入",
+      "zhTW": "下載標準範本檔案，編輯後上傳匯入",
+      "enUS": "Download the standard template file, edit it, and then upload to import",
+      "jaJP": "標準テンプレートファイルをダウンロードし、編集してからアップロードしてインポートします",
+      "koKR": "표준 템플릿 파일을 다운로드하여 편집한 후 업로드하여 가져옵니다",
+      "ruRU": "Скачайте стандартный шаблон файла, отредактируйте его, а затем загрузите для импорта",
+      "ptBR": "Baixe o arquivo modelo padrão, edite-o e, em seguida, faça o upload para importar",
+      "frFR": "Téléchargez le fichier modèle standard, éditez-le, puis téléchargez-le pour l'importer",
+      "esAR": "Descargue el archivo de plantilla estándar, edítelo y luego cárguelo para importarlo",
+      "arDZ": "قم بتحميل ملف القالب القياسي، ثم تحريره وتحميله للوارد"
+    },
+    "timestamp": "2025-07-17T03:49:10.341Z"
   }
 }
