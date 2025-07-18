@@ -1,9 +1,5 @@
 # .goreleaser.yml
 version: 2
-before:
-  hooks:
-    - rm -rf frontend
-    - mv build frontend
 release:
   disable: false
 archives:
@@ -11,7 +7,6 @@ archives:
     name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
     files:
       - LICENSE
-      - frontend
 checksum:
   name_template: "{{ .ProjectName }}_{{ .Version }}_checksums.txt"
 builds:
