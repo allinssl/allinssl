@@ -116,14 +116,14 @@ func MigrateSQLiteTable(sourceDBPath, sourceTable, targetDBPath, targetTable str
 	// 创建目标表
 	//fmt.Printf("目标表 %s 不存在，正在创建...\n", targetTable)
 	if _, err := targetDB.Exec(createTableSQL); err != nil {
-		//return fmt.Errorf("创建目标表失败: %v", err)
+		return fmt.Errorf("创建目标表失败: %v", err)
 	}
 	fmt.Printf("目标表 %s 创建成功。\n", targetTable)
 
 	// 打开源数据库
 	sourceDB, err := sql.Open("sqlite", sourceDBPath)
 	if err != nil {
-		//return fmt.Errorf("打开源数据库失败: %v", err)
+		return fmt.Errorf("打开源数据库失败: %v", err)
 	}
 	defer sourceDB.Close()
 
@@ -133,7 +133,7 @@ func MigrateSQLiteTable(sourceDBPath, sourceTable, targetDBPath, targetTable str
 		return err
 	}
 	if !exists {
-		//return fmt.Errorf("源表 %s 不存在，迁移终止", sourceTable)
+		return fmt.Errorf("源表 %s 不存在，迁移终止", sourceTable)
 	}
 
 	// 构建列映射
@@ -144,13 +144,13 @@ func MigrateSQLiteTable(sourceDBPath, sourceTable, targetDBPath, targetTable str
 
 	rows, err := sourceDB.Query(selectSQL)
 	if err != nil {
-		//return fmt.Errorf("查询源数据失败: %v", err)
+		return fmt.Errorf("查询源数据失败: %v", err)
 	}
 	defer rows.Close()
 
 	stmt, err := targetDB.Prepare(insertSQL)
 	if err != nil {
-		//return fmt.Errorf("准备插入语句失败: %v", err)
+		return fmt.Errorf("准备插入语句失败: %v", err)
 	}
 	defer stmt.Close()
 
@@ -166,7 +166,7 @@ func MigrateSQLiteTable(sourceDBPath, sourceTable, targetDBPath, targetTable str
 		}
 
 		if err := rows.Scan(ptrs...); err != nil {
-			//return fmt.Errorf("读取行数据失败: %v", err)
+			return fmt.Errorf("读取行数据失败: %v", err)
 		}
 
 		batch = append(batch, values)
