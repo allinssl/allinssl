@@ -112,6 +112,7 @@ export default defineConfig({
 					discardChanges: true,
 				},
 			],
+
 			localSync: [
 				{
 					source: 'apps/allin-ssl/dist',

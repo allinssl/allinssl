@@ -3,7 +3,6 @@ import {
 	NInputNumber,
 	NSwitch,
 	NSelect,
-	NAutoComplete,
 	NInput,
 	NFlex,
 	NText,
@@ -15,6 +14,7 @@ import {
 } from 'naive-ui'
 import { useForm, useFormHooks, useModalHooks } from '@baota/naive-ui/hooks'
 import { useStore } from '@components/FlowChart/useStore'
+import { useRoute } from '@baota/router'
 import { $t } from '@locales/index'
 import rules from './verify'
 import DnsProviderSelect from '@components/DnsProviderSelect'
@@ -54,6 +54,8 @@ export default defineComponent({
 	},
 	setup(props) {
 		const { updateNodeConfig, advancedOptions, isRefreshNode } = useStore()
+		// 获取路由信息
+		const route = useRoute()
 		// 弹窗辅助
 		const { confirm } = useModalHooks()
 		// 获取表单助手函数
@@ -61,13 +63,17 @@ export default defineComponent({
 		// 表单参数
 		const param = ref(deepClone(props.node.config))
 
+		// 获取路由参数
+		const isEdit = computed(() => route.query.isEdit === 'true')
+		const routeEmail = computed(() => (route.query.email as string) || '')
+
 		// CA选项状态
 		const caOptions = ref<Array<{ label: string; value: string; icon: string }>>([])
 		const emailOptions = ref<string[]>([])
 		const isLoadingCA = ref(false)
 		const isLoadingEmails = ref(false)
 		const showEmailDropdown = ref(false)
-		const emailInputRef = ref<any>(null)
+		const emailInputRef = ref<InstanceType<typeof NInput> | null>(null)
 
 		// 加载CA选项
 		const loadCAOptions = async () => {
@@ -121,12 +127,20 @@ export default defineComponent({
 			try {
 				const { data } = await getEabList({ ca, p: 1, limit: 1000 }).fetch()
 				emailOptions.value = data?.map((item) => item.email).filter(Boolean) || []
-				if (!emailOptions.value.length) {
-					param.value.email = ''
-				}
-				// 如果邮箱数组有内容且当前邮箱为空，自动填充第一个邮箱地址
-				if (emailOptions.value.length > 0 && emailOptions.value[0]) {
-					param.value.email = emailOptions.value[0]
+
+				// 检查是否为编辑模式且有外部传入的邮箱
+				if (isEdit.value && routeEmail.value) {
+					// 编辑模式：使用外部传入的邮箱地址
+					param.value.email = routeEmail.value
+				} else {
+					// 非编辑模式：保持原有逻辑
+					if (!emailOptions.value.length) {
+						param.value.email = ''
+					}
+					// 如果邮箱数组有内容且当前邮箱为空，自动填充第一个邮箱地址
+					if (emailOptions.value.length > 0 && emailOptions.value[0] && !param.value.email) {
+						param.value.email = emailOptions.value[0]
+					}
 				}
 			} catch (error) {
 				console.error('加载邮件选项失败:', error)
@@ -138,7 +152,8 @@ export default defineComponent({
 		// 处理CA选择变化
 		const handleCAChange = (value: string) => {
 			param.value.ca = value
-			loadEmailOptions(value)
+			// 移除直接调用 loadEmailOptions，让 watch 监听器统一处理
+			// 这样避免了用户切换CA时的重复 API 请求
 		}
 
 		// 跳转到CA管理页面
@@ -157,7 +172,7 @@ export default defineComponent({
 		}
 
 		// 渲染CA选择器单选标签
-		const renderSingleSelectTag = ({ option }: { option: any }) => {
+		const renderSingleSelectTag = ({ option }: any) => {
 			return (
 				<NFlex align="center">
 					{option.label ? renderLabel(option) : <NText class="text-[#aaa]">{$t('t_0_1747990228780')}</NText>}
@@ -472,10 +487,14 @@ export default defineComponent({
 		onMounted(async () => {
 			advancedOptions.value = false
 			await loadCAOptions()
-			// 如果初始化时已有CA值，加载对应的邮箱选项
-			if (param.value.ca) {
-				await loadEmailOptions(param.value.ca)
+
+			// 如果是编辑模式且有外部传入的邮箱，直接设置邮箱值
+			if (isEdit.value && routeEmail.value) {
+				param.value.email = routeEmail.value
 			}
+
+			// 移除重复调用，让 watch 监听器处理 CA 值变化
+			// 这样避免了 onMounted 和 watch 同时调用 loadEmailOptions 导致的重复请求
 		})
 
 		// 确认事件触发
