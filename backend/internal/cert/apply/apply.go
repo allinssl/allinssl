@@ -450,6 +450,57 @@ func GetCert(runId string, domainArr []string, endDay int, logger *public.Logger
 	}, nil
 }
 
+func AllCerts(domainArr []string, endDay int, logger *public.Logger) (map[string]any, error) {
+	s, err := public.NewSqlite("data/data.db", "")
+	if err != nil {
+		return nil, err
+	}
+	s.TableName = "cert"
+	defer s.Close()
+	// 查询所有证书
+	certs, err := s.Select()
+	if err != nil {
+		return nil, err
+	}
+	if len(certs) <= 0 {
+		return nil, fmt.Errorf("未获取到任何证书")
+	}
+	layout := "2006-01-02 15:04:05"
+	var maxDays float64
+	var maxItem map[string]any
+	for i := range certs {
+		if !public.ContainsAllIgnoreBRepeats(strings.Split(certs[i]["domains"].(string), ","), domainArr) {
+			continue
+		}
+		endTimeStr, ok := certs[i]["end_time"].(string)
+		if !ok {
+			continue
+		}
+		endTime, err := time.Parse(layout, endTimeStr)
+		if err != nil {
+			continue
+		}
+		diff := endTime.Sub(time.Now()).Hours() / 24
+		if diff > maxDays {
+			maxDays = diff
+			maxItem = certs[i]
+		}
+	}
+	if maxItem == nil {
+		return nil, fmt.Errorf("未获取到对应的证书")
+	}
+	if int(maxDays) <= endDay {
+		return nil, fmt.Errorf("证书已过期或即将过期，剩余天数：%d 小于%d天", int(maxDays), endDay)
+	}
+	// 证书未过期，直接返回
+	logger.Debug(fmt.Sprintf("找到符合条件的证书，域名：%s，剩余天数：%d 大于%d天", maxItem["domains"], int(maxDays), endDay))
+	return map[string]any{
+		"cert":       maxItem["cert"],
+		"key":        maxItem["key"],
+		"issuerCert": maxItem["issuer_cert"],
+		"skip":       true}, nil
+}
+
 func Apply(cfg map[string]any, logger *public.Logger) (map[string]any, error) {
 	log.Logger = logger.GetLogger()
 	var err error
@@ -663,7 +714,8 @@ func Apply(cfg map[string]any, logger *public.Logger) (map[string]any, error) {
 	if !ok {
 		return nil, fmt.Errorf("参数错误：_runId")
 	}
-	certData, err := GetCert(runId, domainArr, endDay, logger)
+	//certData, err := GetCert(runId, domainArr, endDay, logger)
+	certData, err := AllCerts(domainArr, endDay, logger)
 	if err != nil {
 		logger.Debug("未获取到符合条件的本地证书:" + err.Error())
 	} else {
