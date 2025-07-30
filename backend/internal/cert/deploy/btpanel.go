@@ -243,7 +243,7 @@ func BtPanelSiteList(providerID string) ([]response.AccessSiteList, error) {
 	data.Set("cert_list", "")
 	siteList, err := RequestBt(&data, "POST", providerID, "ssl?action=GetSiteDomain")
 	if err != nil {
-		fmt.Println("获取网站列表失败:", err)
+		//fmt.Println("获取网站列表失败:", err)
 		return nil, err
 	}
 

@@ -132,18 +132,34 @@ func CheckHttps(target string, advanceDay int) (result *CertInfo, err error) {
 
 	// 构建 HTTP 客户端
 	client := &http.Client{
+		// 禁止重定向，确保获取到原始证书链
+		CheckRedirect: func(req *http.Request, via []*http.Request) error {
+			// 返回错误以阻止重定向
+			return http.ErrUseLastResponse
+		},
 		Transport: &http.Transport{
 			TLSClientConfig: &tls.Config{
 				InsecureSkipVerify: true,
 			},
 		},
-		Timeout: 5 * time.Second,
+		//Timeout: 5 * time.Second,
 	}
 
 	// 发送请求
 	resp, err := client.Get(url)
 	if err != nil {
-		return nil, fmt.Errorf("无法建立 HTTPS 连接：%v", err)
+		// 如果无法建立 HTTPS 连接，重试3次
+		retryCount := 3
+		for i := 0; i < retryCount; i++ {
+			resp, err = client.Get(url)
+			if err == nil {
+				break // 成功则退出重试
+			}
+			time.Sleep(1 * time.Second) // 等待1秒后重试
+		}
+		if err != nil {
+			return nil, fmt.Errorf("无法建立 HTTPS 连接：%v", err)
+		}
 	}
 	defer resp.Body.Close()
 

@@ -18,7 +18,7 @@ type AliyunWafClient struct {
 
 func ClientAliWaf(accessKey, accessSecret, region string) (_result *AliyunWafClient, err error) {
 	//region:[cn-hangzhou,ap-southeast-1]
-	
+
 	config := &openapi.Config{
 		AccessKeyId:     tea.String(accessKey),
 		AccessKeySecret: tea.String(accessSecret),
@@ -28,7 +28,7 @@ func ClientAliWaf(accessKey, accessSecret, region string) (_result *AliyunWafCli
 	if err != nil {
 		return nil, err
 	}
-	
+
 	aliyunwafClient := &AliyunWafClient{
 		Client:       *client,
 		accessKey:    accessKey,
@@ -56,7 +56,7 @@ func (client *AliyunWafClient) ICreateCerts(certName, certContent, certKey, inst
 		"CertKey":     certKey,
 		"InstanceId":  instanceId,
 	}
-	
+
 	req := &openapi.OpenApiRequest{
 		Query: openapiutil.Query(query),
 	}
@@ -71,7 +71,7 @@ func (client *AliyunWafClient) ICreateCerts(certName, certContent, certKey, inst
 		ReqBodyType: tea.String("formData"),
 		BodyType:    tea.String("json"),
 	}
-	
+
 	createCertsResponse := &CreateCertsResponse{}
 	runtime := &util.RuntimeOptions{}
 	_body, _err := client.CallApi(params, req, runtime)
@@ -88,8 +88,11 @@ func (client *AliyunWafClient) IGetInstanceId() (instanceId *string, _err error)
 		RegionId: tea.String(client.region),
 	}
 	response, _err := client.DescribeInstance(req)
+	if _err != nil {
+		return nil, _err
+	}
 	instanceId = response.Body.InstanceId
-	
+
 	return instanceId, _err
 }
 
@@ -100,8 +103,11 @@ func (client *AliyunWafClient) IDescribeDomainDetail(instanceId, domain string) 
 		Domain:     tea.String(domain),
 	}
 	response, _err := client.DescribeDomainDetail(req)
+	if _err != nil {
+		return nil, _err
+	}
 	describeDomainDetailResponseBody = response.Body
-	
+
 	return describeDomainDetailResponseBody, _err
 }
 
@@ -124,56 +130,56 @@ func assignDomain(from *aliyunwaf.DescribeDomainDetailResponseBody, to *aliyunwa
 	if from == nil {
 		return to
 	}
-	
+
 	if from.Listen != nil {
 		if to.Listen == nil {
 			to.Listen = &aliyunwaf.ModifyDomainRequestListen{}
 		}
-		
+
 		if from.Listen.CipherSuite != nil {
 			to.Listen.CipherSuite = tea.Int32(int32(*from.Listen.CipherSuite))
 		}
-		
+
 		if from.Listen.CustomCiphers != nil {
 			to.Listen.CustomCiphers = from.Listen.CustomCiphers
 		}
-		
+
 		if from.Listen.EnableTLSv3 != nil {
 			to.Listen.EnableTLSv3 = from.Listen.EnableTLSv3
 		}
-		
+
 		if from.Listen.ExclusiveIp != nil {
 			to.Listen.ExclusiveIp = from.Listen.ExclusiveIp
 		}
-		
+
 		if from.Listen.FocusHttps != nil {
 			to.Listen.FocusHttps = from.Listen.FocusHttps
 		}
-		
+
 		if from.Listen.Http2Enabled != nil {
 			to.Listen.Http2Enabled = from.Listen.Http2Enabled
 		}
-		
+
 		if from.Listen.IPv6Enabled != nil {
 			to.Listen.IPv6Enabled = from.Listen.IPv6Enabled
 		}
-		
+
 		if from.Listen.ProtectionResource != nil {
 			to.Listen.ProtectionResource = from.Listen.ProtectionResource
 		}
-		
+
 		if from.Listen.TLSVersion != nil {
 			to.Listen.TLSVersion = from.Listen.TLSVersion
 		}
-		
+
 		if from.Listen.XffHeaderMode != nil {
 			to.Listen.XffHeaderMode = tea.Int32(int32(*from.Listen.XffHeaderMode))
 		}
-		
+
 		if from.Listen.XffHeaders != nil {
 			to.Listen.XffHeaders = from.Listen.XffHeaders
 		}
-		
+
 		if from.Listen.HttpPorts != nil {
 			to.Listen.HttpPorts = make([]*int32, len(from.Listen.HttpPorts))
 			for i, port := range from.Listen.HttpPorts {
@@ -182,7 +188,7 @@ func assignDomain(from *aliyunwaf.DescribeDomainDetailResponseBody, to *aliyunwa
 				}
 			}
 		}
-		
+
 		if from.Listen.HttpsPorts != nil {
 			to.Listen.HttpsPorts = make([]*int32, len(from.Listen.HttpsPorts))
 			for i, port := range from.Listen.HttpsPorts {
@@ -191,62 +197,62 @@ func assignDomain(from *aliyunwaf.DescribeDomainDetailResponseBody, to *aliyunwa
 				}
 			}
 		}
-		
+
 	}
-	
+
 	if from.Redirect != nil {
 		if to.Redirect == nil {
 			to.Redirect = &aliyunwaf.ModifyDomainRequestRedirect{}
 		}
-		
+
 		if from.Redirect.ConnectTimeout != nil {
 			to.Redirect.ConnectTimeout = from.Redirect.ConnectTimeout
 		}
-		
+
 		if from.Redirect.FocusHttpBackend != nil {
 			to.Redirect.FocusHttpBackend = from.Redirect.FocusHttpBackend
 		}
-		
+
 		if from.Redirect.Keepalive != nil {
 			to.Redirect.Keepalive = from.Redirect.Keepalive
 		}
-		
+
 		if from.Redirect.KeepaliveRequests != nil {
 			to.Redirect.KeepaliveRequests = from.Redirect.KeepaliveRequests
 		}
-		
+
 		if from.Redirect.KeepaliveTimeout != nil {
 			to.Redirect.KeepaliveTimeout = from.Redirect.KeepaliveTimeout
 		}
-		
+
 		if from.Redirect.Loadbalance != nil {
 			to.Redirect.Loadbalance = from.Redirect.Loadbalance
 		}
-		
+
 		if from.Redirect.ReadTimeout != nil {
 			to.Redirect.ReadTimeout = from.Redirect.ReadTimeout
 		}
-		
+
 		if from.Redirect.Retry != nil {
 			to.Redirect.Retry = from.Redirect.Retry
 		}
-		
+
 		if from.Redirect.SniEnabled != nil {
 			to.Redirect.SniEnabled = from.Redirect.SniEnabled
 		}
-		
+
 		if from.Redirect.SniHost != nil {
 			to.Redirect.SniHost = from.Redirect.SniHost
 		}
-		
+
 		if from.Redirect.WriteTimeout != nil {
 			to.Redirect.WriteTimeout = from.Redirect.WriteTimeout
 		}
-		
+
 		if from.Redirect.XffProto != nil {
 			to.Redirect.XffProto = from.Redirect.XffProto
 		}
-		
+
 		if from.Redirect.Backends != nil {
 			to.Redirect.Backends = make([]*string, len(from.Redirect.Backends))
 			for i, backend := range from.Redirect.Backends {
@@ -255,7 +261,7 @@ func assignDomain(from *aliyunwaf.DescribeDomainDetailResponseBody, to *aliyunwa
 				}
 			}
 		}
-		
+
 		if from.Redirect.BackupBackends != nil {
 			to.Redirect.BackupBackends = make([]*string, len(from.Redirect.BackupBackends))
 			for i, backend := range from.Redirect.BackupBackends {
@@ -264,7 +270,7 @@ func assignDomain(from *aliyunwaf.DescribeDomainDetailResponseBody, to *aliyunwa
 				}
 			}
 		}
-		
+
 		if from.Redirect.RequestHeaders != nil {
 			to.Redirect.RequestHeaders = make([]*aliyunwaf.ModifyDomainRequestRedirectRequestHeaders, len(from.Redirect.RequestHeaders))
 			for i, header := range from.Redirect.RequestHeaders {
@@ -277,6 +283,6 @@ func assignDomain(from *aliyunwaf.DescribeDomainDetailResponseBody, to *aliyunwa
 			}
 		}
 	}
-	
+
 	return to
 }

@@ -108,7 +108,7 @@ func Save(setting *Setting) error {
 		public.TimeOut = setting.Timeout
 		restart = true
 	}
-	if setting.Https != "" && setting.Https != public.GetSettingIgnoreError("https") {
+	if setting.Https != "" {
 		if setting.Https == "1" {
 			if setting.Key == "" || setting.Cert == "" {
 				return fmt.Errorf("key or cert is empty")
