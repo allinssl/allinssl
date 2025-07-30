@@ -192,7 +192,7 @@ func ClientMaker(accessKeyId, accessKeySecret string) (*aliyunmarket.Client, err
 		AccessKeySecret: tea.String(accessKeySecret),
 		Endpoint:        tea.String("market.aliyuncs.com"),
 	}
-	
+
 	client, _ := aliyunmarket.NewClient(config)
 	return client, nil
 }
@@ -212,14 +212,14 @@ func AliyunCdnAPITest(providerID string) error {
 	if err != nil {
 		return err
 	}
-	
+
 	client, err := ClientMaker(providerConfig["access_key_id"], providerConfig["access_key_secret"])
 	describeApiMeteringRequest := &aliyunmarket.DescribeApiMeteringRequest{
 		PageNum: tea.Int32(1),
 	}
-	
+
 	_, err = client.DescribeApiMetering(describeApiMeteringRequest)
-	
+
 	if err != nil {
 		return fmt.Errorf("测试请求失败: %v", err)
 	}
@@ -295,6 +295,6 @@ func DeployAliyunWaf(cfg map[string]any) error {
 	if err != nil {
 		return fmt.Errorf("更新证书失败: %v", err)
 	}
-	
+
 	return nil
 }

@@ -92,6 +92,10 @@ func (client *AliyunWafClient) IGetInstanceId() (instanceId *string, _err error)
 		return nil, _err
 	}
 	instanceId = response.Body.InstanceId
+	if instanceId == nil || *instanceId == "" {
+		_err = fmt.Errorf("未找到WAF实例ID，请检查是否已创建WAF实例")
+		return nil, _err
+	}
 
 	return instanceId, _err
 }
