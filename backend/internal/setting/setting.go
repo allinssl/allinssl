@@ -16,13 +16,14 @@ import (
 )
 
 type Setting struct {
-	Timeout  int    `json:"timeout" form:"timeout"`
-	Secure   string `json:"secure" form:"secure"`
-	Https    string `json:"https" form:"https"`
-	Key      string `json:"key" form:"key"`
-	Cert     string `json:"cert" form:"cert"`
-	Username string `json:"username" form:"username"`
-	Password string `json:"password" form:"password"`
+	Timeout    int    `json:"timeout" form:"timeout"`
+	Secure     string `json:"secure" form:"secure"`
+	Https      string `json:"https" form:"https"`
+	Key        string `json:"key" form:"key"`
+	Cert       string `json:"cert" form:"cert"`
+	Username   string `json:"username" form:"username"`
+	Password   string `json:"password" form:"password"`
+	PluginPath string `json:"plugin_path" form:"plugin_path"`
 }
 
 func Get() (Setting, error) {
@@ -57,6 +58,7 @@ func Get() (Setting, error) {
 	}
 	username := data[0]["username"].(string)
 	setting.Username = username
+	setting.PluginPath = public.GetSettingIgnoreError("plugin_dir")
 	return setting, nil
 }
 
@@ -107,6 +109,9 @@ func Save(setting *Setting) error {
 		s.Where("key = 'secure'", []interface{}{}).Update(map[string]interface{}{"value": setting.Secure})
 		public.TimeOut = setting.Timeout
 		restart = true
+	}
+	if setting.PluginPath != "" && setting.PluginPath != public.GetSettingIgnoreError("plugin_dir") {
+		public.UpdateSetting("plugin_dir", setting.PluginPath)
 	}
 	if setting.Https != "" {
 		if setting.Https == "1" {
@@ -192,13 +197,16 @@ func GetVersion() (map[string]string, error) {
 	update := "0"
 	newVersionObj, err := http.Get("https://download.allinssl.com/version.json")
 	if err != nil {
-		return map[string]string{
-			"version":     version,
-			"new_version": version,
-			"update":      update,
-			"log":         "",
-			"date":        "",
-		}, nil
+		newVersionObj, err = http.Get("https://node1.allinssl.com/version.json")
+		if err != nil {
+			return map[string]string{
+				"version":     version,
+				"new_version": version,
+				"update":      update,
+				"log":         "",
+				"date":        "",
+			}, nil
+		}
 	}
 	defer newVersionObj.Body.Close()
 

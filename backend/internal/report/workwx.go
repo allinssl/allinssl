@@ -1,6 +1,7 @@
 package report
 
 import (
+	"ALLinSSL/backend/public"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -75,7 +76,7 @@ func NotifyWorkWx(params map[string]any) error {
 }
 `
 	}
-	msg, err := ReplaceJSONPlaceholders(config["data"], params)
+	msg, err := public.ReplaceJSONPlaceholders(config["data"], params)
 	if err != nil {
 		return fmt.Errorf("替换JSON占位符失败: %v", err)
 	}

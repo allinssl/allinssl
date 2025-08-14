@@ -50,7 +50,8 @@ func RequestSafeLineWaf(data *map[string]any, method, providerID, requestUrl str
 		ignoreSsl = true
 	}
 	tr := &http.Transport{
-		TLSClientConfig: &tls.Config{InsecureSkipVerify: ignoreSsl},
+		TLSClientConfig:   &tls.Config{InsecureSkipVerify: ignoreSsl},
+		DisableKeepAlives: true,
 	}
 
 	client := &http.Client{Transport: tr}

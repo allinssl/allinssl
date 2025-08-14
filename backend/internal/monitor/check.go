@@ -69,8 +69,8 @@ func Check(certs []*x509.Certificate, host string, advanceDay int) (result *Cert
 	}
 
 	result.CommonName = leafCert.Subject.CommonName
-	result.NotBefore = leafCert.NotBefore.Format("2006-01-02 15:04:05")
-	result.NotAfter = leafCert.NotAfter.Format("2006-01-02 15:04:05")
+	result.NotBefore = leafCert.NotBefore.In(time.Local).Format("2006-01-02 15:04:05")
+	result.NotAfter = leafCert.NotAfter.In(time.Local).Format("2006-01-02 15:04:05")
 	result.DaysLeft = int(leafCert.NotAfter.Sub(time.Now()).Hours() / 24)
 	result.SANs = strings.Join(leafCert.DNSNames, ",")
 	result.SignatureAlgo = leafCert.SignatureAlgorithm.String()
@@ -141,8 +141,9 @@ func CheckHttps(target string, advanceDay int) (result *CertInfo, err error) {
 			TLSClientConfig: &tls.Config{
 				InsecureSkipVerify: true,
 			},
+			DisableKeepAlives: true,
 		},
-		//Timeout: 5 * time.Second,
+		Timeout: 30 * time.Second,
 	}
 
 	// 发送请求

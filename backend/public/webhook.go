@@ -1,18 +1,18 @@
-package report
+package public
 
 import (
-	"ALLinSSL/backend/public"
-	"context"
 	"crypto/tls"
 	"encoding/json"
 	"fmt"
 	"github.com/go-resty/resty/v2"
 	"net/http"
+	"regexp"
+	"strconv"
 	"strings"
 	"time"
 )
 
-type ReportConfig struct {
+type WebhookConfig struct {
 	Url       string `json:"url"`
 	Data      string `json:"data,omitempty"`
 	Method    string `json:"method,omitempty"`
@@ -20,45 +20,25 @@ type ReportConfig struct {
 	IgnoreSSL bool   `json:"ignore_ssl,omitempty"`
 }
 
-type WebHookReporter struct {
-	config     *ReportConfig
-	logger     *public.Logger
-	httpClient *resty.Client
-}
-
-func NewWebHookReporter(config *ReportConfig, logger *public.Logger) *WebHookReporter {
-	client := resty.New()
-	client.SetTimeout(30 * time.Second)
-
-	if config.IgnoreSSL {
-		client.SetTLSClientConfig(&tls.Config{InsecureSkipVerify: true})
-	}
-
-	if config.Data == "" {
-		config.Data = "{}" // 默认数据为空JSON对象
-	}
-
-	return &WebHookReporter{
-		config:     config,
-		logger:     logger,
-		httpClient: client,
-	}
-}
-
-func (w *WebHookReporter) Send(ctx context.Context) error {
+func (w *WebhookConfig) Send() error {
 	// 确定HTTP方法
-	method := strings.ToUpper(w.config.Method)
+	method := strings.ToUpper(w.Method)
 	if method == "" {
 		method = http.MethodPost // 默认使用POST方法
 	}
 
-	// 创建基础请求
-	req := w.httpClient.R().
-		SetContext(ctx)
+	client := resty.New()
+	client.SetTimeout(30 * time.Second)
+
+	if w.IgnoreSSL {
+		client.SetTLSClientConfig(&tls.Config{InsecureSkipVerify: true})
+	}
+
+	req := client.R()
 
 	// 设置请求头
-	if w.config.Headers != "" {
-		reqHeader, err := w.ParseHeaders(w.config.Headers)
+	if w.Headers != "" {
+		reqHeader, err := w.ParseHeaders(w.Headers)
 		if err != nil {
 			return fmt.Errorf("解析请求头错误: %w", err)
 		}
@@ -76,15 +56,16 @@ func (w *WebHookReporter) Send(ctx context.Context) error {
 			case "application/json":
 				req.SetHeader("Content-Type", "application/json")
 				var reqData interface{}
-				err := json.Unmarshal([]byte(w.config.Data), &reqData)
+				err := json.Unmarshal([]byte(w.Data), &reqData)
 				if err != nil {
 					return fmt.Errorf("webhook数据解析失败err: %w", err)
 				}
+
 				req.SetBody(reqData)
 			case "application/x-www-form-urlencoded":
 				req.SetHeader("Content-Type", "application/x-www-form-urlencoded")
 				reqData := make(map[string]string)
-				err := json.Unmarshal([]byte(w.config.Data), &reqData)
+				err := json.Unmarshal([]byte(w.Data), &reqData)
 				if err != nil {
 					return fmt.Errorf("webhook数据解析失败err: %w", err)
 				}
@@ -92,7 +73,7 @@ func (w *WebHookReporter) Send(ctx context.Context) error {
 			case "multipart/form-data":
 				req.SetHeader("Content-Type", "multipart/form-data")
 				reqData := make(map[string]string)
-				err := json.Unmarshal([]byte(w.config.Data), &reqData)
+				err := json.Unmarshal([]byte(w.Data), &reqData)
 				if err != nil {
 					return fmt.Errorf("webhook数据解析失败err: %w", err)
 				}
@@ -102,7 +83,7 @@ func (w *WebHookReporter) Send(ctx context.Context) error {
 	case http.MethodGet:
 		{
 			reqData := make(map[string]string)
-			err := json.Unmarshal([]byte(w.config.Data), &reqData)
+			err := json.Unmarshal([]byte(w.Data), &reqData)
 			if err != nil {
 				return fmt.Errorf("webhook数据解析失败err: %w", err)
 			}
@@ -113,30 +94,20 @@ func (w *WebHookReporter) Send(ctx context.Context) error {
 	}
 
 	// 发送请求
-	resp, err := req.Execute(method, w.config.Url)
+	resp, err := req.Execute(method, w.Url)
 	if err != nil {
-		if w.logger != nil {
-			w.logger.Error(fmt.Sprintf("Webhook请求失败%s %v", w.config.Url, err))
-		}
-
 		return fmt.Errorf("webhook请求失败: %w", err)
 	}
 
 	// 处理响应
 	if resp.IsError() {
-		if w.logger != nil {
-			w.logger.Error(fmt.Sprintf("Webhook返回错误响应%s %d", w.config.Url, resp.StatusCode()))
-		}
-		return fmt.Errorf("webhook返回错误状态码: %d", resp.StatusCode())
+		return fmt.Errorf("webhook返回错误状态码: %d, msg: %s", resp.StatusCode(), resp.String())
 	}
 
-	if w.logger != nil {
-		w.logger.Debug(fmt.Sprintf("Webhook请求成功 %s", w.config.Url))
-	}
 	return nil
 }
 
-func (w *WebHookReporter) ParseHeaders(headerStr string) (http.Header, error) {
+func (w *WebhookConfig) ParseHeaders(headerStr string) (http.Header, error) {
 	headers := make(http.Header)
 	lines := strings.Split(headerStr, "\n")
 
@@ -161,38 +132,16 @@ func (w *WebHookReporter) ParseHeaders(headerStr string) (http.Header, error) {
 	return headers, nil
 }
 
-func NotifyWebHook(params map[string]any) error {
-	if params == nil {
-		return fmt.Errorf("缺少参数")
-	}
-	providerID := params["provider_id"].(string)
+func ReplaceJSONPlaceholders(jsonStr string, vars map[string]any) (string, error) {
+	re := regexp.MustCompile(`__([a-zA-Z0-9_]+)__`)
+	result := re.ReplaceAllStringFunc(jsonStr, func(match string) string {
+		key := re.FindStringSubmatch(match)[1]
+		if val, ok := vars[key]; ok {
+			escaped := strconv.Quote(fmt.Sprintf("%v", val)) // 将 any 类型转换为字符串
+			return escaped[1 : len(escaped)-1]
+		}
+		return match // 未匹配到变量则保留原样
+	})
 
-	var logger *public.Logger
-
-	if params["logger"] != nil {
-		logger = params["logger"].(*public.Logger)
-	}
-
-	providerData, err := GetReport(providerID)
-	if err != nil {
-		return err
-	}
-	configStr := providerData["config"].(string)
-	var config ReportConfig
-	err = json.Unmarshal([]byte(configStr), &config)
-	if err != nil {
-		return fmt.Errorf("解析配置失败: %v", err)
-	}
-	config.Data, err = public.ReplaceJSONPlaceholders(config.Data, params)
-	if err != nil {
-		return fmt.Errorf("替换JSON占位符失败: %w", err)
-	}
-
-	reporter := NewWebHookReporter(&config, logger)
-	httpctx := context.Background()
-	err = reporter.Send(httpctx)
-	if err != nil {
-		return fmt.Errorf("webhook发送失败: %w", err)
-	}
-	return nil
+	return result, nil
 }

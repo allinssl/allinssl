@@ -91,7 +91,8 @@ func Request1panel(data *map[string]any, method, providerID, requestUrl string) 
 		ignoreSsl = true
 	}
 	tr := &http.Transport{
-		TLSClientConfig: &tls.Config{InsecureSkipVerify: ignoreSsl},
+		TLSClientConfig:   &tls.Config{InsecureSkipVerify: ignoreSsl},
+		DisableKeepAlives: true,
 	}
 
 	client := &http.Client{Transport: tr}
@@ -269,7 +270,7 @@ func OnePanelSiteList(providerID string) ([]response.AccessSiteList, error) {
 	if err != nil {
 		return nil, fmt.Errorf("获取网站列表失败 %v", err)
 	}
-	
+
 	var result []response.AccessSiteList
 	sites, ok := siteList["data"].(map[string]any)["items"].([]any)
 	if !ok {

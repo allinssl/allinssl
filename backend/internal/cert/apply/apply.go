@@ -4,7 +4,9 @@ import (
 	"ALLinSSL/backend/internal/access"
 	"ALLinSSL/backend/internal/cert"
 	"ALLinSSL/backend/internal/cert/apply/lego/jdcloud"
+	"ALLinSSL/backend/internal/cert/apply/lego/webhook"
 	"ALLinSSL/backend/public"
+	"crypto/tls"
 	"encoding/json"
 	"fmt"
 	azcorecloud "github.com/Azure/azure-sdk-for-go/sdk/azcore/cloud"
@@ -202,6 +204,10 @@ func GetDNSProvider(providerName string, creds map[string]string, httpClient *ht
 		config.SecretKey = creds["secret_key"]
 		config.PropagationTimeout = maxWait
 		return constellix.NewDNSProviderConfig(config)
+	case "webhook":
+		config := webhook.NewConfig(creds)
+		config.PropagationTimeout = maxWait
+		return webhook.NewDNSProviderConfig(config)
 
 	default:
 		return nil, fmt.Errorf("不支持的 DNS Provider: %s", providerName)
@@ -495,7 +501,9 @@ func Apply(cfg map[string]any, logger *public.Logger) (map[string]any, error) {
 		}
 		httpClient = &http.Client{
 			Transport: &http.Transport{
-				Proxy: http.ProxyURL(proxyURL),
+				Proxy:             http.ProxyURL(proxyURL),
+				TLSClientConfig:   &tls.Config{InsecureSkipVerify: true},
+				DisableKeepAlives: true,
 			},
 			Timeout: 30 * time.Second,
 		}

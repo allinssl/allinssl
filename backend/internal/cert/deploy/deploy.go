@@ -5,6 +5,7 @@ import (
 	"ALLinSSL/backend/internal/cert/deploy/doge"
 	"ALLinSSL/backend/internal/cert/deploy/lecdn"
 	"ALLinSSL/backend/internal/cert/deploy/plugin"
+	"ALLinSSL/backend/internal/cert/deploy/webhook"
 	"ALLinSSL/backend/public"
 	"fmt"
 )
@@ -106,6 +107,9 @@ func Deploy(cfg map[string]any, logger *public.Logger) error {
 	case "plugin":
 		logger.Debug("使用插件部署...")
 		return plugin.Deploy(cfg, logger)
+	case "webhook":
+		logger.Debug("通过Webhook推送证书...")
+		return webhook.Deploy(cfg)
 	default:
 		return fmt.Errorf("不支持的部署: %s", providerName)
 	}
