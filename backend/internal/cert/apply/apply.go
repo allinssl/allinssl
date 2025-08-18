@@ -495,7 +495,8 @@ func Apply(cfg map[string]any, logger *public.Logger) (map[string]any, error) {
 		}
 		httpClient = &http.Client{
 			Transport: &http.Transport{
-				Proxy: http.ProxyURL(proxyURL),
+				Proxy:             http.ProxyURL(proxyURL),
+				DisableKeepAlives: true,
 			},
 			Timeout: 30 * time.Second,
 		}

@@ -53,7 +53,8 @@ func requestLecdn(url, method, token string, params map[string]any, ignoreSsl bo
 
 	client := &http.Client{
 		Transport: &http.Transport{
-			TLSClientConfig: &tls.Config{InsecureSkipVerify: ignoreSsl},
+			TLSClientConfig:   &tls.Config{InsecureSkipVerify: ignoreSsl},
+			DisableKeepAlives: true,
 		},
 	}
 

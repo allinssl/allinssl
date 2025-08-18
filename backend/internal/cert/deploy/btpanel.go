@@ -65,7 +65,8 @@ func RequestBt(data *url.Values, method, providerID, requestUrl string) (map[str
 		ignoreSsl = true
 	}
 	tr := &http.Transport{
-		TLSClientConfig: &tls.Config{InsecureSkipVerify: ignoreSsl},
+		TLSClientConfig:   &tls.Config{InsecureSkipVerify: ignoreSsl},
+		DisableKeepAlives: true,
 	}
 
 	client := &http.Client{Transport: tr}
