@@ -50,12 +50,18 @@ func SaveUserToDB(db *public.Sqlite, user *MyUser, Type string) error {
 		Bytes: keyBytes,
 	})
 	now := time.Now().Format("2006-01-02 15:04:05")
-	data, err := db.Where(`email=? and type=?`, []interface{}{user.Email, Type}).Select()
+	var data []map[string]interface{}
+	if Type == "letsencrypt" || Type == "Let's Encrypt" {
+		data, err = db.Where(`email=? and type in ('letsencrypt','Let''s Encrypt')`, []interface{}{user.Email}).Select()
+	} else {
+		data, err = db.Where(`email=? and type=?`, []interface{}{user.Email, Type}).Select()
+	}
+
 	if err != nil {
 		return err
 	}
 	if len(data) > 0 {
-		_, err = db.Update(map[string]interface{}{
+		_, err = db.Where(`id = ?`, []interface{}{data[0]["id"]}).Update(map[string]interface{}{
 			"private_key": string(pemBytes),
 			"reg":         regBytes,
 			"update_time": now,
@@ -112,7 +118,13 @@ func GetAcmeUser(email string, logger *public.Logger, accData map[string]any) (u
 }
 
 func GetAccount(db *public.Sqlite, email, ca string) (map[string]interface{}, error) {
-	data, err := db.Where(`email=? and type=?`, []interface{}{email, ca}).Select()
+	var data []map[string]interface{}
+	var err error
+	if ca == "letsencrypt" || ca == "Let's Encrypt" {
+		data, err = db.Where(`email=? and type in ('letsencrypt','Let''s Encrypt')`, []interface{}{email}).Select()
+	} else {
+		data, err = db.Where(`email=? and type=?`, []interface{}{email, ca}).Select()
+	}
 	if err != nil {
 		return nil, err
 	}
@@ -204,11 +216,12 @@ func GetAccountList(search, ca string, p, limit int64) ([]map[string]interface{}
 		if ca == "custom" {
 			whereSql += `and type not in ('Let's Encrypt','buypass', 'google', 'sslcom', 'zerossl')`
 		} else {
-			if ca == "letsencrypt" {
-				ca = "Let's Encrypt"
+			if ca == "letsencrypt" || ca == "Let's Encrypt" {
+				whereSql += " and type in ('Let''s Encrypt', 'letsencrypt')"
+			} else {
+				whereSql += " and type=?"
+				whereArgs = append(whereArgs, ca)
 			}
-			whereSql += " and type=?"
-			whereArgs = append(whereArgs, ca)
 		}
 	}
 	count, err := db.Where(whereSql, whereArgs).Count()
