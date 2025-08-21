@@ -115,7 +115,7 @@ func Sign(c *gin.Context) {
 	// fmt.Println(passwd)
 	keyMd5 := md5.Sum([]byte(passwd))
 	passwdMd5 := hex.EncodeToString(keyMd5[:])
-	// fmt.Println(passwdMd5)
+	//fmt.Println(passwdMd5)
 
 	if res[0]["password"] != passwdMd5 {
 		session.Set("__loginErrCount", ErrCount+1)
