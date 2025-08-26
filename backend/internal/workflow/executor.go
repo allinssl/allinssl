@@ -4,6 +4,7 @@ import (
 	"ALLinSSL/backend/internal/cert"
 	certApply "ALLinSSL/backend/internal/cert/apply"
 	certDeploy "ALLinSSL/backend/internal/cert/deploy"
+	"ALLinSSL/backend/internal/private_ca"
 	"ALLinSSL/backend/internal/report"
 	"ALLinSSL/backend/public"
 	"errors"
@@ -27,9 +28,24 @@ func Executors(exec string, params map[string]any) (any, error) {
 		return upload(params)
 	case "notify":
 		return notify(params)
+	case "private_ca":
+		return privateCa(params)
 	default:
 		return nil, nil
 	}
+}
+
+func privateCa(params map[string]any) (any, error) {
+	logger := params["logger"].(*public.Logger)
+	logger.Info("=============私有CA签发证书=============")
+	certificate, err := private_ca.WorkflowCreateLeafCert(params, logger)
+	if err != nil {
+		logger.Error(err.Error())
+		logger.Info("=============签发失败=============")
+		return nil, err
+	}
+	logger.Info("=============签发成功=============")
+	return certificate, nil
 }
 
 func apply(params map[string]any) (any, error) {

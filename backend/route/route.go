@@ -3,6 +3,7 @@ package route
 import (
 	"ALLinSSL/backend/app/api"
 	"ALLinSSL/backend/app/api/monitor"
+	"ALLinSSL/backend/app/api/private_ca"
 	"ALLinSSL/backend/public"
 	"ALLinSSL/static"
 	"github.com/gin-gonic/gin"
@@ -104,6 +105,18 @@ func Register(r *gin.Engine) {
 	overview := v1.Group("/overview")
 	{
 		overview.POST("/get_overviews", api.GetOverview)
+	}
+	privateCa := v1.Group("/private_ca")
+	{
+		privateCa.POST("/create_root_ca", private_ca.CreateRootCA)
+		privateCa.POST("/create_intermediate_ca", private_ca.CreateIntermediateCA)
+		privateCa.POST("/get_ca_list", private_ca.GetCAList)
+		privateCa.POST("/del_ca", private_ca.DeleteCA)
+
+		privateCa.POST("/create_leaf_cert", private_ca.CreateLeafCert)
+		privateCa.POST("/get_leaf_cert_list", private_ca.GetLeafCertList)
+		privateCa.POST("/del_leaf_cert", private_ca.DeleteLeafCert)
+		privateCa.GET("/download_cert", private_ca.DownloadCert)
 	}
 
 	// 静态资源：/static -> build/static

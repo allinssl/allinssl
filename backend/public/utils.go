@@ -10,6 +10,7 @@ import (
 	"net"
 	"net/http"
 	"os/exec"
+	"reflect"
 	"runtime"
 	"strings"
 )
@@ -230,4 +231,61 @@ func CheckIPType(address string) string {
 		return "IPv4"
 	}
 	return "IPv6"
+}
+
+// StructToMap 将结构体转换为 map[string]interface{}
+// 如果 ignoreZero 为 true，则忽略零值字段
+func StructToMap(obj interface{}, ignoreZero bool) map[string]interface{} {
+	t := reflect.TypeOf(obj)
+	v := reflect.ValueOf(obj)
+
+	if t.Kind() == reflect.Ptr {
+		t = t.Elem()
+		v = v.Elem()
+	}
+
+	m := make(map[string]interface{})
+	for i := 0; i < t.NumField(); i++ {
+		field := t.Field(i)
+		value := v.Field(i)
+
+		// 跳过未导出的字段
+		if !value.CanInterface() {
+			continue
+		}
+
+		// 获取 json tag，若为空则用字段名
+		tag := field.Tag.Get("json")
+		if tag == "" {
+			tag = field.Name
+		}
+
+		// 忽略 0 值
+		if ignoreZero && isZero(value) {
+			continue
+		}
+
+		m[tag] = value.Interface()
+	}
+	return m
+}
+
+// 判断是否为零值
+func isZero(v reflect.Value) bool {
+	switch v.Kind() {
+	case reflect.String, reflect.Array, reflect.Slice, reflect.Map:
+		return v.Len() == 0
+	case reflect.Bool:
+		return !v.Bool()
+	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
+		return v.Int() == 0
+	case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
+		return v.Uint() == 0
+	case reflect.Float32, reflect.Float64:
+		return v.Float() == 0
+	case reflect.Interface, reflect.Pointer:
+		return v.IsNil()
+	}
+	// 其他情况用反射自带的 IsZero
+	return v.IsZero()
 }
