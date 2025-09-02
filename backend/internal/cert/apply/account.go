@@ -139,6 +139,7 @@ func AddAccount(email, ca, Kid, HmacEncoded, CADirURL string) error {
 	if err != nil {
 		return fmt.Errorf("failed to get sqlite: %w", err)
 	}
+	defer db.Close()
 	now := time.Now().Format("2006-01-02 15:04:05")
 	if (ca == "sslcom" || ca == "google") && (Kid == "" || HmacEncoded == "") {
 		return fmt.Errorf("Kid and HmacEncoded are required for %s CA", ca)
@@ -166,6 +167,7 @@ func UpdateAccount(id, email, ca, Kid, HmacEncoded, CADirURL string) error {
 	if err != nil {
 		return fmt.Errorf("failed to get sqlite: %w", err)
 	}
+	defer db.Close()
 	account := map[string]interface{}{
 		"email":       email,
 		"type":        ca,
@@ -186,6 +188,7 @@ func DelAccount(id string) error {
 	if err != nil {
 		return fmt.Errorf("failed to get sqlite: %w", err)
 	}
+	defer db.Close()
 	_, err = db.Where("id=?", []any{id}).Delete()
 	if err != nil {
 		return fmt.Errorf("failed to delete account: %w", err)
@@ -198,6 +201,7 @@ func GetAccountList(search, ca string, p, limit int64) ([]map[string]interface{}
 	if err != nil {
 		return nil, 0, fmt.Errorf("failed to get sqlite: %w", err)
 	}
+	defer db.Close()
 	whereSql := "1=1"
 	var whereArgs []any
 	limits := []int64{0, 100}
@@ -247,6 +251,7 @@ func GetCaList() ([]string, int, error) {
 	if err != nil {
 		return nil, 0, fmt.Errorf("failed to get sqlite: %w", err)
 	}
+	defer db.Close()
 	data, err := db.Field([]string{"type"}).GroupBy("type").Select()
 	if err != nil {
 		return nil, 0, fmt.Errorf("failed to get CA list: %w", err)

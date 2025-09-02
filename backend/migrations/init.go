@@ -370,6 +370,61 @@ create table monitor
     	on err_record (monitor_id);
 `)
 
+	dbPrivateCa, err := sql.Open("sqlite", "data/private_ca.db")
+	if err != nil {
+		// fmt.Println("创建 private_ca 数据库失败:", err)
+		return
+	}
+	defer dbPrivateCa.Close()
+	// 创建表
+	_, err = dbPrivateCa.Exec(`
+	PRAGMA journal_mode=WAL;
+	create table if not exists ca
+	(
+		id          integer not null
+			constraint ca_pk
+				primary key autoincrement,
+		root_id     integer,
+		name        TEXT    not null,
+		cn          TEXT    not null,
+		o           TEXT    not null,
+		c           TEXT    not null,
+		cert        TEXT    not null,
+		key         TEXT    not null,
+		en_cert     TEXT,
+		en_key      TEXT,
+		algorithm   TEXT    not null,
+		key_length  integer,
+		not_before  TEXT    not null,
+		not_after   TEXT    not null,
+		create_time TEXT    not null
+	);
+	create index ca_root_id_index
+		on ca (root_id);
+	create table leaf
+	(
+		id          integer not null
+			constraint leaf_pk
+				primary key autoincrement,
+		ca_id       integer not null,
+		cn          TEXT    not null,
+		san         TEXT    not null,
+		usage       integer not null,
+		cert        TEXT    not null,
+		key         TEXT    not null,
+		en_cert     TEXT,
+		en_key      TEXT,
+		algorithm   TEXT    not null,
+		key_length  integer,
+		not_before  TEXT    not null,
+		not_after   TEXT    not null,
+		create_time TEXT    not null
+	);
+	
+	create index leaf_ca_id_index
+		on leaf (ca_id);
+`)
+
 }
 
 func insertDefaultData(db *sql.DB, table, insertSQL string) {

@@ -31,6 +31,7 @@ import (
 	"github.com/go-acme/lego/v4/providers/dns/namesilo"
 	"github.com/go-acme/lego/v4/providers/dns/ns1"
 	"github.com/go-acme/lego/v4/providers/dns/route53"
+	"github.com/go-acme/lego/v4/providers/dns/spaceship"
 	"github.com/go-acme/lego/v4/providers/dns/tencentcloud"
 	"github.com/go-acme/lego/v4/providers/dns/volcengine"
 	"github.com/go-acme/lego/v4/providers/dns/westcn"
@@ -151,6 +152,7 @@ func GetDNSProvider(providerName string, creds map[string]string, httpClient *ht
 		config := route53.NewDefaultConfig()
 		config.AccessKeyID = creds["access_key_id"]
 		config.SecretAccessKey = creds["secret_access_key"]
+		config.Region = creds["region"]
 		config.PropagationTimeout = maxWait
 		return route53.NewDNSProviderConfig(config)
 	case "azure":
@@ -208,6 +210,14 @@ func GetDNSProvider(providerName string, creds map[string]string, httpClient *ht
 		config := webhook.NewConfig(creds)
 		config.PropagationTimeout = maxWait
 		return webhook.NewDNSProviderConfig(config)
+	case "spaceship":
+		config := spaceship.NewDefaultConfig()
+		config.APIKey = creds["api_key"]
+		config.APISecret = creds["api_secret"]
+		config.PropagationTimeout = maxWait
+		return spaceship.NewDNSProviderConfig(config)
+	//case "edgeone":
+	//config :=
 
 	default:
 		return nil, fmt.Errorf("不支持的 DNS Provider: %s", providerName)

@@ -44,6 +44,7 @@ func CreateIntermediateCA(c *gin.Context) {
 func GetCAList(c *gin.Context) {
 	var form struct {
 		Search string `form:"search"`
+		Level  string `form:"level"`
 		Page   int64  `form:"p"`
 		Limit  int64  `form:"limit"`
 	}
@@ -52,7 +53,7 @@ func GetCAList(c *gin.Context) {
 		public.FailMsg(c, err.Error())
 		return
 	}
-	data, count, err := private_ca.ListCAs(form.Search, form.Page, form.Limit)
+	data, count, err := private_ca.ListCAs(form.Search, form.Level, form.Page, form.Limit)
 	if err != nil {
 		public.FailMsg(c, err.Error())
 		return

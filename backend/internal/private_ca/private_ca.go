@@ -27,6 +27,7 @@ func CreateRootCA(name, commonName, organization, organizationalUnit, country, p
 	if err != nil {
 		return err
 	}
+	defer s.Close()
 
 	_, err = s.Insert(public.StructToMap(data, true))
 	if err != nil {
@@ -40,6 +41,7 @@ func CreateIntermediateCA(name, commonName, organization, organizationalUnit, co
 	if err != nil {
 		return err
 	}
+	defer s.Close()
 
 	issuers, err := s.Where("id=?", []interface{}{rootId}).Select()
 	if err != nil {
@@ -84,7 +86,7 @@ func DeleteCA(id int64) error {
 	if err != nil {
 		return err
 	}
-
+	defer s.Close()
 	// 检查是否有子证书
 	children, err := s.Where("root_id=?", []interface{}{id}).Select()
 	if err != nil {
@@ -94,18 +96,19 @@ func DeleteCA(id int64) error {
 		return fmt.Errorf("cannot delete CA with id %d: it has child CAs", id)
 	}
 
-	_, err = s.Where("root_id=?", []interface{}{id}).Delete()
+	_, err = s.Where("id=?", []interface{}{id}).Delete()
 	if err != nil {
 		return err
 	}
 	return nil
 }
 
-func ListCAs(search string, p, limit int64) ([]map[string]interface{}, int, error) {
+func ListCAs(search, level string, p, limit int64) ([]map[string]interface{}, int, error) {
 	s, err := GetSqlite()
 	if err != nil {
 		return nil, 0, err
 	}
+	defer s.Close()
 	var data []map[string]any
 	var count int64
 	var limits []int64
@@ -117,14 +120,22 @@ func ListCAs(search string, p, limit int64) ([]map[string]interface{}, int, erro
 			limits[1] = limit
 		}
 	}
-
+	whereStr := "1=1"
+	var params []interface{}
 	if search != "" {
-		data, err = s.Where("name like ? or cn like ?", []interface{}{"%" + search + "%", "%" + search + "%"}).Limit(limits).Order("create_time", "desc").Select()
-		count, err = s.Where("name like ? or cn like ?", []interface{}{"%" + search + "%", "%" + search + "%"}).Limit(limits).Order("create_time", "desc").Count()
-	} else {
-		data, err = s.Limit(limits).Order("create_time", "desc").Select()
-		count, err = s.Limit(limits).Order("create_time", "desc").Count()
+		whereStr += " and (name like ? or cn like ?)"
+		params = append(params, "%"+search+"%", "%"+search+"%")
 	}
+	if level == "root" {
+		whereStr += " and root_id is null"
+	}
+	if level == "intermediate" {
+		whereStr += " and root_id is not null"
+	}
+
+	data, err = s.Where(whereStr, params).Limit(limits).Order("create_time", "desc").Select()
+	count, err = s.Where(whereStr, params).Limit(limits).Count()
+
 	if err != nil {
 		return data, int(count), err
 	}
@@ -146,8 +157,12 @@ func CreateLeafCert(caId, usage, keyBits, validDays int64, cn, san string) (*Lea
 	if cn == "" {
 		if len(sans.DNSNames) > 0 {
 			cn = sans.DNSNames[0]
-		} else {
+		} else if len(sans.IPAddresses) > 0 {
 			cn = string(sans.IPAddresses[0])
+		} else if len(sans.EmailAddresses) > 0 {
+			cn = sans.EmailAddresses[0]
+		} else {
+			return nil, fmt.Errorf("CN和SAN不能为空")
 		}
 	}
 	s, err := GetSqlite()
@@ -206,30 +221,44 @@ func ListLeafCerts(caId int64, search string, p, limit int64) ([]map[string]inte
 	var count int64
 	var limits []int64
 
-	if p >= 0 && limit >= 0 {
+	sql := `
+	select leaf.*, ca.name as ca_name, ca.cn as ca_cn 
+	from leaf
+	left join ca on leaf.ca_id = ca.id
+	where 1=1
+`
+	// 拼接查询条件
+	var params []interface{}
+	if caId > 0 {
+		sql += " and leaf.ca_id = ?"
+		params = append(params, caId)
+	}
+	if search != "" {
+		sql += " and (leaf.cn like ? or leaf.san like ?)"
+		params = append(params, "%"+search+"%", "%"+search+"%")
+	}
+	sql += " order by leaf.create_time desc"
+	sqlCount := "select count(id) as count from (" + sql + ")"
+	if p > 0 && limit > 0 {
 		limits = []int64{0, limit}
 		if p > 1 {
 			limits[0] = (p - 1) * limit
 			limits[1] = limit
 		}
+		sql += fmt.Sprintf(" limit %d offset %d", limits[1], limits[0])
+	}
+	data, err = s.Query(sql, params...)
+	if err != nil {
+		return data, 0, err
+	}
+	countResult, err := s.Query(sqlCount, params...)
+	if err != nil {
+		return data, 0, err
+	}
+	if len(countResult) > 0 {
+		count = countResult[0]["count"].(int64)
 	}
 
-	if caId > 0 && search != "" {
-		data, err = s.Where("ca_id=? and (cn like ? or san like ?)", []interface{}{caId, "%" + search + "%", "%" + search + "%"}).Limit(limits).Order("create_time", "desc").Select()
-		count, err = s.Where("ca_id=? and (cn like ? or san like ?)", []interface{}{caId, "%" + search + "%", "%" + search + "%"}).Limit(limits).Order("create_time", "desc").Count()
-	} else if caId > 0 {
-		data, err = s.Where("ca_id=?", []interface{}{caId}).Limit(limits).Order("create_time", "desc").Select()
-		count, err = s.Where("ca_id=?", []interface{}{caId}).Limit(limits).Order("create_time", "desc").Count()
-	} else if search != "" {
-		data, err = s.Where("cn like ? or san like ?", []interface{}{"%" + search + "%", "%" + search + "%"}).Limit(limits).Order("create_time", "desc").Select()
-		count, err = s.Where("cn like ? or san like ?", []interface{}{"%" + search + "%", "%" + search + "%"}).Limit(limits).Order("create_time", "desc").Count()
-	} else {
-		data, err = s.Limit(limits).Order("create_time", "desc").Select()
-		count, err = s.Limit(limits).Order("create_time", "desc").Count()
-	}
-	if err != nil {
-		return data, int(count), err
-	}
 	return data, int(count), nil
 }
 
