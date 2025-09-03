@@ -87,7 +87,7 @@ export default defineComponent({
         </div>
         <div class={styles.flowContainer}>
           {/* 左侧流程容器 */}
-          <div class="flex min-w-0" >
+          <div class="flex min-w-0">
             {/* 流程容器*/}
             <div
               class={styles.flowProcess}
@@ -98,24 +98,24 @@ export default defineComponent({
               {/* 流程结束节点  */}
               <EndNode />
             </div>
-            {/*  缩放控制区 */}
-            <div class={styles.flowZoom}>
-              <div class={styles.flowZoomIcon} onClick={() => handleZoom(1)}>
-                <SvgIcon
-                  icon="subtract"
-                  class={`${flowZoom.value === 50 ? styles.disabled : ""}`}
-                  color="#5a5e66"
-                />
-              </div>
-              <span>{flowZoom.value}%</span>
-              <div class={styles.flowZoomIcon} onClick={() => handleZoom(2)}>
-                <SvgIcon
-                  icon="plus"
-                  class={`${flowZoom.value === 300 ? styles.disabled : ""}`}
-                  color="#5a5e66"
-                />
-              </div>
-            </div>
+          </div>
+        </div>
+        {/*  缩放控制区 */}
+        <div class={styles.flowZoom}>
+          <div class={styles.flowZoomIcon} onClick={() => handleZoom(1)}>
+            <SvgIcon
+              icon="subtract"
+              class={`${flowZoom.value === 50 ? styles.disabled : ""}`}
+              color="#5a5e66"
+            />
+          </div>
+          <span>{flowZoom.value}%</span>
+          <div class={styles.flowZoomIcon} onClick={() => handleZoom(2)}>
+            <SvgIcon
+              icon="plus"
+              class={`${flowZoom.value === 300 ? styles.disabled : ""}`}
+              color="#5a5e66"
+            />
           </div>
         </div>
         {/* 保留原有插槽 */}

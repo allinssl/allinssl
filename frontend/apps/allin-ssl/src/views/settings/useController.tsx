@@ -12,7 +12,6 @@ import { clearCookie, clearSession } from "@baota/utils/browser";
 import { useError } from "@baota/hooks/error";
 import { $t } from "@locales/index";
 import { useStore } from "./useStore";
-import { downloadData } from "@/api/setting";
 
 import EmailChannelModel from "./components/channel/EmailChannelModel";
 import FeishuChannelModel from "./components/channel/FeishuChannelModel";
@@ -131,13 +130,14 @@ export const useController = () => {
 	 */
 	const handleDownloadData = async () => {
 		try {
-			const url = await downloadData();
-			window.open(url, "_blank");
+      const link = document.createElement("a");
+      link.href = "/v1/setting/download_data";
+      link.target = "_blank";
+      link.click();
 		} catch (error) {
 			handleError(error);
 		}
 	};
-
   /**
    * 打开添加邮箱通知渠道弹窗
    * @function openAddEmailChannelModal

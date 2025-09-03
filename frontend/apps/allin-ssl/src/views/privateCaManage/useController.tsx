@@ -10,7 +10,7 @@ import {
 import { useError } from "@baota/hooks/error";
 import { useStore } from './useStore';
 import type { PrivateCaItem } from './types';
-import { getCaList, downloadCaCert, deleteCa as deleteCaApi, createRootCa, createIntermediateCa } from '@/api/ca';
+import { getCaList, deleteCa as deleteCaApi, createRootCa, createIntermediateCa } from '@/api/ca';
 import type { GetCaListParams } from '@/types/ca';
 import { onMounted } from 'vue';
 import AddCaModal from './components/AddCaModal';
@@ -292,9 +292,10 @@ export const useController = () => {
 	 */
 	const handleDownload = (row: PrivateCaItem) => {
 		try {
-			const downloadUrl = downloadCaCert({ id: row.id.toString(), type: 'ca' });
-			console.log('download_url', downloadUrl);
-			window.open(downloadUrl, '_blank');
+      const link = document.createElement("a");
+      link.href = `/v1/private_ca/download_cert?id=${row.id.toString()}&type=ca`;
+      link.target = "_blank";
+      link.click();
 		} catch (error: any) {
 			handleError(error);
 		}

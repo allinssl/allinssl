@@ -156,27 +156,6 @@ export interface DeleteCaResponse {
 }
 
 /**
- * 下载CA证书请求参数
- */
-export interface DownloadCaCertParams {
-	/** CA ID */
-	id: string;
-	/** 下载类型：ca-证书，key-私钥 */
-	type: 'ca' | 'leaf';
-}
-
-/**
- * 下载CA证书响应数据
- */
-export interface DownloadCaCertResponse {
-	code: number;
-	message: string;
-	status: boolean;
-	/** 下载文件数据 */
-	data: string;
-}
-
-/**
  * 创建叶子证书请求参数
  */
 export interface CreateLeafCertParams {

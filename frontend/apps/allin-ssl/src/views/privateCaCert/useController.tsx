@@ -23,8 +23,8 @@ import type {
 	KeyLengthOption,
 	ValidityUnit
 } from './types';
-import { createLeafCert, deleteLeafCert, downloadCaCert } from '@/api/ca';
-import type { CreateLeafCertParams, DeleteLeafCertParams, DownloadCaCertParams } from '@/types/ca';
+import { createLeafCert, deleteLeafCert } from '@/api/ca';
+import type { CreateLeafCertParams, DeleteLeafCertParams } from '@/types/ca';
 import type { GetLeafCertListParams } from '@/types/ca';
 
 const { handleError } = useError();
@@ -261,11 +261,10 @@ export const useController = () => {
   // 下载证书
   const handleDownload = (cert: CertItem) => {
     try {
-      const downloadUrl = downloadCaCert({
-        id: cert.id.toString(),
-        type: "leaf",
-      } as DownloadCaCertParams);
-      window.open(downloadUrl, "_blank");
+      const link = document.createElement("a");
+      link.href = `/v1/private_ca/download_cert?id=${cert.id.toString()}&type=leaf`;
+      link.target = "_blank";
+      link.click();
     } catch (error) {
       handleError(error);
     }

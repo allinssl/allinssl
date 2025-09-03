@@ -116,27 +116,3 @@ export const getVersion = (
     "/v1/setting/get_version",
     params
   );
-
-/**
- * @description 获取下载数据的URL
- * @returns {string} 拼接好的下载URL
- */
-export const downloadData = (): string => {
-  const apiParams = createApiToken();
-  const finalParams = isDev() ? { ...apiParams } : {};
-  const searchParams = new URLSearchParams();
-  if (finalParams) {
-    Object.entries(finalParams).forEach(([key, value]) => {
-      if (value !== undefined && value !== null) {
-        searchParams.append(key, String(value));
-      }
-    });
-  }
-
-  const queryString = searchParams.toString();
-  const baseUrl = isDev() ? "/api" : "/";
-  const fullUrl = queryString
-    ? `${baseUrl}/v1/setting/download_data?${queryString}`
-    : `${baseUrl}/v1/setting/download_data`;
-  return fullUrl;
-};

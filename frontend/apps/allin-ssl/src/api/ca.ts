@@ -12,8 +12,6 @@ import type {
 	GetCaListResponse,
 	DeleteCaParams,
 	DeleteCaResponse,
-	DownloadCaCertParams,
-	DownloadCaCertResponse,
 	CreateLeafCertParams,
 	CreateLeafCertResponse,
 	GetLeafCertListParams,
@@ -22,8 +20,7 @@ import type {
 	DeleteLeafCertResponse,
 } from '@/types/ca'
 
-import { useApi, createApiToken } from "@api/index";
-import { isDev } from '@baota/utils/browser';
+import { useApi } from "@api/index";
 
 /**
  * @description 创建根证书
@@ -56,31 +53,6 @@ export const getCaList = (params?: GetCaListParams): useAxiosReturn<GetCaListRes
  */
 export const deleteCa = (params?: DeleteCaParams): useAxiosReturn<DeleteCaResponse, DeleteCaParams> =>
 	useApi<DeleteCaResponse, DeleteCaParams>('/v1/private_ca/del_ca', params)
-
-/**
- * @description 获取下载CA证书的URL
- * @param {DownloadCaCertParams} [params] 请求参数
- * @returns {string} 拼接好的下载URL
- */
-export const downloadCaCert = (params?: DownloadCaCertParams): string => {
-	const apiParams = createApiToken()
-	const finalParams = isDev() ? { ...(params || {}), ...apiParams } : params || {}
-	
-	// 构建查询字符串
-	const searchParams = new URLSearchParams()
-	if (finalParams) {
-		Object.entries(finalParams).forEach(([key, value]) => {
-			if (value !== undefined && value !== null) {
-				searchParams.append(key, String(value))
-			}
-		})
-	}
-	
-	const queryString = searchParams.toString()
-	const baseUrl = isDev() ? '/api' : '/'
-	const fullUrl = queryString ? `${baseUrl}/v1/private_ca/download_cert?${queryString}` : `${baseUrl}/v1/private_ca/download_cert`
-	return fullUrl
-}
 
 /**
  * @description 创建叶子证书

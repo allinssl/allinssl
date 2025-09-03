@@ -8,7 +8,6 @@ import {
 	deleteReport,
 	addReport,
 	testReport,
-	downloadData,
 } from '@/api/setting'
 import type {
 	SaveSettingParams,
