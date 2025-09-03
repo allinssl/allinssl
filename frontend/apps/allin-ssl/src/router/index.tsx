@@ -8,10 +8,9 @@ console.log(routeGroup, routes)
 
 // 创建路由
 const router = useCreateRouter({
-	routes: routeGroup,
+	routes:routeGroup,
 	history: createWebHistory(),
 })
-
 // 全局路由守卫
 useRouterEach(router)
 

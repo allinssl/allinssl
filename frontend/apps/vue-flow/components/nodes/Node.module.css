@@ -1,0 +1,230 @@
+.node {
+  border-radius: 5px;
+  width: 240px;
+  font-size: 14px;
+  color: #374151;
+  position: relative;
+  transition: all 0.2s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-height: 120px;
+  height: auto;
+}
+
+.nodeHeader {
+  width: 100%;
+  display: flex;
+  position: relative;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 10px;
+  color: white;
+  box-sizing: border-box;
+  border-top-left-radius: 5px;
+  border-top-right-radius: 5px;
+  min-height: 40px;
+}
+
+.nodeIcon {
+  font-size: 20px;
+  margin-right: 8px;
+}
+
+.nodeLabel {
+  font-weight: 500;
+  max-width: 180px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-align: center;
+}
+
+.nodeBody {
+  width: 100%;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  background-color: white;
+  border-radius: 5px;
+  color: #5a5e66;
+  box-sizing: border-box;
+  min-height: 60px;
+  position: relative;
+}
+
+.nodeMessage {
+  font-size: 12px;
+  color: #6b7280;
+  margin-top: 4px;
+  text-align: center;
+}
+
+.handle {
+  width: 10px;
+  height: 10px;
+  background-color: #64748b;
+  border: 2px solid white;
+}
+
+.handle-top {
+  top: -5px;
+}
+
+.handle-bottom {
+  bottom: -5px;
+}
+
+/* 添加节点按钮 */
+.addNodeBtn {
+  position: absolute;
+  bottom: -15px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 30px;
+  height: 30px;
+  background-color: #fff;
+  border: 2px solid #1e83e9;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 10;
+  color: #1e83e9;
+  font-size: 18px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  transition: all 0.2s ease;
+}
+
+.addNodeBtn:hover {
+  background-color: #1e83e9;
+  color: white;
+  transform: translateX(-50%) scale(1.1);
+}
+
+/* 添加节点选项菜单 */
+.nodeMenu {
+  position: absolute;
+  top: 40px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 180px;
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  z-index: 9999;
+  overflow: hidden;
+  flex-direction: column;
+}
+
+.menuItem {
+  padding: 8px 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.menuItem:hover {
+  background-color: #f3f4f6;
+}
+
+.menuItemIcon {
+  font-size: 16px;
+  width: 20px;
+  text-align: center;
+}
+
+.menuItemLabel {
+  font-size: 12px;
+  font-weight: 500;
+}
+
+/* 节点交互样式 */
+.nodeClickable {
+  cursor: pointer;
+}
+
+.nodeClickable:hover::after {
+  content: '点击配置';
+  position: absolute;
+  top: -20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: rgba(0, 0, 0, 0.7);
+  color: white;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 10px;
+  white-space: nowrap;
+}
+
+/* 节点类型样式 */
+.startNode .nodeHeader {
+  background-color: #1e83e9;
+}
+
+.endNode .nodeHeader {
+  background-color: #7855ce;
+}
+
+.uploadNode .nodeHeader {
+  background-color: #10b981;
+}
+
+.deployNode .nodeHeader {
+  background-color: #f97316;
+}
+
+.notifyNode .nodeHeader {
+  background-color: #ef4444;
+}
+
+.applyNode .nodeHeader {
+  background-color: #6366f1;
+}
+
+.normalNode .nodeHeader {
+  background-color: #64748b;
+}
+
+.branchNode .nodeHeader {
+  background-color: #597ef7;
+}
+
+.nodeStatus {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  margin-top: 8px;
+}
+
+.statusItem {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.statusLabel {
+  font-size: 12px;
+  color: #6b7280;
+}
+
+.statusDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.handleSuccess {
+  background-color: #10b981;
+  left: 20%;
+}
+
+.handleFailure {
+  background-color: #ef4444;
+  left: 80%;
+} 

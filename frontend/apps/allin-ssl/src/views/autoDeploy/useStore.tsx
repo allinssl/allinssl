@@ -6,6 +6,7 @@ import {
 	updateWorkflowExecType,
 	enableWorkflow,
 	stopWorkflow,
+	addWorkflow,
 } from '@/api/workflow'
 import { getEabList, addEab, deleteEab, updateEab } from '@/api/access'
 import { useError } from '@baota/hooks/error'
@@ -135,6 +136,22 @@ export const useWorkflowStore = defineStore('workflow-store', () => {
 	}
 
 	/**
+	 * 复制工作流
+	 * @description 复制指定的工作流配置
+	 * @param {WorkflowItem} workflow - 工作流对象
+	 * @returns {Promise<boolean>} 是否复制成功
+	 */
+	const copyExistingWorkflow = async (workflow: WorkflowItem) => {
+		try {
+			const { message, fetch } = addWorkflow(workflow);
+			message.value = true
+			await fetch()
+		} catch (error) {
+			handleError(error).default('复制工作流失败')
+		}
+	}
+
+	/**
 	 * 删除工作流
 	 * @description 删除指定的工作流配置
 	 * @param {number} id - 工作流ID
@@ -251,6 +268,7 @@ export const useWorkflowStore = defineStore('workflow-store', () => {
 		fetchWorkflowHistory,
 		deleteExistingWorkflow,
 		executeExistingWorkflow,
+		copyExistingWorkflow,
 		stopExistingWorkflow,
 		setWorkflowActive,
 		setWorkflowExecType,

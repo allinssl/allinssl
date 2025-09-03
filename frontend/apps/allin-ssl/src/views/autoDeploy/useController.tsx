@@ -44,6 +44,7 @@ const {
 	updateExistingEab,
 	deleteExistingEab,
 	resetCaForm,
+	copyExistingWorkflow,
 } = useStore()
 const { isEdit, workDefalutNodeData, resetWorkflowData, workflowData, detectionRefresh } = useWorkflowViewStore()
 const { handleError } = useError()
@@ -82,293 +83,353 @@ const statusCol = <T extends Record<string, any>>(key: string, title: string): T
  * @function useController
  */
 export const useController = () => {
-	// 获取当前路由
-	const route = useRoute()
-	// 获取路由实例
-	const router = useRouter()
+  // 获取当前路由
+  const route = useRoute();
+  // 获取路由实例
+  const router = useRouter();
 
-	// 判断是否为子路由
-	const hasChildRoutes = computed(() => route.path !== '/auto-deploy')
+  // 判断是否为子路由
+  const hasChildRoutes = computed(() => route.path !== "/auto-deploy");
 
-	/**
-	 * @description 创建表格列配置
-	 * @returns {DataTableColumn<WorkflowItem>[]} 返回表格列配置数组
-	 */
-	const createColumns = (): DataTableColumn<WorkflowItem>[] => [
-		{
-			title: $t('t_0_1745215914686'),
-			key: 'name',
-			width: 200,
-			ellipsis: {
-				tooltip: true,
-			},
-		},
-		{
-			title: $t('t_1_1746590060448'),
-			key: 'type',
-			width: 100,
-			render: (row: WorkflowItem) => (
-				<NSpace>
-					<NSwitch
-						size="small"
-						v-model:value={row.exec_type}
-						onUpdate:value={() => {
-							handleSetWorkflowExecType(row)
-						}}
-						checkedValue={'auto'}
-						uncheckedValue={'manual'}
-					/>
-					<span>{row.exec_type === 'auto' ? $t('t_2_1745215915397') : $t('t_3_1745215914237')}</span>
-				</NSpace>
-			),
-		},
-		{
-			title: $t('t_7_1745215914189'),
-			key: 'created_at',
-			width: 180,
-			render: (row: WorkflowItem) => row.create_time || '-',
-		},
-		{
-			title: $t('t_1_1750129254278'),
-			key: 'last_run_time',
-			width: 180,
-			render: (row: WorkflowItem) => row.last_run_time || '-',
-		},
-		statusCol<WorkflowItem>('last_run_status', $t('t_2_1750129253921')),
-		{
-			title: $t('t_8_1745215914610'),
-			key: 'actions',
-			fixed: 'right',
-			align: 'right',
-			width: 220,
-			render: (row: WorkflowItem) => (
-				<NSpace justify="end">
-					<NButton size="tiny" strong secondary type="primary" onClick={() => handleViewHistory(row)}>
-						{$t('t_9_1745215914666')}
-					</NButton>
-					<NButton size="tiny" strong secondary type="primary" onClick={() => handleExecuteWorkflow(row)}>
-						{$t('t_10_1745215914342')}
-					</NButton>
-					<NButton size="tiny" strong secondary type="primary" onClick={() => handleEditWorkflow(row)}>
-						{$t('t_11_1745215915429')}
-					</NButton>
-					<NButton size="tiny" strong secondary type="error" onClick={() => handleDeleteWorkflow(row)}>
-						{$t('t_12_1745215914312')}
-					</NButton>
-				</NSpace>
-			),
-		},
-	]
+  /**
+   * @description 创建表格列配置
+   * @returns {DataTableColumn<WorkflowItem>[]} 返回表格列配置数组
+   */
+  const createColumns = (): DataTableColumn<WorkflowItem>[] => [
+    {
+      title: $t("t_0_1745215914686"),
+      key: "name",
+      width: 200,
+      ellipsis: {
+        tooltip: true,
+      },
+    },
+    {
+      title: $t("t_1_1746590060448"),
+      key: "type",
+      width: 100,
+      render: (row: WorkflowItem) => (
+        <NSpace>
+          <NSwitch
+            size="small"
+            v-model:value={row.exec_type}
+            onUpdate:value={() => {
+              handleSetWorkflowExecType(row);
+            }}
+            checkedValue={"auto"}
+            uncheckedValue={"manual"}
+          />
+          <span>
+            {row.exec_type === "auto"
+              ? $t("t_2_1745215915397")
+              : $t("t_3_1745215914237")}
+          </span>
+        </NSpace>
+      ),
+    },
+    {
+      title: $t("t_7_1745215914189"),
+      key: "created_at",
+      width: 180,
+      render: (row: WorkflowItem) => row.create_time || "-",
+    },
+    {
+      title: $t("t_1_1750129254278"),
+      key: "last_run_time",
+      width: 180,
+      render: (row: WorkflowItem) => row.last_run_time || "-",
+    },
+    statusCol<WorkflowItem>("last_run_status", $t("t_2_1750129253921")),
+    {
+      title: $t("t_8_1745215914610"),
+      key: "actions",
+      fixed: "right",
+      align: "right",
+      width: 220,
+      render: (row: WorkflowItem) => (
+        <NSpace justify="end">
+          <NButton
+            size="tiny"
+            strong
+            secondary
+            type="primary"
+            onClick={() => handleViewHistory(row)}
+          >
+            {$t("t_9_1745215914666")}
+          </NButton>
+          <NButton
+            size="tiny"
+            strong
+            secondary
+            type="primary"
+            onClick={() => handleExecuteWorkflow(row)}
+          >
+            {$t("t_10_1745215914342")}
+          </NButton>
+          <NButton
+            size="tiny"
+            strong
+            secondary
+            type="primary"
+            onClick={() => handleCopyWorkflow(row)}
+          >
+            复制
+          </NButton>
+          <NButton
+            size="tiny"
+            strong
+            secondary
+            type="primary"
+            onClick={() => handleEditWorkflow(row)}
+          >
+            {$t("t_11_1745215915429")}
+          </NButton>
+          <NButton
+            size="tiny"
+            strong
+            secondary
+            type="error"
+            onClick={() => handleDeleteWorkflow(row)}
+          >
+            {$t("t_12_1745215914312")}
+          </NButton>
+        </NSpace>
+      ),
+    },
+  ];
 
-	// 表格实例
-	const { TableComponent, PageComponent, loading, param, fetch } = useTable<WorkflowItem, WorkflowListParams>({
-		config: createColumns(),
-		request: fetchWorkflowList,
-		storage: 'autoDeployPageSize',
-		defaultValue: { p: 1, limit: 10, search: '' },
-		alias: { page: 'p', pageSize: 'limit' },
-		watchValue: ['p', 'limit'],
-	})
+  // 表格实例
+  const { TableComponent, PageComponent, loading, param, fetch } = useTable<
+    WorkflowItem,
+    WorkflowListParams
+  >({
+    config: createColumns(),
+    request: fetchWorkflowList,
+    storage: "autoDeployPageSize",
+    defaultValue: { p: 1, limit: 10, search: "" },
+    alias: { page: "p", pageSize: "limit" },
+    watchValue: ["p", "limit"],
+  });
 
-	// 搜索实例
-	const { SearchComponent } = useSearch({
-		onSearch: (value) => {
-			param.value.search = value
-			fetch()
-		},
-	})
+  // 搜索实例
+  const { SearchComponent } = useSearch({
+    onSearch: (value) => {
+      param.value.search = value;
+      fetch();
+    },
+  });
 
-	// 节流渲染
-	const throttleFn = useThrottleFn(() => {
-		setTimeout(() => {
-			fetch()
-			refreshTable.value = false
-		}, 1000)
-	}, 100)
+  // 节流渲染
+  const throttleFn = useThrottleFn(() => {
+    setTimeout(() => {
+      fetch();
+      refreshTable.value = false;
+    }, 1000);
+  }, 100);
 
-	watch(
-		() => refreshTable.value,
-		(val) => {
-			if (val) throttleFn()
-		},
-	)
+  watch(
+    () => refreshTable.value,
+    (val) => {
+      if (val) throttleFn();
+    }
+  );
 
-	/**
-	 * @description 打开添加工作流弹窗
-	 */
-	const handleAddWorkflow = () => {
-		detectionRefresh.value = true
-		useModal({
-			title: $t('t_5_1746667590676'),
-			component: AddWorkflowModal,
-			footer: true,
-			area: 500,
-			onUpdateShow(show) {
-				if (!show) fetch()
-			},
-		})
-	}
+  /**
+   * @description 打开添加工作流弹窗
+   */
+  const handleAddWorkflow = () => {
+    detectionRefresh.value = true;
+    useModal({
+      title: $t("t_5_1746667590676"),
+      component: AddWorkflowModal,
+      footer: true,
+      area: 500,
+      onUpdateShow(show) {
+        if (!show) fetch();
+      },
+    });
+  };
 
-	/**
-	 * @description 查看工作流执行历史
-	 * @param {number} workflowId - 工作流ID
-	 */
-	const handleViewHistory = async (workflow: WorkflowItem) => {
-		useModal({
-			title: workflow ? `【${workflow.name}】 - ${$t('t_9_1745215914666')}` : $t('t_9_1745215914666'),
-			component: HistoryModal,
-			area: 850,
-			componentProps: { id: workflow.id.toString() },
-		})
-	}
+  /**
+   * @description 查看工作流执行历史
+   * @param {number} workflowId - 工作流ID
+   */
+  const handleViewHistory = async (workflow: WorkflowItem) => {
+    useModal({
+      title: workflow
+        ? `【${workflow.name}】 - ${$t("t_9_1745215914666")}`
+        : $t("t_9_1745215914666"),
+      component: HistoryModal,
+      area: 850,
+      componentProps: { id: workflow.id.toString() },
+    });
+  };
 
-	/**
-	 * @description 执行工作流
-	 * @param {WorkflowItem} workflow - 工作流对象
-	 */
-	const handleExecuteWorkflow = async ({ name, id }: WorkflowItem) => {
-		useDialog({
-			title: $t('t_13_1745215915455'),
-			content: $t('t_2_1745227839794', { name }),
-			onPositiveClick: async () => {
-				await executeExistingWorkflow(id)
-				await fetch()
-			},
-		})
-	}
+  /**
+   * @description 执行工作流
+   * @param {WorkflowItem} workflow - 工作流对象
+   */
+  const handleExecuteWorkflow = async ({ name, id }: WorkflowItem) => {
+    useDialog({
+      title: $t("t_13_1745215915455"),
+      content: $t("t_2_1745227839794", { name }),
+      onPositiveClick: async () => {
+        await executeExistingWorkflow(id);
+        await fetch();
+      },
+    });
+  };
 
-	/**
-	 * @description 设置工作流运行方式
-	 * @param {WorkflowItem} workflow - 工作流对象
-	 */
-	const handleSetWorkflowExecType = ({ id, exec_type }: WorkflowItem) => {
-		useDialog({
-			title: exec_type === 'manual' ? $t('t_2_1745457488661') : $t('t_3_1745457486983'),
-			content: exec_type === 'manual' ? $t('t_4_1745457497303') : $t('t_5_1745457494695'),
-			onPositiveClick: () => setWorkflowExecType({ id, exec_type }),
-			onNegativeClick: () => fetch(),
-			onClose: fetch,
-		})
-	}
+  /**
+   * @description 设置工作流运行方式
+   * @param {WorkflowItem} workflow - 工作流对象
+   */
+  const handleSetWorkflowExecType = ({ id, exec_type }: WorkflowItem) => {
+    useDialog({
+      title:
+        exec_type === "manual"
+          ? $t("t_2_1745457488661")
+          : $t("t_3_1745457486983"),
+      content:
+        exec_type === "manual"
+          ? $t("t_4_1745457497303")
+          : $t("t_5_1745457494695"),
+      onPositiveClick: () => setWorkflowExecType({ id, exec_type }),
+      onNegativeClick: () => fetch(),
+      onClose: fetch,
+    });
+  };
 
-	/**
-	 * @description 切换工作流状态
-	 * @param active - 工作流状态
-	 */
-	const handleChangeActive = ({ id, active }: WorkflowItem) => {
-		useDialog({
-			title: !active ? $t('t_6_1745457487560') : $t('t_7_1745457487185'),
-			content: !active ? $t('t_8_1745457496621') : $t('t_9_1745457500045'),
-			onPositiveClick: () => setWorkflowActive({ id, active }),
-			onNegativeClick: () => fetch(),
-			onClose: () => fetch(),
-		})
-	}
+  /**
+   * @description 切换工作流状态
+   * @param active - 工作流状态
+   */
+  const handleChangeActive = ({ id, active }: WorkflowItem) => {
+    useDialog({
+      title: !active ? $t("t_6_1745457487560") : $t("t_7_1745457487185"),
+      content: !active ? $t("t_8_1745457496621") : $t("t_9_1745457500045"),
+      onPositiveClick: () => setWorkflowActive({ id, active }),
+      onNegativeClick: () => fetch(),
+      onClose: () => fetch(),
+    });
+  };
 
-	/**
-	 * @description 编辑工作流
-	 * @param {WorkflowItem} workflow - 工作流对象
-	 * @todo 实现工作流编辑功能
-	 */
-	const handleEditWorkflow = (workflow: WorkflowItem) => {
-		const content = JSON.parse(workflow.content)
-		isEdit.value = true
-		workflowData.value = {
-			id: workflow.id,
-			name: workflow.name,
-			content: content,
-			exec_type: workflow.exec_type,
-			active: workflow.active,
-		}
-		workDefalutNodeData.value = {
-			id: workflow.id,
-			name: workflow.name,
-			childNode: content,
-		}
-		detectionRefresh.value = true
-		router.push(`/auto-deploy/workflow-view?isEdit=true`)
-	}
+  /**
+   * @description 编辑工作流
+   * @param {WorkflowItem} workflow - 工作流对象
+   * @todo 实现工作流编辑功能
+   */
+  const handleEditWorkflow = (workflow: WorkflowItem) => {
+    const content = JSON.parse(workflow.content);
+    isEdit.value = true;
+    workflowData.value = {
+      id: workflow.id,
+      name: workflow.name,
+      content: content,
+      exec_type: workflow.exec_type,
+      active: workflow.active,
+    };
+    workDefalutNodeData.value = {
+      id: workflow.id,
+      name: workflow.name,
+      childNode: content,
+    };
+    detectionRefresh.value = true;
+    router.push(`/auto-deploy/workflow-view?isEdit=true`);
+  };
 
-	/**
-	 * @description 删除工作流
-	 * @param {WorkflowItem} workflow - 工作流对象
-	 */
-	const handleDeleteWorkflow = (workflow: WorkflowItem) => {
-		useDialog({
-			title: $t('t_16_1745215915209'),
-			content: $t('t_3_1745227841567', { name: workflow.name }),
-			onPositiveClick: async () => {
-				await deleteExistingWorkflow(workflow.id)
-				await fetch()
-			},
-		})
-	}
+  /**
+   * @description 复制工作流
+   * @param {WorkflowItem} workflow - 工作流对象
+   */
+	const handleCopyWorkflow = async (workflow: WorkflowItem) => {
+		console.log(workflow, 'workflow123123123123');
+		const { name, content, exec_type, active, exec_time } = workflow;
+		const params = { name: `${name} - 副本`, content, exec_type, active, exec_time };
+		await copyExistingWorkflow(params as WorkflowItem);
+		await fetch();
+  };
 
-	/**
-	 * @description 检测是否需要添加工作流
-	 */
-	const isDetectionAddWorkflow = () => {
-		const { type } = route.query
-		if (type?.includes('create')) {
-			handleAddWorkflow()
-			router.push({ query: {} })
-		}
-	}
+  /**
+   * @description 删除工作流
+   * @param {WorkflowItem} workflow - 工作流对象
+   */
+  const handleDeleteWorkflow = (workflow: WorkflowItem) => {
+    useDialog({
+      title: $t("t_16_1745215915209"),
+      content: $t("t_3_1745227841567", { name: workflow.name }),
+      onPositiveClick: async () => {
+        await deleteExistingWorkflow(workflow.id);
+        await fetch();
+      },
+    });
+  };
 
-	/**
-	 * @description 检测是否需要打开CA授权管理弹窗
-	 */
-	const isDetectionOpenCAManage = () => {
-		const { type } = route.query
-		if (type?.includes('caManage')) {
-			handleOpenCAManage()
-			router.push({ query: {} })
-		}
-	}
+  /**
+   * @description 检测是否需要添加工作流
+   */
+  const isDetectionAddWorkflow = () => {
+    const { type } = route.query;
+    if (type?.includes("create")) {
+      handleAddWorkflow();
+      router.push({ query: {} });
+    }
+  };
 
-	/**
-	 * @description 检测是否需要打开添加CA授权弹窗
-	 */
-	const isDetectionOpenAddCAForm = () => {
-		const { type } = route.query
-		if (type?.includes('addCAForm')) {
-			handleOpenCAManage({ type: 'addCAForm' })
-			router.push({ query: {} })
-		}
-	}
+  /**
+   * @description 检测是否需要打开CA授权管理弹窗
+   */
+  const isDetectionOpenCAManage = () => {
+    const { type } = route.query;
+    if (type?.includes("caManage")) {
+      handleOpenCAManage();
+      router.push({ query: {} });
+    }
+  };
 
-	/**
-	 * @description 打开CA授权管理弹窗
-	 */
-	const handleOpenCAManage = ({ type }: { type: string } = { type: '' }) => {
-		useModal({
-			title: $t('t_0_1747903670020'),
-			component: CAManageModal,
-			componentProps: { type },
-			area: 780,
-		})
-	}
+  /**
+   * @description 检测是否需要打开添加CA授权弹窗
+   */
+  const isDetectionOpenAddCAForm = () => {
+    const { type } = route.query;
+    if (type?.includes("addCAForm")) {
+      handleOpenCAManage({ type: "addCAForm" });
+      router.push({ query: {} });
+    }
+  };
 
-	return {
-		TableComponent,
-		PageComponent,
-		SearchComponent,
-		isDetectionAddWorkflow, // 检测是否需要添加工作流
-		isDetectionOpenCAManage, // 检测是否需要打开CA授权管理弹窗
-		isDetectionOpenAddCAForm, // 检测是否需要打开添加CA授权弹窗
-		handleViewHistory, // 查看工作流执行历史
-		handleAddWorkflow, // 打开添加工作流弹窗
-		handleChangeActive, // 切换工作流状态
-		handleSetWorkflowExecType, // 设置工作流运行方式
-		handleExecuteWorkflow, // 执行工作流
-		handleEditWorkflow, // 编辑工作流
-		handleDeleteWorkflow, // 删除工作流
-		handleOpenCAManage, // 打开CA授权管理弹窗
-		hasChildRoutes,
-		fetch,
-		loading,
-		param,
-	}
+  /**
+   * @description 打开CA授权管理弹窗
+   */
+  const handleOpenCAManage = ({ type }: { type: string } = { type: "" }) => {
+    useModal({
+      title: $t("t_0_1747903670020"),
+      component: CAManageModal,
+      componentProps: { type },
+      area: 780,
+    });
+  };
+
+  return {
+    TableComponent,
+    PageComponent,
+    SearchComponent,
+    isDetectionAddWorkflow, // 检测是否需要添加工作流
+    isDetectionOpenCAManage, // 检测是否需要打开CA授权管理弹窗
+    isDetectionOpenAddCAForm, // 检测是否需要打开添加CA授权弹窗
+    handleViewHistory, // 查看工作流执行历史
+    handleAddWorkflow, // 打开添加工作流弹窗
+    handleChangeActive, // 切换工作流状态
+    handleSetWorkflowExecType, // 设置工作流运行方式
+    handleExecuteWorkflow, // 执行工作流
+    handleEditWorkflow, // 编辑工作流
+    handleDeleteWorkflow, // 删除工作流
+    handleOpenCAManage, // 打开CA授权管理弹窗
+    hasChildRoutes,
+    fetch,
+    loading,
+    param,
+  };
 }
 
 /**

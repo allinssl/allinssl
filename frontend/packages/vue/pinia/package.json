@@ -38,8 +38,8 @@
 		}
 	},
 	"dependencies": {
-		"pinia": "^2.3.0",
-		"pinia-plugin-persistedstate": "^4.2.0"
+		"pinia": "^3.0.3",
+		"pinia-plugin-persistedstate": "^4.5.0"
 	},
 	"devDependencies": {
 		"@baota/eslint": "workspace:*",

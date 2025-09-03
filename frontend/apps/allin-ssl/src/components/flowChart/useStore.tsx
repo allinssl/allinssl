@@ -263,56 +263,61 @@ export const useFlowStore = defineStore('flow-store', () => {
 	 * @returns 符合条件的节点数组 [{name: string, id: string}]
 	 */
 	const findApplyUploadNodesUp = (
-		nodeId: string,
-		scanNode: string[] = ['apply', 'upload'],
-	): Array<{ name: string; id: string }> => {
-		const result: Array<{ name: string; id: string }> = []
+    nodeId: string,
+    scanNode: string[] = ["apply", "upload", "private_ca"]
+  ): Array<{ name: string; id: string }> => {
+    const result: Array<{ name: string; id: string }> = [];
 
-		// 递归查找父节点的函数
-		const findParentRecursive = (
-			currentNode: BaseNodeData | BranchNodeData,
-			targetId: string,
-			path: Array<BaseNodeData | BranchNodeData> = [],
-		): Array<BaseNodeData | BranchNodeData> | null => {
-			// 检查当前节点是否为目标节点
-			if (currentNode.id === targetId) {
-				return path
-			}
+    // 递归查找父节点的函数
+    const findParentRecursive = (
+      currentNode: BaseNodeData | BranchNodeData,
+      targetId: string,
+      path: Array<BaseNodeData | BranchNodeData> = []
+    ): Array<BaseNodeData | BranchNodeData> | null => {
+      // 检查当前节点是否为目标节点
+      if (currentNode.id === targetId) {
+        return path;
+      }
 
-			// 检查子节点
-			if (currentNode.childNode) {
-				const newPath = [...path, currentNode]
-				const found = findParentRecursive(currentNode.childNode, targetId, newPath)
-				if (found) return found
-			}
+      // 检查子节点
+      if (currentNode.childNode) {
+        const newPath = [...path, currentNode];
+        const found = findParentRecursive(
+          currentNode.childNode,
+          targetId,
+          newPath
+        );
+        if (found) return found;
+      }
 
-			// 检查条件节点
-			if ((currentNode as BranchNodeData).conditionNodes?.length) {
-				for (const conditionNode of (currentNode as BranchNodeData).conditionNodes) {
-					const newPath = [...path, currentNode]
-					const found = findParentRecursive(conditionNode, targetId, newPath)
-					if (found) return found
-				}
-			}
+      // 检查条件节点
+      if ((currentNode as BranchNodeData).conditionNodes?.length) {
+        for (const conditionNode of (currentNode as BranchNodeData)
+          .conditionNodes) {
+          const newPath = [...path, currentNode];
+          const found = findParentRecursive(conditionNode, targetId, newPath);
+          if (found) return found;
+        }
+      }
 
-			return null
-		}
+      return null;
+    };
 
-		// 从根节点开始查找路径
-		const path = findParentRecursive(flowData.value.childNode, nodeId)
-		// 如果找到路径，筛选出 apply 和 upload 类型的节点
-		if (path) {
-			path.forEach((node) => {
-				if (scanNode.includes(node.type)) {
-					result.push({
-						name: node.name,
-						id: node.id as string,
-					})
-				}
-			})
-		}
-		return result
-	}
+    // 从根节点开始查找路径
+    const path = findParentRecursive(flowData.value.childNode, nodeId);
+    // 如果找到路径，筛选出 apply 和 upload 类型的节点
+    if (path) {
+      path.forEach((node) => {
+        if (scanNode.includes(node.type)) {
+          result.push({
+            name: node.name,
+            id: node.id as string,
+          });
+        }
+      });
+    }
+    return result;
+  };
 
 	/**
 	 * 删除节点
@@ -392,18 +397,19 @@ export const useFlowStore = defineStore('flow-store', () => {
 				} else {
 					const index = (parent as BranchNodeData).conditionNodes.findIndex((n) => n.id === nodeId)
 					if (index !== -1) {
-						if (deep) {
-							// 深度删除，直接移除
-							;(parent as BranchNodeData).conditionNodes.splice(index, 1)
-						} else {
-							// 非深度删除，子节点上移
-							const targetNode = (parent as BranchNodeData).conditionNodes[index]
-							if (targetNode?.childNode) {
-								;(parent as BranchNodeData).conditionNodes[index] = targetNode.childNode
-							} else {
-								;(parent as BranchNodeData).conditionNodes.splice(index, 1)
-							}
-						}
+						// if (deep) {
+						// 	// 深度删除，直接移除
+						// 	;(parent as BranchNodeData).conditionNodes.splice(index, 1)
+						// } else {
+						// 	// 非深度删除，子节点上移
+						// 	const targetNode = (parent as BranchNodeData).conditionNodes[index]
+						// 	if (targetNode?.childNode) {
+						// 		;(parent as BranchNodeData).conditionNodes[index] = targetNode.childNode
+						// 	} else {
+						// 		;(parent as BranchNodeData).conditionNodes.splice(index, 1)
+						// 	}
+						// }
+						(parent as BranchNodeData).conditionNodes.splice(index, 1);
 					}
 				}
 			}

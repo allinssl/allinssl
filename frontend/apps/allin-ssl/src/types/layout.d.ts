@@ -103,14 +103,16 @@ export interface MenuItem {
  * @description 路由名称类型定义
  */
 export type RouteName =
-	| 'logout'
-	| 'settings'
-	| 'home'
-	| 'monitor'
-	| 'certApply'
-	| 'autoDeploy'
-	| 'authApiManage'
-	| 'certManage'
+  | "logout"
+  | "settings"
+  | "home"
+  | "monitor"
+  | "certApply"
+  | "privateCaManage"
+  | "autoDeploy"
+  | "authApiManage"
+  | "certManage"
+  | "privateCaCert";
 
 // 新增类型定义 - 从 useStore.tsx 迁移
 /**

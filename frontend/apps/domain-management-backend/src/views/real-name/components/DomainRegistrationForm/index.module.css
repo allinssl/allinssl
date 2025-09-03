@@ -1,0 +1,266 @@
+/**
+ * 域名备案模板表单样式
+ */
+
+ .domain-registration-form {
+  width: 100%;
+}
+
+.form-card {
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+}
+
+/* 证件上传容器 */
+.id-upload-container {
+  display: flex;
+  gap: 1rem;
+  width: 100%;
+}
+
+.upload-item {
+  flex: 1 1 0%;
+}
+
+.upload-label {
+  margin-bottom: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+/* 增强的上传组件 */
+.enhanced-upload {
+  width: 100%;
+}
+
+.custom-dragger {
+  border: 2px dashed #d1d5db;
+  border-radius: 0.5rem;
+	padding:0;
+  text-align: center;
+  transition-property: color, background-color, border-color;
+  transition-duration: 200ms;
+}
+
+.custom-dragger:hover {
+  border-color: #4ade80;
+  border-width: 2px;  
+  background-color: rgba(74, 222, 128, 0.05);
+}
+
+.upload-content {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  background-color: #f7f7f7;
+	gap: 0.5rem;
+	padding: 16px 0;
+  border-radius: 0.5rem;
+}
+
+.upload-background-image {
+	width: 130px;
+	height: 100px;
+	background-size: 130%;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  z-index: 0;
+  pointer-events: none;
+}
+
+
+
+.upload-icon {
+  display: flex;
+  justify-content: center;
+}
+
+.upload-text {
+  text-align: center;
+}
+
+.upload-tips {
+  margin-top: 0.1rem;
+  text-align: center;
+}
+
+/* 图片预览容器 */
+.preview-container {
+  width: 100%;
+  height: 145px;
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 8px;
+  border: 2px solid #e5e7eb;
+  border-radius: 0.5rem;
+  height: 120px;
+}
+
+/* 预览图片样式 */
+.preview-image {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+
+/* 加载中遮罩层 */
+.upload-loading-overlay,
+.loading-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 0.5rem;
+}
+.upload-loading-overlay{
+	background-color: rgba(255, 255, 255, 0.6); 
+  height: 100%;
+}
+
+/* 重置按钮 */
+.reset-button {
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  z-index: 10;
+  transition: opacity 0.3s;
+  opacity: 0;
+}
+
+.preview-container:hover .reset-button {
+  opacity: 1;
+}
+
+/* 上传提示信息容器 */
+.upload-tips-container {
+  margin-top: 0.75rem;
+}
+
+.tips-content {
+  margin-top: 0.25rem;
+  margin-bottom: 0.25rem;
+}
+
+.tip-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+}
+
+/* 响应式布局 */
+@media (max-width: 768px) {
+  .id-upload-container {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+  
+  .upload-item {
+    width: 100%;
+  }
+}
+
+/* 表单项间距调整 */
+
+/* 两列布局 */
+.form-two-columns {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  width: 100%;
+}
+
+.form-column {
+  flex: 1 1 calc(50% - 0.5rem);
+  min-width: 300px;
+}
+
+/* 响应式两列布局 */
+@media (max-width: 992px) {
+  .form-two-columns {
+    flex-direction: column;
+  }
+  
+  .form-column {
+    width: 100%;
+  }
+}
+.form-card :global(.n-form-item) {
+  margin-bottom: 1.5rem;
+}
+
+.form-card :global(.n-form-item:last-child) {
+  margin-bottom: 0;
+}
+
+/* 分割线样式 */
+.form-card :global(.n-divider) {
+  margin-top: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+/* 上传组件样式优化 */
+.enhanced-upload :global(.n-upload-file-list) {
+  margin-top: 0.5rem;
+}
+
+.enhanced-upload :global(.n-upload-file-list .n-upload-file) {
+  border-radius: 0.5rem;
+}
+
+.is-upload :global(.n-upload-trigger--disabled){
+  opacity: 1;
+}
+
+/* 按钮组样式 */
+.form-card :global(.n-space) {
+  flex-wrap: wrap;
+}
+
+/* 预览弹窗样式 */
+.form-card :global(.n-modal-card) {
+  max-width: 42rem;
+}
+
+.form-card :global(.n-scrollbar) {
+  border-radius: 0.25rem;
+}
+
+/* 提示信息样式 */
+.form-card :global(.n-alert) {
+  border-radius: 0.5rem;
+}
+
+.form-card :global(.n-alert .n-alert__content) {
+  font-size: 0.875rem;
+}
+
+/* 级联选择器样式 */
+.form-card :global(.n-cascader) {
+  width: 100%;
+}
+
+/* 开关组件样式 */
+.form-card :global(.n-switch) {
+  flex-shrink: 0;
+}
+
+/* 单选按钮组样式 */
+.form-card :global(.n-radio-group) {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.form-card :global(.n-radio-button) {
+  flex-shrink: 0;
+}

@@ -18,7 +18,7 @@ const useRouterEach = (router: Router) =>
 			loadingBar.start()
 			// 判断当前路由是否存在，如果不存在，则跳转到 404
 			if (!router.hasRoute(to.name as string)) {
-				if (!to.path.includes('/404')) return next({ path: '/404' })
+				if (!to.path.includes('404')) return next({ path: '/404' })
 			}
 			next()
 		},

@@ -1,4 +1,4 @@
-import { defineComponent, watch } from 'vue'
+import { defineComponent } from 'vue'
 import {
 	NConfigProvider,
 	NDialogProvider,

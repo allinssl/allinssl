@@ -115,13 +115,13 @@ const useAxios = <T = unknown, Z = Record<string, unknown>>(instance: HttpClient
 
 	// 显示响应消息
 	const showResponseMessage = () => {
+		console.log('dataRef.value', dataRef.value)
 		if (!messageRef.value || !dataRef.value) return
 		if (dataRef.value && typeof dataRef.value === 'object') {
-			if ('status' in dataRef.value && 'message' in dataRef.value) {
+			if ('status' in dataRef.value && ('message' in dataRef.value || 'msg' in dataRef.value)) {
 				const { request } = useMessage() // 消息提示
-				console.log(dataRef.value, '+++++++')
-				const { status, message } = dataRef.value
-				if (message) request({ status, message })
+				const { status, message, msg } = dataRef.value
+				if (message || msg) request({ status, message: message || msg })
 			}
 		}
 	}

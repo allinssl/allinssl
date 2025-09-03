@@ -11710,5 +11710,22 @@
       "arDZ": "قم بتحميل ملف القالب القياسي، ثم تحريره وتحميله للوارد"
     },
     "timestamp": "2025-07-17T03:49:10.341Z"
+  },
+  "私有CA": {
+    "text": "私有CA",
+    "key": "t_0_1756203020746",
+    "translations": {
+      "zhCN": "私有CA",
+      "zhTW": "私有CA",
+      "enUS": "Private CA",
+      "jaJP": "プライベートCA",
+      "koKR": "개인 CA",
+      "ruRU": "Приватный УЦ",
+      "ptBR": "CA Privado",
+      "frFR": "AC privée",
+      "esAR": "CA privado",
+      "arDZ": "الهيئة الخاصة"
+    },
+    "timestamp": "2025-08-26T10:10:20.746Z"
   }
 }

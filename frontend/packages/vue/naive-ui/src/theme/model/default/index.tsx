@@ -15,7 +15,7 @@ const defaultLight: ThemeTemplate = {
 	title: '默认亮色主题', // 主题名称
 	themeOverrides: {
 		common: {
-			borderRadius: '0.6rem', // 圆角
+			// borderRadius: '0.6rem', // 圆角
 			// primaryColor: '#4caf50', // 主色
 			// primaryColorHover: '#20a53a', // 主色悬停
 			// primaryColorPressed: '#157f3a', // 主色按下

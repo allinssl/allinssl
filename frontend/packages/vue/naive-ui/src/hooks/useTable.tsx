@@ -2,7 +2,6 @@ import { ref, shallowRef, ShallowRef, Ref, effectScope, watch, onUnmounted, isRe
 import {
 	type DataTableProps,
 	type DataTableSlots,
-	type DataTableColumns,
 	type PaginationProps,
 	type PaginationSlots,
 	NDataTable,
@@ -298,6 +297,7 @@ export default function useTable<T = Record<string, any>, Z extends Record<strin
 					list: rdata[tableAlias.value.list as keyof TableResponse<T>] as [],
 					total: rdata[tableAlias.value.total as keyof TableResponse<T>] as number,
 				}
+				console.log(data.value)
 				// 如果需要重置页码，则重置页码
 				if (resetPage) (param.value as Record<string, unknown>)[page] = 1
 				return data.value
@@ -335,6 +335,11 @@ export default function useTable<T = Record<string, any>, Z extends Record<strin
 				// 始终使用动态计算的精确宽度，确保无浏览器自动拉伸
 				mergedProps.scrollX = dynamicScrollX.value
 			}
+
+			watch(data.value, (newVal) => {
+				console.log(data.value)
+			})
+
 
 			return (
 				<NDataTable

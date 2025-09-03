@@ -9,4 +9,5 @@ export const EXECUTE_RESULT_CONDITION = 'execute_result_condition' // 执行结�
 export const UPLOAD = 'upload' // 上传节点
 export const NOTIFY = 'notify' // 通知节点
 export const APPLY = 'apply' // 申请节点
+export const PRIVATE_CA = 'private_ca' // 私有CA节点
 export const DEPLOY = 'deploy' // 部署节点

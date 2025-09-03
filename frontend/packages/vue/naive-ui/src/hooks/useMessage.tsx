@@ -48,7 +48,6 @@ export function useMessage(): MessageApiExtended {
 				...options,
 				onAfterLeave: () => {
 					options.onAfterLeave?.()
-					unmount()
 				},
 			}
 			return method(content, newOptions)
@@ -67,7 +66,6 @@ export function useMessage(): MessageApiExtended {
 				...options,
 				onAfterLeave: () => {
 					options.onAfterLeave?.()
-					unmount()
 				},
 			}
 

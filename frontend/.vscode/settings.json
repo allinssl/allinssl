@@ -7,5 +7,6 @@
   "i18n-ally.localesPaths": [
     "apps/cloud-control/src/locales/model",
     "apps/allin-ssl/src/locales/model"
-  ]
+  ],
+  "kiroAgent.configureMCP": "Disabled"
 }

@@ -44,7 +44,6 @@ import {
 	type FormProps,
 	type FormItemProps,
 	type CheckboxGroupProps,
-	SwitchSlots,
 } from 'naive-ui'
 import { DownOutlined, UpOutlined } from '@vicons/antd'
 import { translation, TranslationModule, type TranslationLocale } from '../locals/translation'
@@ -152,7 +151,10 @@ const createFormItem = <T extends keyof typeof componentMap>(
 	type: T,
 	props: FormElementPropsMap[T],
 	itemAttrs?: FormItemProps,
-	slot?: { prefix?: Array<() => JSX.Element>; suffix?: Array<() => JSX.Element> },
+	slot?: {
+		prefix?: Array<() => JSX.Element>
+		suffix?: Array<() => JSX.Element>
+	},
 ) => {
 	const { prefixElements, suffixElements } = processFormItemSlots(slot)
 	return {
@@ -184,12 +186,12 @@ export default function useForm<T>(options: UseFormOptions<T>) {
 	// 创建 effectScope 用于管理响应式副作用
 	const scope = effectScope()
 	return scope.run(() => {
-		const { config, request, defaultValue = {}, rules: rulesVal } = options
+		const { config, request, defaultValue = ref({}), rules: rulesVal } = options
 
 		// 表单响应式状态
 		const loading = ref(false) // 表单加载状态
 		const formRef = ref<FormInst | null>(null) // 表单实例引用
-		const data = isRef(defaultValue) ? (defaultValue as Ref<T>) : ref(defaultValue as T) // 使用ref而不是reactive，避免响应丢失
+		const data: Ref<T> = isRef(defaultValue) ? (defaultValue as Ref<T>) : (ref(defaultValue) as Ref<T>) // 使用ref而不是reactive，避免响应丢失
 		const formConfig = ref<FormConfig>(config) // 表单配置
 		const rules = shallowRef({ ...rulesVal }) // 表单验证规则
 
@@ -371,16 +373,19 @@ export default function useForm<T>(options: UseFormOptions<T>) {
 		/**
 		 * 提交表单
 		 * 验证表单并调用提交请求函数
+		 * @param
 		 * @returns 返回一个Promise，解析为请求的响应结果
 		 */
-		const fetch = async () => {
+		const fetch = async (isValid = true) => {
 			if (!request) return
 			try {
 				loading.value = true
+				if (!isValid) return await request(data.value, formRef)
 				const valid = await validate()
 				if (!valid) throw new Error('表单验证失败')
 				return await request(data.value, formRef)
 			} catch (error) {
+				console.log(error)
 				throw new Error('表单验证失败')
 			} finally {
 				loading.value = false
@@ -432,7 +437,10 @@ const useFormInput = (
 	key: string,
 	other?: InputProps & { class?: string },
 	itemAttrs?: FormItemProps & { class?: string },
-	slot?: { prefix?: Array<() => JSX.Element>; suffix?: Array<() => JSX.Element> },
+	slot?: {
+		prefix?: Array<() => JSX.Element>
+		suffix?: Array<() => JSX.Element>
+	},
 ) => createFormItem(label, key, 'input', { placeholder: hookT('placeholder', label), ...other }, itemAttrs, slot)
 
 /**
@@ -449,7 +457,10 @@ const useFormTextarea = (
 	key: string,
 	other?: InputProps & { class?: string },
 	itemAttrs?: FormItemProps & { class?: string },
-	slot?: { prefix?: Array<() => JSX.Element>; suffix?: Array<() => JSX.Element> },
+	slot?: {
+		prefix?: Array<() => JSX.Element>
+		suffix?: Array<() => JSX.Element>
+	},
 ) =>
 	createFormItem(
 		label,
@@ -474,7 +485,10 @@ const useFormPassword = (
 	key: string,
 	other?: InputProps & { class?: string },
 	itemAttrs?: FormItemProps & { class?: string },
-	slot?: { prefix?: Array<() => JSX.Element>; suffix?: Array<() => JSX.Element> },
+	slot?: {
+		prefix?: Array<() => JSX.Element>
+		suffix?: Array<() => JSX.Element>
+	},
 ) =>
 	createFormItem(
 		label,
@@ -499,7 +513,10 @@ const useFormInputNumber = (
 	key: string,
 	other?: InputNumberProps & { class?: string },
 	itemAttrs?: FormItemProps & { class?: string },
-	slot?: { prefix?: Array<() => JSX.Element>; suffix?: Array<() => JSX.Element> },
+	slot?: {
+		prefix?: Array<() => JSX.Element>
+		suffix?: Array<() => JSX.Element>
+	},
 ) => createFormItem(label, key, 'inputNumber', { showButton: false, ...other }, itemAttrs, slot)
 
 /**
@@ -593,7 +610,10 @@ const useFormSelect = (
 	options: SelectOption[],
 	other?: SelectProps & { class?: string },
 	itemAttrs?: FormItemProps & { class?: string },
-	slot?: { prefix?: Array<() => JSX.Element>; suffix?: Array<() => JSX.Element> },
+	slot?: {
+		prefix?: Array<() => JSX.Element>
+		suffix?: Array<() => JSX.Element>
+	},
 ) => {
 	return createFormItem(label, key, 'select', { options, ...other }, itemAttrs, slot)
 }
@@ -632,7 +652,10 @@ const useFormRadio = (
 	options: RadioOptionItem[],
 	other?: RadioProps & { class?: string },
 	itemAttrs?: FormItemProps & { class?: string },
-	slot?: { prefix?: Array<() => JSX.Element>; suffix?: Array<() => JSX.Element> },
+	slot?: {
+		prefix?: Array<() => JSX.Element>
+		suffix?: Array<() => JSX.Element>
+	},
 ) => {
 	return createFormItem(label, key, 'radio', { options, ...other }, itemAttrs, slot || {})
 }
@@ -648,7 +671,10 @@ const useFormRadioButton = (
 	options: RadioOptionItem[],
 	other?: RadioButtonProps & { class?: string },
 	itemAttrs?: FormItemProps & { class?: string },
-	slot?: { prefix?: Array<() => JSX.Element>; suffix?: Array<() => JSX.Element> },
+	slot?: {
+		prefix?: Array<() => JSX.Element>
+		suffix?: Array<() => JSX.Element>
+	},
 ) => {
 	return createFormItem(label, key, 'radioButton', { options, ...other }, itemAttrs, slot || {})
 }
@@ -663,7 +689,10 @@ const useFormCheckbox = (
 	options: CheckboxOptionItem[],
 	other?: Partial<CheckboxGroupProps> & { class?: string },
 	itemAttrs?: FormItemProps & { class?: string },
-	slot?: { prefix?: Array<() => JSX.Element>; suffix?: Array<() => JSX.Element> },
+	slot?: {
+		prefix?: Array<() => JSX.Element>
+		suffix?: Array<() => JSX.Element>
+	},
 ) => {
 	return createFormItem(label, key, 'checkbox', { options, ...other } as any, itemAttrs, slot || {})
 }
@@ -678,7 +707,10 @@ const useFormSwitch = (
 	key: string,
 	other?: SwitchProps & { class?: string },
 	itemAttrs?: FormItemProps & { class?: string },
-	slot?: { prefix?: Array<() => JSX.Element>; suffix?: Array<() => JSX.Element> },
+	slot?: {
+		prefix?: Array<() => JSX.Element>
+		suffix?: Array<() => JSX.Element>
+	},
 ) => {
 	return createFormItem(label, key, 'switch', { ...other }, itemAttrs, slot)
 }
@@ -693,7 +725,10 @@ const useFormDatepicker = (
 	key: string,
 	other?: DatePickerProps & { class?: string },
 	itemAttrs?: FormItemProps & { class?: string },
-	slot?: { prefix?: Array<() => JSX.Element>; suffix?: Array<() => JSX.Element> },
+	slot?: {
+		prefix?: Array<() => JSX.Element>
+		suffix?: Array<() => JSX.Element>
+	},
 ) => {
 	return createFormItem(label, key, 'datepicker', { ...other }, itemAttrs, slot)
 }
@@ -708,7 +743,10 @@ const useFormTimepicker = (
 	key: string,
 	other?: TimePickerProps & { class?: string },
 	itemAttrs?: FormItemProps & { class?: string },
-	slot?: { prefix?: Array<() => JSX.Element>; suffix?: Array<() => JSX.Element> },
+	slot?: {
+		prefix?: Array<() => JSX.Element>
+		suffix?: Array<() => JSX.Element>
+	},
 ) => {
 	return createFormItem(label, key, 'timepicker', { ...other }, itemAttrs, slot)
 }
@@ -723,7 +761,10 @@ const useFormSlider = (
 	key: string,
 	other?: SliderProps & { class?: string },
 	itemAttrs?: FormItemProps & { class?: string },
-	slot?: { prefix?: Array<() => JSX.Element>; suffix?: Array<() => JSX.Element> },
+	slot?: {
+		prefix?: Array<() => JSX.Element>
+		suffix?: Array<() => JSX.Element>
+	},
 ) => {
 	return createFormItem(label, key, 'slider', { ...other }, itemAttrs, slot)
 }

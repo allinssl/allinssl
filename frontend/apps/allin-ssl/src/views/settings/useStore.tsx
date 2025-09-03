@@ -8,6 +8,7 @@ import {
 	deleteReport,
 	addReport,
 	testReport,
+	downloadData,
 } from '@/api/setting'
 import type {
 	SaveSettingParams,
@@ -277,7 +278,6 @@ export const useSettingsStore = defineStore('settings-store', () => {
 		// 方法
 		fetchGeneralSettings,
 		saveGeneralSettings,
-
 		fetchNotifyChannels,
 		addReportChannel,
 		updateReportChannel,

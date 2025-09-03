@@ -4,5 +4,5 @@ packages:
   - "packages/vue/*" # 包
   - "packages/svelte/*" # 包
   - "packages/react/*" # 包
-  - "environment/*" # 环境
+  - "env/*" # 环境
   - "plugin/*" # 插件

@@ -1,0 +1,494 @@
+<html lang="zh-CN">
+
+<head>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<title>域名注册 - 1分钟拥有专属域名</title>
+	<link href="/font-awesome.min.css" rel="stylesheet" />
+</head>
+
+<body>
+	<div class="font-sans bg-white text-secondary">
+		<!-- 首屏Banner -->
+		<section class="pt-28 pb-20 md:pt-36 md:pb-28 bg-gradient-to-b">
+			<div class="container mx-auto px-4">
+				<div class="max-w-4xl mx-auto text-center">
+					<h1 class="text-[clamp(2rem,5vw,3.5rem)] font-bold leading-tight text-dark mb-6 animate-fade-in">
+						堡塔<span class="text-primary">域名注册</span>重磅上线！<br />一站式搞定建站访问
+					</h1>
+					<p class="text-[clamp(1rem,2vw,1.25rem)] text-secondary-80 mb-10 max-w-2xl mx-auto">
+						.com低至54元，.cn低至20元！部分后缀新人9.9元注册
+					</p>
+					<!-- 搜索框和按钮 -->
+					<div id="search-section" class="flex flex-col sm:flex-row max-w-3xl mx-auto mb-8 gap-4">
+						<div class="input-container">
+							<input type="text" placeholder="输入您想注册的域名（如：yourbrand）" class="search-input" id="domain-query-input" />
+							<i class="fa fa-times-circle clear-input-button" id="clear-input-button" title="清空输入"></i>
+						<div class="mt-2 text-left"><a class="text-primary hover:text-primary" style="text-decoration: none;" href="/domain/domain/transfer">域名转入 .cn地址31元</a></div>
+						</div>
+						<div class="flex gap-4">
+							<a id="domain-query-button"
+								class="primary-action-button text-lg hover:shadow-primary-30 hover:-translate-y-1">立即查询</a>
+							<a id="cart-button"
+								class="cart-action-button text-lg border-2 border-green-500 text-green-500 hover:bg-green-50 hover:-translate-y-1"
+								style="display: none;" href="/new/domain-query-register.html" title="查看购物车">
+								<i class="fa fa-shopping-cart mr-2"></i>
+								<span>购物车</span>
+							</a>
+						</div>
+					</div>
+				</div>
+
+				<!-- 价格表格 -->
+				<div class="mt-24 md:mt-36 mx-auto max-w-[900px]">
+					<div class="text-center mb-8">
+						<h2 class="text-clamp font-bold text-dark mb-4" style="margin-top: 60px">域名价格一览表</h2>
+						<div class="text-secondary-80 max-w-2xl mx-auto px-4">
+							透明的价格体系，无隐藏费用，让您明明白白消费，更多服务<span
+								class="contact-service-trigger border-b border-dashed border-primary cursor-pointer relative">请联系客服咨询
+								<!-- 二维码悬浮层 -->
+								<div
+									class="qr-code-popup absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 opacity-0 invisible transition-all duration-300 z-50">
+									<div class="bg-white rounded-lg shadow-xl p-4 border border-gray-200">
+										<div class="text-center mb-2">
+											<p class="text-sm font-medium text-gray-700">扫码联系客服</p>
+										</div>
+										<!-- 二维码SVG -->
+										<img src="https://www.bt.cn/Public/new/images/wechat-qrcode.png" alt="二维码"
+											class="w-24 h-24 mx-auto" />
+										<div class="text-center mt-2">
+											<p class="text-xs text-gray-500">微信客服</p>
+										</div>
+										<!-- 小箭头 -->
+										<div
+											class="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-white">
+										</div>
+									</div>
+								</div>
+							</span>
+						</div>
+					</div>
+
+					<div class="overflow-x-auto px-4 md:px-0">
+						<!-- 现代化价格表格 -->
+						<div class="modern-price-table bg-white overflow-hidden shadow-lg">
+							<!-- 表头 -->
+							<div class="price-table-header bg-gradient-to-r from-primary to-green-600 text-white py-4 px-4">
+								<div class="grid grid-cols-4 gap-4 text-center">
+									<div class="text-sm md:text-base font-semibold">域名后缀</div>
+									<div class="text-sm md:text-base font-semibold">首年价格</div>
+									<div class="text-sm md:text-base font-semibold">续费价格</div>
+									<div class="text-sm md:text-base font-semibold">转入续费</div>
+								</div>
+							</div>
+							<!-- 表格内容 -->
+							<div class="price-table-body" id="price-table-body">
+								<!-- 动态生成的价格表格内容 -->
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</section>
+
+		<!-- 为什么选择我们 -->
+		<section id="features" class="py-20 bg-gray-50">
+			<div class="container mx-auto px-4">
+				<div class="text-center mb-16">
+					<h2 class="text-clamp font-bold text-dark mb-4">我们的优势</h2>
+				</div>
+
+				<div class="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8 max-w-6xl mx-auto px-4 m">
+					<!-- 特点1 -->
+					<div class="bg-light rounded-xl p-8 card-shadow hover-lift">
+						<div class="w-12 h-12 bg-primary-10 rounded-full flex items-center justify-center mb-4">
+							<i class="fa fa-bolt text-primary text-xl"></i>
+						</div>
+						<h3 class="text-lg font-bold mb-2 text-dark">极速注册，实时生效</h3>
+						<p class="text-secondary-80 text-sm">
+							"查询→购买→使用"在已实名的情况下全流程最快1分钟搞定，付款即拥有域名所有权，支持立即解析绑定网站。ps:实名认证最快5分钟内搞定审核！
+						</p>
+					</div>
+
+					<!-- 特点2 -->
+					<div class="bg-light rounded-xl p-8 card-shadow hover-lift">
+						<div class="w-12 h-12 bg-primary-10 rounded-full flex items-center justify-center mb-4">
+							<i class="fa fa-dollar text-primary text-xl"></i>
+						</div>
+						<h3 class="text-lg font-bold mb-2 text-dark">更低的价格，让好域名触手可及</h3>
+						<p class="text-secondary-80 text-sm">
+							我们的域名注册费用极具性价比，几乎是市场上最低的价格，让创业和建站负担更低。
+						</p>
+					</div>
+
+					<!-- 特点3 -->
+					<div class="bg-light rounded-xl p-8 card-shadow hover-lift">
+						<div class="w-12 h-12 bg-primary-10 rounded-full flex items-center justify-center mb-4">
+							<i class="fa fa-tag text-primary text-xl"></i>
+						</div>
+						<h3 class="text-lg font-bold mb-2 text-dark">全程无套路，价格透明到底</h3>
+						<p class="text-secondary-80 text-sm">
+							首年价格、续费价格、转入费用全部明示，无隐藏手续费，无强制捆绑消费，买不买、续不续，你说了算。
+						</p>
+					</div>
+
+					<!-- 特点4 -->
+					<div class="bg-light rounded-xl p-8 card-shadow hover-lift">
+						<div class="w-12 h-12 bg-primary-10 rounded-full flex items-center justify-center mb-4">
+							<i class="fa fa-server text-primary text-xl"></i>
+						</div>
+						<h3 class="text-lg font-bold mb-2 text-dark">协同宝塔面板，一站式完成建站与SSL签发</h3>
+						<p class="text-secondary-80 text-sm">
+							与宝塔面板深度集成，域名注册后可一键部署网站、自动申请SSL证书，省去繁琐配置，让您专注于网站内容创作。
+						</p>
+					</div>
+				</div>
+			</div>
+		</section>
+
+		<!-- 注册流程 -->
+		<section id="process" class="py-20 bg-white">
+			<div class="container mx-auto px-4">
+				<div class="text-center mb-16">
+					<h2 class="text-clamp font-bold text-dark mb-4">注册域名，就像网购一样简单</h2>
+				</div>
+
+				<div class="max-w-6xl mx-auto px-4 md:px-0">
+					<!-- 移动端步骤切换器 -->
+					<div class="md:hidden" id="step-switcher">
+						<div class="relative bg-light rounded-2xl p-6">
+							<!-- 步骤指示器 -->
+							<div class="flex justify-center mb-6">
+								<div class="flex space-x-2">
+									<div class="step-indicator w-2 h-2 rounded-full bg-primary cursor-pointer" data-step="0"></div>
+									<div class="step-indicator w-2 h-2 rounded-full bg-gray-300 cursor-pointer" data-step="1"></div>
+									<div class="step-indicator w-2 h-2 rounded-full bg-gray-300 cursor-pointer" data-step="2"></div>
+									<div class="step-indicator w-2 h-2 rounded-full bg-gray-300 cursor-pointer" data-step="3"></div>
+									<div class="step-indicator w-2 h-2 rounded-full bg-gray-300 cursor-pointer" data-step="4"></div>
+								</div>
+							</div>
+
+							<!-- 步骤内容容器 -->
+							<div class="step-container relative overflow-hidden" style="height: 160px">
+								<div class="step-wrapper flex transition-transform duration-300 ease-in-out" style="width: 500%">
+									<div class="step-content text-center flex-shrink-0" style="width: 20%" id="mobile-step-0">
+										<div
+											class="w-16 h-16 bg-primary text-white rounded-full flex items-center justify-center mb-4 font-bold text-xl shadow-lg mx-auto">
+											1
+										</div>
+										<h3 class="font-bold text-dark mb-2 text-lg">查域名</h3>
+										<p class="text-sm text-secondary-80">输入你想要的域名，点击查询是否可注册</p>
+									</div>
+
+									<div class="step-content text-center flex-shrink-0" style="width: 20%" id="mobile-step-1">
+										<div
+											class="w-16 h-16 bg-primary text-white rounded-full flex items-center justify-center mb-4 font-bold text-xl shadow-lg mx-auto">
+											2
+										</div>
+										<h3 class="font-bold text-dark mb-2 text-lg">选后缀</h3>
+										<p class="text-sm text-secondary-80">从可注册列表中挑选心仪的后缀</p>
+									</div>
+
+									<div class="step-content text-center flex-shrink-0" style="width: 20%" id="mobile-step-2">
+										<div
+											class="w-16 h-16 bg-primary text-white rounded-full flex items-center justify-center mb-4 font-bold text-xl shadow-lg mx-auto">
+											3
+										</div>
+										<h3 class="font-bold text-dark mb-2 text-lg">填信息</h3>
+										<p class="text-sm text-secondary-80">填写简单个人/企业信息，全程加密</p>
+									</div>
+
+									<div class="step-content text-center flex-shrink-0" style="width: 20%" id="mobile-step-3">
+										<div
+											class="w-16 h-16 bg-primary text-white rounded-full flex items-center justify-center mb-4 font-bold text-xl shadow-lg mx-auto">
+											4
+										</div>
+										<h3 class="font-bold text-dark mb-2 text-lg">付个钱</h3>
+										<p class="text-sm text-secondary-80">支持多种支付方式，10秒完成支付</p>
+									</div>
+
+									<div class="step-content text-center flex-shrink-0" style="width: 20%" id="mobile-step-4">
+										<div
+											class="w-16 h-16 bg-primary text-white rounded-full flex items-center justify-center mb-4 font-bold text-xl shadow-lg mx-auto">
+											5
+										</div>
+										<h3 class="font-bold text-dark mb-2 text-lg">用起来</h3>
+										<p class="text-sm text-secondary-80">跳转解析页面，绑定IP即可使用</p>
+									</div>
+								</div>
+							</div>
+
+							<!-- 导航按钮 -->
+							<div class="flex justify-between items-center mt-6">
+								<button
+									class="prev-btn w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center text-gray-400 disabled:opacity-50"
+									disabled aria-label="上一步">
+									<i class="fa fa-chevron-left" aria-hidden="true"></i>
+								</button>
+								<span class="text-sm text-secondary-70" id="step-counter">1 / 5</span>
+								<button class="next-btn w-10 h-10 rounded-full bg-primary text-white flex items-center justify-center"
+									aria-label="下一步">
+									<i class="fa fa-chevron-right" aria-hidden="true"></i>
+								</button>
+							</div>
+						</div>
+					</div>
+
+					<!-- 步骤条 -->
+					<div class="hidden md:block relative">
+						<div class="absolute top-1/2 left-0 right-0 h-1 bg-gray-200 -translate-y-1/2 z-0"></div>
+
+						<div class="grid grid-cols-5 gap-8 relative z-10">
+							<!-- 步骤1 -->
+							<div class="flex flex-row items-center text-center justify-center">
+								<div class="flex flex-col items-center">
+									<div
+										class="w-16 h-16 bg-primary text-white rounded-full flex items-center justify-center mb-4 font-bold text-xl shadow-lg">
+										1
+									</div>
+									<h3 class="font-bold text-dark mb-2 text-base">查域名</h3>
+									<p class="text-sm text-secondary-80 whitespace-pre-line">输入你想要的域名<br />点击查询是否可注册</p>
+								</div>
+							</div>
+
+							<!-- 步骤2 -->
+							<div class="flex flex-row items-center text-center justify-center">
+								<div class="flex flex-col items-center">
+									<div
+										class="w-16 h-16 bg-primary text-white rounded-full flex items-center justify-center mb-4 font-bold text-xl shadow-lg">
+										2
+									</div>
+									<h3 class="font-bold text-dark mb-2 text-base">选后缀</h3>
+									<p class="text-sm text-secondary-80 whitespace-pre-line">从可注册列表中<br />挑选心仪的后缀</p>
+								</div>
+							</div>
+
+							<!-- 步骤3 -->
+							<div class="flex flex-row items-center text-center justify-center">
+								<div class="flex flex-col items-center">
+									<div
+										class="w-16 h-16 bg-primary text-white rounded-full flex items-center justify-center mb-4 font-bold text-xl shadow-lg">
+										3
+									</div>
+									<h3 class="font-bold text-dark mb-2 text-base">填信息</h3>
+									<p class="text-sm text-secondary-80 whitespace-pre-line">填写简单个人/企业信息<br />全程加密</p>
+								</div>
+							</div>
+
+							<!-- 步骤4 -->
+							<div class="flex flex-row items-center text-center justify-center">
+								<div class="flex flex-col items-center">
+									<div
+										class="w-16 h-16 bg-primary text-white rounded-full flex items-center justify-center mb-4 font-bold text-xl shadow-lg">
+										4
+									</div>
+									<h3 class="font-bold text-dark mb-2 text-base">付个钱</h3>
+									<p class="text-sm text-secondary-80 whitespace-pre-line">支持多种支付方式<br />10秒完成支付</p>
+								</div>
+							</div>
+
+							<!-- 步骤5 -->
+							<div class="flex flex-row items-center text-center justify-center">
+								<div class="flex flex-col items-center">
+									<div
+										class="w-16 h-16 bg-primary text-white rounded-full flex items-center justify-center mb-4 font-bold text-xl shadow-lg">
+										5
+									</div>
+									<h3 class="font-bold text-dark mb-2 text-base">用起来</h3>
+									<p class="text-sm text-secondary-80 whitespace-pre-line">跳转解析页面<br />绑定IP即可使用</p>
+								</div>
+							</div>
+						</div>
+					</div>
+
+					<!-- 提示语 -->
+					<div class="text-center mt-12 text-sm text-secondary-70">
+						<p>
+							<i class="fa fa-info-circle text-primary mr-1"></i>
+							全程有引导，新手也能1次搞定，不懂可随时call客服
+						</p>
+					</div>
+				</div>
+			</div>
+		</section>
+
+		<!-- 常见问题 -->
+		<section id="faq" class="py-20 bg-rating">
+			<div class="container mx-auto px-4">
+				<div class="text-center mb-16">
+					<h2 class="text-clamp font-bold text-dark mb-4">这些问题，90%的人都会问</h2>
+				</div>
+
+				<div class="max-w-3xl mx-auto px-4 md:px-0">
+					<!-- FAQ 折叠面板 -->
+					<div class="space-y-3 md:space-y-4">
+						<!-- 问题1 -->
+						<div class="bg-white rounded-xl overflow-hidden shadow-lg">
+							<button
+								class="text-sm faq-toggle w-full cursor-pointer flex justify-between items-center p-6 text-left font-bold text-dark hover:bg-gray-50 transition-colors">
+								<span>域名注册后，能改名字吗？</span>
+								<i class="fa fa-chevron-down text-primary transition-transform duration-300"></i>
+							</button>
+							<div class="faq-content hidden p-6">
+								<p class="text-secondary-80 text-sm">
+									不能直接改，但支持"域名过户"（转给他人）或"重新注册新域名"，建议注册前仔细确认哦。
+								</p>
+							</div>
+						</div>
+
+						<!-- 问题2 -->
+						<div class="bg-white rounded-xl overflow-hidden shadow-lg">
+							<button
+								class="text-sm faq-toggle w-full cursor-pointer flex justify-between items-center p-6 text-left font-bold text-dark hover:bg-gray-50 transition-colors">
+								<span>个人能注册.cn后缀吗？</span>
+								<i class="fa fa-chevron-down text-primary transition-transform duration-300"></i>
+							</button>
+							<div class="faq-content hidden p-6">
+								<p class="text-secondary-80 text-sm">可以，只需提供身份证实名认证，10分钟审核通过，无额外要求。</p>
+							</div>
+						</div>
+
+						<!-- 问题3 -->
+						<div class="bg-white rounded-xl overflow-hidden shadow-lg">
+							<button
+								class="text-sm faq-toggle w-full cursor-pointer flex justify-between items-center p-6 text-left font-bold text-dark hover:bg-gray-50 transition-colors">
+								<span>如果域名到期忘了续费，会怎么样？</span>
+								<i class="fa fa-chevron-down text-primary transition-transform duration-300"></i>
+							</button>
+							<div class="faq-content hidden p-6">
+								<p class="text-secondary-80 text-sm">
+									到期后有30天赎回期，期间可正常续费；超过赎回期未处理，域名会被释放至公共池，可能被他人抢注，所以记得看提醒呀～
+								</p>
+							</div>
+						</div>
+
+						<!-- 问题4 -->
+						<div class="bg-white rounded-xl overflow-hidden shadow-lg">
+							<button
+								class="text-sm faq-toggle w-full cursor-pointer flex justify-between items-center p-6 text-left font-bold text-dark hover:bg-gray-50 transition-colors">
+								<span>注册后不想用了，能退款吗？</span>
+								<i class="fa fa-chevron-down text-primary transition-transform duration-300"></i>
+							</button>
+							<div class="faq-content hidden p-6">
+								<p class="text-secondary-80 text-sm">
+									域名属于即时产品，以最终付款和提交注册成功为准。域名注册成功后将不支持退款，请仔细核对域名。
+								</p>
+							</div>
+						</div>
+						<!-- 问题5 -->
+						<div class="bg-white rounded-xl overflow-hidden shadow-lg">
+							<button
+								class="text-sm faq-toggle w-full cursor-pointer flex justify-between items-center p-6 text-left font-bold text-dark hover:bg-gray-50 transition-colors">
+								<span>域名注册后去哪里备案？</span>
+								<i class="fa fa-chevron-down text-primary transition-transform duration-300"></i>
+							</button>
+							<div class="faq-content hidden p-6">
+								<p class="text-secondary-80 text-sm">
+									域名备案需要在您的网站托管服务商处进行，不是在域名注册商处。请前往您网站部署的云服务商（如阿里云、腾讯云等）的备案管理系统提交备案申请。详情请参考<a class="text-[#20a53a] hover:text-[#20a53a]-800 text-sm underline cursor-pointer" href="https://docs.bt.cn/domain/user-guide/domain-filing" target="_blank" rel="noopener noreferrer">帮助文档</a>
+								</p>
+							</div>
+						</div>
+						<!-- 问题6 -->
+						<div class="bg-white rounded-xl overflow-hidden shadow-lg">
+							<button
+								class="text-sm faq-toggle w-full cursor-pointer flex justify-between items-center p-6 text-left font-bold text-dark hover:bg-gray-50 transition-colors">
+								<span>堡塔怎么转入其他注册商的域名？</span>
+								<i class="fa fa-chevron-down text-primary transition-transform duration-300"></i>
+							</button>
+							<div class="faq-content hidden p-6">
+								<p class="text-secondary-80 text-sm">
+									域名转入需要满足注册满60天、距到期15天以上等条件，在原注册商获取转移密码后，登录堡塔域名控制台提交转入申请并支付费用（含1年续费），通常1-7个工作日完成。详情请参考文档：<a class="text-[#20a53a] hover:text-[#20a53a]-800 text-sm underline cursor-pointer" href="https://docs.bt.cn/domain/user-guide/domain-transfer-in" target="_blank" rel="noopener noreferrer">帮助文档</a>
+								</p>
+							</div>
+						</div>
+						<!-- 问题7 -->
+						<div class="bg-white rounded-xl overflow-hidden shadow-lg">
+							<button
+								class="text-sm faq-toggle w-full cursor-pointer flex justify-between items-center p-6 text-left font-bold text-dark hover:bg-gray-50 transition-colors">
+								<span>域名注册失败了怎么办？</span>
+								<i class="fa fa-chevron-down text-primary transition-transform duration-300"></i>
+							</button>
+							<div class="faq-content hidden p-6">
+								<p class="text-secondary-80 text-sm">
+									域名注册失败通常是因为域名已被注册、信息模板异常、包含敏感词或支付问题等原因，请根据具体错误提示进行相应处理，如仍有问题请联系客服。
+								</p>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</section>
+
+		<!-- 底部行动区 -->
+		<section class="pt-24 md:pt-32 pb-16 md:pb-20">
+			<div class="container mx-auto px-4">
+				<div class="max-w-3xl mx-auto text-center">
+					<h2 class="text-2xl md:text-clamp font-bold text-dark mb-4 md:mb-6" style="padding-top: 60px">
+						使用宝塔注册域名，您的业务上线快人一步
+					</h2>
+					<button id="scroll-to-search-btn"
+						class="primary-action-button inline-block px-8 md:px-10 py-4 md:py-5 text-lg md:text-lg mb-6 md:mb-8">
+						立即查询您的专属域名
+					</button>
+				</div>
+			</div>
+		</section>
+
+		<!-- Notification模板 -->
+		<!-- Notification容器模板 -->
+		<script type="text/template" id="notification-container-template">
+      <div id="{{id}}" class="fixed {{positionClass}} z-{{zIndex}} transform translate-y-8 opacity-0 transition-all duration-300 ease-out">
+      	<!-- Notification内容将动态插入 -->
+      </div>
+    </script>
+
+		<!-- Notification内容模板 -->
+		<script type="text/template" id="notification-content-template">
+      <div class="{{bgClass}} {{textClass}} px-6 py-4 rounded-lg shadow-lg flex items-center min-w-[300px] max-w-[400px]">
+      	<i class="fa {{iconClass}} {{iconColor}} text-xl mr-3 flex-shrink-0"></i>
+      	<div class="flex-1">
+      		{{#if title}}<div class="font-medium mb-1">{{title}}</div>{{#end if}}
+      		<div class="{{#if title}}text-sm{{#else}}font-medium{{#end if}}">{{message}}</div>
+      	</div>
+      	{{#if closable}}
+      	<button class="ml-3 text-white hover:text-gray-200 transition-colors notification-close">
+      		<i class="fa fa-times"></i>
+      	</button>
+      	{{#end if}}
+      </div>
+    </script>
+
+		<!-- 价格表-行模板（供 src/pages/index.ts 的 renderTemplateList 使用） -->
+		<script type="text/template" id="tpl-price-row">
+      <div class="price-row grid grid-cols-4 gap-4 py-4 px-4 hover:bg-gray-50 transition-all duration-200 border-b border-gray-100 last:border-b-0">
+      	<div class="price-cell text-center">
+					<span class="font-medium text-dark text-sm md:text-base">{{suffix}}</span>
+      	</div>
+      	<div class="price-cell text-center">
+      		<div class="price-main text-orange-400 text-sm md:text-base">
+						{{firstYearPrice}}元/首年
+						{{#if isWan}}
+						<span class="text-[10px] text-gray-500">(仅限前十万单)</span>
+						{{#end if}}
+					</div>
+      		<div class="price-original text-gray-400 line-through text-xs mt-1">原价{{originalPrice}}元</div>
+      	</div>
+      	<div class="price-cell text-center">
+      		<div class="price-main text-secondary-70 text-sm md:text-base">{{renewPrice}}元/年</div>
+      		<div class="price-original text-gray-400 line-through text-xs mt-1">原价{{originalPrice}}元</div>
+      	</div>
+      	<div class="price-cell text-center">
+      		<div class="price-main text-secondary-70 text-sm md:text-base">{{transferPrice}}元/年</div>
+      		<div class="price-original text-gray-400 line-through text-xs mt-1">原价{{originalPrice}}元</div>
+      	</div>
+      </div>
+    </script>
+	</div>
+
+	<!-- JavaScript -->
+	<script type="text/javascript" src="/jquery-3.6.0.min.js"></script>
+	<script type="module" src="src/pages/index.ts"></script>
+
+</body>
+
+</html>

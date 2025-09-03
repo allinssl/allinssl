@@ -1,0 +1,1206 @@
+<!doctype html>
+<html lang="zh-CN">
+
+<head>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<title>域名查询结果 - 域名注册</title>
+	<link href="/font-awesome.min.css" rel="stylesheet" />
+	<style id="contact-service-popup-style">
+		.contact-service-trigger .qr-code-popup,
+		.premium-domain-trigger .qr-code-popup {
+			pointer-events: none;
+		}
+
+		.contact-service-trigger:hover .qr-code-popup,
+		.premium-domain-trigger:hover .qr-code-popup {
+			opacity: 1;
+			visibility: visible;
+		}
+	</style>
+</head>
+
+<body>
+	<div class="font-sans bg-light text-secondary">
+		<div class="container-1200 pt-4 pb-16">
+			<div class="flex flex-col lg:flex-row gap-6">
+				<!-- 左侧：域名查询结果 (3/4宽度) -->
+				<div class="w-full lg:w-3/4">
+					<!-- 域名结果列表 -->
+					<section class="bg-white rounded-sm shadow-sm">
+						<div class="flex w-full mb-2">
+							<!-- 搜索框和按钮 -->
+							<div id="search-section" class="flex flex-col sm:flex-row gap-3 w-full">
+								<div class="input-container">
+									<input type="text" value="" placeholder="输入您想注册的域名（如：yourbrand）" class="search-input"
+										id="domain-query-input" />
+									<i class="fa fa-times-circle clear-input-button visible" id="clear-input-button" title="清空输入"></i>
+								</div>
+								<button class="primary-action-button text-lg">重新查询</button>
+							</div>
+						</div>
+						<!-- 筛选器 -->
+						<div class="flex flex-wrap justify-between items-center mb-4 gap-3">
+							<!-- <div class="text-base font-bold text-dark ml-2">域名搜索结果</div> -->
+							<!-- <div class="flex flex-wrap gap-2">
+                <button class="filter-btn active" data-filter="all">全部</button>
+                <button class="filter-btn" data-filter="recommended">推荐</button>
+                <button class="filter-btn" data-filter="popular">热卖</button>
+                <button class="filter-btn" data-filter="discount">特惠</button>
+                <button class="filter-btn" data-filter="cheap">新人特惠</button>
+              </div> -->
+						</div>
+
+						<!-- 域名列表 -->
+						<div id="search-results" class="min-h-50 pb-2">
+							<!-- 空状态提示 -->
+							<div id="empty-state-container" class="text-center py-8 hidden">
+								<div class="text-gray-400 mb-2">
+									<i class="fa fa-search fa-3x"></i>
+								</div>
+								<div class="text-gray-500">赶快搜索你的专属域名吧！</div>
+							</div>
+						</div>
+					</section>
+
+					<!-- 底部行动区 -->
+					<section class="py-8 mt-8 bg-primary-5 rounded-sm-xl shadow-sm">
+						<div class="max-w-3xl mx-auto text-center">
+							<h2 class="text-xl font-bold text-dark mb-4">还没找到满意的域名？</h2>
+							<p class="text-base text-secondary-80 mb-6">尝试其他关键词或联系我们的域名顾问获取专业建议</p>
+
+							<span class="contact-service-trigger relative inline-block mr-4 mb-4">
+								<button
+									class="bg-white border-2 border-primary text-primary hover:bg-primary-5 font-bold px-6 py-3 rounded-sm transition-all cursor-pointer text-lg">
+									<i class="fa fa-headphones mr-2"></i>联系域名顾问
+								</button>
+								<!-- 二维码悬浮层（同 index.html 效果） -->
+								<div
+									class="qr-code-popup absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 opacity-0 invisible transition-all duration-300 z-50">
+									<div class="bg-white rounded-lg shadow-xl p-4 border border-gray-200">
+										<div class="text-center mb-2">
+											<p class="text-sm font-medium text-gray-700">扫码联系客服</p>
+										</div>
+										<img src="https://www.bt.cn/Public/new/images/wechat-qrcode.png" alt="二维码"
+											class="w-24 h-24 mx-auto" />
+										<div class="text-center mt-2">
+											<p class="text-xs text-gray-500">微信客服</p>
+										</div>
+										<div
+											class="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-white">
+										</div>
+									</div>
+								</div>
+							</span>
+							<!-- <button
+                id="requery-bottom"
+                class="bg-primary hover:bg-primary-90 text-white font-bold px-6 py-3 rounded-sm cursor-pointer transition-all shadow-lg hover:shadow-primary-30 hover:-translate-y-1 text-lg mb-4"
+              >
+                重新查询
+              </button> -->
+						</div>
+					</section>
+				</div>
+
+				<!-- 右侧：购物车操作区 (1/4宽度) -->
+				<div class="w-full lg:w-1/4">
+					<div class="sticky top-4 bg-neutral-50 rounded-sm shadow-sm overflow-hidden h-fit z-40 bg-gray-50">
+						<!-- 购物车标题 -->
+						<div class="bg-gray-100 text-dark px-5 py-5 rounded-sm-t">
+							<div class="flex justify-between items-center">
+								<div class="text-[16px] flex items-center text-dark">
+									<i class="fa fa-shopping-cart mr-2 text-primary"></i>我的购物车
+									<span class="cart-counter ml-2">0</span>
+								</div>
+								<button id="clear-cart-button"
+									class="text-secondary-70 cursor-pointer hover:text-danger text-sm py-1 rounded-sm transition-all hidden"
+									title="清空购物车">
+									<i class="fa fa-trash-o mr-1 font-"></i>清空
+								</button>
+							</div>
+						</div>
+
+						<!-- 购物车内容 -->
+						<div class="">
+							<!-- 购物车为空状态 -->
+							<div id="empty-cart" class="py-12 text-center">
+								<i class="fa fa-shopping-cart text-5xl text-gray-200 mb-4"></i>
+								<p class="text-secondary-70 mb-6">购物车还是空的</p>
+								<p class="text-sm text-secondary-60">从左侧选择域名加入购物车</p>
+							</div>
+
+							<!-- 购物车有商品状态 -->
+							<div id="filled-cart" class="hidden">
+								<!-- 添加最大高度和滚动条 -->
+								<div id="cart-items" class="max-h-[480px] overflow-y-auto">
+									<!-- 购物车项目将通过JS动态添加 -->
+								</div>
+
+								<div class="border-t border-t-gray-100 border-t-solid p-4">
+									<!-- 价格汇总 - 左侧平铺布局 -->
+									<div class="flex flex-col flex-wrap items-start gap-2 text-sm">
+										<div class="flex items-center">
+											<span class="text-secondary-80 mr-2">总价:</span>
+											<span id="cart-original-total">¥0</span>，减去
+											<span class="text-secondary-80 mr-2">优惠:</span>
+											<span class="font-medium text-success" id="cart-discount">-¥0</span>
+										</div>
+										<div class="flex items-center">
+											<span class="text-sm text-dark  mr-2">应付金额:</span>
+											<span id="cart-payable" class="text-2xl text-orange-500 font-bold">¥0</span>
+										</div>
+									</div>
+									<button id="checkout-button"
+										class="w-full bg-primary hover:bg-primary-90 text-white font-bold py-3 rounded-sm transition-all cursor-pointer text-lg mt-2">
+										立即购买
+									</button>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- HTML Templates -->
+		<!-- 空状态模板 -->
+		<script type="text/template" id="empty-state-template">
+      <div id="empty-state-container" class="text-center py-8">
+      	<div class="text-gray-400 mb-2">
+      		<i class="{{icon}}"></i>
+      	</div>
+      	<div class="text-gray-500">{{text}}</div>
+      	{{#if hint}}
+      	<div class="text-gray-400 text-sm mt-1">{{hint}}</div>
+      	{{#end if}}
+      </div>
+    </script>
+
+		<!-- 搜索结果项模板 -->
+		<script type="text/template" id="search-result-item-template">
+      {{#each list as item, index}}
+         <div class="bg-white border border-gray-100 border-solid border-b-[transparent] transition-custom relative hover:border-primary {{#if item.isLast}}!border-b border-b-gray-100{{#end if}}">
+        	{{#if item.discountPercent }}
+        	<div class="discount-badge" data-text="省{{item.discountPercent}}%"></div>
+        	{{#end if}}
+        	<div class="flex items-center justify-between p-4 gap-3">
+        		<div class="flex items-center">
+        			<div class="font-bold text-sm mr-4 {{#if item.isRegistered}}line-through text-gray-400{{#end if}}">{{item.domain}}</div>
+        			{{#if item.isRegistered}}
+        			<div class="status-badge text-gray-600 border-gray-800">{{item.statusText}}</div>
+        			{{#end if}}
+        			{{#if item.hasRecommended}}
+        			<div class="status-badge status-badge-recommended">推荐</div>
+        			{{#end if}}
+        			{{#if item.hasPopular}}
+        			<div class="status-badge status-badge-popular">热门</div>
+        			{{#end if}}
+        			{{#if item.hasDiscount}}
+        			<div class="status-badge status-badge-discount">特惠</div>
+        			{{#end if}}
+							{{#if item.hasNew}}
+							<div class="status-badge status-badge-new">新人特惠</div>
+							{{#end if}}
+        		</div>
+						{{#if item.isRegistered}}
+						<!-- 已注册：显示查看WHOIS链接 -->
+						<a href="javascript:void(0)" class="whois-query-btn ml-2 text-primary opacity-60 hover:opacity-100 text-xs underline cursor-pointer" title="查看WHOIS信息" data-domain="{{item.domain}}">
+							<i class="fa fa-search mr-1 text-xs"></i>查看WHOIS
+						</a>
+						{{/if}}
+						
+         		<div class="flex items-center gap-6 {{#if item.isRegistered}}!hidden{{/if}}">
+        			<div class="text-right relative price-tooltip-container">
+        				<div class="flex items-center justify-end price-trigger cursor-pointer">
+        					{{#if item.hasOriginalPrice}}
+        					<span class="text-secondary-60 line-through mr-2 text-xs">{{item.formattedOriginalPrice}}</span>
+        					{{#end if}}
+        					<span class="text-sm text-orange-500">{{item.formattedPrice}}元/首年</span>
+        					<i class="fa fa-caret-down text-gray-400 ml-1 hover:text-primary transition-colors"></i>
+        				</div>
+        				<div class="text-xs text-secondary-60 mr-4">续费{{item.formattedOriginalPrice}}/年</div>
+
+        				<!-- 价格悬浮窗 -->
+								<div class="price-tooltip absolute right-0 top-full bg-white rounded-lg shadow-xl border px-4 py-4 opacity-0 invisible transition-all duration-200 ease-out transform translate-y-1" style="z-index: 9999">
+        					<div class="text-sm font-medium mb-2 text-dark text-center">多年购买价格</div>
+        					<table class="w-full text-xs">
+        						<thead class="border-b border-gray-100">
+        							<tr>
+        								<th class="py-2 px-3 text-left bg-gray-50 text-gray-600 font-medium whitespace-nowrap">类型</th>
+        								<th class="py-2 px-3 text-center bg-gray-50 text-gray-600 font-medium whitespace-nowrap">1年</th>
+        								<th class="py-2 px-3 text-center bg-gray-50 text-gray-600 font-medium whitespace-nowrap">3年</th>
+        								<th class="py-2 px-3 text-center bg-gray-50 text-gray-600 font-medium whitespace-nowrap">5年</th>
+        								<th class="py-2 px-3 text-center bg-gray-50 text-gray-600 font-medium whitespace-nowrap">10年</th>
+        							</tr>
+        						</thead>
+        						<tbody>
+        							<tr class="border-b border-gray-100">
+        								<td class="py-2 px-3 font-medium text-gray-700 whitespace-nowrap">新购</td>
+        								<td class="py-2 px-3 text-center">{{item.formattedPrice}}</td>
+        								<td class="py-2 px-3 text-center">{{item.price3Years}}</td>
+        								<td class="py-2 px-3 text-center">{{item.price5Years}}</td>
+        								<td class="py-2 px-3 text-center border-r border-b border-gray-200">{{item.price10Years}}</td>
+        							</tr>
+        							<tr class="border-b border-gray-100">
+        								<td class="py-2 px-3 font-medium text-gray-700 whitespace-nowrap">续费</td>
+        								<td class="py-2 px-3 text-center">{{item.renewPrice}}</td>
+        								<td class="py-2 px-3 text-center border-r border-b border-gray-200">{{item.renewPrice3Years}}</td>
+        								<td class="py-2 px-3 text-center border-r border-b border-gray-200">{{item.renewPrice5Years}}</td>
+        								<td class="py-2 px-3 text-center">{{item.renewPrice10Years}}</td>
+        							</tr>
+        						</tbody>
+        					</table>
+        				</div>
+        			</div>
+        			<div class="flex gap-2  transition-opacity">
+        				<button class="add-to-cart action-button hover:bg-primary hover:text-white"
+                   data-domain="{{item.domain}}"
+                   data-price="{{item.price}}"
+                   data-original-price="{{item.originalPrice}}"
+                    {{#if item.isInCart}}disabled{{#end if}}
+                   title="{{#if item.isInCart}}点击移除{{#else}}加入购物车{{#end if}}">
+                   <span class="text-xs">{{#if item.isInCart}}已加入购物车{{#else}}加入购物车{{#end if}}</span>
+                 </button>
+        			</div>
+        		</div>
+        	</div>
+         </div>
+      {{#end each}}
+			<p class="text-xs text-secondary-80 my-6 text-center">更多后缀，正在加紧上线中！</p>
+    </script>
+
+		<!-- 查看更多按钮模板 -->
+		<script type="text/template" id="view-more-button-template">
+      <div class="text-center py-4 ">
+      	<button id="show-more-button" class="text-primary hover:text-primary-90 font-medium cursor-pointer">查看更多域名</button>
+      </div>
+    </script>
+
+		<!-- 购物车项目模板 -->
+		<script type="text/template" id="cart-item-template">
+      <div class="border-b border-gray-100 p-3 px-4 mb-1 hover:bg-neutral-100 last:border-b-0">
+      	<div class="flex justify-between items-start">
+      		<div class="flex-1">
+      			<div class="max-w-40 truncate" title="{{domain}}">{{domain}}</div>
+      			<div class="text-sm text-gray-500">
+      				<div class="custom-select year-selector" data-index="{{index}}" data-value="{{years}}" style="width: 80px; display: inline-block;">
+      					<div class="select-display h-[28px] leading-[28px]">
+      						<span class="select-text">{{years}}年</span>
+      						<svg class="select-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" style="width: 12px; height: 12px;">
+      							<polyline points="6,9 12,15 18,9"></polyline>
+      						</svg>
+      					</div>
+      					<!-- 下拉菜单内容由JS动态生成 -->
+      				</div>
+      			</div>
+      		</div>
+      		<div class="text-right">
+      			<div class=" flex items-center"><span class="text-secondary-60 line-through mr-2 text-xs">{{formattedOriginalPrice}}</span>{{formattedPrice}}</div>
+      			<button class="remove-from-cart text-xs text-secondary-80 cursor-pointer hover:text-red-700" data-index="{{index}}">
+      				移除
+      			</button>
+      		</div>
+      	</div>
+      </div>
+    </script>
+
+		<!-- 模板选项模板 -->
+		<script type="text/template" id="template-option-template">
+      <div class="template-option p-2 hover:bg-gray-50 cursor-pointer" data-id="{{id}}">
+      	<div class="font-medium text-sm">{{name}}</div>
+      	<div class="text-xs text-gray-500">{{desc}}</div>
+      	{{#if formattedPrice}}
+      	<div class="text-xs text-primary font-medium mt-1">{{formattedPrice}}</div>
+      	{{#end if}}
+      </div>
+    </script>
+
+		<!-- Modal容器模板 -->
+		<script type="text/template" id="modal-container-template">
+      <div id="{{id}}" class="modal-container-dialog fixed inset-0 bg-black-50  hidden flex items-center justify-center px-5 py-5 {{className}}" style="z-index: {{zIndex}};">
+      	<!-- Modal内容将动态插入 -->
+      </div>
+    </script>
+
+		<!-- Modal内容模板 -->
+		<script type="text/template" id="modal-content-template">
+      <div class="bg-white rounded-sm {{sizeClass}} w-full transform transition-all scale-95 opacity-0 modal-content">
+      	<div class="flex  justify-between items-center p-5 border-b border-gray-100">
+      		<h3 class="text-xl font-bold text-dark">{{title}}</h3>
+      		{{#if closable}}
+      		<button class="cursor-pointer w-7 h-7 items-center justify-center flex text-gray-400 rounded hover:bg-red-50 hover:text-danger text-xl transition-colors modal-close">
+      			<i class="fa fa-close"></i>
+      		</button>
+      		{{#end if}}
+      	</div>
+
+      	<!-- 内容 -->
+      	<div class="modal-body-content p-5 pt-1">
+      		{{content}}
+      	</div>
+
+      	{{#if hasButtons}}
+      	<div class="flex gap-4 p-6 border-t border-gray-100">
+      		{{buttonsHtml}}
+      	</div>
+      	{{#end if}}
+      </div>
+    </script>
+
+		<!-- Modal按钮模板 -->
+		<script type="text/template" id="modal-button-template">
+      <button
+      	{{#if id}}id="{{id}}"{{#end if}}
+      	class="flex-1 py-3 rounded-sm transition-all {{typeClass}} {{className}}"
+      	{{#if onClick}}onclick="{{onClick}}"{{#end if}}
+      >
+      	{{text}}
+      </button>
+    </script>
+
+		<!-- Notification容器模板 -->
+		<script type="text/template" id="notification-container-template">
+      <div id="{{id}}" class="fixed {{positionClass}} transform translate-y-8 opacity-0 transition-all duration-300 ease-out" style="z-index: {{zIndex}};">
+      	<!-- Notification内容将动态插入 -->
+      </div>
+    </script>
+
+		<!-- Notification内容模板 -->
+		<script type="text/template" id="notification-content-template">
+      <div class="{{bgClass}} {{textClass}} px-6 py-4 rounded-lg shadow-lg flex items-center min-w-[300px] max-w-[400px] z-9999">
+      	<i class="fa {{iconClass}} {{iconColor}} text-xl mr-3 flex-shrink-0"></i>
+      	<div class="flex-1">
+      		{{#if title}}<div class="font-medium mb-1">{{title}}</div>{{#end if}}
+      		<div class="{{#if title}}text-sm{{#else}}font-medium{{#end if}}">{{message}}</div>
+      	</div>
+      	{{#if closable}}
+      	<button class="ml-3 text-white text-xl hover:text-gray-200 transition-colors notification-close cursor-pointer">
+      		<i class="fa fa-times"></i>
+      	</button>
+      	{{#end if}}
+      </div>
+    </script>
+
+		<!-- 购买弹窗模板选择器模板 -->
+		<script type="text/template" id="buy-modal-template-selector-template">
+      <div class="mt-4">
+      	<p class="text-sm font-medium mb-2">选择实名模板：</p>
+      	<div class="relative z-50">
+      		<div class="template-selector-modal flex justify-between items-center border rounded-sm p-2 text-sm cursor-pointer">
+      			<span id="modal-selected-template">{{selectedTemplateName}}</span>
+      			<i class="fa fa-chevron-down text-xs text-gray-400"></i>
+      		</div>
+      		<!-- 下拉菜单内容由JS动态生成 -->
+      	</div>
+      </div>
+    </script>
+
+		<!-- 购买弹窗价格信息模板 -->
+		<script type="text/template" id="buy-modal-price-info-template">
+      <div class="mt-4 px-5 py-5 bg-light rounded-sm">
+      	<div class="flex justify-between mb-2">
+      		<span class="text-secondary-80">域名原价</span>
+      		<span>{{formattedOriginalPrice}}</span>
+      	</div>
+      	{{#if hasDiscount}}
+      	<div class="flex justify-between mb-2">
+      		<span class="text-secondary-80">优惠</span>
+      		<span class="text-success">{{formattedDiscount}}</span>
+      	</div>
+      	{{#end if}}
+      	<div class="flex justify-between font-bold pt-2 border-t border-gray-100">
+      		<span>实付金额</span>
+      		<span>{{formattedPrice}}</span>
+      	</div>
+      </div>
+    </script>
+
+		<!-- 购买弹窗警告信息模板 -->
+		<script type="text/template" id="buy-modal-warning-template">
+      <div class="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded-sm">
+      	<p class="text-sm text-gray-700">
+      		域名属于即时产品，以最终付款和提交注册成功为准。域名注册成功后将<span><strong>不支持退款</strong></span>，请仔细核对域名。
+      	</p>
+      </div>
+    </script>
+
+		<!-- 购买弹窗完整内容模板 -->
+		<script type="text/template" id="buy-modal-content-template">
+      <p class="mb-2">您确定要购买以下域名吗？</p>
+      <div class="font-medium text-lg mb-4">{{domain}}</div>
+      {{templateSelectorHtml}}
+      {{priceInfoHtml}}
+      {{warningHtml}}
+    </script>
+
+		<!-- 支付弹窗购物车商品项模板 -->
+		<script type="text/template" id="payment-cart-item-template">
+      <div class="cart-item" data-item-id="{{index}}">
+      	<div class="cart-item-content">
+      		<!-- 左侧：选择框和商品信息 -->
+      		<div class="cart-item-left">
+      			<div class="custom-checkbox-wrapper">
+      				<div
+      					class="custom-checkbox item-checkbox {{#if selected}}checked{{#end if}}"
+      					data-index="{{index}}"
+      					data-selected="{{#if selected}}true{{#else}}false{{#end if}}"
+      				>
+      					<div class="checkbox-inner">
+      						<svg class="checkbox-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+      							<polyline points="20,6 9,17 4,12"></polyline>
+      						</svg>
+      					</div>
+      				</div>
+      			</div>
+
+      			<div class="domain-info">
+      				<h4 class="domain-name max-w-90 truncate" title="{{domain}}">{{domain}}</h4>
+      				<p class="domain-suffix">注册域名</p>
+      			</div>
+      		</div>
+
+      		<!-- 中间：选项区域 -->
+      		<div class="cart-item-options">
+      			<!-- 年份选择 -->
+      			<div class="option-group max-w-[120px]">
+      				<label class="option-label">购买年限</label>
+      				<div
+      					class="custom-select year-selector"
+      					data-index="{{index}}"
+      					data-value="{{years}}"
+      				>
+      					<div class="select-display">
+      						<span class="select-text">{{years}}年</span>
+      						<svg class="select-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+      							<polyline points="6,9 12,15 18,9"></polyline>
+      						</svg>
+      					</div>
+      				</div>
+      			</div>
+
+
+      		</div>
+
+      		<!-- 右侧：价格和操作 -->
+      		<div class="cart-item-right">
+      			<div class="price-info">
+      				<div class="unit-price">{{formattedTotalPrice}}/{{years}}年</div>
+      				<div class="total-price">小计: {{formattedUnitPrice}}</div>
+      			</div>
+
+      			<button
+      				class="delete-item-btn"
+      				data-index="{{index}}"
+      				title="删除商品"
+      			>
+      				<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      					<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+      				</svg>
+      			</button>
+      		</div>
+      	</div>
+      </div>
+    </script>
+
+		<!-- 支付弹窗购物车商品列表模板 -->
+		<script type="text/template" id="payment-modal-cart-items-template">
+         <div class="cart-items-container">
+         	<!-- 全选操作栏 -->
+         	<div class="cart-header">
+         		<div class="flex items-center gap-3">
+         			<div class="custom-checkbox-wrapper">
+         				<div id="select-all-items" class="custom-checkbox" data-selected="false">
+         					<div class="checkbox-inner">
+         						<svg class="checkbox-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+         							<polyline points="20,6 9,17 4,12"></polyline>
+         						</svg>
+         					</div>
+         				</div>
+         				<span class="checkbox-label">全选 ({{totalItems}} 件商品)</span>
+         			</div>
+         						<!-- 删除选中功能链接 -->
+						<!-- <a href="#"
+							class="delete-selected-link {{totalItems === 0 ? 'hidden' : ''}} text-red-500 hover:text-red-700 text-sm font-medium transition-colors ml-4"
+							id="delete-selected-link">
+							删除选中
+						</a> -->
+         		</div>
+         	</div>
+
+         	<!-- 商品列表 -->
+         	<div class="cart-items-list" id="cart-items-list">
+         		{{cartItemsHtml}}
+         	</div>
+         </div>
+    </script>
+
+		<!-- 支付弹窗警告信息模板 -->
+		<script type="text/template" id="payment-modal-warning-template">
+      <div class="bg-yellow-50 border border-yellow-200 px-4 py-3 rounded-sm">
+      	<div class="flex items-center">
+      		<div class="flex-shrink-0">
+      			<i class="fa fa-exclamation-triangle text-yellow-400"></i>
+      		</div>
+      		<div class="ml-3">
+      			<p class="text-sm text-gray-700">
+      				域名属于即时产品，以最终付款和提交注册成功为准。域名注册成功后将<span><strong>不支持退款</strong></span>，请仔细核对域名。
+      			</p>
+      		</div>
+      	</div>
+      </div>
+    </script>
+
+		<!-- 支付方式选择模板 -->
+		<script type="text/template" id="payment-method-selector-template">
+      <div class="payment-method-section mb-6">
+        <div class="payment-methods-grid">
+          <!-- 微信支付 -->
+          <div class="payment-method-item {{#if isWechatSelected}}selected{{#end if}}" data-method="wechat">
+            <div class="payment-method-icon">
+              <i class="fa fa-wechat text-green-500 text-2xl"></i>
+            </div>
+            <div class="payment-method-info">
+              <div class="payment-method-name">微信支付</div>
+              <div class="payment-method-desc">使用微信扫码支付</div>
+            </div>
+            <div class="payment-method-radio">
+              <div class="custom-radio {{#if isWechatSelected}}checked{{#end if}}">
+                <div class="radio-inner"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 支付宝支付 -->
+          <div class="payment-method-item {{#if isAlipaySelected}}selected{{#end if}}" data-method="alipay">
+            <div class="payment-method-icon">
+              <i class="fa fa-alipay text-primary-500 text-2xl"></i>
+            </div>
+            <div class="payment-method-info">
+              <div class="payment-method-name">支付宝</div>
+              <div class="payment-method-desc">使用支付宝扫码支付</div>
+            </div>
+            <div class="payment-method-radio">
+              <div class="custom-radio {{#if isAlipaySelected}}checked{{#end if}}">
+                <div class="radio-inner"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 账号余额 -->
+          <div class="payment-method-item {{#if isBalanceSelected}}selected{{#end if}}" data-method="balance">
+            <div class="payment-method-icon">
+              <i class="fa fa-credit-card text-orange-500 text-2xl"></i>
+            </div>
+            <div class="payment-method-info">
+              <div class="payment-method-name">账号余额</div>
+              <div class="payment-method-desc">当前余额：¥{{accountBalance}}</div>
+              {{#if insufficientBalance}}
+              <div class="text-red-500 text-xs mt-1">余额不足，请选择其他支付方式</div>
+              {{#end if}}
+            </div>
+            <div class="payment-method-radio">
+              <div class="custom-radio {{#if isBalanceSelected}}checked{{#end if}} {{#if insufficientBalance}}disabled{{#end if}}">
+                <div class="radio-inner"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </script>
+
+		<!-- 支付弹窗右侧支付区域模板 -->
+		<script type="text/template" id="payment-modal-payment-section-template">
+      <div class="payment-section">
+        <!-- 实名模板选择区域 -->
+        <div class="real-name-section mb-2 px-4 bg-gray-50 rounded-lg border">
+          <div class="flex items-center justify-between mb-3">
+            <h4 class="text-sm font-medium text-gray-800"><span class="text-red-500">*</span>实名认证信息</h4>
+            <div class="flex items-center gap-2">
+              <span class="text-xs text-gray-500">当前仅显示已通过的实名模板</span>
+              <button id="refresh-real-name-templates" class="p-1 rounded hover:bg-gray-200 transition-colors flex items-center cursor-pointer" title="刷新实名模板列表">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-gray-600">
+                  <polyline points="23 4 23 10 17 10"></polyline>
+                  <polyline points="1 20 1 14 7 14"></polyline>
+                  <path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 0 1 3.51 15"></path>
+                </svg>
+								<span class="ml-2">刷新实名列表</span>
+              </button>
+            </div>
+          </div>
+          <div class="real-name-selector-wrapper">
+            <div class="custom-select real-name-template-selector" data-value="{{selectedTemplateId}}">
+              <div class="select-display">
+                <span class="select-text">{{selectedTemplateName}}</span>
+                <svg class="select-arrow" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <polyline points="6,9 12,15 18,9"></polyline>
+                </svg>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 协议确认区域
+        <div class="agreement-section mb-4">
+
+        </div> -->
+
+      	<div class="footer-payment-view flex gap-4 items-center justify-between mt-4">
+          <div class="agreement-pos flex items-center gap-3 px-5">
+            <div id="agreement-checkbox" class="text-sm text-gray-700 cursor-pointer flex">
+              <div class="custom-checkbox mr-2" >
+                <div class="checkbox-inner">
+                  <i class="fa fa-check checkbox-icon" style="display: none;"></i>
+                </div>
+              </div>
+              <div>
+              我已阅读并同意 
+							<a href="https://www.bt.cn/new/agreement_domain_register.html" target="_blank" class="text-primary hover:text-primary-800 text-sm underline cursor-pointer">《宝塔域名注册协议》</a>
+            </div>
+          </div>
+
+          </div>
+      		<!-- 左侧：价格汇总 -->
+      		<div class="flex justify-end">
+      			<div class="price-pos flex flex-row items-center mr-6">
+      				<div class="text-base text-gray-600">
+      					（原价: <span class="text-gray-800 line-through font-medium">{{formattedOriginalTotal}}</span>，
+      				</div>
+      				<div class="text-base text-gray-600">
+      					优惠: <span class="text-green-600 font-medium">-{{formattedDiscount}}</span>）
+      				</div>
+              <div class="text-lg font-bold text-orange-500">
+                应付: {{formattedPayableTotal}}
+              </div>
+      		  </div>
+
+            <!-- 右侧：支付按钮 -->
+            <div class="payment-pos flex-shrink-0 lg:w-auto mr-4">
+              <button id="confirm-payment-btn" disabled class="bg-primary hover:bg-primary-90 text-white font-bold py-3 px-8 rounded-lg transition-all">
+                立即支付
+              </button>
+      		  </div>
+      	</div>
+      </div>
+    </script>
+
+		<!-- 支付弹窗完整内容模板 (上下布局) -->
+		<script type="text/template" id="payment-modal-content-template">
+      <div class="payment-modal-container">
+      	<!-- 头部：风险提示 -->
+      	<div class="payment-header-section">
+      		{{warningHtml}}
+      	</div>
+
+      	<!-- 中部：购物车商品列表 -->
+      	<div class="payment-middle-section">
+      		{{cartItemsHtml}}
+      	</div>
+
+      	<!-- 底部：支付信息 -->
+      	<div class="payment-bottom-section">
+      		{{paymentSectionHtml}}
+      	</div>
+      </div>
+    </script>
+
+		<!-- 支付界面模板 -->
+		<script type="text/template" id="payment-interface-template">
+      <div class="payment-interface-container">
+        <!-- 左侧：订单信息 -->
+        <div class="payment-left-section">
+          <div class="order-summary">
+            <h3 class="text-lg font-bold mb-4 text-gray-800 flex items-center">
+              <i class="fa fa-shopping-cart mr-2 text-primary"></i>订单信息
+            </h3>
+            <div class="order-items">
+              {{orderItemsHtml}}
+            </div>
+            <div class="order-total mt-4 pt-4 border-t border-gray-200">
+              <div class="flex justify-between items-center mb-2">
+                <span class="text-gray-600">原价：</span>
+                <span class="text-gray-800">{{formattedOriginalTotal}}</span>
+              </div>
+              {{#if hasDiscount}}
+              <div class="flex justify-between items-center mb-2">
+                <span class="text-gray-600">优惠：</span>
+                <span class="text-green-600">-{{formattedDiscount}}</span>
+              </div>
+              {{#end if}}
+              <div class="flex justify-between items-center text-lg font-bold">
+                <span class="text-gray-800">应付金额：</span>
+                <span class="text-orange-500">{{formattedPayableTotal}}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 右侧：支付方式 -->
+        <div class="payment-right-section">
+          <div class="payment-methods">
+            <h3 class="text-lg font-bold mb-4 text-gray-800 flex items-center">
+              <i class="fa fa-credit-card mr-2 text-primary"></i>选择支付方式
+            </h3>
+
+            <!-- 分段式支付方式选择器 -->
+            <div class="payment-method-segmented">
+              <div class="segmented-control">
+                <div class="segmented-option {{#if isWechatSelected}}active{{#end if}}" data-method="wechat">
+									<svg t="1754466925204" class="icon payment-icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="10217" width="32" height="32" xmlns:xlink="http://www.w3.org/1999/xlink"><path d="M695.296 346.112c11.776 0 23.552 1.024 34.816 2.048-31.232-146.432-187.904-254.976-366.592-254.976-199.68 0-363.52 136.192-363.52 308.736 0 99.84 54.272 181.76 145.408 245.248l-36.352 109.056L236.032 692.736c45.568 9.216 81.92 18.432 127.488 18.432 11.264 0 22.528-0.512 33.792-1.536-7.168-24.064-11.264-49.664-11.264-76.288 0.512-158.208 136.704-287.232 309.248-287.232zM497.664 240.64c31.232 0 56.32 25.088 56.32 56.32s-25.088 56.32-56.32 56.32-56.32-25.088-56.32-56.32 25.088-56.32 56.32-56.32zM243.2 353.792c-31.232 0-56.32-25.088-56.32-56.32s25.088-56.32 56.32-56.32 56.32 25.088 56.32 56.32-25.088 56.32-56.32 56.32zM1024.512 630.784c0-145.408-145.408-263.68-308.736-263.68-173.056 0-309.248 118.272-309.248 263.68s136.192 263.68 309.248 263.68c36.352 0 72.704-9.216 109.056-18.432l99.84 54.784-27.136-90.624c72.704-54.784 126.976-127.488 126.976-209.408z m-403.456-40.96c-22.016 0-39.936-17.92-39.936-39.936s17.92-39.936 39.936-39.936 39.936 17.92 39.936 39.936-17.92 39.936-39.936 39.936z m199.68 2.56c-22.016 0-39.936-17.92-39.936-39.936s17.92-39.936 39.936-39.936 39.936 17.92 39.936 39.936-17.92 39.936-39.936 39.936z" fill="#69BB64" p-id="10218"></path></svg>
+                  <span>微信支付</span>
+                </div>
+                <div class="segmented-option {{#if isAlipaySelected}}active{{#end if}}" data-method="alipay">
+                  <svg t="1754466895972" class="icon payment-icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="4734" width="32" height="32" xmlns:xlink="http://www.w3.org/1999/xlink"><path d="M1023.795 853.64v6.348a163.807 163.807 0 0 1-163.807 163.807h-696.18A163.807 163.807 0 0 1 0 859.988v-696.18A163.807 163.807 0 0 1 163.807 0h696.181a163.807 163.807 0 0 1 163.807 163.807V853.64z" fill="#009FE9" p-id="4735"></path><path d="M844.836 648.267c-40.952-14.333-95.623-34.809-156.846-57.128a949.058 949.058 0 0 0 90.094-222.573H573.325V307.14h245.711v-43.41l-245.71 2.458V143.33H472.173c-18.223 0-21.704 20.476-21.704 20.476v102.38H204.759v40.952h245.71v61.427H245.712v40.952h409.518a805.522 805.522 0 0 1-64.909 148.246c-128.384-42.795-266.186-77.604-354.233-55.08a213.564 213.564 0 0 0-112.003 63.27c-95.418 116.917-26.21 294.034 175.274 294.034 119.989 0 236.087-67.366 325.771-177.73 134.322 65.932 398.666 176.297 398.666 176.297V701.3s-32.352-4.095-178.96-53.033z m-563.702 144.97c-158.893 0-204.759-124.699-126.336-194.112a191.86 191.86 0 0 1 90.913-46.276c93.575-10.238 189.811 35.629 293.624 86.614-74.941 94.598-166.674 153.774-258.2 153.774z" fill="#FFFFFF" p-id="4736"></path></svg>
+                  <span>支付宝</span>
+                </div>
+                <!-- <div class="segmented-option {{#if isBalanceSelected}}active{{#end if}} {{#if insufficientBalance}}disabled{{#end if}}" data-method="balance">
+                  <img src="src/icons/credit-card.svg" alt="余额支付" class="payment-icon">
+
+                  {{#if insufficientBalance}}
+                  <span class="text-xs text-red-500 ml-1">(余额不足)</span>
+                  {{#else}}
+                  <span>余额支付</span>
+                  {{#end if}}
+                </div> -->
+                <div class="segmented-slider"></div>
+              </div>
+            </div>
+
+            <!-- 二维码显示区域 -->
+            <div class="qr-code-section mt-4 hidden" id="qr-code-section">
+              <div class="qr-code-container">
+                <div class="qr-code-header">
+                  <h4 class="text-base font-medium mb-2" id="qr-code-title">请使用微信扫码支付</h4>
+                  <div class="payment-amount text-2xl font-bold text-orange-500 mb-4">{{formattedPayableTotal}}</div>
+                </div>
+                <div class="qr-code-display">
+                  <div class="qr-code-placeholder" id="qr-code-placeholder">
+                    <div class="qr-code-loading">
+                      <i class="fa fa-spinner fa-spin text-2xl text-gray-400 mb-2"></i>
+                      <div class="text-gray-500 text-sm">正在生成二维码...</div>
+                    </div>
+                  </div>
+                  <div class="qr-code-image" id="qr-code-image" style="display: none;">
+                    <!-- 二维码图片将在这里显示 -->
+                  </div>
+                </div>
+                <div class="qr-code-tips">
+                  <div class="text-gray-500 text-sm text-center mt-4">
+                    <i class="fa fa-info-circle mr-1"></i>
+                    <span id="qr-code-tip">请在手机上打开微信，扫描上方二维码完成支付</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- 余额支付确认区域 -->
+            <div class="balance-payment-section mt-4 hidden flex-1" id="balance-payment-section">
+              <div class="balance-payment-container bg-gray-50 rounded-lg  h-full p-4">
+                <div class="balance-payment-header mb-4">
+                  <h4 class="text-base font-medium mb-2 flex items-center">
+                    <i class="fa fa-wallet text-orange-500 mr-2"></i>余额支付确认
+                  </h4>
+                </div>
+
+                <div class="balance-payment-details">
+                  <div class="user-info-details bg-white rounded border p-3 border-b-1 border-b-gray-50 border-b-solid">
+                    <div class="flex items-center justify-between">
+                      <div class="flex items-center">
+                        <div class="user-avatar w-8 h-8 bg-primary-50 rounded-full flex items-center justify-center text-white font-medium mr-3">
+                          {{userInitial}}
+                        </div>
+                        <div>
+                          <div class="text-gray-600 text-xs">手机号码</div>
+                          <div class="text-gray-800 text-sm font-medium">{{userPhone}}</div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="flex justify-between items-center mb-3 p-3 bg-white rounded border">
+                    <span class="text-gray-600">当前余额：</span>
+                    <span class="font-bold text-green-600">{{accountBalance}}</span>
+                  </div>
+                  <div class="flex justify-between items-center mb-3 p-3 bg-white rounded border">
+                    <span class="text-gray-600">本次消费：</span>
+                    <span class="font-bold text-orange-500">{{formattedPayableTotal}}</span>
+                  </div>
+                  <div class="flex justify-between items-center mb-4 p-3 bg-primary-5 rounded border border-primary-20">
+                    <span class="text-gray-800 font-medium">支付后余额：</span>
+                    <span class="font-bold text-primary">{{remainingBalance}}</span>
+                  </div>
+                </div>
+
+
+                <div class="balance-payment-actions">
+                  <button id="confirm-balance-payment-btn" class="w-full bg-primary hover:bg-primary-90 text-white text-lg font-bold py-3 px-6 rounded transition-all duration-200 disabled:bg-gray-400 disabled:cursor-not-allowed shadow-lg hover:shadow-xl" {{#if insufficientBalance}}disabled{{#end if}}>
+                    {{#if insufficientBalance}}余额不足{{#else}}确认支付{{#end if}}
+                  </button>
+                  {{#if insufficientBalance}}
+                  <button id="recharge-btn" class="w-full bg-orange-500 hover:bg-orange-600 text-white text-base font-medium py-2 px-6 rounded transition-all duration-200 mb-3">
+                    <i class="fa fa-plus mr-2"></i>立即充值
+                  </button>
+                  {{#end if}}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </script>
+
+		<!-- 订单项目模板 -->
+		<script type="text/template" id="order-item-template">
+      <div class="order-item">
+        <div class="flex justify-between items-center p-2">
+          <div class="order-item-info">
+            <div class="font-medium">{{domain}}</div>
+            <div class="text-sm text-gray-500">{{years}}年 · {{templateName}}</div>
+          </div>
+          <div class="order-item-price">
+            <div class="font-medium">{{formattedTotalPrice}}</div>
+          </div>
+        </div>
+      </div>
+    </script>
+
+		<!-- 订单成功页面模板 -->
+		<script type="text/template" id="order-success-template">
+      <div class="order-success-container">
+        <!-- 成功图标和标题 -->
+        <div class="success-header text-center mb-8">
+          <div class="success-icon mb-4">
+            <i class="fa fa-check-circle text-6xl text-green-500"></i>
+          </div>
+          <h2 class="text-2xl font-bold text-gray-800 mb-2">支付成功！</h2>
+          <p class="text-gray-600">您的域名订单已成功创建，感谢您的购买</p>
+        </div>
+
+        <!-- 订单信息 -->
+        <div class="order-info-section bg-gray-50 rounded-lg p-6 mb-6">
+          <div class="flex justify-between items-center mb-4">
+            <h3 class="text-lg font-bold text-gray-800">订单详情</h3>
+            <span class="text-sm text-gray-500">订单号：{{orderNumber}}</span>
+          </div>
+
+          <!-- 域名列表 -->
+          <div class="domain-list max-h-40 overflow-y-auto">
+            {{#each domains as item,index}}
+            <div class="domain-item flex justify-between items-center py-3 border-b border-gray-200 last:border-b-0">
+              <div class="domain-info">
+                <div class="font-medium text-gray-800">{{item.domain}}</div>
+                <div class="text-sm text-gray-500">{{item.years}}年 · {{item.templateName}}</div>
+              </div>
+              <div class="domain-price">
+                <div class="font-medium text-gray-800">{{item.formattedPrice}}</div>
+              </div>
+            </div>
+            {{#end each}}
+          </div>
+
+          <!-- 支付与价格汇总（合并） -->
+          <div class="price-summary border-t border-gray-200 pt-4">
+            <div class="flex justify-between items-center mb-3">
+              <span class="text-gray-600 text-sm">支付时间：</span>
+              <span class="text-gray-800 text-sm">{{paymentTime}}</span>
+            </div>
+            <div class="flex justify-between items-center mb-2">
+              <span class="text-gray-600">原价：</span>
+              <span class="text-gray-800">{{formattedOriginalTotal}}</span>
+            </div>
+            {{#if hasDiscount}}
+            <div class="flex justify-between items-center mb-2">
+              <span class="text-gray-600">优惠：</span>
+              <span class="text-green-600">-{{formattedDiscount}}</span>
+            </div>
+            {{/if}}
+            <div class="flex justify-between items-center text-lg font-bold">
+              <span class="text-gray-800">实付金额：</span>
+              <span class="text-orange-500">{{formattedPayableTotal}}</span>
+            </div>
+          </div>
+        </div>
+
+
+				<!-- 自动跳转提示 -->
+        <div class="text-center mt-6 text-sm text-gray-600">
+          即将跳转到域名控制台，倒计时 <span id="success-countdown" class="font-medium text-gray-800">5</span> 秒，
+          <a id="success-jump-now" class="text-primary underline cursor-pointer">立即跳转</a>
+        </div>
+      </div>
+    </script>
+
+		<!-- 模板选项下拉选择模板 -->
+		<script type="text/template" id="template-select-option-template">
+      <div class="select-option {{#if selected}}selected{{#end if}}" data-value="{{id}}">{{name}} - {{desc}}</div>
+    </script>
+
+		<!-- 确认删除弹窗模板 -->
+		<script type="text/template" id="confirm-delete-modal-template">
+      <div class="confirm-delete-container">
+        <div class="flex items-center mb-4">
+          <div class="flex-shrink-0 w-12 h-12 bg-red-100 rounded-full flex items-center justify-center mr-4">
+            <i class="fa fa-exclamation-triangle text-red-500 text-xl"></i>
+          </div>
+          <div>
+            <h3 class="text-lg font-bold text-gray-800 mb-1">确认删除</h3>
+            <p class="text-gray-600">您确定要删除选中的 {{itemCount}} 件商品吗？</p>
+          </div>
+        </div>
+
+        <!-- 商品列表预览 -->
+        <div class="bg-gray-50 rounded-lg p-4 mb-4 max-h-60 overflow-y-auto">
+          <div class="text-sm text-gray-700 mb-2 font-medium">将要删除的商品：</div>
+          <div class="space-y-2">
+            {{#each items}}
+            <div class="flex justify-between items-center py-2 border-b border-gray-200 last:border-b-0">
+              <div class="flex-1">
+                <div class="font-medium text-gray-800">{{domain}}</div>
+                <div class="text-sm text-gray-500">{{years}}年</div>
+              </div>
+              <div class="text-sm font-medium text-gray-700">{{formattedPrice}}</div>
+            </div>
+            {{/each}}
+          </div>
+        </div>
+
+        <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-3 mb-4">
+          <div class="flex items-center">
+            <i class="fa fa-info-circle text-yellow-500 mr-2"></i>
+            <p class="text-sm text-gray-700">删除后这些商品将从购物车中移除，此操作不可撤销。</p>
+          </div>
+        </div>
+
+        <div class="flex gap-3 justify-end">
+          <button id="cancel-delete-btn" class="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors">
+            取消
+          </button>
+          <button id="confirm-delete-btn" class="px-6 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors">
+            确认删除
+          </button>
+        </div>
+      </div>
+    </script>
+
+		<!-- WHOIS查询模态窗口 -->
+		<script type="text/template" id="whois-modal-template">
+      <div class="whois-modal">
+        <div class="flex flex-col">
+          {{#if isLoading}}
+          <div class="text-center py-12">
+            <div class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-primary mb-4"></div>
+            <p class="text-gray-600">正在查询WHOIS信息...</p>
+          </div>
+          {{#end if}}
+          
+          {{#if hasError}}
+          <div class="text-center py-12">
+            <div class="text-red-500 text-6xl mb-4">
+              <i class="fa fa-exclamation-triangle"></i>
+            </div>
+            <h4 class="text-xl font-semibold text-gray-800 mb-2">查询失败</h4>
+            <p class="text-gray-600">{{errorMessage}}</p>
+          </div>
+          {{#end if}}
+          
+          {{#if hasData}}
+          <!-- Tab 切换导航 -->
+          <div class="whois-tab-container flex">
+            <button class="whois-tab-btn active" data-tab="raw">
+              <i class="fa fa-code mr-2"></i>原始数据
+            </button>
+            <button class="whois-tab-btn" data-tab="optimized">
+              <i class="fa fa-eye mr-2"></i>优化视图
+            </button>
+          </div>
+          
+          <!-- 原始数据视图 -->
+          <div id="whois-raw-view" class="whois-tab-content active">
+            <div class="bg-gray-900 text-green-400 p-4 font-mono text-sm overflow-auto h-140">
+              <pre class="whitespace-pre-wrap">{{rawData}}</pre>
+            </div>
+          </div>
+          
+          <!-- 优化视图内容 -->
+          <div id="whois-optimized-view" class="whois-tab-content hidden">
+            <!-- 域名概览卡片 -->
+            <div class="whois-overview-card">
+              <div class="whois-domain-header">
+                <h3 class="whois-domain-name">{{domainName}}</h3>
+                {{#if status}}
+                <span class="whois-status-badge {{statusClass}}">{{status}}</span>
+                {{#end if}}
+              </div>
+              {{#if registrar}}
+              <div class="whois-registrar-info">
+                <i class="fa fa-building"></i>
+                <span>注册商：{{registrar}}</span>
+              </div>
+              {{#end if}}
+            </div>
+            
+            <!-- 信息卡片网格 -->
+            <div class="whois-info-grid">
+              <!-- 时间信息卡片 -->
+              <div class="whois-info-card">
+                <div class="whois-card-header">
+                  <i class="fa fa-clock-o whois-card-icon"></i>
+                  <h4 class="whois-card-title">时间信息</h4>
+                </div>
+                <div class="whois-card-content">
+                  {{#if creationDate}}
+                  <div class="whois-info-item">
+                    <span class="whois-info-label">注册时间</span>
+                    <span class="whois-info-value">{{creationDate}}</span>
+                  </div>
+                  {{#end if}}
+                  {{#if expirationDate}}
+                  <div class="whois-info-item">
+                    <span class="whois-info-label">到期时间</span>
+                    <span class="whois-info-value">{{expirationDate}}</span>
+                  </div>
+                  {{#end if}}
+                  {{#if updatedDate}}
+                  <div class="whois-info-item">
+                    <span class="whois-info-label">更新时间</span>
+                    <span class="whois-info-value">{{updatedDate}}</span>
+                  </div>
+                  {{#end if}}
+                </div>
+              </div>
+              
+              <!-- 注册信息卡片 -->
+              <div class="whois-info-card">
+                <div class="whois-card-header">
+                  <i class="fa fa-user whois-card-icon"></i>
+                  <h4 class="whois-card-title">注册信息</h4>
+                </div>
+                <div class="whois-card-content">
+                  {{#if registrant}}
+                  <div class="whois-info-item">
+                    <span class="whois-info-label">注册人</span>
+                    <span class="whois-info-value">{{registrant}}</span>
+                  </div>
+                  {{#end if}}
+                  {{#if registrarName}}
+                  <div class="whois-info-item">
+                    <span class="whois-info-label">注册商</span>
+                    <span class="whois-info-value">{{registrarName}}</span>
+                  </div>
+                  {{#end if}}
+                  {{#if emails}}
+                  <div class="whois-info-item">
+                    <span class="whois-info-label">联系邮箱</span>
+                    <span class="whois-info-value">{{emails}}</span>
+                  </div>
+                  {{#end if}}
+                </div>
+              </div>
+            </div>
+            
+              <!-- DNS信息卡片 -->
+              {{#if nameServers}}
+              <div class="whois-info-card whois-dns-card">
+                <div class="whois-card-header">
+                  <i class="fa fa-server whois-card-icon"></i>
+                  <h4 class="whois-card-title">DNS信息</h4>
+                </div>
+                <div class="whois-card-content">
+                  <div class="whois-info-item">
+                    <span class="whois-info-label">域名服务器</span>
+                    <div class="whois-dns-servers">
+                      {{#each nameServers as server,index}}
+                      <span class="whois-dns-server">{{server}}</span>
+                      {{#end each}}
+                    </div>
+                  </div>
+                </div>
+              </div>
+              {{#end if}}
+            </div>
+          </div>
+          
+
+          {{#end if}}
+        </div>
+      </div>
+    </script>
+
+		<!-- 域名注册协议模态窗口 -->
+		<script type="text/template" id="domain-agreement-modal-template">
+      <div class="domain-agreement-modal">
+        <div class="mb-6">
+          <h3 class="text-[25px] font-bold text-gray-800 mb-8 flex items-center justify-center">
+            <i class="fa fa-file-text-o text-primary-500 mr-2"></i>
+            域名注册注意事项
+          </h3>
+          <div class="text-sm text-gray-700 leading-relaxed">
+            <ul class="space-y-4">
+              <li class="flex items-start px-4 border border-gray-200 rounded-lg hover:border-gray-300 transition-colors">
+                <div class="flex-shrink-0 w-8 h-8 bg-primary-10 rounded-full flex items-center justify-center mr-3 mt-0.5">
+                  <span class="text-primary-600 font-semibold text-sm">1</span>
+                </div>
+                <div>
+                  <h4 class="font-semibold text-gray-800 mt-1">即时产品特性</h4>
+                  <p class="text-gray-600">
+                    域名为即时性产品，其注册成功以最终付款完成为准。域名一旦注册成功，不支持退款。请用户务必仔细核对所选域名信息，并尽快完成结算。
+                  </p>
+                </div>
+              </li>
+              
+              <li class="flex items-start px-4 border border-gray-200 rounded-lg hover:border-gray-300 transition-colors">
+                <div class="flex-shrink-0 w-8 h-8 bg-primary-10 rounded-full flex items-center justify-center mr-3 mt-0.5">
+                  <span class="text-primary-600 font-semibold text-sm">2</span>
+                </div>
+                <div>
+                  <h4 class="font-semibold text-gray-800 mt-1">实名认证要求</h4>
+                  <p class="text-gray-600">
+                    根据工业和信息化部以及《中华人民共和国网络安全法》的相关规定，域名注册必须完成实名认证。未完成实名认证的域名将无法正常使用。
+                  </p>
+                </div>
+              </li>
+              
+              <li class="flex items-start px-4 border border-gray-200 rounded-lg hover:border-gray-300 transition-colors">
+                <div class="flex-shrink-0 w-8 h-8 bg-primary-10 rounded-full flex items-center justify-center mr-3 mt-0.5">
+                  <span class="text-primary-600 font-semibold text-sm">3</span>
+                </div>
+                <div>
+                  <h4 class="font-semibold text-gray-800 mt-1">溢价域名续费</h4>
+                  <p class="text-gray-600">
+                    部分后缀的溢价域名，其续费价格可能高于普通域名的续费价格。具体续费价格请以系统结算时显示的价格为准。
+                  </p>
+                </div>
+              </li>
+              
+              <li class="flex items-start px-4 border border-gray-200 rounded-lg hover:border-gray-300 transition-colors">
+                <div class="flex-shrink-0 w-8 h-8 bg-primary-10 rounded-full flex items-center justify-center mr-3 mt-0.5">
+                  <span class="text-primary-600 font-semibold text-sm">4</span>
+                </div>
+                <div>
+                  <h4 class="font-semibold text-gray-800 mt-1">禁止违规用途</h4>
+                  <p class="text-gray-600">
+                    通过我司申请注册的域名，严禁用于赌博、色情、钓鱼、私服等任何违反法律法规的用途。
+                  </p>
+                </div>
+              </li>
+            </ul>
+          </div>
+        </div>
+        
+        <div class="flex justify-end gap-3 py-4 border-t border-gray-200 justify-center">
+          <button id="agreement-modal-confirm" class="px-6 py-2 bg-primary text-white rounded-lg hover:bg-primary-60 transition-colors cursor-pointer">
+            同意并继续
+          </button>
+        </div>
+      </div>
+    </script>
+
+
+	</div>
+	<!-- 主内容区 - 左右3:1布局 -->
+
+	<!-- JavaScript -->
+	<script type="text/javascript" src="/jquery-3.6.0.min.js"></script>
+	<script type="text/javascript" src="https://www.bt.cn/static/js/jquery.qrcode.min.js"></script>
+	<script type="module" src="src/pages/registration.ts"></script>
+</body>
+
+</html>

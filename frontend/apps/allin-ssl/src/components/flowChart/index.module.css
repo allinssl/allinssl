@@ -1,9 +1,9 @@
 .flowContainer {
-  @apply flex relative box-border w-full h-[calc(100vh-19rem)] overflow-x-auto overflow-y-auto p-[1rem];
+  @apply flex relative box-border w-full h-[calc(100vh-19rem)] overflow-x-auto overflow-y-auto p-[1rem] justify-center;
 }
 
 .flowProcess {
-  @apply relative h-full w-full;
+  @apply relative h-full;
 }
 
 .flowZoom {

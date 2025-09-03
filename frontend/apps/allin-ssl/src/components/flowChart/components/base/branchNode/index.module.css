@@ -13,22 +13,17 @@
 
 /* 有嵌套分支的容器样式 */
 .hasNestedBranch {
-	@apply w-full justify-around;
+	@apply w-full justify-center;
 }
 
 .flowNodeBranchCol {
-  @apply flex flex-col items-center border-t-2 border-b-2 border-[#cacaca] pt-[50px] bg-[#f8fafc] flex-1 relative max-w-[50%];
+  @apply flex flex-col items-center border-t-2 border-b-2 border-[#cacaca] pt-[50px] bg-[#f8fafc] flex-1 relative;
 }
 
 
 /* 有嵌套分支时列宽调整 */
 .hasNestedBranch .flowNodeBranchCol {
 	@apply w-full;
-}
-
-/* 多级嵌套分支样式调整 */
-.flowNodeBranchCol .flowNodeBranchCol {
-	@apply min-w-[20rem] w-[24rem]
 }
 
 

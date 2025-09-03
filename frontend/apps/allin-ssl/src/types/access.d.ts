@@ -36,106 +36,110 @@ export interface AccessTypesResponse extends AxiosResponseData {
 
 /** 新增授权请求参数 */
 export interface AddAccessParams<
-	T =
-		| SshAccessConfig
-		| AliyunAccessConfig
-		| TencentCloudAccessConfig
-		| PanelAccessConfig
-		| HuaWeiCloudAccessConfig
-		| CloudflareAccessConfig
-		| BaiduCloudAccessConfig
-		| VolcengineAccessConfig
-		| WestcnAccessConfig
-		| BtWafSiteAccessConfig
-		| GoDaddyAccessConfig
-		| QiniuAccessConfig
-		| NamecheapAccessConfig
-		| NS1AccessConfig
-		| CloudnsAccessConfig
-		| AwsAccessConfig
-		| AzureAccessConfig
-		| NamesiloAccessConfig
-		| NamedotcomAccessConfig
-		| BunnyAccessConfig
-		| GcoreAccessConfig
-		| JdcloudAccessConfig
-		| DogeAccessConfig
-		| PluginAccessConfig
-		| LecdnAccessConfig
-		| ConstellixAccessConfig,
+  T =
+    | SshAccessConfig
+    | AliyunAccessConfig
+    | TencentCloudAccessConfig
+    | PanelAccessConfig
+    | HuaWeiCloudAccessConfig
+    | CloudflareAccessConfig
+    | BaiduCloudAccessConfig
+    | VolcengineAccessConfig
+    | WestcnAccessConfig
+    | BtWafSiteAccessConfig
+    | GoDaddyAccessConfig
+    | QiniuAccessConfig
+    | NamecheapAccessConfig
+    | NS1AccessConfig
+    | CloudnsAccessConfig
+    | AwsAccessConfig
+    | AzureAccessConfig
+    | NamesiloAccessConfig
+    | NamedotcomAccessConfig
+    | BunnyAccessConfig
+    | GcoreAccessConfig
+    | JdcloudAccessConfig
+    | DogeAccessConfig
+    | PluginAccessConfig
+    | LecdnAccessConfig
+    | ConstellixAccessConfig
+    | WebhookAccessConfig
+    | SpaceshipAccessConfig
 > {
-	name: string
-	type: string
-	config: T
+  name: string;
+  type: string;
+  config: T;
 }
 
 /** 修改授权请求参数 */
 export interface UpdateAccessParams<
-	T =
-		| SshAccessConfig
-		| AliyunAccessConfig
-		| TencentCloudAccessConfig
-		| PanelAccessConfig
-		| HuaWeiCloudAccessConfig
-		| CloudflareAccessConfig
-		| BaiduCloudAccessConfig
-		| BtWafSiteAccessConfig
-		| VolcengineAccessConfig
-		| WestcnAccessConfig
-		| GoDaddyAccessConfig
-		| QiniuAccessConfig
-		| NamecheapAccessConfig
-		| NS1AccessConfig
-		| CloudnsAccessConfig
-		| AwsAccessConfig
-		| AzureAccessConfig
-		| NamesiloAccessConfig
-		| NamedotcomAccessConfig
-		| BunnyAccessConfig
-		| GcoreAccessConfig
-		| JdcloudAccessConfig
-		| DogeAccessConfig
-		| PluginAccessConfig
-		| LecdnAccessConfig
-		| ConstellixAccessConfig,
+  T =
+    | SshAccessConfig
+    | AliyunAccessConfig
+    | TencentCloudAccessConfig
+    | PanelAccessConfig
+    | HuaWeiCloudAccessConfig
+    | CloudflareAccessConfig
+    | BaiduCloudAccessConfig
+    | BtWafSiteAccessConfig
+    | VolcengineAccessConfig
+    | WestcnAccessConfig
+    | GoDaddyAccessConfig
+    | QiniuAccessConfig
+    | NamecheapAccessConfig
+    | NS1AccessConfig
+    | CloudnsAccessConfig
+    | AwsAccessConfig
+    | AzureAccessConfig
+    | NamesiloAccessConfig
+    | NamedotcomAccessConfig
+    | BunnyAccessConfig
+    | GcoreAccessConfig
+    | JdcloudAccessConfig
+    | DogeAccessConfig
+    | PluginAccessConfig
+    | LecdnAccessConfig
+    | ConstellixAccessConfig
+    | WebhookAccessConfig
+    | SpaceshipAccessConfig
 > extends AddAccessParams<T> {
-	id: string
+  id: string;
 }
 
 /**
  * ssh 授权配置
  */
 type SshAccessConfig = {
-	host: string
-	port: number
-	user: string
-	password?: string // 密码字段：密码模式下作为登录密码，密钥模式下作为私钥密码（可选）
-} & ({ mode: 'password'; key?: never } | { mode: 'key'; key: string })
+  host: string;
+  port: number;
+  user: string;
+  password?: string; // 密码字段：密码模式下作为登录密码，密钥模式下作为私钥密码（可选）
+} & ({ mode: "password"; key?: never } | { mode: "key"; key: string });
 
 /**
  * 阿里云授权配置
  */
 export interface AliyunAccessConfig {
-	access_key_id: string
-	access_key_secret: string
+  access_key_id: string;
+  access_key_secret: string;
 }
 
 /**
  * 腾讯云授权配置
  */
 export interface TencentCloudAccessConfig {
-	secret_id: string
-	secret_key: string
+  secret_id: string;
+  secret_key: string;
 }
 
 /**
  * 面板授权（1panel、宝塔）
  */
 export interface PanelAccessConfig {
-	url: string
-	api_key: string
-	ignore_ssl: '0' | '1'
-	version?: 'v1' | 'v2' // 1Panel版本选择，可选字段
+  url: string;
+  api_key: string;
+  ignore_ssl: "0" | "1";
+  version?: "v1" | "v2"; // 1Panel版本选择，可选字段
 }
 
 /**
@@ -146,8 +150,8 @@ export interface BtWafSiteAccessConfig extends PanelAccessConfig {}
  * 华为云授权配置
  */
 export interface HuaWeiCloudAccessConfig {
-	secret_key: string
-	access_key: string
+  secret_key: string;
+  access_key: string;
 }
 
 /**
@@ -164,144 +168,158 @@ export interface VolcengineAccessConfig extends HuaWeiCloudAccessConfig {}
  *  cloudflare 授权配置
  */
 export interface CloudflareAccessConfig {
-	api_key: string
-	email: string
+  api_key: string;
+  email: string;
 }
 
 /**
  * 西部数码授权配置
  */
 export interface WestcnAccessConfig {
-	username: string
-	password: string
+  username: string;
+  password: string;
 }
 
 /**
  * GoDaddy 授权配置
  */
 export interface GoDaddyAccessConfig {
-	api_key: string
-	api_secret: string
+  api_key: string;
+  api_secret: string;
 }
 
 /**
  * 七牛云授权配置
  */
 export interface QiniuAccessConfig {
-	access_key: string
-	access_secret: string
+  access_key: string;
+  access_secret: string;
 }
 
 /**
  * Namecheap授权配置
  */
 export interface NamecheapAccessConfig {
-	api_user: string
-	api_key: string
+  api_user: string;
+  api_key: string;
 }
 
 /**
  * NS1授权配置
  */
 export interface NS1AccessConfig {
-	api_key: string
+  api_key: string;
 }
 
 /**
  * ClouDNS授权配置
  */
 export interface CloudnsAccessConfig {
-	auth_id: string
-	auth_password: string
+  auth_id: string;
+  auth_password: string;
 }
 
 /**
  * AWS授权配置
  */
 export interface AwsAccessConfig {
-	access_key_id: string
-	secret_access_key: string
+  access_key_id: string;
+  secret_access_key: string;
+  region: string;
 }
 
 /**
  * Azure授权配置
  */
 export interface AzureAccessConfig {
-	tenant_id: string
-	client_id: string
-	client_secret: string
-	environment: string
+  tenant_id: string;
+  client_id: string;
+  client_secret: string;
+  environment: string;
 }
 
 /**
  * Namesilo授权配置
  */
 export interface NamesiloAccessConfig {
-	api_key: string
+  api_key: string;
 }
 
 /**
  * Name.com授权配置
  */
 export interface NamedotcomAccessConfig {
-	username: string
-	api_token: string
+  username: string;
+  api_token: string;
 }
 
 /**
  * Bunny授权配置
  */
 export interface BunnyAccessConfig {
-	api_key: string
+  api_key: string;
 }
 
 /**
  * Gcore授权配置
  */
 export interface GcoreAccessConfig {
-	api_token: string
+  api_token: string;
 }
 
 /**
  * 京东云授权配置
  */
 export interface JdcloudAccessConfig {
-	access_key_id: string
-	secret_access_key: string
+  access_key_id: string;
+  secret_access_key: string;
 }
 
 /**
  * 多吉云授权配置
  */
 export interface DogeAccessConfig {
-	access_key: string
-	secret_key: string
+  access_key: string;
+  secret_key: string;
 }
 
 /**
  * Plugin 授权配置
  */
 export interface PluginAccessConfig {
-	name: string
-	config: Record<string, any> | string
+  name: string;
+  config: Record<string, any> | string;
 }
 
 /**
  * Lecdn 授权配置
  */
 export interface LecdnAccessConfig {
-	url: string
-	username: string
-	password: string
-	ignore_ssl: string
+  url: string;
+  username: string;
+  password: string;
+  ignore_ssl: string;
 }
 
 /**
  * Constellix 授权配置
  */
 export interface ConstellixAccessConfig {
-	api_key: string
-	secret_key: string
+  api_key: string;
+  secret_key: string;
+}
+
+export interface WebhookAccessConfig {
+  url: string;
+  method: "POST" | "GET";
+  headers: string;
+  data: string;
+  ignore_ssl: "0" | "1";
+}
+
+export interface SpaceshipAccessConfig {
+  api_key: string;
+  api_secret: string;
 }
 
 /** 删除授权请求参数 */

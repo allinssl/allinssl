@@ -40,7 +40,8 @@ export interface TableResponse<T = Record<string, unknown>> {
 }
 
 /** 表格 Hook 配置项接口 */
-export interface UseTableOptions<T = Record<string, any>, Z extends Record<string, any>> extends Partial<DataTableProps> {
+export interface UseTableOptions<T = Record<string, any>, Z extends Record<string, any>>
+	extends Partial<DataTableProps> {
 	/** 表格列配置 */
 	config: DataTableColumns<T>
 	/** 数据请求函数 */

@@ -1,0 +1,7 @@
+{
+	"compilerOptions": {
+		"jsx": "preserve"
+	},
+	"files": [],
+	"references": [{ "path": "./tsconfig.app.json" }, { "path": "./tsconfig.node.json" }] // 引用其他tsconfig文件
+}
