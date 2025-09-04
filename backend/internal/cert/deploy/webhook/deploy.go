@@ -32,10 +32,33 @@ func Deploy(cfg map[string]any) error {
 		return fmt.Errorf("api配置错误")
 	}
 	// 解析 JSON 配置
-	var providerConfig public.WebhookConfig
-	err = json.Unmarshal([]byte(providerConfigStr), &providerConfig)
+	var providerConfigMap map[string]interface{}
+
+	err = json.Unmarshal([]byte(providerConfigStr), &providerConfigMap)
 	if err != nil {
 		return err
+	}
+
+	var ignoreSSL bool
+	switch v := providerConfigMap["ignore_ssl"].(type) {
+	case string:
+		if v == "1" {
+			ignoreSSL = true
+		}
+	case float64:
+		if v != 0 {
+			ignoreSSL = true
+		}
+	case bool:
+		ignoreSSL = v
+	}
+
+	providerConfig := public.WebhookConfig{
+		Url:       providerConfigMap["url"].(string),
+		Data:      providerConfigMap["data"].(string),
+		Method:    providerConfigMap["method"].(string),
+		Headers:   providerConfigMap["headers"].(string),
+		IgnoreSSL: ignoreSSL,
 	}
 
 	certStr, ok := cert["cert"].(string)

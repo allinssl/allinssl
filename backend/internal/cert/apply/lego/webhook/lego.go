@@ -23,16 +23,14 @@ type DNSProvider struct {
 }
 
 func NewConfig(WebhookConfigStr map[string]string) *Config {
-	fmt.Println(WebhookConfigStr)
 
 	WebhookConfig := &public.WebhookConfig{
 		Url:       WebhookConfigStr["url"],
 		Data:      WebhookConfigStr["data"],
 		Method:    WebhookConfigStr["method"],
 		Headers:   WebhookConfigStr["headers"],
-		IgnoreSSL: WebhookConfigStr["ignore_ssl"] == "true",
+		IgnoreSSL: WebhookConfigStr["ignore_ssl"] == "1",
 	}
-	fmt.Println(WebhookConfig.Url)
 
 	return &Config{
 		WebhookConfig:      WebhookConfig,
