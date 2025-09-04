@@ -45,18 +45,21 @@ export default defineComponent({
                   <NSelect
                     options={[
                       { label: "全部", value: "" },
-                      ...intermediateCaList.value.map((item) => ({
+                      ...(intermediateCaList.value || []).map((item) => ({
                         label: item.name,
                         value: item.id,
-                      }))
+                      })),
                     ]}
                     placeholder="请选择中间证书"
                     size="large"
-										style={{ width: "180px" }}
-										defaultValue={""}
+                    style={{ width: "180px" }}
+                    defaultValue={""}
                     onUpdateValue={handleCaIdChange}
                   />
-                  <SearchComponent placeholder="请输入名称搜索" style={{ width: "240px" }} />
+                  <SearchComponent
+                    placeholder="请输入名称搜索"
+                    style={{ width: "240px" }}
+                  />
                 </div>
               ),
               content: () => (

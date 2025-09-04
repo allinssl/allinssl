@@ -1,174 +1,177 @@
 import { defineComponent, ref, computed, watch } from 'vue';
-import { NForm, NFormItem, NInput, NSelect, NSpace, NButton, FormRules, useMessage } from 'naive-ui';
-import { useStore } from '../useStore';
-import { useAddCaController } from '../useController';
-import { useModalClose } from '@baota/naive-ui/hooks';
+import {
+  NForm,
+  NFormItem,
+  NInput,
+  NSelect,
+  NSpace,
+  NButton,
+  FormRules,
+  useMessage,
+  NDivider,
+  NIcon,
+} from "naive-ui";
+import { useStore } from "../useStore";
+import { useAddCaController } from "../useController";
+import { useModalClose } from "@baota/naive-ui/hooks";
+import { ChevronDown } from "@vicons/ionicons5";
 
 /**
  * 添加CA模态框组件
  */
 export default defineComponent({
-	emits: ['success'],
-	setup(props, { emit }) {
-		const { addForm, resetAddForm, createType, rootCaList } = useStore();
-		const message = useMessage();
-		const closeModal = useModalClose();
-		
-		// 表单引用
-		const formRef = ref();
-		
-		// 有效期单位选择
-		const validityUnit = ref<'day' | 'year'>('day');
-		
-		// 使用表单控制器
-		const { handleSubmit } = useAddCaController();
-		
-		// 表单验证规则
-		const rules = computed((): FormRules => {
-			const baseRules: any = {
-				name: [
-					{ required: true, message: '请输入CA名称', trigger: 'blur' }
-				],
-				cn: [
-					{ required: true, message: '请输入通用名称', trigger: 'blur' }
-				],
-				o: [
-					{ required: true, message: '请输入组织名称', trigger: 'blur' }
-				],
-				c: [
-					{ required: true, message: '请选择国家', trigger: 'change' }
-				],
-				ou: [
-					{ required: true, message: '请输入组织单位', trigger: 'blur' }
-				],
-				province: [
-					{ required: true, message: '请输入省份', trigger: 'blur' }
-				],
-				locality: [
-					{ required: true, message: '请输入城市', trigger: 'blur' }
-				],
-				key_length: [
-					{ required: true, message: '请选择密钥长度', trigger: 'change' }
-				],
-				valid_days: [
-					{ required: true, message: '请选择有效期', trigger: 'change' }
-				]
-			};
+  emits: ["success"],
+  setup(props, { emit }) {
+    const { addForm, resetAddForm, createType, rootCaList } = useStore();
+    const message = useMessage();
+    const closeModal = useModalClose();
 
-			if (createType.value === 'root') {
-				baseRules.algorithm = [
-					{ required: true, message: '请选择加密算法', trigger: 'change' }
-				];
-			}
+    // 表单引用
+    const formRef = ref();
 
-			if (createType.value === 'intermediate') {
-				baseRules.root_id = [
-					{ required: true, message: '请选择父级CA', trigger: 'change' }
-				];
-			}
+    // 有效期单位选择
+    const validityUnit = ref<"day" | "year">("day");
 
-			return baseRules;
-		});
+    // 展开收起状态
+    const showAdvancedConfig = ref(false);
 
-		// 算法选项
-		const algorithmOptions = [
-			{ label: "ECDSA", value: "ecdsa" },
-			{ label: "RSA", value: "rsa" },
-			{ label: "SM2", value: "sm2" },
-		];
+    // 使用表单控制器
+    const { handleSubmit } = useAddCaController();
 
-		const keyLengthOptions = computed(() => {
-			switch (addForm.value.algorithm) {
-				case 'ecdsa':
-					return [
-						{ label: "P-256 (256 bit)", value: "256" },
-						{ label: "P-384 (384 bit)", value: "384" },
-						{ label: "P-521 (521 bit)", value: "521" },
-					];
-				case 'rsa':
-					return [
-						{ label: "2048 bit", value: "2048" },
-						{ label: "3072 bit", value: "3072" },
-						{ label: "4096 bit", value: "4096" },
-					];
-				case 'sm2':
-					return [
-						{ label: "SM2 (256 bit)", value: "256" },
-					];
-				default:
-					return [];
-			}
-		});
+    // 表单验证规则
+    const rules = computed((): FormRules => {
+      const baseRules: any = {
+        name: [{ required: true, message: "请输入CA名称", trigger: "blur" }],
+        cn: [{ required: true, message: "请输入通用名称", trigger: "blur" }],
+        c: [{ required: true, message: "请选择国家", trigger: "change" }],
+        key_length: [
+          { required: true, message: "请选择密钥长度", trigger: "change" },
+        ],
+        valid_days: [
+          { required: true, message: "请选择有效期", trigger: "change" },
+        ],
+      };
 
-		// 国家选项
-		const countryOptions = [
-			{ label: "中国", value: "CN" },
-			{ label: "美国", value: "US" },
-			{ label: "日本", value: "JP" },
-			{ label: "德国", value: "DE" },
-			{ label: "英国", value: "GB" },
-		];
+      if (createType.value === "root") {
+        baseRules.algorithm = [
+          { required: true, message: "请选择加密算法", trigger: "change" },
+        ];
+      }
 
-		// 监听算法变化，重置密钥长度选择
-		watch(() => addForm.value.algorithm, (newAlgorithm) => {
-			addForm.value.key_length = '';
-			if (newAlgorithm === 'ecdsa') {
-				addForm.value.key_length = '256';
-			} else if (newAlgorithm === 'sm2') {
-				addForm.value.key_length = '256';
-			} else if (newAlgorithm === 'rsa') {
-				addForm.value.key_length = '2048';
-			}
-		});
+      if (createType.value === "intermediate") {
+        baseRules.root_id = [
+          { required: true, message: "请选择父级CA", trigger: "change" },
+        ];
+      }
 
-		// 监听父级CA选择，自动填充算法值
-		watch(() => addForm.value.root_id, (newRootId) => {
-			if (createType.value === 'intermediate' && newRootId) {
-				const selectedRootCa = rootCaList.value.find(ca => ca.id.toString() === newRootId);
-				if (selectedRootCa) {
-					addForm.value.algorithm = selectedRootCa.algorithm;
-					if (selectedRootCa.algorithm === 'ecdsa') {
-						addForm.value.key_length = '256';
-					} else if (selectedRootCa.algorithm === 'sm2') {
-						addForm.value.key_length = '256';
-					} else if (selectedRootCa.algorithm === 'rsa') {
-						addForm.value.key_length = '2048';
-					}
-				}
-			}
-		});
+      return baseRules;
+    });
 
-		// 处理表单提交
-		const handleFormSubmit = async () => {
-			try {
-				// 先验证表单
-				await formRef.value?.validate();
-				const formData = { ...addForm.value };
-				if (validityUnit.value === 'year' && formData.valid_days) {
-					const years = parseInt(formData.valid_days);
-					if (!isNaN(years)) {
-						formData.valid_days = (years * 365).toString();
-					}
-				}
-				const success = await handleSubmit(formData);
-				if (success) {
-					resetAddForm();
-					closeModal();
-					return true;
-				}
-			} catch (error) {
-				console.error('表单验证失败:', error);
-			}
-			return false;
-		};
-		
-		// 处理取消操作
-		const handleCancel = () => {
-			resetAddForm();
-			closeModal();
-		};
+    // 算法选项
+    const algorithmOptions = [
+      { label: "ECDSA", value: "ecdsa" },
+      { label: "RSA", value: "rsa" },
+      { label: "SM2", value: "sm2" },
+    ];
 
-		return () => (
+    const keyLengthOptions = computed(() => {
+      switch (addForm.value.algorithm) {
+        case "ecdsa":
+          return [
+            { label: "P-256 (256 bit)", value: "256" },
+            { label: "P-384 (384 bit)", value: "384" },
+            { label: "P-521 (521 bit)", value: "521" },
+          ];
+        case "rsa":
+          return [
+            { label: "2048 bit", value: "2048" },
+            { label: "3072 bit", value: "3072" },
+            { label: "4096 bit", value: "4096" },
+          ];
+        case "sm2":
+          return [{ label: "SM2 (256 bit)", value: "256" }];
+        default:
+          return [];
+      }
+    });
+
+    // 国家选项
+    const countryOptions = [
+      { label: "中国", value: "CN" },
+      { label: "美国", value: "US" },
+      { label: "日本", value: "JP" },
+      { label: "德国", value: "DE" },
+      { label: "英国", value: "GB" },
+    ];
+
+    // 监听算法变化，重置密钥长度选择
+    watch(
+      () => addForm.value.algorithm,
+      (newAlgorithm) => {
+        addForm.value.key_length = "";
+        if (newAlgorithm === "ecdsa") {
+          addForm.value.key_length = "256";
+        } else if (newAlgorithm === "sm2") {
+          addForm.value.key_length = "256";
+        } else if (newAlgorithm === "rsa") {
+          addForm.value.key_length = "2048";
+        }
+      }
+    );
+
+    // 监听父级CA选择，自动填充算法值
+    watch(
+      () => addForm.value.root_id,
+      (newRootId) => {
+        if (createType.value === "intermediate" && newRootId) {
+          const selectedRootCa = rootCaList.value.find(
+            (ca) => ca.id.toString() === newRootId
+          );
+          if (selectedRootCa) {
+            addForm.value.algorithm = selectedRootCa.algorithm;
+            if (selectedRootCa.algorithm === "ecdsa") {
+              addForm.value.key_length = "256";
+            } else if (selectedRootCa.algorithm === "sm2") {
+              addForm.value.key_length = "256";
+            } else if (selectedRootCa.algorithm === "rsa") {
+              addForm.value.key_length = "2048";
+            }
+          }
+        }
+      }
+    );
+
+    // 处理表单提交
+    const handleFormSubmit = async () => {
+      try {
+        // 先验证表单
+        await formRef.value?.validate();
+        const formData = { ...addForm.value };
+        if (validityUnit.value === "year" && formData.valid_days) {
+          const years = parseInt(formData.valid_days);
+          if (!isNaN(years)) {
+            formData.valid_days = (years * 365).toString();
+          }
+        }
+        const success = await handleSubmit(formData);
+        if (success) {
+          resetAddForm();
+          closeModal();
+          return true;
+        }
+      } catch (error) {
+        console.error("表单验证失败:", error);
+      }
+      return false;
+    };
+
+    // 处理取消操作
+    const handleCancel = () => {
+      resetAddForm();
+      closeModal();
+    };
+
+    return () => (
       <NForm
         ref={formRef}
         model={addForm.value}
@@ -188,42 +191,6 @@ export default defineComponent({
           <NInput
             v-model:value={addForm.value.cn}
             placeholder="请输入通用名称"
-          />
-        </NFormItem>
-
-        <NFormItem label="组织(O)" path="o" required>
-          <NInput
-            v-model:value={addForm.value.o}
-            placeholder="请输入组织名称"
-          />
-        </NFormItem>
-
-        <NFormItem label="国家(C)" path="c" required>
-          <NSelect
-            v-model:value={addForm.value.c}
-            options={countryOptions}
-            placeholder="请选择国家"
-          />
-        </NFormItem>
-
-        <NFormItem label="组织单位(OU)" path="ou" required>
-          <NInput
-            v-model:value={addForm.value.ou}
-            placeholder="请输入组织单位"
-          />
-        </NFormItem>
-
-        <NFormItem label="省份" path="province" required>
-          <NInput
-            v-model:value={addForm.value.province}
-            placeholder="请输入省份"
-          />
-        </NFormItem>
-
-        <NFormItem label="城市" path="locality" required>
-          <NInput
-            v-model:value={addForm.value.locality}
-            placeholder="请输入城市"
           />
         </NFormItem>
 
@@ -270,14 +237,78 @@ export default defineComponent({
             <NSelect
               v-model:value={validityUnit.value}
               options={[
-                { label: '天', value: 'day' },
-                { label: '年', value: 'year' }
+                { label: "天", value: "day" },
+                { label: "年", value: "year" },
               ]}
-              style={{ width: '80px' }}
+              style={{ width: "80px" }}
             />
           </NSpace>
         </NFormItem>
+        <div class="mt-4 mb-4">
+          <div
+            class="flex items-center justify-center cursor-pointer py-2"
+            onClick={() =>
+              (showAdvancedConfig.value = !showAdvancedConfig.value)
+            }
+          >
+            <NDivider>
+              <div class="flex items-center gap-2">
+                <span class="text-[#18a058] font-medium">更多配置</span>
+                <NIcon
+                  size="16"
+                  color="#18a058"
+                  class="transition-transform duration-200"
+                  style={{
+                    transform: showAdvancedConfig.value
+                      ? "rotate(180deg)"
+                      : "rotate(0deg)",
+                  }}
+                >
+                  <ChevronDown />
+                </NIcon>
+              </div>
+            </NDivider>
+          </div>
+          {showAdvancedConfig.value && (
+            <div class="space-y-4 mt-4">
+              <NFormItem label="组织(O)">
+                <NInput
+                  v-model:value={addForm.value.o}
+                  placeholder="请输入组织名称"
+                />
+              </NFormItem>
 
+              <NFormItem label="国家(C)" path="c" required>
+                <NSelect
+                  v-model:value={addForm.value.c}
+                  options={countryOptions}
+                  placeholder="请选择国家"
+                />
+              </NFormItem>
+
+              <NFormItem label="组织单位(OU)">
+                <NInput
+                  v-model:value={addForm.value.ou}
+                  placeholder="请输入组织单位"
+                />
+              </NFormItem>
+
+              <NFormItem label="省份">
+                <NInput
+                  v-model:value={addForm.value.province}
+                  placeholder="请输入省份"
+                />
+              </NFormItem>
+
+              <NFormItem label="城市">
+                <NInput
+                  v-model:value={addForm.value.locality}
+                  placeholder="请输入城市"
+                />
+              </NFormItem>
+            </div>
+          )}
+        </div>
         <div class="flex justify-end gap-3 mt-6">
           <NButton onClick={handleCancel}>取消</NButton>
           <NButton type="primary" onClick={handleFormSubmit}>
@@ -286,5 +317,5 @@ export default defineComponent({
         </div>
       </NForm>
     );
-	},
+  },
 });

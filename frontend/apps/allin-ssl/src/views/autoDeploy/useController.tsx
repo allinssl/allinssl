@@ -92,6 +92,57 @@ export const useController = () => {
   const hasChildRoutes = computed(() => route.path !== "/auto-deploy");
 
   /**
+   * @description 格式化执行周期显示
+   * @param {string} execTime - 执行时间配置JSON字符串
+   * @param {string} execType - 执行类型
+   * @returns {string} 格式化后的执行周期文本
+   */
+  const formatExecTime = (execTime: string, execType: string): string => {
+    // 如果是手动执行，显示 --
+    if (execType !== "auto") {
+      return "--";
+    }
+
+    // 如果没有执行时间配置，默认为每日
+    if (!execTime) {
+      return "每日";
+    }
+
+    try {
+      const timeConfig = JSON.parse(execTime);
+      const { type = "day", hour, minute, week, month } = timeConfig;
+
+      // 格式化时间
+      const timeStr = `${hour.toString().padStart(2, "0")}:${minute
+        .toString()
+        .padStart(2, "0")}`;
+
+      switch (type) {
+        case "day":
+          return `每日 ${timeStr}`;
+        case "week":
+          const weekDays = [
+            "周日",
+            "周一",
+            "周二",
+            "周三",
+            "周四",
+            "周五",
+            "周六",
+          ];
+          return `每周${weekDays[week] || "周" + week} ${timeStr}`;
+        case "month":
+          return `每月${month}日 ${timeStr}`;
+        default:
+          return `每日 ${timeStr}`;
+      }
+    } catch (error) {
+      console.error("解析执行时间配置失败:", error);
+      return "每日";
+    }
+  };
+
+  /**
    * @description 创建表格列配置
    * @returns {DataTableColumn<WorkflowItem>[]} 返回表格列配置数组
    */
@@ -140,6 +191,14 @@ export const useController = () => {
       render: (row: WorkflowItem) => row.last_run_time || "-",
     },
     statusCol<WorkflowItem>("last_run_status", $t("t_2_1750129253921")),
+    {
+      title: "执行周期",
+      key: "exec_time",
+      width: 150,
+      render: (row: WorkflowItem) => (
+        <span>{formatExecTime(row.exec_time, row.exec_type)}</span>
+      ),
+    },
     {
       title: $t("t_8_1745215914610"),
       key: "actions",
@@ -342,12 +401,17 @@ export const useController = () => {
    * @description 复制工作流
    * @param {WorkflowItem} workflow - 工作流对象
    */
-	const handleCopyWorkflow = async (workflow: WorkflowItem) => {
-		console.log(workflow, 'workflow123123123123');
-		const { name, content, exec_type, active, exec_time } = workflow;
-		const params = { name: `${name} - 副本`, content, exec_type, active, exec_time };
-		await copyExistingWorkflow(params as WorkflowItem);
-		await fetch();
+  const handleCopyWorkflow = async (workflow: WorkflowItem) => {
+    const { name, content, exec_type, active, exec_time } = workflow;
+    const params = {
+      name: `${name} - 副本`,
+      content,
+      exec_type,
+      active,
+      exec_time,
+    };
+    await copyExistingWorkflow(params as WorkflowItem);
+    await fetch();
   };
 
   /**

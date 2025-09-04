@@ -38,19 +38,24 @@ export const useStore = () => {
 
 	const getIntermediateCaList = async () => {
 		try {
-			const { fetch, data } = getCaList({
+      const { fetch, data } = getCaList({
         p: "-1",
         limit: "-1",
         level: "intermediate",
-			});
-			await fetch();
-			if (data.value?.status === true) {
-				intermediateCaList.value = data.value.data;
-				return data.value.data;
-			}
-		} catch (error) {
-			console.error('获取中间证书列表失败:', error);
-		}
+      });
+      await fetch();
+      if (data.value?.status === true) {
+        intermediateCaList.value = data.value.data || [];
+        return data.value.data || [];
+      } else {
+        intermediateCaList.value = [];
+        return [];
+      }
+    } catch (error) {
+      console.error("获取中间证书列表失败:", error);
+      intermediateCaList.value = [];
+      return [];
+    }
 	};
 
 	return {

@@ -478,6 +478,7 @@ export const useApiFormController = (
               btwaf: $t("t_0_1747271295174"),
               safeline: $t("t_0_1747300383756"),
               lecdn: "请输入正确的URL地址",
+              webhook: "请输入回调地址",
             };
             return callback(
               new Error(mapTips[param.value.type as keyof typeof mapTips])

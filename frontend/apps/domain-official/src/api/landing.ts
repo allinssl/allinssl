@@ -41,6 +41,9 @@ import type {
   OrderDetailRequest,
   OrderDetailResponseData,
 } from "../types/api-types/order-detail";
+import type {
+  SeckillActivityInfoResponseData,
+} from "../types/api-types/flashsale";
 
 // 落地页-域名查询
 export function domainQueryCheck(
@@ -152,6 +155,15 @@ export function getOrderDetail(
   headers?: Record<string, string>
 ): Promise<ApiResponse<OrderDetailResponseData>> {
   return api.post<OrderDetailResponseData>("/v1/order/detail", data, headers);
+}
+
+// 获取今日秒杀活动信息
+export function getSeckillActivityInfo(): Promise<ApiResponse<SeckillActivityInfoResponseData>> {
+  return api.post<SeckillActivityInfoResponseData>("v1/user/flashsale/get_today_info",{});
+}
+// 领取秒杀
+export function grabSeckill(): Promise<ApiResponse> {
+  return api.post("v1/user/flashsale/grab_coupon", {});
 }
 
 /**

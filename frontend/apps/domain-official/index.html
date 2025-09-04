@@ -10,21 +10,21 @@
 <body>
 	<div class="font-sans bg-white text-secondary">
 		<!-- 首屏Banner -->
-		<section class="pt-28 pb-20 md:pt-36 md:pb-28 bg-gradient-to-b">
+		<section class="pt-28 pb-20 md:pt-24 md:pb-28 bg-gradient-to-b">
 			<div class="container mx-auto px-4">
-				<div class="max-w-4xl mx-auto text-center">
+				<div class=" mx-auto text-center">
 					<h1 class="text-[clamp(2rem,5vw,3.5rem)] font-bold leading-tight text-dark mb-6 animate-fade-in">
 						堡塔<span class="text-primary">域名注册</span>重磅上线！<br />一站式搞定建站访问
 					</h1>
 					<p class="text-[clamp(1rem,2vw,1.25rem)] text-secondary-80 mb-10 max-w-2xl mx-auto">
-						.com低至54元，.cn低至20元！部分后缀新人9.9元注册
+						.com低至53.9元，.cn低至19.9元！部分后缀新人9.9元注册
 					</p>
 					<!-- 搜索框和按钮 -->
-					<div id="search-section" class="flex flex-col sm:flex-row max-w-3xl mx-auto mb-8 gap-4">
+					<div id="search-section" class="flex flex-col sm:flex-row max-w-3xl mx-auto gap-4 pb-20">
 						<div class="input-container">
 							<input type="text" placeholder="输入您想注册的域名（如：yourbrand）" class="search-input" id="domain-query-input" />
 							<i class="fa fa-times-circle clear-input-button" id="clear-input-button" title="清空输入"></i>
-						<div class="mt-2 text-left"><a class="text-primary hover:text-primary" style="text-decoration: none;" href="/domain/domain/transfer">域名转入 .cn地址31元</a></div>
+						<div class="mt-2 text-left"><a class="text-primary hover:text-primary" style="text-decoration: none;" href="/domain/domain/transfer">域名转入 .cn地址29.9元</a></div>
 						</div>
 						<div class="flex gap-4">
 							<a id="domain-query-button"
@@ -37,53 +37,160 @@
 							</a>
 						</div>
 					</div>
-				</div>
 
-				<!-- 价格表格 -->
-				<div class="mt-24 md:mt-36 mx-auto max-w-[900px]">
-					<div class="text-center mb-8">
-						<h2 class="text-clamp font-bold text-dark mb-4" style="margin-top: 60px">域名价格一览表</h2>
-						<div class="text-secondary-80 max-w-2xl mx-auto px-4">
-							透明的价格体系，无隐藏费用，让您明明白白消费，更多服务<span
-								class="contact-service-trigger border-b border-dashed border-primary cursor-pointer relative">请联系客服咨询
-								<!-- 二维码悬浮层 -->
-								<div
-									class="qr-code-popup absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 opacity-0 invisible transition-all duration-300 z-50">
-									<div class="bg-white rounded-lg shadow-xl p-4 border border-gray-200">
-										<div class="text-center mb-2">
-											<p class="text-sm font-medium text-gray-700">扫码联系客服</p>
+					<!-- 0.01秒杀活动区域 -->
+					<div class="seckill-activity-section py-20" id="seckill-activity" style="display: none;">
+						<div class="container">
+							<!-- 活动标题与规则说明 -->
+							<div class="activity-header text-center mb-6">
+								<h2 class="activity-title text-2xl md:text-3xl font-bold text-primary mb-3">
+									开学季专属福利 · 0.01元限量秒杀
+								</h2>
+								<div class="activity-rules flex flex-col sm:flex-row items-center justify-center gap-4 text-sm text-secondary-70">
+									<div class="rule-item flex items-center gap-2">
+										<i class="fa fa-star text-primary"></i>
+										<span>每日限量100个名额</span>
+									</div>
+									<div class="rule-item flex items-center gap-2">
+										<i class="fa fa-ban text-primary"></i>
+										<span>每个账号仅限参与1次</span>
+									</div>
+									<div class="rule-item flex items-center gap-2">
+										<i class="fa fa-ticket text-primary"></i>
+										<span>领取资格后即可使用</span>
+									</div>
+								</div>
+							</div>
+
+							<!-- 扁平化商品卡片 -->
+							<div class="seckill-flat-card">
+								<div class="flat-card-container">
+									<!-- 左侧：产品信息区 -->
+									<div class="product-info-section">
+										<div class="product-badge">
+											<i class="fa fa-fire"></i>
+											<span>10:00准时开抢</span>
 										</div>
-										<!-- 二维码SVG -->
-										<img src="https://www.bt.cn/Public/new/images/wechat-qrcode.png" alt="二维码"
-											class="w-24 h-24 mx-auto" />
-										<div class="text-center mt-2">
-											<p class="text-xs text-gray-500">微信客服</p>
+										<div class="product-content">
+											<h3 class="product-name">域名注册 0.01元秒杀</h3>
+											<p class="product-desc">.top/.icu/.xyz/.cyou后缀每日限量100个名额，每日上午10:00准时开枪</p>
 										</div>
-										<!-- 小箭头 -->
-										<div
-											class="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-white">
+									</div>
+
+									<!-- 右侧：购买信息区（水平4列） -->
+									<div class="purchase-info-section">
+										<!-- 第1列：购买时长 -->
+										<div class="info-column">
+											<div class="column-label">购买时长</div>
+											<div class="column-value">1年</div>
+										</div>
+
+										<!-- 第2列：购买数量 -->
+										<div class="info-column">
+											<div class="column-label">购买数量</div>
+											<div class="column-value">1</div>
+										</div>
+
+										<!-- 第3列：价格信息 -->
+										<div class="info-column price-column">
+											<div class="current-price-info">
+												<span class="price-symbol">¥</span>
+												<span class="price-number">0.01</span>
+												<span class="price-unit">元/1年</span>
+											</div>
+											<div class="original-price-info">
+												<span>官网价格：</span>
+												<span class="strikethrough">¥97.9元/1年</span>
+											</div>
+										</div>
+
+										<!-- 第4列：倒计时与操作 -->
+										<div class="info-column action-column">
+											<!-- 进度信息（活动开始后显示，替代倒计时） -->
+											<div class="progress-info" id="progress-info-section" style="display: none;">
+												<span class="progress-text" id="progress-text-flat">已售0%</span>
+												<div class="progress-bar-mini">
+													<div class="progress-fill-mini" id="progress-fill-flat" style="width: 0%"></div>
+												</div>
+											</div>
+											
+											<!-- 倒计时区域（活动开始前显示） -->
+											<div class="countdown-section" id="countdown-section">
+												<div class="countdown-label-mini">距离下次开抢</div>
+												<div class="countdown-display-mini">
+													<span class="time-digit-mini" id="countdown-hours-flat">00</span>
+													<span class="time-sep">:</span>
+													<span class="time-digit-mini" id="countdown-minutes-flat">00</span>
+													<span class="time-sep">:</span>
+													<span class="time-digit-mini" id="countdown-seconds-flat">00</span>
+												</div>
+											</div>
+											
+											<button class="seckill-btn-flat" id="seckill-action-btn-flat">
+												<span class="btn-text">即将开始</span>
+												<div class="btn-loading" style="display: none;">
+													<i class="fa fa-spinner fa-spin"></i>
+												</div>
+											</button>
+											<div class="action-tips-mini" id="action-tips-flat">
+												活动即将开始，请耐心等待
+											</div>
+										</div>
+										<div class="action-tips-mini action-tips-footer-info">
+											* 活动截止时间是2025年9月15日，抢到秒杀资格后请尽快使用
 										</div>
 									</div>
 								</div>
-							</span>
+							</div>
 						</div>
 					</div>
 
-					<div class="overflow-x-auto px-4 md:px-0">
-						<!-- 现代化价格表格 -->
-						<div class="modern-price-table bg-white overflow-hidden shadow-lg">
-							<!-- 表头 -->
-							<div class="price-table-header bg-gradient-to-r from-primary to-green-600 text-white py-4 px-4">
-								<div class="grid grid-cols-4 gap-4 text-center">
-									<div class="text-sm md:text-base font-semibold">域名后缀</div>
-									<div class="text-sm md:text-base font-semibold">首年价格</div>
-									<div class="text-sm md:text-base font-semibold">续费价格</div>
-									<div class="text-sm md:text-base font-semibold">转入续费</div>
-								</div>
+					<!-- 价格表格 -->
+					<div class="mx-auto max-w-[900px]">
+						<div class="text-center mb-8">
+							<h2 class="text-clamp font-bold text-dark mb-4" style="margin-top: 80px">域名价格一览表</h2>
+							<div class="text-secondary-80 max-w-4xl mx-auto px-4">
+								透明的价格体系，无隐藏费用，让您明明白白消费，更多服务请<a class="border-b border-dashed border-primary text-secondary-80" href="https://qm.qq.com/q/fxbto4wZkk" target="_blank" rel="noopener" style="text-decoration: none;">加入QQ群</a>或者<span
+									class="contact-service-trigger cursor-pointer border-b border-dashed border-primary relative">请联系客服咨询
+									<!-- 二维码悬浮层 -->
+									<div
+										class="qr-code-popup absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 opacity-0 invisible transition-all duration-300 z-50">
+										<div class="bg-white rounded-lg shadow-xl p-4 border border-gray-200">
+											<div class="text-center mb-2">
+												<p class="text-sm font-medium text-gray-700">扫码联系客服</p>
+											</div>
+											<!-- 二维码SVG -->
+											<img src="https://www.bt.cn/Public/new/images/wechat-qrcode.png" alt="二维码"
+												class="w-24 h-24 mx-auto" />
+											<div class="text-center mt-2">
+												<p class="text-xs text-gray-500">微信客服</p>
+											</div>
+											<!-- 小箭头 -->
+											<div
+												class="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-white">
+											</div>
+										</div>
+									</div>
+								</span>
 							</div>
-							<!-- 表格内容 -->
-							<div class="price-table-body" id="price-table-body">
-								<!-- 动态生成的价格表格内容 -->
+						</div>
+
+						<div class="overflow-x-auto px-4 md:px-0">
+							<!-- 现代化价格表格 -->
+							<div class="modern-price-table bg-white overflow-hidden shadow-lg">
+								<!-- 表头 -->
+								<div class="price-table-header bg-gradient-to-r from-primary to-green-600 text-white py-4 px-4">
+									<div class="grid grid-cols-4 gap-4 text-center">
+										<div class="text-sm md:text-base font-semibold">域名后缀</div>
+										<div class="text-sm md:text-base font-semibold">首年价格</div>
+										<div class="text-sm md:text-base font-semibold">续费价格</div>
+										<div class="text-sm md:text-base font-semibold">转入续费</div>
+									</div>
+								</div>
+								<!-- 表格内容 -->
+								<div class="price-table-body" id="price-table-body">
+									<!-- 动态生成的价格表格内容 -->
+								</div>
 							</div>
 						</div>
 					</div>

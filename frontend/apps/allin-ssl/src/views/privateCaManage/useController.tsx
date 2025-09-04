@@ -428,11 +428,7 @@ export const useAddCaController = () => {
 		const baseRules: any = {
 			name: [{ required: true, message: '请输入CA名称', trigger: 'blur' }],
 			cn: [{ required: true, message: '请输入通用名称', trigger: 'blur' }],
-			o: [{ required: true, message: '请输入组织名称', trigger: 'blur' }],
 			c: [{ required: true, message: '请选择国家', trigger: 'change' }],
-			ou: [{ required: true, message: '请输入组织单位', trigger: 'blur' }],
-			province: [{ required: true, message: '请输入省份', trigger: 'blur' }],
-			locality: [{ required: true, message: '请输入城市', trigger: 'blur' }],
 			key_length: [{ required: true, message: '请选择密钥长度', trigger: 'change' }],
 			valid_days: [{ required: true, message: '请选择有效期', trigger: 'change' }],
 		};
@@ -468,7 +464,7 @@ export const useAddCaController = () => {
 		try {
 			openLoad();
 			// 验证必填字段
-			let requiredFields: string[] = ['name', 'cn', 'o', 'c', 'ou', 'province', 'locality', 'key_length', 'valid_days'];
+			let requiredFields: string[] = ['name', 'cn', 'c', 'key_length', 'valid_days'];
 			if (createType.value === 'root') {
 				requiredFields.push('algorithm');
 			}

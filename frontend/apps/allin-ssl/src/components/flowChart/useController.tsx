@@ -33,6 +33,40 @@ export const useController = (props: FlowNodeProps = { type: 'quick', node: flow
 	// 使用store获取所有需要的方法和状态
 	const router = useRouter()
 	const route = useRoute()
+	const { startNodeSavedByUser } = useStore();
+
+  /**
+   * 生成开始节点的随机时间
+   * @param {any} childNode - 子节点配置
+   * @returns {any} 处理后的子节点配置
+   */
+  const generateStartNodeRandomTime = (childNode: any) => {
+    // 检查是否是开始节点
+    if (childNode.type === "start") {
+      if (startNodeSavedByUser.value) {
+        return childNode;
+      }
+      const config = childNode.config;
+      const hasUserSetTime =
+        config.hour !== undefined &&
+        config.minute !== undefined &&
+        !(config.hour === 1 && config.minute === 0);
+      if (!hasUserSetTime) {
+        const randomHour = Math.floor(Math.random() * 4) + 1;
+        const randomMinute = Math.floor(Math.random() * 12) * 5;
+
+        return {
+          ...childNode,
+          config: {
+            ...config,
+            hour: randomHour,
+            minute: randomMinute,
+          },
+        };
+      }
+    }
+    return childNode;
+  };
 
 	/**
 	 * 保存节点配置
@@ -45,14 +79,16 @@ export const useController = (props: FlowNodeProps = { type: 'quick', node: flow
 			if (res.valid && flowData.value.name) {
 				const { active } = workflowData.value
 				const { id, name, childNode } = flowData.value
-				const { exec_type, ...exec_time } = childNode.config as unknown as StartNodeConfig
-				const param = {
-					name,
-					active,
-					content: JSON.stringify(childNode),
-					exec_type,
-					exec_time: JSON.stringify(exec_time || {}),
-				}
+				const processedChildNode = generateStartNodeRandomTime(childNode);
+        const { exec_type, ...exec_time } =
+          processedChildNode.config as unknown as StartNodeConfig;
+        const param = {
+          name,
+          active,
+          content: JSON.stringify(processedChildNode),
+          exec_type,
+          exec_time: JSON.stringify(exec_time || {}),
+        };
 				if (route.query.isEdit) {
 					updateWorkflowData({ id, ...param })
 				} else {
