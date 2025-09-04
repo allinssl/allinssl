@@ -185,6 +185,11 @@ func init() {
 	InsertIfNotExists(db, "access_type", map[string]any{"name": "constellix", "type": "dns"}, []string{"name", "type"}, []any{"constellix", "dns"})
 	InsertIfNotExists(db, "access_type", map[string]any{"name": "lecdn", "type": "host"}, []string{"name", "type"}, []any{"lecdn", "host"})
 
+	InsertIfNotExists(db, "access_type", map[string]any{"name": "spaceship", "type": "dns"}, []string{"name", "type"}, []any{"spaceship", "dns"})
+
+	InsertIfNotExists(db, "access_type", map[string]any{"name": "webhook", "type": "dns"}, []string{"name", "type"}, []any{"webhook", "dns"})
+	InsertIfNotExists(db, "access_type", map[string]any{"name": "webhook", "type": "host"}, []string{"name", "type"}, []any{"webhook", "host"})
+
 	err = sqlite_migrate.EnsureDatabaseWithTables(
 		"data/site_monitor.db",
 		"data/data.db",
@@ -379,25 +384,25 @@ create table monitor
 	// 创建表
 	_, err = dbPrivateCa.Exec(`
 	PRAGMA journal_mode=WAL;
-	create table if not exists ca
+	create table ca
 	(
-		id          integer not null
+		id          integer         not null
 			constraint ca_pk
 				primary key autoincrement,
 		root_id     integer,
-		name        TEXT    not null,
-		cn          TEXT    not null,
-		o           TEXT    not null,
-		c           TEXT    not null,
-		cert        TEXT    not null,
-		key         TEXT    not null,
+		name        TEXT            not null,
+		cn          TEXT            not null,
+		o           TEXT default '' not null,
+		c           TEXT            not null,
+		cert        TEXT            not null,
+		key         TEXT            not null,
 		en_cert     TEXT,
 		en_key      TEXT,
-		algorithm   TEXT    not null,
+		algorithm   TEXT            not null,
 		key_length  integer,
-		not_before  TEXT    not null,
-		not_after   TEXT    not null,
-		create_time TEXT    not null
+		not_before  TEXT            not null,
+		not_after   TEXT            not null,
+		create_time TEXT            not null
 	);
 	create index ca_root_id_index
 		on ca (root_id);

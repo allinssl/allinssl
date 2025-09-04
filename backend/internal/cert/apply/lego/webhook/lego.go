@@ -55,7 +55,6 @@ func (d *DNSProvider) Timeout() (timeout, interval time.Duration) {
 }
 
 func (d *DNSProvider) Present(domain, token, keyAuth string) error {
-	fmt.Println(d.config.WebhookConfig.Url)
 	configData = d.config.WebhookConfig.Data
 	return d.send(domain, token, keyAuth, "present")
 }

@@ -39,23 +39,28 @@ func GenerateRootCAStandard(name, commonName, organization, organizationalUnit, 
 	if validDays <= 0 {
 		expire = now.AddDate(10, 0, 0)
 	}
+	subject := pkix.Name{
+		// 通用名称
+		CommonName: commonName,
+		// 国家代码
+		Country: []string{country},
+	}
+	if organization != "" {
+		subject.Organization = []string{organization}
+	}
+	if organizationalUnit != "" {
+		subject.OrganizationalUnit = []string{organizationalUnit}
+	}
+	if province != "" {
+		subject.Province = []string{province}
+	}
+	if locality != "" {
+		subject.Locality = []string{locality}
+	}
 
 	tmpl := &x509.Certificate{
-		SerialNumber: big.NewInt(now.UnixNano()),
-		Subject: pkix.Name{
-			// 通用名称
-			CommonName: commonName,
-			// 组织名称
-			Organization: []string{organization},
-			// 组织单位名称
-			OrganizationalUnit: []string{organizationalUnit},
-			// 国家代码
-			Country: []string{country},
-			// 省份名称
-			Province: []string{province},
-			// 城市名称
-			Locality: []string{locality},
-		},
+		SerialNumber:          big.NewInt(now.UnixNano()),
+		Subject:               subject,
 		NotBefore:             now,
 		NotAfter:              expire,
 		IsCA:                  true,
@@ -103,23 +108,29 @@ func GenerateRootCASM2(name, commonName, organization, organizationalUnit, count
 		expire = now.AddDate(10, 0, 0)
 	}
 
+	subject := pkix.Name{
+		// 通用名称
+		CommonName: commonName,
+		// 国家代码
+		Country: []string{country},
+	}
+	if organization != "" {
+		subject.Organization = []string{organization}
+	}
+	if organizationalUnit != "" {
+		subject.OrganizationalUnit = []string{organizationalUnit}
+	}
+	if province != "" {
+		subject.Province = []string{province}
+	}
+	if locality != "" {
+		subject.Locality = []string{locality}
+	}
+
 	// 2. 创建根签名证书模板
 	signTmpl := &gmx509.Certificate{
-		SerialNumber: big.NewInt(now.UnixNano()),
-		Subject: pkix.Name{
-			// 通用名称
-			CommonName: commonName,
-			// 组织名称
-			Organization: []string{organization},
-			// 组织单位名称
-			OrganizationalUnit: []string{organizationalUnit},
-			// 国家代码
-			Country: []string{country},
-			// 省份名称
-			Province: []string{province},
-			// 城市名称
-			Locality: []string{locality},
-		},
+		SerialNumber:          big.NewInt(now.UnixNano()),
+		Subject:               subject,
 		NotBefore:             now,
 		NotAfter:              expire,
 		IsCA:                  true,
@@ -130,21 +141,8 @@ func GenerateRootCASM2(name, commonName, organization, organizationalUnit, count
 
 	// 3. 创建根加密证书模板
 	encryptTmpl := &gmx509.Certificate{
-		SerialNumber: big.NewInt(now.UnixNano() + 1),
-		Subject: pkix.Name{
-			// 通用名称
-			CommonName: commonName,
-			// 组织名称
-			Organization: []string{organization},
-			// 组织单位名称
-			OrganizationalUnit: []string{organizationalUnit},
-			// 国家代码
-			Country: []string{country},
-			// 省份名称
-			Province: []string{province},
-			// 城市名称
-			Locality: []string{locality},
-		},
+		SerialNumber:          big.NewInt(now.UnixNano() + 1),
+		Subject:               subject,
 		NotBefore:             now,
 		NotAfter:              expire,
 		IsCA:                  true,
@@ -213,22 +211,28 @@ func GenerateIntermediateCAStandard(name, commonName, organization, organization
 		expire = now.AddDate(5, 0, 0)
 	}
 
+	subject := pkix.Name{
+		// 通用名称
+		CommonName: commonName,
+		// 国家代码
+		Country: []string{country},
+	}
+	if organization != "" {
+		subject.Organization = []string{organization}
+	}
+	if organizationalUnit != "" {
+		subject.OrganizationalUnit = []string{organizationalUnit}
+	}
+	if province != "" {
+		subject.Province = []string{province}
+	}
+	if locality != "" {
+		subject.Locality = []string{locality}
+	}
+
 	tmpl := &x509.Certificate{
-		SerialNumber: big.NewInt(now.UnixNano()),
-		Subject: pkix.Name{
-			// 通用名称
-			CommonName: commonName,
-			// 组织名称
-			Organization: []string{organization},
-			// 组织单位名称
-			OrganizationalUnit: []string{organizationalUnit},
-			// 国家代码
-			Country: []string{country},
-			// 省份名称
-			Province: []string{province},
-			// 城市名称
-			Locality: []string{locality},
-		},
+		SerialNumber:          big.NewInt(now.UnixNano()),
+		Subject:               subject,
 		NotBefore:             now,
 		NotAfter:              expire,
 		IsCA:                  true,
@@ -288,23 +292,29 @@ func GenerateIntermediateCASM2(name, commonName, organization, organizationalUni
 		expire = now.AddDate(5, 0, 0)
 	}
 
+	subject := pkix.Name{
+		// 通用名称
+		CommonName: commonName,
+		// 国家代码
+		Country: []string{country},
+	}
+	if organization != "" {
+		subject.Organization = []string{organization}
+	}
+	if organizationalUnit != "" {
+		subject.OrganizationalUnit = []string{organizationalUnit}
+	}
+	if province != "" {
+		subject.Province = []string{province}
+	}
+	if locality != "" {
+		subject.Locality = []string{locality}
+	}
+
 	// 2. 创建中间签名证书模板
 	signTmpl := &gmx509.Certificate{
-		SerialNumber: big.NewInt(now.UnixNano()),
-		Subject: pkix.Name{
-			// 通用名称
-			CommonName: commonName,
-			// 组织名称
-			Organization: []string{organization},
-			// 组织单位名称
-			OrganizationalUnit: []string{organizationalUnit},
-			// 国家代码
-			Country: []string{country},
-			// 省份名称
-			Province: []string{province},
-			// 城市名称
-			Locality: []string{locality},
-		},
+		SerialNumber:          big.NewInt(now.UnixNano()),
+		Subject:               subject,
 		NotBefore:             now,
 		NotAfter:              expire,
 		IsCA:                  true,
@@ -315,21 +325,8 @@ func GenerateIntermediateCASM2(name, commonName, organization, organizationalUni
 
 	// 3. 创建中间加密证书模板
 	encryptTmpl := &gmx509.Certificate{
-		SerialNumber: big.NewInt(now.UnixNano() + 1),
-		Subject: pkix.Name{
-			// 通用名称
-			CommonName: commonName,
-			// 组织名称
-			Organization: []string{organization},
-			// 组织单位名称
-			OrganizationalUnit: []string{organizationalUnit},
-			// 国家代码
-			Country: []string{country},
-			// 省份名称
-			Province: []string{province},
-			// 城市名称
-			Locality: []string{locality},
-		},
+		SerialNumber:          big.NewInt(now.UnixNano() + 1),
+		Subject:               subject,
 		NotBefore:             now,
 		NotAfter:              expire,
 		IsCA:                  true,

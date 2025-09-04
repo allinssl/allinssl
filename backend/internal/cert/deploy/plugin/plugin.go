@@ -109,7 +109,7 @@ func CallPlugin(name, action string, params map[string]interface{}, logger *publ
 	// 如果是插件或 action 不存在，则刷新插件列表并再试一次
 	if errors.Is(err, ErrPluginNotFound) || errors.Is(err, ErrActionNotFound) {
 		logger.Debug("插件或插件内方法不存在，尝试刷新插件列表...")
-		_, scanErr := scanPlugins("plugins")
+		_, scanErr := GetPlugins()
 		if scanErr != nil {
 			logger.Error("插件刷新失败", scanErr)
 			return nil, fmt.Errorf("插件刷新失败: %v", scanErr)
