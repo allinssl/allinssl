@@ -338,7 +338,8 @@ export const useViewCertController = (cert: CertItem) => {
 	}
 
 	// 合并证书内容（cert + issuer_cert）
-	const combinedCert = cert.cert + (cert.issuer_cert ? '\n' + cert.issuer_cert : '')
+	// const combinedCert = cert.cert + (cert.issuer_cert ? '\n' + cert.issuer_cert : '')
+	const combinedCert = cert.cert
 
 	// 表单实例
 	const { component } = useForm({
