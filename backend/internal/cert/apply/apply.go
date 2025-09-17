@@ -3,6 +3,7 @@ package apply
 import (
 	"ALLinSSL/backend/internal/access"
 	"ALLinSSL/backend/internal/cert"
+	"ALLinSSL/backend/internal/cert/apply/lego/bt"
 	"ALLinSSL/backend/internal/cert/apply/lego/jdcloud"
 	"ALLinSSL/backend/internal/cert/apply/lego/webhook"
 	"ALLinSSL/backend/public"
@@ -216,6 +217,16 @@ func GetDNSProvider(providerName string, creds map[string]string, httpClient *ht
 		config.APISecret = creds["api_secret"]
 		config.PropagationTimeout = maxWait
 		return spaceship.NewDNSProviderConfig(config)
+	case "btdomain":
+		config := bt.NewDefaultConfig()
+		config.AccountID = creds["account_id"]
+		config.AccessKey = creds["access_key"]
+		config.SecretKey = creds["secret_key"]
+		if creds["base_url"] != "" {
+			config.BaseURL = creds["base_url"]
+		}
+		config.PropagationTimeout = maxWait
+		return bt.NewDNSProviderConfig(config)
 	//case "edgeone":
 	//config :=
 

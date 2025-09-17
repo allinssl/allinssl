@@ -190,6 +190,8 @@ func init() {
 	InsertIfNotExists(db, "access_type", map[string]any{"name": "webhook", "type": "dns"}, []string{"name", "type"}, []any{"webhook", "dns"})
 	InsertIfNotExists(db, "access_type", map[string]any{"name": "webhook", "type": "host"}, []string{"name", "type"}, []any{"webhook", "host"})
 
+	InsertIfNotExists(db, "access_type", map[string]any{"name": "btdomain", "type": "dns"}, []string{"name", "type"}, []any{"btdomain", "dns"})
+
 	err = sqlite_migrate.EnsureDatabaseWithTables(
 		"data/site_monitor.db",
 		"data/data.db",

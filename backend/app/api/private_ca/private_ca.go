@@ -162,6 +162,10 @@ func DownloadCert(c *gin.Context) {
 		public.FailMsg(c, err.Error())
 		return
 	}
+	if certData == nil {
+		public.FailMsg(c, "证书不存在")
+		return
+	}
 
 	// 构建 zip 包（内存中）
 	buf := new(bytes.Buffer)
@@ -210,6 +214,32 @@ func DownloadCert(c *gin.Context) {
 		if _, err := enKeyWriter.Write([]byte(enKeyStr)); err != nil {
 			public.FailMsg(c, err.Error())
 			return
+		}
+	}
+
+	if certData["algorithm"] == "ecdsa" || certData["algorithm"] == "rsa" {
+		// cert.pfx
+		pfxPassword := "allinssl"
+		pfxData, err := public.PEMToPFX(certStr, keyStr, pfxPassword)
+		if err == nil && len(pfxData) > 0 {
+			pfxWriter, err := zipWriter.Create("IIS/cert.pfx")
+			if err != nil {
+				public.FailMsg(c, err.Error())
+				return
+			}
+			if _, err := pfxWriter.Write(pfxData); err != nil {
+				public.FailMsg(c, err.Error())
+				return
+			}
+			txtWriter, err := zipWriter.Create("IIS/passwd.txt")
+			if err != nil {
+				public.FailMsg(c, err.Error())
+				return
+			}
+			if _, err := txtWriter.Write([]byte(pfxPassword)); err != nil {
+				public.FailMsg(c, err.Error())
+				return
+			}
 		}
 	}
 

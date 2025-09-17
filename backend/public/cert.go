@@ -168,18 +168,21 @@ func PEMToPFX(certPEM, keyPEM, pfxPassword string) ([]byte, error) {
 		return nil, fmt.Errorf("解析证书失败: %v", err)
 	}
 
-	// 尝试解析私钥(PKCS8或PKCS1格式)
+	// 尝试解析私钥(PKCS8、PKCS1 或 EC 格式)
 	var privKey interface{}
 	privKey, err = x509.ParsePKCS8PrivateKey(keyBlock.Bytes)
 	if err != nil {
 		privKey, err = x509.ParsePKCS1PrivateKey(keyBlock.Bytes)
 		if err != nil {
-			return nil, fmt.Errorf("解析私钥失败: %v", err)
+			privKey, err = x509.ParseECPrivateKey(keyBlock.Bytes)
+			if err != nil {
+				return nil, fmt.Errorf("解析私钥失败: %v", err)
+			}
 		}
 	}
 
 	// 编码为PFX格式
-	pfxData, err := pkcs12.Encode(rand.Reader, privKey, cert, nil, pfxPassword)
+	pfxData, err := pkcs12.LegacyRC2.WithRand(rand.Reader).Encode(privKey, cert, nil, pfxPassword)
 	if err != nil {
 		return nil, fmt.Errorf("编码PFX失败: %v", err)
 	}
