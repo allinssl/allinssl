@@ -251,8 +251,10 @@ export const useController = () => {
 			if (data.value?.status === true) {
 				rootCaList.value = data.value.data;
 				if (createType.value === 'intermediate' && rootCaList.value.length > 0 && rootCaList.value[0]) {
-					addForm.value.root_id = rootCaList.value[0].id.toString();
-				}
+          addForm.value.root_id = rootCaList.value[0].id.toString();
+          addForm.value.algorithm = rootCaList.value[0].algorithm;
+          addForm.value.key_length = rootCaList.value[0].key_length.toString();
+        }
 			}
 		} catch (error) {
 			console.error('获取根证书列表失败:', error);

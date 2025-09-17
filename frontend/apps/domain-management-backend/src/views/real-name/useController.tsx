@@ -170,7 +170,7 @@ export function useController() {
 						{/* <NButton size="small" onClick={() => handleEditTemplate(row)}>
               编辑
             </NButton> */}
-						<NButton size="small" type="error" ghost onClick={() => handleDeleteTemplate(row.registrant_id)}>
+						<NButton size="small" type="error" ghost onClick={() => handleDeleteTemplate(row.id)}>
 							删除
 						</NButton>
 					</NFlex>
@@ -329,9 +329,9 @@ export function useController() {
 
 	/**
 	 * 处理删除模板
-	 * @param registrantId 注册者标识ID
+	 * @param id 实名模板id
 	 */
-	async function handleDeleteTemplate(registrantId: string) {
+	async function handleDeleteTemplate(id: number) {
 		useDialog({
 			type: 'warning',
 			title: '确认删除',
@@ -341,7 +341,7 @@ export function useController() {
 			negativeText: '取消',
 			onPositiveClick: async () => {
 				try {
-					await deleteTemplateById(registrantId)
+					await deleteTemplateById(id)
 					fetchTable()
 				} catch (error) {
 					console.error('删除模板失败:', error)
@@ -467,7 +467,7 @@ export function useController() {
 
 									{/* 操作按钮 */}
 									<NFlex size="small">
-										<NButton size="small" type="error" ghost onClick={() => handleDeleteTemplate(item.registrant_id)}>
+										<NButton size="small" type="error" ghost onClick={() => handleDeleteTemplate(item.id)}>
 											删除
 										</NButton>
 									</NFlex>

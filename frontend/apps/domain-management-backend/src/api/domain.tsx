@@ -18,6 +18,9 @@ import type {
 	DomainPriceQueryRequest,
 	DomainPriceQueryResponse,
 	DomainAutoRenewRequest,
+	DomainRealNameUpdateRequest,
+	PrivacyRequest,
+	PrivacyPriceRequest,
 } from '@/types/domain'
 import type {
   DomainTransferListRequest,
@@ -47,7 +50,14 @@ export const fetchDomainDetail = (params: DomainDetailRequest) =>
   useApi<DomainDetailResponse, DomainDetailRequest>(
     "/v1/domain/manage/detail",
     params,
-  );
+	);
+/**
+ * @description 修改域名实名模板
+ * @param {DomainRealNameUpdateRequest} params 更新参数，包含域名ID和新的实名模板id
+ * @returns {useAxiosReturn<ApiResponse, DomainRealNameUpdateRequest>} 返回更新结果
+ */
+export const updateDomainRealName = (params: DomainRealNameUpdateRequest) =>
+	useApi<ApiResponse, DomainRealNameUpdateRequest>('/v1/domain/manage/update_real_name_tpl', params)
 
 /**
  * @description 更新域名DNS服务器
@@ -108,3 +118,49 @@ export const fetchDomainAutoRenew = (params: DomainAutoRenewRequest) =>
 // 下载域名证书
 export const downloadDomainCertificate = (params: { domain_id: number }) =>
 	useApi<ApiResponse, { domain_id: number }>('/v1/domain/manage/get_cert', params)
+
+// 域名隐私保护
+export const privacyOrder = (params: PrivacyRequest) => useApi<ApiResponse, PrivacyRequest>('/v1/order/privacy', params)
+
+// 隐私保护价格查询
+export const privacyPrice = (params: PrivacyPriceRequest) =>
+	useApi<ApiResponse, PrivacyPriceRequest>('/v1/domain/privacy/price', params)
+
+// 添加DNSSEC DS记录
+export const addDnssecDsRecord = (params: {
+  domain_id: string
+  key_tag: number
+  alg: number
+  digest_type: number
+  digest: string
+}) =>
+	useApi<ApiResponse, typeof params>('/v1/dns/dnssec/add_ds', params)
+
+// 获取DNSSEC DS记录列表
+export const getDnssecDsList = (params: {
+  domain_id: string
+}) =>
+	useApi<{
+		code: number
+		data: Array<{
+			alg: number
+			created_at: number
+			digest: string
+			digest_type: number
+			id: number
+			key_tag: number
+			status: number
+			updated_at: number
+		}>
+		msg: string
+		status: boolean
+	}, typeof params>('/v1/dns/dnssec/get_ds_list', params)
+
+// 删除DNSSEC DS记录
+export const deleteDnssecDsRecord = (params: {
+  ds_id: number
+}) =>
+	useApi<ApiResponse, typeof params>('/v1/dns/dnssec/del_ds', params)
+
+export const syncDnssecDsRecord = (params: { domain_id: string }) =>
+	useApi<ApiResponse, typeof params>('/v1/dns/dnssec/sync_ds', params)

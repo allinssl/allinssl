@@ -101,7 +101,6 @@ export default defineComponent({
 			</>
 		)
 
-		onMounted(() => formFetchSearch)
 		// 主渲染
 		return () => (
 			<div class="flex flex-col gap-[16px]">

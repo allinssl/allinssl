@@ -20,29 +20,29 @@ import { $t } from '@locales/index'
  * 用于管理流程图的状态、缩放等数据
  */
 export const useFlowStore = defineStore('flow-store', () => {
-	const flowData = ref<FlowNode>({
-		id: '',
-		name: '',
-		childNode: {
-			id: 'start-1',
-			name: '开始',
-			type: 'start',
-			config: {
-				exec_type: 'manual',
-			},
-			childNode: null,
-		},
-	}) // 流程图数据
-	const flowZoom = ref(100) // 流程图缩放比例
-	const advancedOptions = ref(false) // 高级选项
-	const addNodeSelectList = ref<NodeSelect[]>([]) // 添加节点选项列表
-	const excludeNodeSelectList = ref<NodeNum[]>([]) // 排除的节点选项列表
-	const addNodeBtnRef = ref<HTMLElement | null>(null) // 添加节点按钮
-	const addNodeSelectRef = ref<HTMLElement | null>(null) // 添加节点选择框
-	const addNodeSelectPostion = ref<number | null>(null) // 添加节点选择框位置
-	const selectedNodeId = ref<string | null>(null) // 当前选中的节点ID
-	const isRefreshNode = ref<string | null>(null) // 是否刷新节点
-	const startNodeSavedByUser = ref<boolean>(false); // 开始节点是否已被用户手动保存过
+  const flowData = ref<FlowNode>({
+    id: "",
+    name: "",
+    childNode: {
+      id: "start-1",
+      name: "开始",
+      type: "start",
+      config: {
+        exec_type: "manual",
+      },
+      childNode: null,
+    },
+  }); // 流程图数据
+  const flowZoom = ref(100); // 流程图缩放比例
+  const advancedOptions = ref(false); // 高级选项
+  const addNodeSelectList = ref<NodeSelect[]>([]); // 添加节点选项列表
+  const excludeNodeSelectList = ref<NodeNum[]>([]); // 排除的节点选项列表
+  const addNodeBtnRef = ref<HTMLElement | null>(null); // 添加节点按钮
+  const addNodeSelectRef = ref<HTMLElement | null>(null); // 添加节点选择框
+  const addNodeSelectPostion = ref<number | null>(null); // 添加节点选择框位置
+  const selectedNodeId = ref<string | null>(null); // 当前选中的节点ID
+  const isRefreshNode = ref<string | null>(null); // 是否刷新节点
+  const startNodeSavedByUser = ref<boolean>(false); // 开始节点是否已被用户手动保存过
 
   // 计算添加节点选项列表，排除的节点选项列表
   const nodeSelectList = computed(() => {
@@ -606,14 +606,28 @@ export const useFlowStore = defineStore('flow-store', () => {
   /**
    * 设置流程图缩放比例
    * 控制流程图的显示大小
-   * @param {number} type - 缩放类型：1 表示缩小，2 表示放大
+   * @param {number} type - 缩放类型：1 表示缩小，2 表示放大，或者直接传入缩放值（0.5-3.0）
    */
   const setflowZoom = (type: number) => {
-    if (type === 1 && flowZoom.value > 50) {
+    // 如果传入的是小数（0.5-3.0），直接设置缩放值
+    if (type < 1) {
+      const zoomValue = Math.round(type * 100);
+      flowZoom.value = Math.max(50, Math.min(300, zoomValue));
+    } else if (type === 1 && flowZoom.value > 50) {
+      // 缩小
       flowZoom.value -= 10;
     } else if (type === 2 && flowZoom.value < 300) {
+      // 放大
       flowZoom.value += 10;
     }
+  };
+
+  /**
+   * 直接设置缩放值（用于滚轮缩放）
+   * @param {number} zoomValue - 缩放值（50-300）
+   */
+  const setZoomValue = (zoomValue: number) => {
+    flowZoom.value = Math.max(50, Math.min(300, zoomValue));
   };
 
   /**
@@ -632,7 +646,7 @@ export const useFlowStore = defineStore('flow-store', () => {
     startNodeSavedByUser.value = false;
   };
 
-	return {
+  return {
     // 数据
     flowData, // 流程图数据
     flowZoom, // 流程图缩放比例
@@ -649,6 +663,7 @@ export const useFlowStore = defineStore('flow-store', () => {
     getResultData, // 获取流程图数据
     updateFlowData, // 更新流程图数据
     setflowZoom, // 设置流程图缩放比例
+    setZoomValue, // 直接设置缩放值（用于滚轮缩放）
     setStartNodeSavedByUser, // 设置开始节点已被用户保存的状态
     resetStartNodeSavedState, // 重置开始节点保存状态
 

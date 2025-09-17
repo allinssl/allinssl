@@ -809,20 +809,6 @@ export default defineComponent({
 		}
 
 		/**
-		 * @description 处理分析搜索
-		 * @param field 字段
-		 * @param recordId 记录ID
-		 * @returns
-		 */
-		const handleAnalysisSearch = () => {
-			if (isAdding.value || isEditing.value !== '') {
-				message.warning('正在编辑/添加记录，请先保存后搜索')
-				return
-			}
-			fetchRecords()
-		}
-
-		/**
 		 * 渲染展开行 - TSX 版本
 		 * @param rowData 行数据
 		 * @returns JSX 元素

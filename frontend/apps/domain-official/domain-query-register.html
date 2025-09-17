@@ -28,6 +28,21 @@
 				<div class="w-full lg:w-3/4">
 					<!-- 域名结果列表 -->
 					<section class="bg-white rounded-sm shadow-sm">
+						<!-- Tab切换区域 - 紧凑版 -->
+						<div class="domain-search-tabs">
+							<div class="tab-buttons flex">
+								<button id="tab-normal" class="tab-btn active">
+									域名注册
+								</button>
+								<button id="tab-ai" class="tab-btn">
+									<i class="fa fa-search"></i>AI域名推荐
+									<span class="new-badge">new</span>
+								</button>
+							</div>
+						</div>
+
+						<!-- 域名注册搜索面板 -->
+						<div id="normal-search-panel" class="search-panel">
 						<div class="flex w-full mb-2">
 							<!-- 搜索框和按钮 -->
 							<div id="search-section" class="flex flex-col sm:flex-row gap-3 w-full">
@@ -37,6 +52,54 @@
 									<i class="fa fa-times-circle clear-input-button visible" id="clear-input-button" title="清空输入"></i>
 								</div>
 								<button class="primary-action-button text-lg">重新查询</button>
+								</div>
+							</div>
+						</div>
+
+						<!-- AI推荐搜索面板 -->
+						<div id="ai-search-panel" class="search-panel hidden">
+							<!-- AI推荐搜索框和按钮 -->
+							<div class="flex w-full mb-2">
+								<!-- 整体渐变容器 -->
+								<div class="ai-search-container">
+									<div class="ai-search-inner">
+										<form autocomplete="off">
+											<div id="ai-search-section" class="flex flex-col lg:flex-row gap-3 w-full">
+											<!-- 品牌名称输入框 -->
+											<div class="ai-input-group flex-1">
+												<i class="ai-input-icon fa fa-building"></i>
+																							<input 
+												type="text" 
+												id="brand-name-input" 
+												class="ai-search-input"
+												placeholder="请输入品牌/公司/个人/产品名称"
+												autocomplete="off"
+												spellcheck="false"
+											>
+											</div>
+											
+											<!-- 行业信息输入框 -->
+											<div class="ai-input-group flex-1">
+												<i class="ai-input-icon fa fa-industry"></i>
+																							<input 
+												type="text" 
+												id="industry-input" 
+												class="ai-search-input"
+												placeholder="请输入行业信息"
+												autocomplete="off"
+												spellcheck="false"
+											>
+											</div>
+											
+											<!-- AI推荐按钮 -->
+											<button type="button" id="ai-recommend-btn" class="ai-transparent-button">
+												<i class="ai-button-icon fa fa-search"></i>
+												<span class="ai-button-text">AI推荐</span>
+											</button>
+											</div>
+										</form>
+									</div>
+								</div>
 							</div>
 						</div>
 						<!-- 筛选器 -->
@@ -185,7 +248,9 @@
         	{{#end if}}
         	<div class="flex items-center justify-between p-4 gap-3">
         		<div class="flex items-center">
-        			<div class="font-bold text-sm mr-4 {{#if item.isRegistered}}line-through text-gray-400{{#end if}}">{{item.domain}}</div>
+        			<div class="text-sm mr-4">
+								<div class="font-bold {{#if item.isRegistered}}line-through text-gray-400{{#end if}}">
+									{{item.domain}}
         			{{#if item.isRegistered}}
         			<div class="status-badge text-gray-600 border-gray-800">{{item.statusText}}</div>
         			{{#end if}}
@@ -201,6 +266,14 @@
 							{{#if item.hasNew}}
 							<div class="status-badge status-badge-new">新人特惠</div>
 							{{#end if}}
+								</div>
+								{{#if item.hasAiMeaning}}
+								<!-- AI推荐域名意义解释 -->
+								<div class="domain-meaning text-gray-400">
+									AI解读：{{item.meaning}}
+								</div>
+								{{#end if}}
+							</div>
         		</div>
 						{{#if item.isRegistered}}
 						<!-- 已注册：显示查看WHOIS链接 -->
@@ -212,13 +285,11 @@
          		<div class="flex items-center gap-6 {{#if item.isRegistered}}!hidden{{/if}}">
         			<div class="text-right relative price-tooltip-container">
         				<div class="flex items-center justify-end price-trigger cursor-pointer">
-        					{{#if item.hasOriginalPrice}}
         					<span class="text-secondary-60 line-through mr-2 text-xs">{{item.formattedOriginalPrice}}</span>
-        					{{#end if}}
         					<span class="text-sm text-orange-500">{{item.formattedPrice}}元/首年</span>
         					<i class="fa fa-caret-down text-gray-400 ml-1 hover:text-primary transition-colors"></i>
         				</div>
-        				<div class="text-xs text-secondary-60 mr-4">续费{{item.formattedOriginalPrice}}/年</div>
+        				<div class="text-xs text-secondary-60 mr-4">续费{{item.renewPrice}}/年</div>
 
         				<!-- 价格悬浮窗 -->
 								<div class="price-tooltip absolute right-0 top-full bg-white rounded-lg shadow-xl border px-4 py-4 opacity-0 invisible transition-all duration-200 ease-out transform translate-y-1" style="z-index: 9999">
@@ -324,7 +395,7 @@
 
 		<!-- Modal内容模板 -->
 		<script type="text/template" id="modal-content-template">
-      <div class="bg-white rounded-sm {{sizeClass}} w-full transform transition-all scale-95 opacity-0 modal-content">
+      <div class="bg-white rounded-sm {{sizeClass}} w-full transform transition-all scale-95">
       	<div class="flex  justify-between items-center p-5 border-b border-gray-100">
       		<h3 class="text-xl font-bold text-dark">{{title}}</h3>
       		{{#if closable}}
@@ -976,150 +1047,6 @@
           <button id="confirm-delete-btn" class="px-6 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors">
             确认删除
           </button>
-        </div>
-      </div>
-    </script>
-
-		<!-- WHOIS查询模态窗口 -->
-		<script type="text/template" id="whois-modal-template">
-      <div class="whois-modal">
-        <div class="flex flex-col">
-          {{#if isLoading}}
-          <div class="text-center py-12">
-            <div class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-primary mb-4"></div>
-            <p class="text-gray-600">正在查询WHOIS信息...</p>
-          </div>
-          {{#end if}}
-          
-          {{#if hasError}}
-          <div class="text-center py-12">
-            <div class="text-red-500 text-6xl mb-4">
-              <i class="fa fa-exclamation-triangle"></i>
-            </div>
-            <h4 class="text-xl font-semibold text-gray-800 mb-2">查询失败</h4>
-            <p class="text-gray-600">{{errorMessage}}</p>
-          </div>
-          {{#end if}}
-          
-          {{#if hasData}}
-          <!-- Tab 切换导航 -->
-          <div class="whois-tab-container flex">
-            <button class="whois-tab-btn active" data-tab="raw">
-              <i class="fa fa-code mr-2"></i>原始数据
-            </button>
-            <button class="whois-tab-btn" data-tab="optimized">
-              <i class="fa fa-eye mr-2"></i>优化视图
-            </button>
-          </div>
-          
-          <!-- 原始数据视图 -->
-          <div id="whois-raw-view" class="whois-tab-content active">
-            <div class="bg-gray-900 text-green-400 p-4 font-mono text-sm overflow-auto h-140">
-              <pre class="whitespace-pre-wrap">{{rawData}}</pre>
-            </div>
-          </div>
-          
-          <!-- 优化视图内容 -->
-          <div id="whois-optimized-view" class="whois-tab-content hidden">
-            <!-- 域名概览卡片 -->
-            <div class="whois-overview-card">
-              <div class="whois-domain-header">
-                <h3 class="whois-domain-name">{{domainName}}</h3>
-                {{#if status}}
-                <span class="whois-status-badge {{statusClass}}">{{status}}</span>
-                {{#end if}}
-              </div>
-              {{#if registrar}}
-              <div class="whois-registrar-info">
-                <i class="fa fa-building"></i>
-                <span>注册商：{{registrar}}</span>
-              </div>
-              {{#end if}}
-            </div>
-            
-            <!-- 信息卡片网格 -->
-            <div class="whois-info-grid">
-              <!-- 时间信息卡片 -->
-              <div class="whois-info-card">
-                <div class="whois-card-header">
-                  <i class="fa fa-clock-o whois-card-icon"></i>
-                  <h4 class="whois-card-title">时间信息</h4>
-                </div>
-                <div class="whois-card-content">
-                  {{#if creationDate}}
-                  <div class="whois-info-item">
-                    <span class="whois-info-label">注册时间</span>
-                    <span class="whois-info-value">{{creationDate}}</span>
-                  </div>
-                  {{#end if}}
-                  {{#if expirationDate}}
-                  <div class="whois-info-item">
-                    <span class="whois-info-label">到期时间</span>
-                    <span class="whois-info-value">{{expirationDate}}</span>
-                  </div>
-                  {{#end if}}
-                  {{#if updatedDate}}
-                  <div class="whois-info-item">
-                    <span class="whois-info-label">更新时间</span>
-                    <span class="whois-info-value">{{updatedDate}}</span>
-                  </div>
-                  {{#end if}}
-                </div>
-              </div>
-              
-              <!-- 注册信息卡片 -->
-              <div class="whois-info-card">
-                <div class="whois-card-header">
-                  <i class="fa fa-user whois-card-icon"></i>
-                  <h4 class="whois-card-title">注册信息</h4>
-                </div>
-                <div class="whois-card-content">
-                  {{#if registrant}}
-                  <div class="whois-info-item">
-                    <span class="whois-info-label">注册人</span>
-                    <span class="whois-info-value">{{registrant}}</span>
-                  </div>
-                  {{#end if}}
-                  {{#if registrarName}}
-                  <div class="whois-info-item">
-                    <span class="whois-info-label">注册商</span>
-                    <span class="whois-info-value">{{registrarName}}</span>
-                  </div>
-                  {{#end if}}
-                  {{#if emails}}
-                  <div class="whois-info-item">
-                    <span class="whois-info-label">联系邮箱</span>
-                    <span class="whois-info-value">{{emails}}</span>
-                  </div>
-                  {{#end if}}
-                </div>
-              </div>
-            </div>
-            
-              <!-- DNS信息卡片 -->
-              {{#if nameServers}}
-              <div class="whois-info-card whois-dns-card">
-                <div class="whois-card-header">
-                  <i class="fa fa-server whois-card-icon"></i>
-                  <h4 class="whois-card-title">DNS信息</h4>
-                </div>
-                <div class="whois-card-content">
-                  <div class="whois-info-item">
-                    <span class="whois-info-label">域名服务器</span>
-                    <div class="whois-dns-servers">
-                      {{#each nameServers as server,index}}
-                      <span class="whois-dns-server">{{server}}</span>
-                      {{#end each}}
-                    </div>
-                  </div>
-                </div>
-              </div>
-              {{#end if}}
-            </div>
-          </div>
-          
-
-          {{#end if}}
         </div>
       </div>
     </script>

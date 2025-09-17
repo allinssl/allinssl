@@ -4,6 +4,8 @@ import type { ApiResponse } from "../types/api";
 import type {
   DomainQueryCheckRequest,
   DomainQueryCheckResponseData,
+	AiDomainQueryCheckRequest,
+	AiDomainQueryCheckResponseData
 } from "../types/api-types/domain-query-check";
 import type {
   ContactGetUserDetailRequest,
@@ -54,6 +56,17 @@ export function domainQueryCheck(
     "/v1/domain/query/check",
     data,
     headers
+  );
+}
+// AI -域名查询
+export function aiDomainQueryCheck(
+  data: AiDomainQueryCheckRequest,
+  headers?: Record<string, string>,
+): Promise<ApiResponse<AiDomainQueryCheckResponseData>> {
+  return api.post<AiDomainQueryCheckResponseData>(
+    "/v1/domain/recommend/recommend_domains",
+    data,
+    headers,
   );
 }
 

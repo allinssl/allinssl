@@ -55,6 +55,7 @@ import type {
   ConstellixAccessConfig,
   WebhookAccessConfig,
   SpaceshipAccessConfig,
+  BTDomainAccessConfig,
 } from "@/types/access";
 import type { VNode, Ref } from "vue";
 import { testAccess, getPlugins } from "@/api/access";
@@ -494,7 +495,7 @@ export const useApiFormController = (
           value: string,
           callback: (error?: Error) => void
         ) => {
-          if (!value.length) {
+          if (!value || !value.length) {
             const mapTips = {
               cloudflare: $t("t_0_1747042966820"),
               btpanel: $t("t_1_1747042969705"),
@@ -523,6 +524,25 @@ export const useApiFormController = (
             const mapTips = {
               godaddy: $t("t_1_1747984133312"),
               spaceship: "请输入 Spaceship API Secret",
+              btdomain: "请输入 BTDomain Secret Key",
+            };
+            return callback(
+              new Error(mapTips[param.value.type as keyof typeof mapTips])
+            );
+          }
+          callback();
+        },
+      },
+      account_id: {
+        trigger: "input",
+        validator: (
+          rule: FormItemRule,
+          value: string,
+          callback: (error?: Error) => void
+        ) => {
+          if (!value) {
+            const mapTips = {
+              btdomain: "请输入 BTDomain Account ID",
             };
             return callback(
               new Error(mapTips[param.value.type as keyof typeof mapTips])
@@ -621,6 +641,7 @@ export const useApiFormController = (
               volcengine: $t("t_3_1747365600828"),
               qiniu: $t("t_3_1747984134586"),
               doge: $t("t_0_1750320239265"),
+              btdomain: "请输入 BTDomain Access Key",
             };
             return callback(
               new Error(mapTips[param.value.type as keyof typeof mapTips])
@@ -636,7 +657,7 @@ export const useApiFormController = (
           value: string,
           callback: (error?: Error) => void
         ) => {
-          if (!value.length) {
+          if (!value || !value.length) {
             const mapTips = {
               tencentcloud: $t("t_2_1747042967277"),
               huawei: $t("t_3_1747042967608"),
@@ -644,6 +665,7 @@ export const useApiFormController = (
               volcengine: $t("t_4_1747365600137"),
               doge: $t("t_1_1750320241427"),
               constellix: "请输入Secret Key",
+              btdomain: "请输入 BTDomain Secret Key",
             };
             return callback(
               new Error(mapTips[param.value.type as keyof typeof mapTips])
@@ -1230,6 +1252,21 @@ export const useApiFormController = (
           })
         );
         break;
+      case "btdomain":
+        items.push(
+          useFormInput("Access Key", "config.access_key", {
+            allowInput: noSideSpace,
+          }),
+          useFormInput("Secret Key", "config.secret_key", {
+            type: "password",
+            showPasswordOn: "click",
+            allowInput: noSideSpace,
+          }),
+          useFormInput("Account ID", "config.account_id", {
+            allowInput: noSideSpace,
+          })
+        );
+        break;
       case "plugin":
         items.push(
           useFormCustom(() => {
@@ -1478,7 +1515,14 @@ export const useApiFormController = (
             api_key: "",
             api_secret: "",
           } as SpaceshipAccessConfig;
-          break;
+					break;
+				case "btdomain":
+					param.value.config = {
+						access_key: "",
+						secret_key: "",
+						account_id: "",
+					} as BTDomainAccessConfig;
+					break;
         case "plugin":
           param.value.config = {
             name: pluginList.value[0]?.value || "",

@@ -21,12 +21,12 @@ export default defineComponent({
 		const router = useRouter()
 		const BaseInfo = defineAsyncComponent(() => import('./components/BaseInfo'))
 		const RealName = defineAsyncComponent(() => import('./components/RealName'))
-		const DnsAnalysis = defineAsyncComponent(() => import('./components/DnsAnalysis/index'))
+		const Security = defineAsyncComponent(() => import('./components/security'))
 
 		// 获取域名ID（从路由参数中获取）
 		const domainId = route.params.id as string
 		// 获取控制器
-		const { loading, domainInfo, activeTab, refreshDomainInfo, switchTab } = useController(domainId)
+		const { loading, domainInfo,privacyInfo, activeTab, refreshDomainInfo, switchTab } = useController(domainId)
 
 		return () => (
 			<div class="domain-detail-container">
@@ -57,13 +57,24 @@ export default defineComponent({
 						class="mb-4"
 					>
 						<NTabPane name="base" tab="基本信息">
-							<BaseInfo domainInfo={domainInfo.value} loading={loading.value} onRefresh={refreshDomainInfo} />
+							<BaseInfo
+								domainInfo={domainInfo.value}
+								privacyInfo={privacyInfo.value}
+								loading={loading.value}
+								onRefresh={refreshDomainInfo}
+							/>
 						</NTabPane>
 						<NTabPane name="realName" tab="实名认证">
 							<RealName domainId={Number(domainId)} />
 						</NTabPane>
-						<NTabPane name="analysis" tab="域名解析">
-							<DnsAnalysis domainId={Number(domainId)} />
+						<NTabPane name="security" tab="域名安全">
+							<Security
+								domainId={Number(domainId)}
+								domainInfo={domainInfo.value}
+								privacyInfo={privacyInfo.value}
+								loading={loading.value}
+								onRefresh={refreshDomainInfo}
+							/>
 						</NTabPane>
 					</NTabs>
 				</NCard>

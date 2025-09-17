@@ -31,6 +31,8 @@ export interface RechargeRecord {
 export interface CreateRechargePayload {
   amount: number; // 元
   channel: 'wechat' | 'alipay';
+  amountType?: 'preset' | 'custom'; // 金额类型：预设或自定义
+  customAmount?: number; // 自定义金额
 }
 
 export interface RechargeState {

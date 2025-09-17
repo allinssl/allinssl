@@ -77,7 +77,9 @@ export default defineComponent({
     const caOptions = ref<
       Array<{ label: string; value: string; icon: string }>
     >([]);
-    const emailOptions = ref<string[]>([]);
+    const emailOptions = ref<
+      Array<{ label: string; value: string; id: number; email: string }>
+    >([]);
     const isLoadingCA = ref(false);
     const isLoadingEmails = ref(false);
     const showEmailDropdown = ref(false);
@@ -88,7 +90,7 @@ export default defineComponent({
       isLoadingCA.value = true;
       try {
         const { data } = await getEabList({
-          ca: param.value.ca,
+          ca: "",
           p: 1,
           limit: 1000,
         }).fetch();
@@ -144,7 +146,14 @@ export default defineComponent({
       try {
         const { data } = await getEabList({ ca, p: 1, limit: 1000 }).fetch();
         emailOptions.value =
-          data?.map((item) => item.email).filter(Boolean) || [];
+          data
+            ?.map((item) => ({
+              label: item.email,
+              value: `${item.id}`, // 使用 id 作为 value 确保唯一性
+              id: item.id,
+              email: item.email,
+            }))
+            .filter((item) => item.email) || [];
 
         // 检查是否为编辑模式且有外部传入的邮箱
         if (isEdit.value && routeEmail.value) {
@@ -154,15 +163,19 @@ export default defineComponent({
           // 非编辑模式：保持原有逻辑
           if (!emailOptions.value.length) {
             param.value.email = "";
+            param.value.eabId = "";
+          } else {
+            // 如果邮箱数组有内容，自动填充第一个邮箱地址
+            // 移除 !param.value.email 条件，让切换CA时总是更新为第一个选项
+            if (emailOptions.value[0]) {
+              param.value.email = emailOptions.value[0].email;
+              param.value.eabId = emailOptions.value[0].id.toString();
+            }
           }
-          // 如果邮箱数组有内容且当前邮箱为空，自动填充第一个邮箱地址
-          if (
-            emailOptions.value.length > 0 &&
-            emailOptions.value[0] &&
-            !param.value.email
-          ) {
-            param.value.email = emailOptions.value[0];
-          }
+        }
+
+        if (example.value) {
+          example.value.restoreValidation();
         }
       } catch (error) {
         console.error("加载邮件选项失败:", error);
@@ -239,15 +252,33 @@ export default defineComponent({
 
     // 创建邮箱下拉选项
     const emailDropdownOptions = computed(() => {
-      return emailOptions.value.map((email) => ({
-        label: email,
-        key: email,
+      return emailOptions.value.map((item) => ({
+        label: item.email,
+        key: item.email,
       }));
+    });
+
+    // 计算输入框宽度用于下拉菜单
+    const inputWidth = computed(() => {
+      if (emailInputRef.value?.$el) {
+        return emailInputRef.value.$el.offsetWidth;
+      }
+      return 0;
     });
 
     // 判断是否需要输入框（letsencrypt、buypass、zerossl）
     const shouldUseInputForEmail = computed(() => {
       return ["letsencrypt", "buypass", "zerossl"].includes(param.value.ca);
+    });
+
+    // 计算当前选中的邮箱选项的 value（用于 NSelect）
+    const currentEmailValue = computed(() => {
+      if (!param.value.eabId) return null;
+      // 优先使用 eabId 来查找匹配的选项
+      const matchedOption = emailOptions.value.find(
+        (item) => item.id.toString() === param.value.eabId
+      );
+      return matchedOption ? matchedOption.value : null;
     });
 
     // 表单渲染配置
@@ -343,7 +374,20 @@ export default defineComponent({
                     options={emailDropdownOptions.value}
                     onSelect={handleSelectEmail}
                     placement="bottom-start"
-                    style="width: 100%"
+                    menu-props={() => ({
+                      style: {
+                        width: `${inputWidth.value}px`,
+                        maxHeight: "40rem",
+                        overflowY: "auto",
+                      },
+                    })}
+                    node-props={(option: any) => ({
+                      style: {
+                        padding: "8px 12px",
+                        cursor: "pointer",
+                      },
+                      class: "hover:bg-gray-50",
+                    })}
                   >
                     <NInput
                       ref={emailInputRef}
@@ -358,16 +402,26 @@ export default defineComponent({
                   </NDropdown>
                 ) : (
                   <NSelect
-                    v-model:value={param.value.email}
-                    options={emailOptions.value.map((email) => ({
-                      label: email,
-                      value: email,
-                    }))}
+                    value={currentEmailValue.value}
+                    options={emailOptions.value}
                     placeholder={$t("t_2_1748052862259")}
                     clearable
                     filterable
                     loading={isLoadingEmails.value}
                     class="w-full"
+                    onUpdateValue={(value: string) => {
+                      // 根据选择的 id 找到对应的邮箱地址和 eabId
+                      const selectedOption = emailOptions.value.find(
+                        (item) => item.value === value
+                      );
+                      if (selectedOption) {
+                        param.value.email = selectedOption.email;
+                        param.value.eabId = selectedOption.id.toString();
+                      } else {
+                        param.value.email = value;
+                        param.value.eabId = "";
+                      }
+                    }}
                   />
                 )}
               </NFormItem>
@@ -545,6 +599,7 @@ export default defineComponent({
         } else {
           emailOptions.value = [];
           param.value.email = "";
+          param.value.eabId = "";
           showEmailDropdown.value = false;
         }
       }
@@ -564,14 +619,14 @@ export default defineComponent({
       advancedOptions.value = false;
       await loadCAOptions();
 
-      // 如果当前已经有CA值，主动加载对应的邮件选项
-      if (param.value.ca) {
-        await loadEmailOptions(param.value.ca);
-      }
-
       // 如果是编辑模式且有外部传入的邮箱，直接设置邮箱值
       if (isEdit.value && routeEmail.value) {
         param.value.email = routeEmail.value;
+      } else {
+        // 非编辑模式：如果当前已经有CA值，主动加载对应的邮件选项
+        if (param.value.ca) {
+          await loadEmailOptions(param.value.ca);
+        }
       }
 
       // 移除重复调用，让 watch 监听器处理 CA 值变化

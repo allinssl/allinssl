@@ -20,7 +20,9 @@ import {
 	ChromeReaderModeTwotone,
 	ShoppingCartOutlined,
 	RepeatOutlined,
+	InsertDriveFileOutlined,
 } from '@vicons/material'
+import { ShieldCheckmarkOutline, GlobeOutline } from '@vicons/ionicons5'
 
 import type { MenuOption } from 'naive-ui'
 
@@ -42,6 +44,9 @@ const iconMap: Record<string, any> = {
 	'shopping-cart': ShoppingCartOutlined,
 	wallet: MoneyRound,
 	transfer: RepeatOutlined,
+	security: ShieldCheckmarkOutline,
+	resolve: GlobeOutline,
+	operation: InsertDriveFileOutlined,
 }
 
 /**

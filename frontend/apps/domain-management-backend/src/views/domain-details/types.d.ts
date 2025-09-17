@@ -12,7 +12,7 @@ import type {
 /**
  * 域名详情标签页类型
  */
-export type DomainDetailTabKey = "base" | "realName" | "analysis" | "logs";
+export type DomainDetailTabKey = 'base' | 'realName' | 'security' | 'analysis' | 'logs'
 
 /**
  * DNS记录表单数据

@@ -61,8 +61,6 @@ export const TPL_CONFIRM_DELETE_MODAL = 'confirm-delete-modal-template' as const
 // 域名注册协议
 export const TPL_DOMAIN_AGREEMENT_MODAL = 'domain-agreement-modal-template' as const
 
-// WHOIS查询
-export const TPL_WHOIS_MODAL = 'whois-modal-template' as const
 
 /** 模板常量字典，便于遍历或注入 */
 export const TEMPLATES = {
@@ -92,5 +90,4 @@ export const TEMPLATES = {
   TPL_ORDER_SUCCESS,
   TPL_CONFIRM_DELETE_MODAL,
   TPL_DOMAIN_AGREEMENT_MODAL,
-  TPL_WHOIS_MODAL,
 } as const

@@ -84,3 +84,21 @@ export interface DomainQueryCheckRequest {
   /** 推荐类型（可选），用于筛选特定类型的推荐域名后缀 */
   recommend_type?: number
 }
+
+export interface AiDomainQueryCheckRequest {
+  /** 品牌名称 */
+  brand?: string;
+  /** 所属行业 */
+  industry?: string
+}
+
+export interface AiDomainQueryCheckResponseData {
+  /** 数据 */
+  data: AiDatum[];
+}
+
+// 继承Datum基础上增加meaning字段
+export interface AiDatum extends Datum {
+  /** 含义 */
+  meaning: string;
+}

@@ -42,7 +42,11 @@ const ORDER_TYPE = {
   /** 域名续费 */
   RENEW: 1,
   /** 域名转入 */
-  TRANSFER: 2,
+	TRANSFER: 2,
+	/** 购买隐私保护 */
+	PURCHASE_PRIVACY: 3,
+	/** 续费隐私保护 */
+	RENEW_PRIVACY: 4,
 };
 
 /**
@@ -84,6 +88,8 @@ const ORDER_TYPE_MAP = {
   [ORDER_TYPE.REGISTER]: { text: "域名注册", color: "#1890ff" },
   [ORDER_TYPE.RENEW]: { text: "域名续费", color: "#52c41a" },
   [ORDER_TYPE.TRANSFER]: { text: "域名转入", color: "#722ed1" },
+  [ORDER_TYPE.PURCHASE_PRIVACY]: { text: "购买隐私保护", color: "#faad14" },
+  [ORDER_TYPE.RENEW_PRIVACY]: { text: "续费隐私保护", color: "#fff2f0" },
   unknown: { text: "未知类型", color: "#666666" },
 };
 
@@ -106,7 +112,9 @@ const TYPE_OPTIONS = [
   { label: "全部类型", value: -1 },
   { label: "域名注册", value: ORDER_TYPE.REGISTER },
   { label: "域名续费", value: ORDER_TYPE.RENEW },
-  { label: "域名转入", value: ORDER_TYPE.TRANSFER },
+	{ label: "域名转入", value: ORDER_TYPE.TRANSFER },
+	{ label: "购买隐私保护", value: ORDER_TYPE.PURCHASE_PRIVACY },
+	{ label: "续费隐私保护", value: ORDER_TYPE.RENEW_PRIVACY },
 ];
 
 /**

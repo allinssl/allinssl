@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<title>域名注册信息 (WHOIS) 查询 - 堡塔域名注册</title>
+	<link href="/font-awesome.min.css" rel="stylesheet" />
+	<link href="src/styles/whois.css" rel="stylesheet" />
+</head>
+
+<body>
+	<div class="font-sans bg-white text-secondary">
+		<!-- 搜索区域 -->
+		<section class="pt-28 pb-20 md:pt-24 md:pb-28 bg-gradient-to-b">
+			<div class="container mx-auto px-4">
+				<div class="mx-auto text-center">
+					<h1 class="text-clamp font-bold leading-tight text-dark mb-6 animate-fade-in">
+						堡塔 <span class="text-primary">(WHOIS)</span>查询工具
+					</h1>
+					<p class="text-lg text-secondary-80 mb-10 max-w-2xl mx-auto">
+						查询任意域名的注册信息、所有者、到期时间等详细信息
+					</p>
+
+					<!-- 搜索框 -->
+					<div class="max-w-3xl mx-auto">
+						<div class="flex flex-col sm:flex-row gap-4">
+							<div class="input-container">
+								<input type="text" placeholder="请输入要查询的域名，如：example.com" 
+								       class="search-input" id="whois-domain-input" />
+								<i class="fa fa-times-circle clear-input-button" id="whois-clear-input" title="清空输入"></i>
+							</div>
+							<div class="flex gap-4">
+								<button id="whois-search-btn" 
+								        class="primary-action-button text-lg hover:shadow-primary-30 hover:-translate-y-1">
+									<i class="fa fa-search mr-2"></i>立即查询
+								</button>
+							</div>
+						</div>
+						<div class="mt-2 text-left"><a class="text-primary hover:text-primary" style="text-decoration: none;" href="/new/domain-register">域名注册 | .com低至53.9, .cn低至19.9元</a></div>
+					</div>
+				</div>
+			</div>
+		</section>
+
+		<!-- 结果展示区域 -->
+		<section class="py-20 bg-gray-50 hidden" id="whois-results-section">
+			<div class="container mx-auto px-4">
+				<div id="whois-content-area">
+					<!-- 动态内容将在这里渲染 -->
+				</div>
+			</div>
+		</section>
+
+		<!-- 加载状态 -->
+		<section class="py-20 bg-gray-50 hidden" id="whois-loading-section">
+			<div class="container mx-auto px-4">
+				<div class="text-center py-12">
+					<div class="inline-block animate-spin rounded-full w-12 h-12 border-b-2 border-primary mb-4"></div>
+					<p class="text-gray-600 text-lg">正在查询 WHOIS 信息...</p>
+					<p class="text-gray-500 text-sm mt-2">请稍等，通常需要几秒钟时间</p>
+				</div>
+			</div>
+		</section>
+
+		<!-- 错误状态 -->
+		<section class="py-20 bg-gray-50 hidden" id="whois-error-section">
+			<div class="container mx-auto px-4">
+				<div class="text-center py-12 max-w-2xl mx-auto">
+					<h4 class="text-xl font-semibold text-gray-800 mb-2">查询失败</h4>
+					<p class="text-gray-600 mb-6" id="whois-error-message">域名查询出现问题，请稍后重试</p>
+				</div>
+			</div>
+		</section>
+	</div>
+
+	<!-- JavaScript -->
+	<script type="text/javascript" src="/jquery-3.6.0.min.js"></script>
+	<script type="module" src="src/pages/whois.ts"></script>
+</body>
+
+</html>

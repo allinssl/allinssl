@@ -189,11 +189,11 @@ export const useRealNameStore = defineStore('real-name-store', () => {
 
 	/**
 	 * 删除实名模板
-	 * @param registrantId 注册者标识ID
+	 * @param id 实名模板id
 	 */
-	const deleteTemplateById = async (registrant_id: string) => {
+	const deleteTemplateById = async (id: number) => {
 		try {
-			const { data, fetch, message } = deleteUserDetail({ registrant_id })
+			const { data, fetch, message } = deleteUserDetail({ id })
 			message.value = true
 			await fetch()
 			return data

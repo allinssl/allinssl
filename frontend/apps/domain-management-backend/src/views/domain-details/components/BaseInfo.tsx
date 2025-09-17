@@ -22,14 +22,14 @@ import {
 	NButtonGroup,
 } from 'naive-ui'
 import { formatDate } from '@baota/utils/date'
-import { useMessage } from '@baota/naive-ui/hooks'
+import { useMessage, useModal } from '@baota/naive-ui/hooks'
 import { useError } from '@baota/hooks/error'
 import { updateDomainDnsServers, setDomainSecurity,fetchDomainAutoRenew,downloadDomainCertificate } from '@/api/domain'
 import { domainUtils } from '../config'
 
-import type { DomainInfo } from '@/types/domain'
+import type { DomainInfo,PrivacyInfo } from '@/types/domain'
 import { useApp } from '@/components/layout/useStore'
-import { AddOutline, RemoveOutline } from '@vicons/ionicons5'
+import { useDomainDetailState } from '../useStore'
 
 /**
  * 域名基本信息组件
@@ -39,6 +39,10 @@ export default defineComponent({
 	props: {
 		domainInfo: {
 			type: Object as PropType<DomainInfo | null>,
+			default: null,
+		},
+		privacyInfo: {
+			type: Object as PropType<PrivacyInfo | null>,
 			default: null,
 		},
 		loading: {
@@ -54,6 +58,8 @@ export default defineComponent({
 		const message = useMessage()
 		const { handleError } = useError()
 		const { isMobile } = useApp()
+
+		const { openPrivacyDialog } = useDomainDetailState()
 
 		// DNS服务器设置相关状态
 		const showDnsModal = ref(false)
@@ -101,7 +107,7 @@ export default defineComponent({
 					key,
 					label: `NS服务器${i}`,
 					value: String(dnsForm.value[key] || ''),
-					required: i <= 2 // 前两个必填
+					required: i <= 2, // 前两个必填
 				})
 			}
 			return fields
@@ -112,12 +118,12 @@ export default defineComponent({
 			return [
 				{
 					label: 'NS服务器1:',
-					value: props.domainInfo?.ns1 || ''
+					value: props.domainInfo?.ns1 || '',
 				},
 				{
 					label: 'NS服务器2:',
-					value: props.domainInfo?.ns2 || ''
-				}
+					value: props.domainInfo?.ns2 || '',
+				},
 			]
 		}
 
@@ -126,11 +132,7 @@ export default defineComponent({
 			<div>
 				{getDefaultDnsFields().map((field, index) => (
 					<NFormItem key={index} label={field.label}>
-						<NInput 
-							value={field.value} 
-							readonly 
-							placeholder={field.value || '暂无'} 
-						/>
+						<NInput value={field.value} readonly placeholder={field.value || '暂无'} />
 					</NFormItem>
 				))}
 			</div>
@@ -180,12 +182,17 @@ export default defineComponent({
 					ns6: props.domainInfo.ns6 || '',
 					domain_id: props.domainInfo.id,
 				}
-				
+
 				// 计算当前需要显示的字段数量
-				const filledCount = [
-					dnsForm.value.ns1, dnsForm.value.ns2, dnsForm.value.ns3,
-					dnsForm.value.ns4, dnsForm.value.ns5, dnsForm.value.ns6
-				].findLastIndex(v => v && v.trim()) + 1
+				const filledCount =
+					[
+						dnsForm.value.ns1,
+						dnsForm.value.ns2,
+						dnsForm.value.ns3,
+						dnsForm.value.ns4,
+						dnsForm.value.ns5,
+						dnsForm.value.ns6,
+					].findLastIndex((v) => v && v.trim()) + 1
 				visibleDnsCount.value = Math.max(filledCount, 2)
 			}
 		}
@@ -193,7 +200,12 @@ export default defineComponent({
 		// 打开DNS设置弹窗
 		const openDnsModal = () => {
 			if (props.domainInfo) {
-				dnsMode.value = 'default' // 默认打开默认模式
+				//如果ns数量大于2，则默认打开自定义模式
+				if (props.domainInfo?.ns3) {
+					switchToCustomMode()
+				} else {
+					dnsMode.value = 'default' // 默认打开默认模式
+				}
 				showDnsModal.value = true
 			}
 		}
@@ -205,20 +217,24 @@ export default defineComponent({
 				message.error('NS服务器1和NS服务器2为必填项')
 				return
 			}
-			
+
 			// 顺序校验：不能跳跃填写
 			const dnsValues = [
-				dnsForm.value.ns1, dnsForm.value.ns2, dnsForm.value.ns3,
-				dnsForm.value.ns4, dnsForm.value.ns5, dnsForm.value.ns6
+				dnsForm.value.ns1,
+				dnsForm.value.ns2,
+				dnsForm.value.ns3,
+				dnsForm.value.ns4,
+				dnsForm.value.ns5,
+				dnsForm.value.ns6,
 			]
-			
+
 			for (let i = 0; i < dnsValues.length - 1; i++) {
 				if (!dnsValues[i] && dnsValues[i + 1]) {
 					message.error(`请按顺序填写DNS服务器，NS服务器${i + 1}为空但NS服务器${i + 2}有值`)
 					return
 				}
 			}
-			
+
 			// DNS格式校验
 			const dnsRegex = /^[a-zA-Z0-9]([a-zA-Z0-9\-]{0,61}[a-zA-Z0-9])?(\.[a-zA-Z0-9]([a-zA-Z0-9\-]{0,61}[a-zA-Z0-9])?)*$/
 			for (let i = 0; i < dnsValues.length; i++) {
@@ -273,16 +289,40 @@ export default defineComponent({
 		}
 		// 自动续费
 		const toggleAutoRenew = async () => {
-			const { fetch, message,data } = fetchDomainAutoRenew({
+			const { fetch, message, data } = fetchDomainAutoRenew({
 				domain_id: props.domainInfo!.id,
 				status: props.domainInfo?.auto_renew === 1 ? 0 : 1,
 			})
 			message.value = true
 			await fetch()
-			
+
 			if (data.value.status) {
 				props.onRefresh?.()
 			}
+		}
+		// 刷新数据
+		function refreshFetch() {
+			props.onRefresh?.()
+		}
+		/**
+		 * 打开域名隐私保护弹窗
+		 * @param row 域名数据
+		 */
+		function openCnDomainPrivacyModal(row: DomainInfo | null) {
+			openPrivacyDialog.value = useModal({
+				title: '.CN/.中国专属域名隐私保护',
+				area: '520px',
+				component: () => import('./PrivacyProtection'),
+				componentProps: {
+					domain: row,
+					privacy: props.privacyInfo,
+					refresh: refreshFetch, // 传递列表刷新函数
+					onClose: () => {
+						openPrivacyDialog.value?.close()
+					},
+				},
+				footer: false,
+			})
 		}
 
 		// 切换安全设置
@@ -362,7 +402,9 @@ export default defineComponent({
 				</div>
 			)
 		}
-
+		const isPrivacy = computed(() => { 
+			return !!props.domainInfo?.privacy
+		})
 		return () => (
 			<div class="py-2">
 				<NGrid cols="1 m:2" xGap="16" yGap="16" responsive="screen">
@@ -416,6 +458,26 @@ export default defineComponent({
 							{renderInfoItem('到期时间', formatDate(props.domainInfo?.expire_time))}
 							{renderInfoItem('创建时间', formatDate(props.domainInfo?.created_at || 0))}
 							{renderInfoItem('更新时间', formatDate(props.domainInfo?.updated_at || 0))}
+							{(props.domainInfo?.suffix === 'cn' || props.domainInfo?.suffix === '中国') && (
+								<div class="mb-2 flex items-center h-10 hover:bg-gray-100">
+									<div class="text-gray-500 font-bold w-25 mr-5 ml-1">隐私保护</div>
+									<div>
+										<NTag type={isPrivacy.value ? 'success' : 'warning'} bordered={false}>
+											{isPrivacy.value
+												? `已开启(到期:${formatDate(props.privacyInfo?.end_time, 'yyyy-MM-dd')})`
+												: '未开启'}
+										</NTag>
+										<NButton
+											type="primary"
+											size="small"
+											class="ml-2"
+											onClick={() => props.domainInfo && openCnDomainPrivacyModal(props.domainInfo)}
+										>
+											{isPrivacy.value ? '延续隐私保护' : '.CN/.中国专属域名隐私保护'}
+										</NButton>
+									</div>
+								</div>
+							)}
 						</NCard>
 					</NGridItem>
 
@@ -424,10 +486,10 @@ export default defineComponent({
 						<NCard title="DNS信息" header-style="font-size:16px;font-weight:500" class="h-[280px]">
 							{renderInfoItem('NS服务器1', props.domainInfo?.ns1)}
 							{renderInfoItem('NS服务器2', props.domainInfo?.ns2)}
-							{renderInfoItem('DNS状态', null, 'tag', {
+							{/* {renderInfoItem('DNS状态', null, 'tag', {
 								type: props.domainInfo?.ns_status === 1 ? 'success' : 'warning',
-								text: props.domainInfo?.ns_status === 1 ? '正常' : '异常',
-							})}
+								text: props.domainInfo?.ns_status === 1 ? '正常' : '未生效',
+							})} */}
 							<NButton size="small" ghost class="mt-4" onClick={openDnsModal} disabled={props.loading}>
 								修改DNS服务器
 							</NButton>

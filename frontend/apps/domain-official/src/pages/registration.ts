@@ -41,11 +41,10 @@ import {
   TPL_ORDER_ITEM,
   // 域名注册协议
   TPL_DOMAIN_AGREEMENT_MODAL,
-  // WHOIS查询模态窗口
-  TPL_WHOIS_MODAL,
 } from "../templates";
 import {
   domainQueryCheck,
+  aiDomainQueryCheck,
   getOrderCartList,
   addToCart as apiAddToCart,
   updateCart as apiUpdateCart,
@@ -56,7 +55,6 @@ import {
   getContactUserDetail,
   getOrderDetail as apiGetOrderDetail,
 } from "@api/landing";
-import { queryWhois } from "@api/landing";
 
 import type {
   DomainQueryCheckRequest,
@@ -66,6 +64,7 @@ import { Item } from "../types/api-types/order-cart-list";
 import { Datum } from "../types/api-types/contact-get-user-detail";
 import type { OrderCreateResponseData } from "../types/api-types/order-create";
 import type { OrderDetailResponseData } from "../types/api-types/order-detail";
+
 
 // ----------------------------
 // 全局 Store（函数式）
@@ -81,6 +80,25 @@ type DomainItem = DomainQueryCheckResponseData["data"][number];
 type DomainStore = {
   input: string;
   param: DomainQueryCheckRequest;
+  // 新增AI推荐相关字段
+  aiParam: { brandName: string; industry: string };
+  searchMode: "normal" | "ai"; // 当前搜索模式
+
+  // 🔥 分别存储两种搜索模式的数据
+  normalSearch: {
+    list: DomainItem[];
+    page: number;
+    hasMore: boolean;
+    hasSearched: boolean; // 🎯 关键：是否执行过搜索
+  };
+  aiSearch: {
+    list: DomainItem[];
+    page: number;
+    hasMore: boolean;
+    hasSearched: boolean; // 🎯 关键：是否执行过搜索
+  };
+
+  // 当前展示的数据（保持向后兼容）
   list: DomainItem[];
   page: number;
   hasMore: boolean;
@@ -88,7 +106,11 @@ type DomainStore = {
 type CartStore = { list: Item[]; originalTotal: number; payableTotal: number };
 type RealNameStore = { list: Datum[]; current: Datum | null };
 
-window.isLoggedIn = localStorage.getItem("isLogin") === "true";
+// 动态获取登录状态的函数
+function getLoginStatus(): boolean {
+	// return true
+  return localStorage.getItem("isLogin") === "true";
+}
 
 // 定义全局状态-域名
 // WHY: 使用 subscribe 监听 `param` 变化以触发查询，保持数据-视图解耦
@@ -96,6 +118,25 @@ const { state: domainState, subscribe: domainSubscribe } =
   createStore<DomainStore>({
     input: "",
     param: { domain: "", p: 1, rows: 20, recommend_type: -1 },
+    // 新增AI推荐默认状态
+    aiParam: { brandName: "", industry: "" },
+    searchMode: "normal",
+
+    // 🔥 初始化两种搜索模式的数据
+    normalSearch: {
+      list: [],
+      page: 1,
+      hasMore: false,
+      hasSearched: false,
+    },
+    aiSearch: {
+      list: [],
+      page: 1,
+      hasMore: false,
+      hasSearched: false,
+    },
+
+    // 当前展示的数据
     list: [],
     page: 1,
     hasMore: false,
@@ -133,12 +174,76 @@ let agreementAccepted = false;
 // WHOIS模态窗口相关变量
 let whoisModalInstance: any = null;
 
+// 查询触发标志位（防止双重查询）
+let isManualTriggering = false;
+
+// 🔥 实名模板全局加载状态管理
+let isRealNameListLoaded = false;
+
 // ----------------------------
 // 渲染与请求编排（subscribe）
 // ----------------------------
 
 function safe$() {
   return (window as any).$ as any;
+}
+
+/**
+ * 切换到普通搜索模式
+ */
+function switchToNormalMode() {
+  domainState.searchMode = "normal";
+  if (domainState.normalSearch.hasSearched) {
+    // 展示上次搜索结果
+    domainState.list = domainState.normalSearch.list;
+    domainState.page = domainState.normalSearch.page;
+    domainState.hasMore = domainState.normalSearch.hasMore;
+  } else {
+    // 展示空列表
+    domainState.list = [];
+    showEmptyState();
+  }
+}
+
+/**
+ * 切换到AI推荐模式
+ */
+function switchToAiMode() {
+  domainState.searchMode = "ai";
+  if (domainState.aiSearch.hasSearched) {
+    // 展示上次AI推荐结果
+    domainState.list = domainState.aiSearch.list;
+    domainState.page = domainState.aiSearch.page;
+    domainState.hasMore = domainState.aiSearch.hasMore;
+  } else {
+    // 展示空列表
+    domainState.list = [];
+    showEmptyState();
+  }
+}
+
+/**
+ * 显示空状态
+ */
+function showEmptyState() {
+  const $ = safe$();
+  if ($) {
+    $("#empty-state-container").removeClass("hidden");
+    $("#search-results").html(`
+      <div id="empty-state-container" class="text-center py-8">
+        <div class="text-gray-400 mb-2">
+          <i class="fa fa-search fa-3x"></i>
+        </div>
+        <div class="text-gray-500">
+          ${
+            domainState.searchMode === "ai"
+              ? "使用AI推荐功能，为您推荐合适的域名！"
+              : "赶快搜索你的专属域名吧！"
+          }
+        </div>
+      </div>
+    `);
+  }
 }
 
 function setHTML(selector: string, html: string) {
@@ -179,13 +284,12 @@ function renderDomainList(list: DomainItem[]) {
       String(it.full_domain || it.domain_name || "")
     )
   );
-
+  console.log(list, "--");
   const mapped = list.map((it, index) => {
     const price =
       (it as any)?.price_info?.first_year_discount_price ??
       (it as any)?.price_info?.first_year_price;
-    const originalPrice =
-      (it as any)?.price_info?.renewal_discount_price ?? price;
+    const originalPrice = (it as any)?.price_info?.first_year_price;
     const renewPrice = (it as any)?.price_info?.renew_price;
     const renewPriceDiscount = (it as any)?.price_info?.renewal_discount_price;
     const isRegistered =
@@ -231,6 +335,10 @@ function renderDomainList(list: DomainItem[]) {
       hasOriginalPrice,
       discountPercent,
       hasNew,
+      // 🔥 AI推荐相关字段（只在AI模式下显示）
+      meaning: (it as any)?.meaning || "", // AI推荐的域名意义解释
+      hasAiMeaning:
+        domainState.searchMode === "ai" && Boolean((it as any)?.meaning), // 是否显示AI解释
       // 多年价格（首年按优惠价，续费按续费价）
       price3Years: formatPriceInteger(
         Number(price) + Number(renewPriceDiscount) * 2
@@ -267,8 +375,7 @@ function appendDomainList(list: DomainItem[]) {
     const price =
       (it as any)?.price_info?.first_year_discount_price ??
       (it as any)?.price_info?.first_year_price;
-    const originalPrice =
-      (it as any)?.price_info?.renewal_discount_price ?? price;
+    const originalPrice = (it as any)?.price_info?.first_year_price;
     const renewPrice = (it as any)?.price_info?.renewal_price;
     const renewPriceDiscount = (it as any)?.price_info?.renewal_discount_price;
     const isRegistered =
@@ -311,6 +418,10 @@ function appendDomainList(list: DomainItem[]) {
       hasOriginalPrice,
       discountPercent,
       hasNew,
+      // 🔥 AI推荐相关字段（只在AI模式下显示）
+      meaning: (it as any)?.meaning || "", // AI推荐的域名意义解释
+      hasAiMeaning:
+        domainState.searchMode === "ai" && Boolean((it as any)?.meaning), // 是否显示AI解释
       price3Years: formatPriceInteger(
         Number(price) + Number(renewPriceDiscount) * 2
       ),
@@ -446,6 +557,9 @@ function renderRealNameTemplates(list: Datum[]) {
  * NOTE: 使用 OverlayManager 显示局部加载；成功后写入 store 触发渲染与后续实名模板加载
  */
 async function fetchDomainList(param: DomainQueryCheckRequest) {
+  // 🔥 记录请求发起时的目标模式
+  const requestTargetMode = "normal";
+
   try {
     OverlayManager.showView?.("#search-results", { content: "正在搜索..." });
     const res = await domainQueryCheck(param);
@@ -455,18 +569,93 @@ async function fetchDomainList(param: DomainQueryCheckRequest) {
     const rows = Number(data?.row || param.rows || 20);
     // 简单判断是否还有更多：当次返回数量 >= rows 即认为可能还有下一页
     const hasMore = Array.isArray(list) && list.length >= rows;
-    domainState.page = page;
-    domainState.hasMore = hasMore;
-    domainState.list = list;
+
+    // 🔥 无论如何都更新普通搜索模式的专用数据（缓存用途）
+    domainState.normalSearch = { list, page, hasMore, hasSearched: true };
+
+    // 🔥 关键检查：只有当前仍处于普通搜索模式时才更新全局显示数据
+    if (domainState.searchMode === requestTargetMode) {
+      domainState.page = page;
+      domainState.hasMore = hasMore;
+      domainState.list = list;
+    }
   } catch (err: any) {
     console.error("域名查询失败", err);
     const { message } = err;
-    setHTML(
-      "#search-results",
-      `<div class="text-center py-8 text-red-500">${message}</div>`
-    );
+
+    // 🔥 错误显示也要检查模式
+    if (domainState.searchMode === requestTargetMode) {
+      setHTML(
+        "#search-results",
+        `<div class="text-center py-8 text-red-500">${message}</div>`
+      );
+    }
   } finally {
-    OverlayManager.hideView?.("#search-results");
+    // 🔥 只有当前仍处于普通搜索模式时才隐藏加载状态
+    if (domainState.searchMode === requestTargetMode) {
+      OverlayManager.hideView?.("#search-results");
+    }
+  }
+}
+
+/**
+ * AI推荐域名列表
+ * NOTE: 使用新的aiDomainQueryCheck接口，支持品牌名称和行业信息
+ */
+async function fetchAiDomainList(params: {
+  brandName: string;
+  industry: string;
+  p?: number;
+  rows?: number;
+  recommend_type?: number;
+}) {
+  // 🔥 记录请求发起时的目标模式
+  const requestTargetMode = "ai";
+
+  try {
+    OverlayManager.showView?.("#search-results", { content: "AI推荐中..." });
+
+		// 使用AI推荐接口
+		const res = await aiDomainQueryCheck({
+			brand: params.brandName,
+			industry: params.industry,
+			// 注意：AI接口可能不支持分页和推荐类型，根据实际API调整
+			// p: params.p || 1,
+			// rows: params.rows || 20,
+			// recommend_type: params.recommend_type || -1
+		});
+
+    const data = res.data as any;
+    const list: DomainItem[] = data || [];
+    const page = Number(1);
+    const rows = Number(20);
+    const hasMore = Array.isArray(list) && list.length >= rows;
+
+    // 🔥 无论如何都更新AI模式的专用数据（缓存用途）
+    domainState.aiSearch = { list, page, hasMore, hasSearched: true };
+
+    // 🔥 关键检查：只有当前仍处于AI模式时才更新全局显示数据
+    if (domainState.searchMode === requestTargetMode) {
+      domainState.page = page;
+      domainState.hasMore = hasMore;
+      domainState.list = list;
+    }
+  } catch (err: any) {
+    console.error("AI域名推荐失败", err);
+    const { message } = err;
+
+    // 🔥 错误显示也要检查模式
+    if (domainState.searchMode === requestTargetMode) {
+      setHTML(
+        "#search-results",
+        `<div class="text-center py-8 text-red-500">AI推荐失败：当前使用用户过多，请重新查询！</div>`,
+      );
+    }
+  } finally {
+    // 🔥 只有当前仍处于AI模式时才隐藏加载状态
+    if (domainState.searchMode === requestTargetMode) {
+      OverlayManager.hideView?.("#search-results");
+    }
   }
 }
 
@@ -523,10 +712,8 @@ function calculateSelectedTotals(items: any[]) {
  * 构建结算弹窗内容（参考旧版 search-cart.js 的显示方式）
  */
 async function buildPaymentModalContent(init: boolean = true) {
-  // 确保实名模板数据可用
-  if (!Array.isArray(realNameState.list) || realNameState.list.length === 0) {
-    await fetchRealNameList();
-  }
+  // 🔥 确保实名模板数据可用（使用全局加载策略）
+  await ensureRealNameListLoaded();
   const template =
     (realNameState.current as any) ||
     (realNameState.list || [])[0] ||
@@ -1557,6 +1744,17 @@ function updateSegmentedSlider() {
 }
 
 /**
+ * 🔥 确保实名模板列表已加载（全局单次加载策略）
+ * WHY: 避免重复请求，提升性能和用户体验
+ */
+async function ensureRealNameListLoaded() {
+  if (!isRealNameListLoaded) {
+    await fetchRealNameList();
+    isRealNameListLoaded = true;
+  }
+}
+
+/**
  * 拉取实名模板列表
  * WHY: 仅在域名列表更新后触发，默认选择"已认证/默认模板"
  */
@@ -1570,8 +1768,12 @@ async function fetchRealNameList() {
           (t as any).template_status === "approved" || (t as any).status === 1
       ) || null;
     realNameState.current = first || realNameState.list[0] || null;
+
+    // 🔥 标记为已加载（支持手动刷新等场景）
+    isRealNameListLoaded = true;
   } catch (err) {
     console.error("获取实名模板失败", err);
+    // 🔥 加载失败时不设置标志，允许重试
   }
 }
 
@@ -1647,200 +1849,6 @@ function showDomainAgreementModal() {
   });
 }
 
-/**
- * 显示WHOIS查询模态窗口
- * @param domain 要查询的域名
- */
-async function showWhoisModal(domain: string) {
-  const $ = safe$();
-  if (!$) return;
-
-  // 初始状态：显示加载中
-  const initialData = {
-    domain,
-    isLoading: true,
-    hasError: false,
-    errorMessage: "",
-    hasData: false,
-    domainName: "",
-    status: "",
-    statusClass: "",
-    registrar: "",
-    creationDate: "",
-    expirationDate: "",
-    updatedDate: "",
-    registrant: "",
-    registrarName: "",
-    emails: "",
-    nameServers: [],
-    rawData: "",
-  };
-
-  const modalHtml = renderTemplate(TPL_WHOIS_MODAL, initialData);
-  const modalId = "whois-modal";
-
-  // 显示模态窗口
-  ModalManager.show({
-    id: modalId,
-    size: "2xl",
-    title: `<i class="fa fa-search text-primary-500 mr-2"></i><span>WHOIS查询结果 - ${domain}</span>`,
-    zIndex: 999,
-    content: modalHtml,
-    onShow: () => {
-      bindWhoisModalEvents();
-      // 开始查询WHOIS信息
-      queryWhoisData(domain);
-    },
-    onHide: () => {
-      // 清理事件
-      $(".whois-modal-close").off("click");
-    },
-  });
-}
-
-/**
- * 绑定WHOIS模态窗口事件
- */
-function bindWhoisModalEvents() {
-  const $ = safe$();
-  if (!$) return;
-
-  // 关闭按钮事件
-  $(".whois-modal-close").on("click", () => {
-    ModalManager.hide("whois-modal");
-  });
-
-  // 点击遮罩层关闭
-  $(".whois-modal-overlay").on("click", (e: any) => {
-    if ($(e.target).hasClass("whois-modal-overlay")) {
-      ModalManager.hide("whois-modal");
-    }
-  });
-
-  // Tab切换事件
-  $(".whois-tab-btn")
-    .off("click")
-    .on("click", function (this: HTMLElement, e: any) {
-      e.preventDefault();
-      const $this = $(this);
-      const tabType = $this.data("tab");
-
-      // 更新tab按钮状态
-      $(".whois-tab-btn").removeClass("active");
-      $this.addClass("active");
-
-      // 先移除所有内容的active类和显示状态
-      $(".whois-tab-content").removeClass("active").addClass("hidden");
-
-      // 延迟显示新内容以实现平滑过渡
-      setTimeout(() => {
-        if (tabType === "optimized") {
-          $("#whois-optimized-view").removeClass("hidden");
-          setTimeout(() => $("#whois-optimized-view").addClass("active"), 10);
-        } else if (tabType === "raw") {
-          $("#whois-raw-view").removeClass("hidden");
-          setTimeout(() => $("#whois-raw-view").addClass("active"), 10);
-        }
-      }, 50);
-    });
-}
-
-/**
- * 查询WHOIS数据并重新渲染模态窗口
- * @param domain 域名
- */
-async function queryWhoisData(domain: string) {
-  const $ = safe$();
-  if (!$) return;
-
-  try {
-    // 调用API查询WHOIS信息
-    const response = await queryWhois(domain);
-    if (response.status && response.data) {
-      const data = response.data;
-      // 处理状态样式类
-      let statusClass = "bg-gray-100 text-gray-800";
-      if (data.status) {
-        if (data.status.includes("Transfer")) {
-          statusClass = "bg-yellow-100 text-yellow-800";
-        } else if (data.status.includes("Active")) {
-          statusClass = "bg-green-100 text-green-800";
-        }
-      }
-
-      // 处理邮箱数据
-      const emails = Array.isArray(data.emails)
-        ? data.emails.join(", ")
-        : data.emails || "-";
-
-      // 处理域名服务器数据
-      const nameServers = Array.isArray(data.name_servers)
-        ? data.name_servers
-        : [];
-
-      // 构建成功状态的模板数据
-      const templateData = {
-        domain,
-        isLoading: false,
-        hasError: false,
-        errorMessage: "",
-        hasData: true,
-        domainName: data.domain_name || domain,
-        status: data.status || "-",
-        statusClass,
-        registrar: data.registrar || "-",
-        creationDate: data.creation_date || "-",
-        expirationDate: data.expiration_date || "-",
-        updatedDate: data.updated_date || "-",
-        registrant: data.name || "-",
-        registrarName: data.registrar || "-",
-        emails,
-        nameServers,
-        rawData: data.rawData || "暂无原始数据",
-      };
-
-      // 重新渲染模态窗口内容
-      const newContent = renderTemplate(TPL_WHOIS_MODAL, templateData);
-      // console.log(newContent, $("#whois-modal .modal-body-content"));
-      $("#whois-modal .modal-body-content").html(newContent);
-      // 重新绑定事件
-      bindWhoisModalEvents();
-    } else {
-      throw new Error("查询失败");
-    }
-  } catch (error: any) {
-    console.error("WHOIS查询失败:", error);
-
-    // 构建错误状态的模板数据
-    const errorData = {
-      domain,
-      isLoading: false,
-      hasError: true,
-      errorMessage: error.message || "查询失败，请稍后重试",
-      hasData: false,
-      domainName: "",
-      status: "",
-      statusClass: "",
-      registrar: "",
-      creationDate: "",
-      expirationDate: "",
-      updatedDate: "",
-      registrant: "",
-      registrarName: "",
-      emails: "",
-      nameServers: [],
-      rawData: "",
-    };
-
-    // 重新渲染模态窗口内容
-    const newContent = renderTemplate(TPL_WHOIS_MODAL, errorData);
-    $(".modal-content").html($(newContent).find(".modal-content").html());
-
-    // 重新绑定事件
-    bindWhoisModalEvents();
-  }
-}
-
 // 订阅流（核心）：
 // 1) 域名参数变化（param.*）→ 请求域名列表
 // 2) 域名列表变化（list）→ 渲染域名列表 → 触发实名模板请求
@@ -1848,7 +1856,7 @@ async function queryWhoisData(domain: string) {
 // 4) 实名模板变化（list）→ 渲染模板下拉
 domainSubscribe((path: string, _value: any, s: DomainStore) => {
   console.log(path, _value);
-  if (path.startsWith("param.")) {
+  if (path.startsWith("param.") && !isManualTriggering) {
     const { domain, p, rows, recommend_type } = s.param;
     const keyword = (domain || "").trim();
     if (keyword.length > 0) {
@@ -1899,8 +1907,8 @@ domainSubscribe((path: string, _value: any, s: DomainStore) => {
   }
   if (path === "list") {
     renderDomainList(s.list);
-    // 完成域名列表后，渲染实名模板列表
-    fetchRealNameList();
+    // 🔥 移除自动调用，采用全局单次加载策略
+    // fetchRealNameList();
   }
   // 统一管理输入与清空按钮显隐
   if (path === "input") {
@@ -1943,37 +1951,211 @@ realNameSubscribe((path: string, _value: any, s: RealNameStore) => {
 // ----------------------------
 // 初始化阶段：从 URL 读取参数并触发订阅
 // WHY: 通过写入 store.param 统一触发查询与渲染，无需显式调用渲染函数
+// 支持域名注册和AI推荐两种模式的URL参数
 // ----------------------------
 (async function init() {
-  const search = (getUrlParam("search") || getUrlParam("domain") || "").trim();
+  // 读取通用参数
   const p = Number(getUrlParam("p") || "1") || 1;
   const rows = Number(getUrlParam("rows") || "20") || 20;
   const recommendTypeVal = getUrlParam("recommend_type");
   const recommend_type =
     recommendTypeVal != null ? Number(recommendTypeVal) : -1;
 
-  const $ = safe$();
-  domainState.input = search;
+  // 读取模式参数
+  const mode = getUrlParam("mode");
+  const brandName = (getUrlParam("brand_name") || "").trim();
+  const industry = (getUrlParam("industry") || "").trim();
+  const search = (getUrlParam("search") || getUrlParam("domain") || "").trim();
 
-  // 初始化清空按钮可见性和空状态容器
-  if ($) {
-    const hasValue = (domainState.input || "").trim().length > 0;
-    if (hasValue) {
-      $("#clear-input-button").removeClass("hidden");
-      $("#empty-state-container").addClass("hidden");
-    } else {
+  // 判断当前应该使用哪种模式
+  // 1. 明确指定 mode=ai
+  // 2. 或者存在 brand_name 参数（industry可选）
+  const isAiMode = mode === "ai" || brandName;
+
+  const $ = safe$();
+
+  // 设置搜索模式和对应的参数
+  if (isAiMode) {
+    domainState.searchMode = "ai";
+    domainState.aiParam = { brandName, industry };
+    domainState.input = ""; // AI模式下清空普通搜索输入
+
+    // 切换到AI推荐标签页
+    if ($) {
+      $("#tab-ai").addClass("active");
+      $("#tab-normal").removeClass("active");
+      $("#normal-search-panel").addClass("hidden");
+      $("#ai-search-panel").removeClass("hidden");
+
+      // 填充AI推荐的输入框
+      $("#brand-name-input").val(brandName);
+      $("#industry-input").val(industry);
+
       $("#clear-input-button").addClass("hidden");
-      $("#empty-state-container").removeClass("hidden");
+      $("#empty-state-container").addClass("hidden");
+    }
+  } else {
+    domainState.searchMode = "normal";
+    domainState.input = search;
+    domainState.aiParam = { brandName: "", industry: "" };
+
+    // 保持在域名注册标签页（默认状态）
+    if ($) {
+      const hasValue = (domainState.input || "").trim().length > 0;
+      if (hasValue) {
+        $("#clear-input-button").removeClass("hidden");
+        $("#empty-state-container").addClass("hidden");
+      } else {
+        $("#clear-input-button").addClass("hidden");
+        $("#empty-state-container").removeClass("hidden");
+      }
     }
   }
 
-  // 先设置非触发字段，再优先拉取购物车，最后设置 domain 触发查询与渲染
+  // 先设置非触发字段，再优先拉取购物车，最后根据模式触发相应的查询
   domainState.param.p = p;
   domainState.param.rows = rows;
   domainState.param.recommend_type = recommend_type;
   await fetchCartList();
-  domainState.param.domain = search;
+
+  // 🔥 根据URL参数判断是否曾经搜索过，并相应触发搜索
+  if (isAiMode && brandName) {
+    // AI模式：只要有品牌名称就触发查询，行业信息可选
+    domainState.aiSearch.hasSearched = true;
+    await fetchAiDomainList({
+      brandName,
+      industry: industry || "", // 确保industry不为undefined
+      p,
+      rows,
+      recommend_type,
+    });
+  } else if (!isAiMode && search) {
+    // 普通模式：标记为已搜索并触发域名搜索
+    domainState.normalSearch.hasSearched = true;
+    domainState.param.domain = search;
+  } else {
+    // 🔥 没有搜索参数时，显示对应模式的空状态
+    if (isAiMode) {
+      switchToAiMode();
+    } else {
+      switchToNormalMode();
+    }
+  }
+
+  // 🔥 应用启动时全局加载实名模板列表（单次加载策略）
+  await ensureRealNameListLoaded();
 })();
+
+// ----------------------------
+// AI推荐相关事件绑定
+// ----------------------------
+function bindAiSearchEvents() {
+  const $ = safe$();
+  if (!$) return;
+
+  // Tab切换事件
+  $(".tab-btn")
+    .off("click")
+    .on("click", function (this: any) {
+      const $btn = $(this);
+      const isAiTab = $btn.attr("id") === "tab-ai";
+
+      // 切换Tab样式
+      $(".tab-btn").removeClass("active");
+      $btn.addClass("active");
+
+      // 切换面板显示和更新状态
+      if (isAiTab) {
+        $("#normal-search-panel").addClass("hidden");
+        $("#ai-search-panel").removeClass("hidden");
+
+        // 🔥 切换到AI推荐模式，智能展示数据
+        switchToAiMode();
+
+        // 更新URL参数以保持状态
+        updateUrlParam("mode", "ai");
+        // 清除普通搜索相关参数
+        updateUrlParam("search");
+        updateUrlParam("domain");
+      } else {
+        $("#ai-search-panel").addClass("hidden");
+        $("#normal-search-panel").removeClass("hidden");
+
+        // 🔥 切换到普通搜索模式，智能展示数据
+        switchToNormalMode();
+
+        // 更新URL参数
+        updateUrlParam("mode");
+        // 清除AI推荐相关参数
+        updateUrlParam("brand_name");
+        updateUrlParam("industry");
+      }
+    });
+
+  // AI推荐按钮点击事件
+  $("#ai-recommend-btn")
+    .off("click")
+    .on("click", async function (e: any) {
+      e.preventDefault(); // 阻止表单提交
+      e.stopPropagation(); // 阻止事件冒泡
+
+      const brandName = String($("#brand-name-input").val() || "").trim();
+      const industry = String($("#industry-input").val() || "").trim();
+
+      if (!brandName) {
+        NotificationManager.show?.({
+          type: "warning",
+          message: "请输入品牌/公司/个人/产品名称",
+        });
+        $("#brand-name-input").focus();
+        return;
+      }
+
+      // 更新状态
+      domainState.aiParam = { brandName, industry };
+
+      // 更新URL参数以支持刷新和分享
+      updateUrlParam("mode", "ai");
+      updateUrlParam("brand_name", brandName);
+      updateUrlParam("industry", industry);
+      updateUrlParam("p", "1"); // 重置到第一页
+
+      // 执行AI推荐搜索
+      await fetchAiDomainList({
+        brandName,
+        industry,
+        p: 1,
+        rows: domainState.param.rows,
+        recommend_type: domainState.param.recommend_type,
+      });
+    });
+
+  // AI推荐输入框回车事件
+  $("#brand-name-input, #industry-input")
+    .off("keydown")
+    .on("keydown", function (e: any) {
+      if (e.key === "Enter" || e.keyCode === 13) {
+        e.preventDefault();
+        $("#ai-recommend-btn").trigger("click");
+      }
+    });
+
+  // AI推荐输入框输入时清空结果（可选）
+  $("#brand-name-input, #industry-input")
+    .off("input")
+    .on("input", function () {
+      // 可选：输入时清空之前的搜索结果
+      // domainState.list = [];
+    });
+
+  // 阻止AI搜索容器内的form表单提交
+  $(".ai-search-container form")
+    .off("submit")
+    .on("submit", function (e: any) {
+      e.preventDefault();
+      return false;
+    });
+}
 
 // ----------------------------
 // 事件绑定
@@ -1985,6 +2167,9 @@ function bindEvents() {
   // 移除旧的 hover 样式，启用点击展示
   $("#contact-service-popup-style").remove();
   bindContactServicePopupClick();
+
+  // 绑定AI推荐相关事件
+  bindAiSearchEvents();
 
   // 初始化移动端底部购物车并绑定事件
   ensureMobileCartBar();
@@ -2185,10 +2370,69 @@ function bindEvents() {
 
   const triggerSearch = () => {
     const val = (domainState.input || "").trim();
+
+    // 🚩 设置标志位，防止订阅机制重复触发
+    isManualTriggering = true;
+
     domainState.param.domain = val;
     domainState.param.p = 1;
     updateUrlParam("search", val || undefined);
     updateUrlParam("p", "1");
+
+    // 重置标志位（使用 setTimeout 确保状态更新完成后再重置）
+    setTimeout(() => {
+      isManualTriggering = false;
+    }, 0);
+
+    // 🔥 直接触发查询，避免依赖订阅机制的双重调用
+    if (val.length > 0) {
+      // 复用首页的域名校验规则
+      const hasChinese = /[\u4e00-\u9fa5]/.test(val);
+      const hasInvalidChar = /[^a-zA-Z0-9\-.]/.test(val);
+      const startsWithHyphen = /^-/.test(val);
+      const stripped = val.replace(/\./g, "");
+      const onlyHyphens = /^-+$/.test(stripped);
+
+      if (hasChinese) {
+        NotificationManager.show?.({
+          type: "error",
+          message: "不支持中文，请使用英文和数字",
+        });
+        return;
+      }
+      if (hasInvalidChar) {
+        NotificationManager.show?.({
+          type: "error",
+          message: "仅支持字母、数字、连接符(-)和点(.)",
+        });
+        return;
+      }
+      if (startsWithHyphen) {
+        NotificationManager.show?.({
+          type: "error",
+          message: "不能以连接符(-)开头",
+        });
+        return;
+      }
+      if (onlyHyphens) {
+        NotificationManager.show?.({
+          type: "error",
+          message: "不能仅由连接符(-)组成",
+        });
+        return;
+      }
+
+      // 直接调用查询，确保重复查询也会生效
+      fetchDomainList({
+        domain: val,
+        p: 1,
+        rows: domainState.param.rows,
+        recommend_type: domainState.param.recommend_type,
+      });
+    } else {
+      // 清空搜索结果
+      domainState.list = [];
+    }
   };
 
   // 1) 输入框回车：重新搜索
@@ -2212,19 +2456,22 @@ function bindEvents() {
     $("#domain-query-input").trigger("focus");
   });
 
-  // 3) 重新查询按钮：重新搜索（含底部按钮）
-  $(".primary-action-button, #requery-bottom").on("click", function () {
-    triggerSearch();
-    try {
-      const $ = safe$();
-      if ($) {
-        $("html, body").animate({ scrollTop: 0 }, 400);
-        const $input = $("#domain-query-input");
-        $input.addClass("input-highlight").trigger("focus");
-        setTimeout(() => $input.removeClass("input-highlight"), 1500);
-      }
-    } catch {}
-  });
+  // 3) 重新查询按钮：重新搜索（含底部按钮，排除AI推荐按钮）
+  $(".primary-action-button:not(#ai-recommend-btn), #requery-bottom").on(
+    "click",
+    function () {
+      triggerSearch();
+      try {
+        const $ = safe$();
+        if ($) {
+          $("html, body").animate({ scrollTop: 0 }, 400);
+          const $input = $("#domain-query-input");
+          $input.addClass("input-highlight").trigger("focus");
+          setTimeout(() => $input.removeClass("input-highlight"), 1500);
+        }
+      } catch {}
+    }
+  );
 
   // 4) 筛选按钮：切换 recommend_type 并触发请求
   $(".filter-btn").on("click", function (this: any) {
@@ -2263,7 +2510,7 @@ function bindEvents() {
   $("#search-results").on("click", ".add-to-cart", async function (this: any) {
     const $btn = $(this);
     if ($btn.prop("disabled")) return;
-    if (!window.isLoggedIn) {
+    if (!getLoginStatus()) {
       NotificationManager.show?.({
         type: "warning",
         message: "未登录,正在跳转至登录...",
@@ -2333,28 +2580,87 @@ function bindEvents() {
     }
   });
 
-  // 6) 查看更多域名：底部追加下一页
+  // 6) 查看更多域名：底部追加下一页（支持AI推荐模式）
   $(document).on("click", "#show-more-button", async function (this: any) {
     const $btn = $(this);
-    const keyword = (domainState.param?.domain || "").trim();
-    if (!keyword) return;
     const nextPage = Math.max(1, Number(domainState.page || 1)) + 1;
+
+    // 🔥 记录请求发起时的模式
+    const requestMode = domainState.searchMode;
+
     try {
       $btn.prop("disabled", true);
       OverlayManager.showView?.("#search-results", { content: "加载更多..." });
-      const res = await domainQueryCheck({
-        domain: keyword,
-        p: nextPage,
-        rows: domainState.param?.rows || 20,
-        recommend_type: domainState.param?.recommend_type,
-      });
+
+      let res;
+      let list: DomainItem[] = [];
+
+      if (requestMode === "ai") {
+        // AI推荐模式
+        const { brandName, industry } = domainState.aiParam;
+        if (!brandName || !industry) {
+          console.warn("AI推荐模式缺少必要参数");
+          return;
+        }
+
+        // 使用AI推荐接口（注意：AI接口可能不支持分页）
+        res = await aiDomainQueryCheck({
+          brand: brandName,
+          industry: industry,
+          // AI接口可能不支持分页参数，需要根据实际API调整
+          // p: nextPage,
+          // rows: domainState.param?.rows || 20,
+          // recommend_type: domainState.param?.recommend_type,
+        });
+      } else {
+        // 普通搜索模式
+        const keyword = (domainState.param?.domain || "").trim();
+        if (!keyword) return;
+
+        res = await domainQueryCheck({
+          domain: keyword,
+          p: nextPage,
+          rows: domainState.param?.rows || 20,
+          recommend_type: domainState.param?.recommend_type,
+        });
+      }
+
       const data = (res.data as any) || {};
-      const list: DomainItem[] = data?.data || [];
+      list = data?.data || [];
       const rows = Number(data?.row || domainState.param?.rows || 20);
       const hasMore = Array.isArray(list) && list.length >= rows;
-      domainState.page = nextPage;
-      domainState.hasMore = hasMore;
-      appendDomainList(list);
+
+      // 🔥 根据请求发起时的模式更新对应的数据存储（无论如何都要缓存）
+      if (requestMode === "ai") {
+        // 更新AI搜索模式数据（追加新数据）
+        const currentList = domainState.aiSearch.list;
+        domainState.aiSearch = {
+          list: [...currentList, ...list],
+          page: nextPage,
+          hasMore,
+          hasSearched: true,
+        };
+      } else {
+        // 更新普通搜索模式数据（追加新数据）
+        const currentList = domainState.normalSearch.list;
+        domainState.normalSearch = {
+          list: [...currentList, ...list],
+          page: nextPage,
+          hasMore,
+          hasSearched: true,
+        };
+      }
+
+      // 🔥 只有当前模式仍与请求发起时一致才更新全局显示数据
+      if (domainState.searchMode === requestMode) {
+        domainState.page = nextPage;
+        domainState.hasMore = hasMore;
+
+        // 更新URL参数中的页码
+        updateUrlParam("p", String(nextPage));
+
+        appendDomainList(list);
+      }
     } catch (err) {
       console.error("加载更多失败", err);
       NotificationManager.show?.({
@@ -2362,7 +2668,10 @@ function bindEvents() {
         message: "加载更多失败，请重试",
       });
     } finally {
-      OverlayManager.hideView?.("#search-results");
+      // 🔥 只有当前模式仍与请求发起时一致才隐藏加载状态
+      if (domainState.searchMode === requestMode) {
+        OverlayManager.hideView?.("#search-results");
+      }
       $btn.prop("disabled", false);
     }
   });
@@ -2523,18 +2832,18 @@ function bindEvents() {
   // d) 立即购买 -> 打开购物车结算弹窗
   $("#checkout-button").on("click", async function () {
     const hasItems = Array.isArray(cartState.list) && cartState.list.length > 0;
-    // if (!window.isLoggedIn) {
-    //   NotificationManager.show?.({
-    //     type: "warning",
-    //     message: "当前未登录宝塔账号，正在跳转登录页",
-    //     zIndex: 9999,
-    //   });
-    //   setTimeout(() => {
-    //     window.location.href =
-    //       "https://www.bt.cn/login.html?ReturnUrl=" + window.location.href;
-    //   }, 1500);
-    //   return;
-    // }
+    if (!getLoginStatus()) {
+      NotificationManager.show?.({
+        type: "warning",
+        message: "当前未登录宝塔账号，正在跳转登录页",
+        zIndex: 9999,
+      });
+      setTimeout(() => {
+        window.location.href =
+          "https://www.bt.cn/login.html?ReturnUrl=" + window.location.href;
+      }, 1500);
+      return;
+    }
     if (!hasItems) {
       NotificationManager.show?.({
         type: "warning",
@@ -2573,8 +2882,9 @@ function bindEvents() {
       $btn.prop("disabled", true);
 
       try {
-        // 重新获取实名模板列表
-        await fetchRealNameList();
+        // 🔥 手动刷新时重置全局标志，强制重新加载
+        isRealNameListLoaded = false;
+        await ensureRealNameListLoaded();
 
         NotificationManager.show?.({
           type: "success",
@@ -2593,7 +2903,7 @@ function bindEvents() {
       }
     });
 
-  // WHOIS查询按钮点击事件
+  // WHOIS查询按钮点击事件 - 跳转到独立页面
   $(document)
     .off("click", ".whois-query-btn")
     .on("click", ".whois-query-btn", async function (this: any) {
@@ -2605,8 +2915,13 @@ function bindEvents() {
         return;
       }
 
-      // 显示WHOIS模态窗口
-      await showWhoisModal(domain);
+      // 跳转到独立的WHOIS查询页面
+      window.open(
+        `https://www.bt.cn/new/domain-whois.html?domain=${encodeURIComponent(
+          domain
+        )}`,
+        "_blank"
+      );
     });
 }
 

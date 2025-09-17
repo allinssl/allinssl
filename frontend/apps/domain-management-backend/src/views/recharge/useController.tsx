@@ -34,7 +34,7 @@ export const useRechargeController = () => {
   const openRechargeModal = () => {
     openRechargeDialog.value = useModal({
 			title: '账户充值',
-			area: '530px',
+			area: '520px',
 			component: RechargeDialogContent,
 			componentProps: {},
 			footer: false,

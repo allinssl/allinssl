@@ -1,5 +1,11 @@
 .flowContainer {
-  @apply flex relative box-border w-full h-[calc(100vh-19rem)] overflow-x-auto overflow-y-auto p-[1rem] justify-center;
+  @apply flex relative box-border w-full h-[calc(100vh-19rem)] overflow-hidden p-[1rem] justify-center;
+  user-select: none; /* 防止拖拽时选中文本 */
+  cursor: grab; /* 默认鼠标样式 */
+}
+
+.flowContainer:active {
+  cursor: grabbing; /* 拖拽时的鼠标样式 */
 }
 
 .flowProcess {
@@ -7,7 +13,7 @@
 }
 
 .flowZoom {
-  @apply flex fixed items-center justify-between h-[4rem] w-[12.5rem] bottom-[4rem] z-[99];
+  @apply flex fixed items-center justify-between h-[4rem] w-[16rem] bottom-[6rem] z-[99];
 }
 
 .flowZoomIcon {

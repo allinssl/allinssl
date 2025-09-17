@@ -62,9 +62,6 @@ export function useDnsAnalysisController(props: DnsAnalysisControllerProps) {
   const editingRecord = ref<DnsRecordItem | null>();
   const isEditing = ref<string>("");
 	const isAdding = ref<boolean>(false);
-	
-	// dns解析弹窗
-	const dnsAnalysisDialog = ref<boolean>(false);
 
   // 新记录表单
   const newRecord = reactive<DnsRecordForm>({

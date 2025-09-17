@@ -17,6 +17,9 @@ const RealNameTemplate = () => import('../views/real-name/index')
 const RealNameCenter = () => import('../views/real-name-center/index')
 const RechargeManage = () => import('../views/recharge/index')
 const OrderList = () => import('../views/order/index')
+const DomainSecurity = () => import('../views/domain-security/index')
+const DomainResolve = () => import('../views/domain-resolve/index')
+const OperationLog = () => import('../views/operation-log/index')
 
 // 主布局组件
 const MainLayout = () => import('@components/layout/index')
@@ -92,7 +95,27 @@ const routes: RouteRecordRaw[] = [
 					},
 				],
 			},
-
+			{
+				path: 'domain-resolve',
+				name: 'DomainResolve',
+				component: DomainResolve,
+				meta: {
+					title: '域名解析',
+					icon: 'resolve',
+				},
+				children: [
+					{
+						path: 'detail/:id',
+						name: 'DomainResolveDetail',
+						component: () => import('../views/domain-resolve/components/DomainResolveDetail'),
+						meta: {
+							title: '域名解析详情',
+							icon: 'resolve',
+							hideInMenu: true,
+						},
+					},
+				],
+			},
 			{
 				path: 'real-name',
 				name: 'RealNameTemplate',
@@ -129,6 +152,24 @@ const routes: RouteRecordRaw[] = [
 				meta: {
 					title: '实名认证',
 					icon: 'user-check',
+				},
+			},
+			{
+				path: 'domain-security',
+				name: 'DomainSecurity',
+				component: DomainSecurity,
+				meta: {
+					title: '域名安全',
+					icon: 'security',
+				},
+			},
+			{
+				path: 'operation-log',
+				name: 'OperationLog',
+				component: OperationLog,
+				meta: {
+					title: '操作日志',
+					icon: 'operation',
 				},
 			},
 		],

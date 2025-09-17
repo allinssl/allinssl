@@ -42,7 +42,7 @@ export function useController() {
 	const { useFormInput, useFormSelect } = useFormHooks()
 	// 获取移动端状态
 	const { isMobile } = useApp()
-	
+
 	const uMessage = useMessage()
 
 	function computeNewExpire(years: number) {
@@ -283,7 +283,7 @@ export function useController() {
 		PageComponent: DomainTablePage,
 		loading,
 		param,
-		fetch:fetchDomain,
+		fetch: fetchDomain,
 		data: tableData,
 	} = useTable<DomainItem, DomainListRequest>({
 		config: createColumns,
@@ -293,7 +293,7 @@ export function useController() {
 			page: 'p',
 			pageSize: 'rows',
 		},
-		watchValue: ['p', 'rows', 'keyword', 'status', 'suffix'],
+		watchValue: ['p', 'rows', 'status', 'suffix'],
 	})
 
 	// 表单实例
@@ -356,12 +356,18 @@ export function useController() {
 	 * 点击解析
 	 */
 	function handleDns(row: DomainItem) {
-		router.push(`/domain/detail/${row.id}?tabs=analysis`)
+		// router.push(`/domain/detail/${row.id}?tabs=analysis`)
+		router.push(`/domain-resolve/detail/${row.id}?domain_name=${row.full_domain}`)
 	}
 
 	// 续费入口
 	async function ensureRenewBalance() {
-		try { await loadAccountBalance(); useDomainState().setRenewBalance(Number(recharge.overview.value?.balance || 0)); } catch { useDomainState().setRenewBalance(0) }
+		try {
+			await loadAccountBalance()
+			useDomainState().setRenewBalance(Number(recharge.overview.value?.balance || 0))
+		} catch {
+			useDomainState().setRenewBalance(0)
+		}
 	}
 	function openRenewModal(row: DomainItem) {
 		const state = useDomainState()
@@ -372,7 +378,7 @@ export function useController() {
 			title: '域名续费',
 			area: '520px',
 			component: RenewDialog,
-			componentProps: { YEAR_OPTIONS: [1, 2, 3, 5, 10] },
+			componentProps: { YEAR_OPTIONS: [1, 2, 3, 5] },
 			footer: false,
 			onClose: () => {
 				closeRenewModal()
@@ -383,16 +389,16 @@ export function useController() {
 		computeNewExpire(state.renewSelectedYear.value)
 	}
 
- async function doRenew(domain: string, year: number) {
+	async function doRenew(domain: string, year: number) {
 		const state = useDomainState()
 		state.setRenewLoading(true)
 		try {
 			const payload: RenewRequest = { domain_list: [{ domain, year, domain_service: 0 }] }
-			const { fetch,data } = renewOrder(payload)
+			const { fetch, data } = renewOrder(payload)
 			await fetch()
 			if (!data.value?.status) {
 				uMessage.error(data.value?.msg || '续费失败')
-				return false;
+				return false
 			}
 			state.setRenewOrderInfo((data.value.data as RenewData) || null)
 			state.setRenewStep(2)
@@ -519,7 +525,9 @@ export function useController() {
 		}
 	}
 
-	function handleRenew(row: DomainItem) { openRenewModal(row) }
+	function handleRenew(row: DomainItem) {
+		openRenewModal(row)
+	}
 
 	/**
 	 * 刷新域名注册状态

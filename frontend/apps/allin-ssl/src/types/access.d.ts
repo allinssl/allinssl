@@ -65,6 +65,7 @@ export interface AddAccessParams<
     | ConstellixAccessConfig
     | WebhookAccessConfig
     | SpaceshipAccessConfig
+    | BTDomainAccessConfig
 > {
   name: string;
   type: string;
@@ -102,6 +103,7 @@ export interface UpdateAccessParams<
     | ConstellixAccessConfig
     | WebhookAccessConfig
     | SpaceshipAccessConfig
+    | BTDomainAccessConfig
 > extends AddAccessParams<T> {
   id: string;
 }
@@ -320,6 +322,12 @@ export interface WebhookAccessConfig {
 export interface SpaceshipAccessConfig {
   api_key: string;
   api_secret: string;
+}
+
+export interface BTDomainAccessConfig {
+  access_key: string;
+  secret_key: string;
+  account_id: string;
 }
 
 /** 删除授权请求参数 */

@@ -154,6 +154,7 @@ export default defineComponent({
 				if (newType !== oldType) {
 					// 个人：身份证，企业：营业执照
 					formData.id_type = newType === 1 ? 1 : 2
+					formData.id_number = ''
 
 					// 清空文件列表
 					formData.id_image_front = []
@@ -445,6 +446,7 @@ export default defineComponent({
 				setBase64: (base64: string) => (uploadStates.frontImageBase64 = base64),
 				setPath: (path: string) => (uploadStates.frontImagePath = path),
 				onSuccess: (rdata: any) => {
+					if (formData.type === 2) return
 					const { idnum } = rdata.data || {}
 					formData.id_number = idnum || ''
 					message.success('已自动填充身份证信息')

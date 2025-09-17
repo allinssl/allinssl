@@ -81,94 +81,104 @@ export interface DnsRecord {
  * 获取解析记录列表请求参数
  */
 export interface GetDnsRecordListRequest {
-  /** 域名ID */
-  domain_id: number;
-  /** 搜索关键字字段 */
-  searchKey?: string;
-  /** 搜索值 */
-  searchValue?: string;
-  /** 页码 */
-  p?: number;
-  /** 每页条数 */
-  row?: number;
+	/** 域名ID */
+	domain_id: number
+	/** 域名类型：1=宝塔内部域名，2=外部域名 */
+	domain_type?: number
+	/** 搜索关键字字段 */
+	searchKey?: string
+	/** 搜索值 */
+	searchValue?: string
+	/** 页码 */
+	p?: number
+	/** 每页条数 */
+	row?: number
 }
 
 /**
  * 获取解析记录列表响应
  */
 export interface GetDnsRecordListResponse {
-  /** 总记录数 */
-  count: number;
-  /** 当前页码 */
-  page: number;
-  /** 每页条数 */
-  row: number;
-  /** 记录列表 */
-  data: DnsRecordItem[];
+	/** 总记录数 */
+	count: number
+	/** 当前页码 */
+	page: number
+	/** 每页条数 */
+	row: number
+	/** 记录列表 */
+	data: DnsRecordItem[]
 }
 
 /**
  * 创建解析记录请求参数
  */
 export interface CreateDnsRecordRequest {
-  /** 域名ID */
-  domain_id: number;
-  /** 解析值 */
-  value: string;
-  /** 主机记录 */
-  record: string;
-  /** 记录类型 */
-  type: string;
-  /** MX优先级 */
-  mx: number;
-  /** 生存时间 */
-  ttl: number;
-  /** 备注信息 */
-  remark: string;
-  /** 线路ID */
-  viewId: number;
+	/** 域名ID */
+	domain_id: number
+	/** 域名类型：1=宝塔内部域名，2=外部域名 */
+	domain_type?: number
+	/** 解析值 */
+	value: string
+	/** 主机记录 */
+	record: string
+	/** 记录类型 */
+	type: string
+	/** MX优先级 */
+	mx: number
+	/** 生存时间 */
+	ttl: number
+	/** 备注信息 */
+	remark: string
+	/** 线路ID */
+	viewId: number
 }
 
 /**
  * 删除解析记录请求参数
  */
 export interface DeleteDnsRecordRequest {
-  /** 记录ID */
-  record_id: number | string;
-  /** 域名ID */
-  domain_id: number;
+	/** 记录ID */
+	record_id: number | string
+	/** 域名ID */
+	domain_id: number
+	/** 域名类型：1=宝塔内部域名，2=外部域名 */
+	domain_type?: number
 }
 
 /**
  * 更新解析记录请求参数
  */
 export interface UpdateDnsRecordRequest {
-  /** 记录ID */
-  record_id: number | string;
-  /** 域名ID */
-  domain_id: number;
-  /** 主机记录 */
-  record?: string;
-  /** 解析值 */
-  value?: string;
-  /** 记录类型 */
-  type?: string;
-  /** MX优先级 */
-  mx?: number;
-  /** 生存时间 */
-  ttl?: number;
-  /** 备注信息 */
-  remark?: string;
-  /** 线路ID */
-  viewId?: number;
+	/** 记录ID */
+	record_id: number | string
+	/** 域名ID */
+	domain_id: number
+	/** 域名类型：1=宝塔内部域名，2=外部域名 */
+	domain_type?: number
+	/** 主机记录 */
+	record?: string
+	/** 解析值 */
+	value?: string
+	/** 记录类型 */
+	type?: string
+	/** MX优先级 */
+	mx?: number
+	/** 生存时间 */
+	ttl?: number
+	/** 备注信息 */
+	remark?: string
+	/** 线路ID */
+	viewId?: number
 }
 
 /**
  * 暂停/启用解析记录请求参数
  */
 export interface ToggleDnsRecordRequest {
-  /** 记录ID */
-  record_id: number | string;
-  /** 域名ID */
-  domain_id: number;
+	/** 记录ID */
+	record_id: number | string
+	/** 域名ID */
+	domain_id: number
+	/** 域名类型：1=宝塔内部域名，2=外部域名 */
+	domain_type?: number
 }

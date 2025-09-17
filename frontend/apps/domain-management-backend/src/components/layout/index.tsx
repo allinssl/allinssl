@@ -141,6 +141,14 @@ export default defineComponent({
 
 							{/* 桌面端右侧：功能按钮 */}
 							<div class="flex items-center gap-4">
+								<a
+									class="text-[#20a53a] hover:text-[#20a53a]-800 text-sm no-underline cursor-pointer"
+									href="https://qm.qq.com/q/fxbto4wZkk"
+									target="_blank"
+									rel="noopener noreferrer"
+								>
+									加入QQ群
+								</a>
 								<NButton ghost onClick={() => handleBackToOfficial(true)}>
 									返回堡塔后台
 								</NButton>

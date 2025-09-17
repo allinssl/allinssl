@@ -4,8 +4,8 @@
  */
 
 import { defineComponent, ref, computed } from 'vue'
-import { NCard, NGrid, NGridItem, NText, NSkeleton, NAlert, NIcon, NFlex } from 'naive-ui'
-import { CheckCircle, AlertTriangle, XCircle } from 'lucide-vue-next'
+import { NCard, NGrid, NGridItem, NText, NSkeleton, NAlert, NIcon, NFlex, NButton, NDivider } from 'naive-ui'
+import { CheckCircle, AlertTriangle, XCircle, RefreshCw } from 'lucide-vue-next'
 import { formatDate } from '@baota/utils/date'
 import { useController } from '../useController'
 
@@ -53,7 +53,13 @@ export default defineComponent({
 	setup(props) {
 		// 显示警告提示
 		const showAlert = ref(true)
-		const { domainInfo, realNameInfo, loading } = useController(props.domainId)
+		const { domainInfo, realNameInfo, loading, realNameInfoUpdating, openTemplateChangeModal, refreshDomainInfo } = useController(props.domainId)
+
+		// 计算加载状态
+		const isRealNameUpdating = computed(() => {
+			return realNameInfoUpdating.value !== null && 
+			       typeof realNameInfoUpdating.value === 'object';
+		})
 
 		// 计算实名状态配置
 		const realNameStatus = computed(() => {
@@ -133,6 +139,39 @@ export default defineComponent({
 							{renderInfoItem('联系人', realNameInfo.value?.contact_person)}
 						</NGridItem>
 					</NGrid>
+					<NDivider />
+					<div class="flex items-center">
+						<NButton
+							type="primary"
+							loading={isRealNameUpdating.value}
+							disabled={isRealNameUpdating.value}
+							onClick={openTemplateChangeModal}
+						>
+							更换实名模板
+						</NButton>
+
+						{isRealNameUpdating.value && (
+							<>
+								<div class="text-[#f0a020] text-sm ml-4">处理时间约为1-30分钟，请耐心等待</div>
+								<NButton
+									text
+									size="small"
+									class="ml-3"
+									loading={loading.value}
+									onClick={refreshDomainInfo}
+									v-slots={{
+										icon: () => (
+											<NIcon size={16}>
+												<RefreshCw />
+											</NIcon>
+										),
+									}}
+								>
+									刷新状态
+								</NButton>
+							</>
+						)}
+					</div>
 				</NCard>
 
 				{/* 认证状态说明 */}

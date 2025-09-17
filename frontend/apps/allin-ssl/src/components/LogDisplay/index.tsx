@@ -103,10 +103,9 @@ export default defineComponent({
 									language="custom-logs"
 									trim={false}
 									fontSize={14}
-									lineHeight={1.5}
 									class="h-full" // NLog 充满 NSpin
 									style={{
-										// height: '500px', // 改为 flex 布局后，由父容器控制高度
+										lineHeight: '1.5rem',
 										border: '1px solid var(--n-border-color)',
 										borderRadius: 'var(--n-border-radius)', // 使用 Naive UI 变量
 										padding: '10px',

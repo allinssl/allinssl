@@ -218,10 +218,7 @@ export function useController() {
 								{/* 订单号和状态 */}
 								<NFlex align="center" justify="space-between">
 									<NFlex align="center" size="small">
-										<div>
-											<div class="font-medium text-base">{item.son_order_no}</div>
-											<div class="text-xs text-gray-500">{getOrderTypeText(item.order_type)}</div>
-										</div>
+										<div class="text-base font-medium ">{item.full_domain}</div>
 									</NFlex>
 									<NTag type={getOrderStatusType(item.status)} bordered={false} size="small">
 										{getOrderStatusText(item.status)}
@@ -230,17 +227,17 @@ export function useController() {
 
 								{/* 域名信息 */}
 								<NFlex align="center" justify="space-between">
-									<div class="text-sm text-gray-600">
-										<span class="text-gray-500">域名：</span>
-										{item.full_domain}
+									<div class="text-xs text-gray-500">
+										<div>订单类型：{getOrderTypeText(item.order_type)}</div>
+										<div>订单号：{item.son_order_no}</div>
 									</div>
 									<div class="amount-text">{formatCurrency(parseFloat(item.total_amount))}</div>
 								</NFlex>
 
 								{/* 时间信息 */}
 								<NFlex justify="space-between" class="time-text">
-									<div>
-										<span class="text-gray-500">创建时间：</span>
+									<div class="text-xs text-gray-500">
+										<span>创建时间：</span>
 										{formatRelativeTime(item.created_at)}
 									</div>
 								</NFlex>

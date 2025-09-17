@@ -70,6 +70,8 @@ export type DomainListResponse = ApiResponse<DomainListData>
 export interface DomainDetailRequest {
 	/** 域名 ID */
 	domain_id: number
+	/** 域名类型：1=宝塔内部域名，2=外部域名 */
+	domain_type?: number
 }
 
 /**
@@ -182,6 +184,8 @@ export interface DomainInfo {
 	updated_at: number
 	/** 是否自动续费（1 是，0 否） */
 	auto_renew: number
+	/** 隐私保护（0 否，1 是） */
+	privacy: number
 }
 
 /**
@@ -244,6 +248,7 @@ export interface RealNameInfo {
 	verify_time: string
 }
 
+
 /**
  * 域名详情响应数据
  */
@@ -254,6 +259,10 @@ export interface DomainDetailData {
 	domain_info: DomainInfo
 	/** 实名模板信息 */
 	real_name_info: RealNameInfo
+	/** 实名信息更新状态 */
+	real_name_update_info: RealNameInfo
+	/** 隐私保护信息 */
+	privacy_info: PrivacyInfo
 }
 
 /**
@@ -315,6 +324,15 @@ export interface SetDomainSecurityData {
 	status: number
 	/** 安全项类型 */
 	type: 'update' | 'transfer'
+}
+
+export interface PrivacyInfo {
+	/** 邮箱 */
+	email: string
+	/** 结束时间 */
+	end_time: number
+	/** 开始时间 */
+	start_time: number
 }
 
 export type SetDomainSecurityResponse = ApiResponse<SetDomainSecurityData>
@@ -397,4 +415,46 @@ export type DomainPriceQueryResponse = ApiResponse<DomainPriceQueryData>;
 export type DomainAutoRenewRequest = {
 	domain_id: number
 	status: 0 | 1
+}
+
+
+export interface DomainRealNameUpdateRequest {
+	/** 域名 ID */
+	domain_id: number
+	/** 新的实名模板 ID */
+	new_registrant_id: string
+}
+
+export interface PrivacyRequest {
+	/** 1:新购 2:续费 */
+	type: number
+	/** 域名 */
+	domain: string
+	/** 年份 */
+	year: number
+	/** 邮箱 */
+	email?: string
+}
+/** 保护隐私下单返回数据 */
+export interface PrivacyData {
+	create_time: string
+	discount_price: number
+	domain_count: number
+	expire_time: string
+	order_id: number
+	order_no: string
+	original_price: number
+	payment_url: string
+	total_price: number
+	ali: string // 支付宝二维码或链接
+	wx: string // 微信二维码或链接
+}
+
+export type PrivacyResponse = ApiResponse<PrivacyRequest>
+
+export interface PrivacyPriceRequest {
+	/** 1:新购 2:续费 */
+	type: number
+	/** 年份 */
+	year: number
 }

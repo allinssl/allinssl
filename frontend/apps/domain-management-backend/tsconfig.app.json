@@ -29,5 +29,5 @@
     "src/**/*.js",
     "src/**/*.jsx",
     "src/**/*.d.ts"
-  ]
+, "src/views/domain-security/index.tsx"  ]
 }

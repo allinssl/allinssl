@@ -271,6 +271,13 @@ export const ApiProjectConfig: Record<string, ApiProjectType> = {
     hostRelated: { default: { name: "Spaceship" } },
     sort: 32,
   },
+  btdomain: {
+    name: "BTDomain",
+    icon: "btdomain",
+    type: ["dns"],
+    hostRelated: { default: { name: "BTDomain" } },
+    sort: 33,
+  },
   plugin: {
     name: "插件",
     icon: "plugin",

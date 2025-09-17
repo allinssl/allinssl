@@ -221,7 +221,7 @@ export type ContactDetailResponse = ApiResponse<{
  * 删除用户联系人请求参数
  */
 export interface DelUserDetailRequest {
-	/** 注册者标识 ID */
-	registrant_id: string
+	/** 实名模板 ID */
+	id: number
 }
 export type DelUserDetailResponse = ApiResponse<{}>

@@ -1,4 +1,4 @@
-import { defineComponent, ref, computed, watch } from 'vue';
+import { defineComponent, ref, computed, watch } from "vue";
 import {
   NForm,
   NFormItem,
@@ -127,7 +127,7 @@ export default defineComponent({
           const selectedRootCa = rootCaList.value.find(
             (ca) => ca.id.toString() === newRootId
           );
-          if (selectedRootCa) {
+          if (selectedRootCa && selectedRootCa.algorithm) {
             addForm.value.algorithm = selectedRootCa.algorithm;
             if (selectedRootCa.algorithm === "ecdsa") {
               addForm.value.key_length = "256";
@@ -269,45 +269,43 @@ export default defineComponent({
               </div>
             </NDivider>
           </div>
-          {showAdvancedConfig.value && (
-            <div class="space-y-4 mt-4">
-              <NFormItem label="组织(O)">
-                <NInput
-                  v-model:value={addForm.value.o}
-                  placeholder="请输入组织名称"
-                />
-              </NFormItem>
+          <div class="mt-4" v-show={showAdvancedConfig.value}>
+            <NFormItem label="组织(O)">
+              <NInput
+                v-model:value={addForm.value.o}
+                placeholder="请输入组织名称"
+              />
+            </NFormItem>
 
-              <NFormItem label="国家(C)" path="c" required>
-                <NSelect
-                  v-model:value={addForm.value.c}
-                  options={countryOptions}
-                  placeholder="请选择国家"
-                />
-              </NFormItem>
+            <NFormItem label="国家(C)" path="c" required>
+              <NSelect
+                v-model:value={addForm.value.c}
+                options={countryOptions}
+                placeholder="请选择国家"
+              />
+            </NFormItem>
 
-              <NFormItem label="组织单位(OU)">
-                <NInput
-                  v-model:value={addForm.value.ou}
-                  placeholder="请输入组织单位"
-                />
-              </NFormItem>
+            <NFormItem label="组织单位(OU)">
+              <NInput
+                v-model:value={addForm.value.ou}
+                placeholder="请输入组织单位"
+              />
+            </NFormItem>
 
-              <NFormItem label="省份">
-                <NInput
-                  v-model:value={addForm.value.province}
-                  placeholder="请输入省份"
-                />
-              </NFormItem>
+            <NFormItem label="省份">
+              <NInput
+                v-model:value={addForm.value.province}
+                placeholder="请输入省份"
+              />
+            </NFormItem>
 
-              <NFormItem label="城市">
-                <NInput
-                  v-model:value={addForm.value.locality}
-                  placeholder="请输入城市"
-                />
-              </NFormItem>
-            </div>
-          )}
+            <NFormItem label="城市">
+              <NInput
+                v-model:value={addForm.value.locality}
+                placeholder="请输入城市"
+              />
+            </NFormItem>
+          </div>
         </div>
         <div class="flex justify-end gap-3 mt-6">
           <NButton onClick={handleCancel}>取消</NButton>

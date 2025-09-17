@@ -1,7 +1,7 @@
 import { defineComponent, computed, onUnmounted } from 'vue'
 import { NButton, NFlex, NGrid, NGridItem, NInput, NInputGroup, NSteps, NStep, NSelect, NCheckbox, NRadioButton, NRadioGroup, NTag, NQrCode, NDynamicInput, NAlert, NTooltip, NIcon } from 'naive-ui'
-import { useTransferState } from '../useStore'
-import { useController } from '../useController'
+import { useTransferJoinState } from './JoinIn/useStore'
+import { useController } from './JoinIn/useController'
 import { queryPaymentStatus, buyByBalance } from '@/api/order'
 import { useMessage } from '@baota/naive-ui/hooks'
 import { InformationCircleOutline } from '@vicons/ionicons5'
@@ -22,7 +22,7 @@ export default defineComponent({
 		},
 	},
 	setup(props) {
-		const state = useTransferState()
+		const state = useTransferJoinState()
 		const { checkDomains, createOrder, handleSelectRealName, loadRealNameOptions } = useController()
 		const message = useMessage()
 		const qrLink = computed(() => state.payChannel.value === 'wechat' ? state.orderInfo.value?.wx : state.orderInfo.value?.ali)

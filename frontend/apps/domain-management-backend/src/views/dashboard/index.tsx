@@ -325,7 +325,7 @@ export default defineComponent({
 											</NButton>
 											<div class="flex items-center justify-end gap-4">
 												<div class="text-lg font-bold text-[#f0a020]">
-													总计：¥{Number(cartListInfo.value.total_price || 0).toFixed(0)}
+													总计：¥{cartListInfo.value.total_price}
 												</div>
 												<NButton type="success" onClick={handleCheckout}>
 													结算

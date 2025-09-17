@@ -35,7 +35,7 @@ export default defineConfig({
   build: {
     minify: "terser", // 混淆器，terser构建后文件体积更小
     sourcemap: false,
-    cssCodeSplit: false, // 不分割css代码
+    cssCodeSplit: true, // 不分割css代码
     reportCompressedSize: false, // 不统计gzip压缩后的文件大小
     chunkSizeWarningLimit: 800, // 警告阈值
     assetsInlineLimit: 2048, // 小于2kb的资源内联
@@ -51,6 +51,7 @@ export default defineConfig({
       input: {
         main: resolve(__dirname, "index.html"),
         registration: resolve(__dirname, "domain-query-register.html"),
+        whois: resolve(__dirname, "domain-whois.html"),
       },
       strictDeprecations: true, // 严格弃用
       output: {

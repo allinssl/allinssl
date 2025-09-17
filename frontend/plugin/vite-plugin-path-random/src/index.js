@@ -1,9 +1,230 @@
 import fs from "fs";
 import path from "path";
 import { glob } from "glob";
+import os from "os";
 
 // 全局随机参数变量，在插件初始化时设置
 let randomParam = null;
+
+// Windows兼容性常量
+const WINDOWS_RESERVED_NAMES = [
+  "CON",
+  "PRN",
+  "AUX",
+  "NUL",
+  "COM1",
+  "COM2",
+  "COM3",
+  "COM4",
+  "COM5",
+  "COM6",
+  "COM7",
+  "COM8",
+  "COM9",
+  "LPT1",
+  "LPT2",
+  "LPT3",
+  "LPT4",
+  "LPT5",
+  "LPT6",
+  "LPT7",
+  "LPT8",
+  "LPT9",
+];
+const WINDOWS_INVALID_CHARS = /[<>:"|?*\x00-\x1f]/g;
+const MAX_PATH_LENGTH = 260; // Windows MAX_PATH限制
+const MAX_FILENAME_LENGTH = 255; // 大多数文件系统的文件名长度限制
+
+/**
+ * Windows兼容性工具函数
+ */
+
+/**
+ * 检查是否为Windows系统
+ * @returns {boolean} 是否为Windows
+ */
+function isWindows() {
+  return os.platform() === "win32";
+}
+
+/**
+ * 规范化Windows文件名
+ * @param {string} filename - 原始文件名
+ * @returns {string} 规范化后的文件名
+ */
+function normalizeWindowsFilename(filename) {
+  if (!isWindows()) {
+    return filename;
+  }
+
+  // 移除无效字符
+  let normalized = filename.replace(WINDOWS_INVALID_CHARS, "_");
+
+  // 移除尾部的点和空格
+  normalized = normalized.replace(/[. ]+$/, "");
+
+  // 检查保留名称
+  const baseName = normalized.split(".")[0].toUpperCase();
+  if (WINDOWS_RESERVED_NAMES.includes(baseName)) {
+    normalized = `_${normalized}`;
+  }
+
+  // 限制文件名长度
+  if (normalized.length > MAX_FILENAME_LENGTH) {
+    const ext = path.extname(normalized);
+    const nameWithoutExt = path.basename(normalized, ext);
+    const maxNameLength = MAX_FILENAME_LENGTH - ext.length;
+    normalized = nameWithoutExt.substring(0, maxNameLength) + ext;
+  }
+
+  return normalized;
+}
+
+/**
+ * 检查路径长度是否超出Windows限制
+ * @param {string} filePath - 文件路径
+ * @returns {boolean} 是否超出限制
+ */
+function isPathTooLong(filePath) {
+  return isWindows() && filePath.length > MAX_PATH_LENGTH;
+}
+
+/**
+ * 生成Windows兼容的安全时间戳
+ * @returns {string} 安全的时间戳字符串
+ */
+function generateSafeTimestamp() {
+  const now = new Date();
+  const timestamp = now
+    .toISOString()
+    .replace(/[:.]/g, "-")
+    .replace("T", "_")
+    .substring(0, 19); // 移除毫秒部分
+
+  return normalizeWindowsFilename(timestamp);
+}
+
+/**
+ * 规范化glob模式以确保Windows兼容性
+ * @param {string} pattern - glob模式
+ * @returns {string} 规范化后的glob模式
+ */
+function normalizeGlobPattern(pattern) {
+  if (!pattern) return pattern;
+
+  // 在Windows系统中，确保glob模式使用正斜杠
+  // glob库在Windows中也期望使用正斜杠作为路径分隔符
+  if (isWindows()) {
+    return pattern.replace(/\\/g, "/");
+  }
+
+  return pattern;
+}
+
+/**
+ * 创建Windows兼容的glob选项
+ * @param {Object} baseOptions - 基础选项
+ * @returns {Object} 兼容的glob选项
+ */
+function createWindowsCompatibleGlobOptions(baseOptions = {}) {
+  const options = { ...baseOptions };
+
+  if (isWindows()) {
+    // Windows特定的glob选项
+    options.windowsPathsNoEscape = true;
+    options.nonull = false; // 避免返回无匹配的模式
+    options.dot = options.dot !== false; // 默认包含点文件
+  }
+
+  return options;
+}
+
+/**
+ * 规范化目录路径用于glob搜索
+ * @param {string} dirPath - 目录路径
+ * @returns {string} 规范化后的目录路径
+ */
+function normalizeGlobDirectory(dirPath) {
+  if (!dirPath) return dirPath;
+
+  // 规范化路径
+  let normalized = path.normalize(dirPath);
+
+  // 在Windows中，将反斜杠转换为正斜杠用于glob
+  if (isWindows()) {
+    normalized = normalized.replace(/\\/g, "/");
+  }
+
+  return normalized;
+}
+
+/**
+ * 规范化文件路径，确保Windows兼容性
+ * @param {string} filePath - 原始文件路径
+ * @returns {string} 规范化后的路径
+ */
+function normalizeFilePath(filePath) {
+  if (!filePath) return filePath;
+
+  // 使用path.normalize处理路径分隔符
+  let normalized = path.normalize(filePath);
+
+  if (isWindows()) {
+    // 处理文件名部分
+    const dir = path.dirname(normalized);
+    const filename = path.basename(normalized);
+    const normalizedFilename = normalizeWindowsFilename(filename);
+    normalized = path.join(dir, normalizedFilename);
+  }
+
+  return normalized;
+}
+
+/**
+ * 验证文件路径的Windows兼容性
+ * @param {string} filePath - 文件路径
+ * @param {Object} options - 配置选项
+ * @returns {Object} 验证结果 {valid: boolean, error?: string, normalized?: string}
+ */
+function validateFilePath(filePath, options = {}) {
+  const result = { valid: true };
+
+  try {
+    // 规范化路径
+    const normalized = normalizeFilePath(filePath);
+    result.normalized = normalized;
+
+    // 检查路径长度
+    if (isPathTooLong(normalized)) {
+      result.valid = false;
+      result.error = `路径长度超出限制 (${normalized.length} > ${MAX_PATH_LENGTH})`;
+      return result;
+    }
+
+    // 检查文件名
+    const filename = path.basename(normalized);
+    if (isWindows() && WINDOWS_INVALID_CHARS.test(filename)) {
+      result.valid = false;
+      result.error = `文件名包含Windows不支持的字符: ${filename}`;
+      return result;
+    }
+
+    // 检查保留名称
+    const baseName = path
+      .basename(filename, path.extname(filename))
+      .toUpperCase();
+    if (isWindows() && WINDOWS_RESERVED_NAMES.includes(baseName)) {
+      result.valid = false;
+      result.error = `文件名使用了Windows保留名称: ${baseName}`;
+      return result;
+    }
+  } catch (error) {
+    result.valid = false;
+    result.error = `路径验证失败: ${error.message}`;
+  }
+
+  return result;
+}
 
 /**
  * 生成随机数参数
@@ -132,8 +353,6 @@ function processFileContent(content, options = {}) {
             }v=${randomParam}${suffix}`
           : match;
       }
-      console.log(randomParam, "时间戳");
-      // console.log(match, prefix, filePath, suffix);
       return `${prefix}${filePath}${
         filePath.includes("?") ? "&" : "?"
       }v=${randomParam}${suffix}`;
@@ -197,9 +416,9 @@ function processSingleFile(filePath, options = {}) {
 
     if (content !== processedContent) {
       fs.writeFileSync(filePath, processedContent, "utf8");
-      if (options.logger) {
-        options.logger(`✅ 已处理: ${filePath}`);
-      }
+      // if (options.logger) {
+      //   options.logger(`✅ 已处理: ${filePath}`);
+      // }
       return true;
     } else {
       if (options.logger) {
@@ -249,9 +468,23 @@ function processBatchFiles(directory, options = {}) {
     ? directory
     : path.resolve(directory);
 
+  // 验证目录路径的Windows兼容性
+  const pathValidation = validateFilePath(absoluteDir);
+  if (!pathValidation.valid) {
+    const error = `目录路径不兼容: ${pathValidation.error}`;
+    if (mergedOptions.logger) {
+      mergedOptions.logger(`❌ ${error}`);
+    }
+    stats.errors.push({ file: "DIRECTORY_VALIDATION", error });
+    return stats;
+  }
+
+  // 使用规范化后的路径
+  const normalizedDir = pathValidation.normalized || absoluteDir;
+
   // 检查目录是否存在
-  if (!fs.existsSync(absoluteDir)) {
-    const error = `目录不存在: ${absoluteDir}`;
+  if (!fs.existsSync(normalizedDir)) {
+    const error = `目录不存在: ${normalizedDir}`;
     if (mergedOptions.logger) {
       mergedOptions.logger(`❌ ${error}`);
     }
@@ -260,7 +493,7 @@ function processBatchFiles(directory, options = {}) {
   }
 
   if (mergedOptions.logger) {
-    mergedOptions.logger(`🔍 扫描目录: ${absoluteDir}`);
+    mergedOptions.logger(`🔍 扫描目录: ${normalizedDir}`);
   }
 
   try {
@@ -268,30 +501,66 @@ function processBatchFiles(directory, options = {}) {
     let allFiles = [];
 
     mergedOptions.patterns.forEach((pattern) => {
-      const searchPattern = path.join(absoluteDir, pattern);
-      const ignorePatterns = mergedOptions.ignore.map((ig) =>
-        path.join(absoluteDir, ig)
-      );
+      // 规范化glob模式以确保Windows兼容性
+      const normalizedPattern = normalizeGlobPattern(pattern);
+      const globDir = normalizeGlobDirectory(normalizedDir);
+      const searchPattern = path.posix.join(globDir, normalizedPattern);
+      const ignorePatterns = mergedOptions.ignore.map((ig) => {
+        const normalizedIgnore = normalizeGlobPattern(ig);
+        return path.posix.join(globDir, normalizedIgnore);
+      });
 
       try {
-        const files = glob.sync(searchPattern, {
+        const globOptions = createWindowsCompatibleGlobOptions({
           ignore: ignorePatterns,
           absolute: true,
           nodir: true, // 只返回文件，不包括目录
         });
 
-        if (mergedOptions.logger && files.length > 0) {
+        // Windows调试信息
+        if (isWindows() && mergedOptions.logger) {
+          mergedOptions.logger(`🔍 Windows模式 - 搜索模式: ${searchPattern}`);
           mergedOptions.logger(
-            `📄 找到 ${files.length} 个匹配文件 (${pattern})`
+            `🔍 Windows模式 - 忽略模式: ${ignorePatterns.join(", ")}`
           );
+        }
+
+        const files = glob.sync(searchPattern, globOptions);
+
+        if (mergedOptions.logger) {
+          if (files.length > 0) {
+            mergedOptions.logger(
+              `📄 找到 ${files.length} 个匹配文件 (${pattern})`
+            );
+          } else {
+            mergedOptions.logger(
+              `⚠️  模式 "${pattern}" 未找到匹配文件${
+                isWindows() ? " (Windows系统)" : ""
+              }`
+            );
+          }
         }
 
         allFiles.push(...files);
       } catch (globError) {
-        const error = `模式匹配失败 (${pattern}): ${globError.message}`;
-        stats.errors.push({ file: pattern, error });
+        const error = `模式匹配失败 (${pattern}): ${globError.message}${
+          isWindows() ? " [Windows系统]" : ""
+        }`;
+        stats.errors.push({
+          file: pattern,
+          error,
+          platform: isWindows() ? "Windows" : "Unix",
+          searchPattern,
+          ignorePatterns,
+        });
         if (mergedOptions.logger) {
-          mergedOptions.logger(`⚠️  ${error}`);
+          mergedOptions.logger(`❌ ${error}`);
+          if (isWindows()) {
+            mergedOptions.logger(`🔍 调试信息 - 搜索路径: ${searchPattern}`);
+            mergedOptions.logger(
+              `🔍 调试信息 - 目录存在: ${fs.existsSync(normalizedDir)}`
+            );
+          }
         }
       }
     });
@@ -315,12 +584,27 @@ function processBatchFiles(directory, options = {}) {
       if (mergedOptions.logger) {
         mergedOptions.logger(
           `\n[${index + 1}/${stats.totalCount}] 处理: ${path.relative(
-            absoluteDir,
+            normalizedDir,
             file
           )}`
         );
       }
 
+      // 验证单个文件路径
+      const fileValidation = validateFilePath(file);
+      if (!fileValidation.valid) {
+        stats.failedCount++;
+        stats.errors.push({
+          file: path.relative(normalizedDir, file),
+          error: `文件路径验证失败: ${fileValidation.error}`,
+        });
+        if (mergedOptions.logger) {
+          mergedOptions.logger(`❌ 跳过无效文件: ${fileValidation.error}`);
+        }
+        return; // 跳过此文件
+      }
+
+      const normalizedFile = fileValidation.normalized || file;
       let retries = 0;
       let success = false;
 
@@ -330,7 +614,7 @@ function processBatchFiles(directory, options = {}) {
 
           if (mergedOptions.createBackup) {
             // 使用安全处理函数
-            const result = processSingleFileSafe(file, mergedOptions);
+            const result = processSingleFileSafe(normalizedFile, mergedOptions);
 
             if (result.success) {
               success = true;
@@ -347,7 +631,7 @@ function processBatchFiles(directory, options = {}) {
             }
           } else {
             // 使用原有的处理函数
-            const modified = processSingleFile(file, mergedOptions);
+            const modified = processSingleFile(normalizedFile, mergedOptions);
             success = true;
 
             if (modified) {
@@ -525,6 +809,7 @@ export default function randomCachePlugin(userOptions = {}) {
       }
     },
 
+    // 编辑结束
     buildEnd() {
       if (options.enableLog) {
         logger("✨ Random Cache Plugin 处理完成");
@@ -543,10 +828,19 @@ function createBackup(filePath, options = {}) {
   try {
     const backupDir =
       options.backupDir || path.join(path.dirname(filePath), ".backup");
-    const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
+    const timestamp = generateSafeTimestamp();
     const fileName = path.basename(filePath);
-    const backupFileName = `${fileName}.${timestamp}.backup`;
+    const backupFileName = normalizeWindowsFilename(
+      `${fileName}.${timestamp}.backup`
+    );
     const backupPath = path.join(backupDir, backupFileName);
+
+    // 检查路径长度
+    if (isPathTooLong(backupPath)) {
+      throw new Error(
+        `备份路径过长 (${backupPath.length} > ${MAX_PATH_LENGTH}): ${backupPath}`
+      );
+    }
 
     // 确保备份目录存在
     if (!fs.existsSync(backupDir)) {
@@ -725,24 +1019,76 @@ function batchReplaceWithRandomCache(target, options = {}) {
         ? target
         : path.resolve(target);
 
-      if (!fs.existsSync(absoluteDir)) {
-        throw new Error(`目标目录不存在: ${absoluteDir}`);
+      // 验证目录路径的Windows兼容性
+      const pathValidation = validateFilePath(absoluteDir);
+      if (!pathValidation.valid) {
+        throw new Error(`目标目录路径不兼容: ${pathValidation.error}`);
       }
 
-      logger(`🔍 扫描目录: ${absoluteDir}`);
+      const normalizedDir = pathValidation.normalized || absoluteDir;
+
+      if (!fs.existsSync(normalizedDir)) {
+        throw new Error(`目标目录不存在: ${normalizedDir}`);
+      }
+
+      logger(`🔍 扫描目录: ${normalizedDir}`);
 
       mergedOptions.patterns.forEach((pattern) => {
-        const searchPattern = path.join(absoluteDir, pattern);
-        const ignorePatterns = mergedOptions.ignore.map((ig) =>
-          path.join(absoluteDir, ig)
-        );
+        // 规范化glob模式以确保Windows兼容性
+        const normalizedPattern = normalizeGlobPattern(pattern);
+        const globDir = normalizeGlobDirectory(normalizedDir);
+        const searchPattern = path.posix.join(globDir, normalizedPattern);
+        const ignorePatterns = mergedOptions.ignore.map((ig) => {
+          const normalizedIgnore = normalizeGlobPattern(ig);
+          return path.posix.join(globDir, normalizedIgnore);
+        });
 
-        const files = glob.sync(searchPattern, {
+        const globOptions = createWindowsCompatibleGlobOptions({
           ignore: ignorePatterns,
           absolute: true,
         });
 
-        filesToProcess.push(...files);
+        // Windows调试信息
+        if (isWindows() && mergedOptions.enableLog) {
+          logger(`🔍 Windows模式 - 搜索模式: ${searchPattern}`);
+          logger(`🔍 Windows模式 - 忽略模式: ${ignorePatterns.join(", ")}`);
+        }
+
+        try {
+          const files = glob.sync(searchPattern, globOptions);
+
+          if (mergedOptions.enableLog) {
+            if (files.length > 0) {
+              logger(`📄 模式 "${pattern}" 找到 ${files.length} 个文件`);
+            } else {
+              logger(
+                `⚠️  模式 "${pattern}" 未找到匹配文件${
+                  isWindows() ? " (Windows系统)" : ""
+                }`
+              );
+            }
+          }
+
+          filesToProcess.push(...files);
+        } catch (globError) {
+          const error = `模式匹配失败 (${pattern}): ${globError.message}${
+            isWindows() ? " [Windows系统]" : ""
+          }`;
+          stats.errors.push({
+            file: pattern,
+            error,
+            platform: isWindows() ? "Windows" : "Unix",
+            searchPattern,
+            ignorePatterns,
+          });
+          if (mergedOptions.enableLog) {
+            logger(`❌ ${error}`);
+            if (isWindows()) {
+              logger(`🔍 调试信息 - 搜索路径: ${searchPattern}`);
+              logger(`🔍 调试信息 - 目录存在: ${fs.existsSync(normalizedDir)}`);
+            }
+          }
+        }
       });
 
       // 去重
@@ -824,4 +1170,14 @@ export {
   restoreFromBackup,
   processSingleFileSafe,
   batchReplaceWithRandomCache,
+  // Windows兼容性工具函数
+  isWindows,
+  normalizeWindowsFilename,
+  normalizeFilePath,
+  validateFilePath,
+  isPathTooLong,
+  generateSafeTimestamp,
+  normalizeGlobPattern,
+  createWindowsCompatibleGlobOptions,
+  normalizeGlobDirectory,
 };
