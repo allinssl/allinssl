@@ -272,7 +272,7 @@ export const ApiProjectConfig: Record<string, ApiProjectType> = {
     sort: 32,
   },
   btdomain: {
-    name: "BTDomain",
+    name: "宝塔域名",
     icon: "btdomain",
     type: ["dns"],
     hostRelated: { default: { name: "BTDomain" } },
