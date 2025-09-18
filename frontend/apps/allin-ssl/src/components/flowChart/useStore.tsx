@@ -488,15 +488,17 @@ export const useFlowStore = defineStore('flow-store', () => {
    * @param nodeId 节点ID
    * @param config 新的配置数据
    */
-  const updateNodeConfig = (nodeId: string, config: Record<string, any>) => {
+	const updateNodeConfig = (nodeId: string, config: Record<string, any>) => {
     const node = getFlowFindNodeData(nodeId);
     if (!node) {
       console.warn(`Node with id ${nodeId} not found`);
       return;
     }
+    const { eabId, ...params } = config;
+    
     // 更新原始数据
     updateNodeRecursive(flowData.value.childNode, nodeId, (node) => {
-      node.config = config;
+      node.config = params;
     });
     return flowData.value;
   };

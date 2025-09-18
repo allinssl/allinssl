@@ -13,6 +13,7 @@ const {
 	flowData,
 	selectedNodeId,
 	setflowZoom,
+	setZoomValue,
 	initFlowData,
 	updateFlowData,
 	setShowAddNodeSelect,
@@ -133,6 +134,7 @@ export const useController = (props: FlowNodeProps = { type: 'quick', node: flow
 	 * 返回上一级
 	 */
 	const goBack = () => {
+		setZoomValue(100)
 		router.back()
 	}
 
