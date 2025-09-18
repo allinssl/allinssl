@@ -634,10 +634,10 @@ export default defineComponent({
     });
 
     // 确认事件触发
-    confirm(async (close) => {
+		confirm(async (close) => {
       try {
-        await example.value?.validate();
-
+				await example.value?.validate();
+				data.value.eabId = "";
         updateNodeConfig(props.node.id, data.value); // 更新节点配置
         isRefreshNode.value = props.node.id; // 刷新节点
         close();

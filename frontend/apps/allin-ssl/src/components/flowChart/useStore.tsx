@@ -494,11 +494,9 @@ export const useFlowStore = defineStore('flow-store', () => {
       console.warn(`Node with id ${nodeId} not found`);
       return;
     }
-    const { eabId, ...params } = config;
-    
     // 更新原始数据
     updateNodeRecursive(flowData.value.childNode, nodeId, (node) => {
-      node.config = params;
+      node.config = config;
     });
     return flowData.value;
   };
