@@ -146,6 +146,16 @@ func AddAccount(email, ca, Kid, HmacEncoded, CADirURL string) error {
 	} else if ca == "custom" && CADirURL == "" {
 		return fmt.Errorf("CADirURL is required for custom CA")
 	}
+
+	// Check if account already exists
+	data, err := db.Where(`email=? and type=?`, []interface{}{email, ca}).Select()
+	if err != nil {
+		return fmt.Errorf("failed to query account: %w", err)
+	}
+	if len(data) > 0 {
+		return fmt.Errorf("当前ca已存在相同的邮箱，请勿重复添加")
+	}
+
 	account := map[string]interface{}{
 		"email":       email,
 		"type":        ca,
@@ -229,7 +239,7 @@ func GetAccountList(search, ca string, p, limit int64) ([]map[string]interface{}
 		}
 	}
 	count, err := db.Where(whereSql, whereArgs).Count()
-	data, err := db.Where(whereSql, whereArgs).Limit(limits).Select()
+	data, err := db.Where(whereSql, whereArgs).Order("create_time", "desc").Limit(limits).Select()
 	if err != nil {
 		return nil, 0, fmt.Errorf("failed to get account list: %w", err)
 	}
