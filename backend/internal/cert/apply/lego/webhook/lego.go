@@ -7,8 +7,6 @@ import (
 	"time"
 )
 
-var configData string
-
 type Config struct {
 	WebhookConfig *public.WebhookConfig
 
@@ -19,7 +17,8 @@ type Config struct {
 }
 
 type DNSProvider struct {
-	config *Config
+	config   *Config
+	dataTemp string
 }
 
 func NewConfig(WebhookConfigStr map[string]string) *Config {
@@ -45,7 +44,10 @@ func NewDNSProviderConfig(config *Config) (*DNSProvider, error) {
 	if config == nil {
 		return nil, fmt.Errorf("配置不能为空")
 	}
-	return &DNSProvider{config: config}, nil
+	return &DNSProvider{
+		config:   config,
+		dataTemp: config.WebhookConfig.Data,
+	}, nil
 }
 
 func (d *DNSProvider) Timeout() (timeout, interval time.Duration) {
@@ -53,12 +55,12 @@ func (d *DNSProvider) Timeout() (timeout, interval time.Duration) {
 }
 
 func (d *DNSProvider) Present(domain, token, keyAuth string) error {
-	configData = d.config.WebhookConfig.Data
+	d.config.WebhookConfig.Data = d.dataTemp
 	return d.send(domain, token, keyAuth, "present")
 }
 
 func (d *DNSProvider) CleanUp(domain, token, keyAuth string) error {
-	d.config.WebhookConfig.Data = configData
+	d.config.WebhookConfig.Data = d.dataTemp
 	return d.send(domain, token, keyAuth, "cleanup")
 }
 

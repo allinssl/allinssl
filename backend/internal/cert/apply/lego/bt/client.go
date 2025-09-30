@@ -76,6 +76,9 @@ func (c *Config) MakeRequest(method, path string, data interface{}) (map[string]
 	if err := json.Unmarshal(respBytes, &result); err != nil {
 		return nil, err
 	}
+	if !result["status"].(bool) {
+		return nil, fmt.Errorf("API 请求失败: %v", result["msg"])
+	}
 
 	return result, nil
 }
