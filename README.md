@@ -84,6 +84,23 @@ go build -o allinssl cmd/main.go
 ./allinssl start
 ```
 
+### Leapcell 部署
+
+1.  **Fork 本仓库**
+    首先，你需要 Fork 此仓库到你自己的 GitHub 账户下。
+
+2.  **在 Leapcell 上创建服务**
+    - 访问 [Leapcell 控制台](https://leapcell.io/dashboard) 并点击 "Create Service"。
+    - 选择 "Import from Another Repository or Template"，然后选择你刚刚 Fork 的仓库。
+
+3.  **配置构建和运行设置**
+    - 在 "Framework Preset"（框架预设）下拉菜单中，选择 "Go"。
+    - Leapcell 会自动检测到这是一个 Go 项目，并配置好构建和启动命令。
+
+4.  **部署**
+    - 点击 "Create Service" 按钮，Leapcell 将会自动开始构建和部署你的应用。
+    - 部署完成后，你可以通过 Leapcell 提供的域名访问你的 All in SSL 应用。
+
 ### 首次配置
 1. 访问 `http://your-server-ip:port/安全入口`
 2. 添加DNS提供商和主机提供商凭证 ☁️
