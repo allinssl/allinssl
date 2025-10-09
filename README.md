@@ -48,7 +48,7 @@ curl -sSO https://cnb.cool/allinssl/install.sh/-/git/raw/main/install_allinssl.s
 ```bash 
 docker run -itd \
   --name allinssl \
-  -p 7979:8888 \
+  -p 8888:8888 \
   -v /www/allinssl/data:/www/allinssl/data \
   -e ALLINSSL_USER=allinssl \
   -e ALLINSSL_PWD=allinssldocker \
