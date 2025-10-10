@@ -1,0 +1,40 @@
+# 编译阶段：编译 Go 后端
+FROM golang:1.24-alpine AS builder
+
+WORKDIR /build
+
+# 安装编译依赖（包括 glibc 兼容层）
+RUN apk add --no-cache git gcc musl-dev libc6-compat
+
+# 复制 Go 模块文件
+COPY go.mod go.sum ./
+RUN go mod download
+
+# 复制源代码
+COPY backend/ ./backend/
+COPY cmd/ ./cmd/
+COPY plugins/ ./plugins/
+COPY static/ ./static/
+
+# 编译 Go 程序（启用 CGO）
+RUN CGO_ENABLED=1 GOOS=linux go build -ldflags="-s -w" -o allinssl ./cmd/main.go
+
+# 运行阶段：最小化运行环境
+FROM frolvlad/alpine-glibc
+
+WORKDIR /www/allinssl/
+
+# 安装运行时依赖
+RUN apk add --no-cache tzdata ca-certificates
+ENV TZ=Asia/Shanghai
+
+# 从编译阶段复制可执行文件
+COPY --from=builder /build/allinssl /www/allinssl/allinssl
+
+# 复制启动脚本
+COPY entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+
+ENTRYPOINT ["/entrypoint.sh"]
+
+EXPOSE 8888
