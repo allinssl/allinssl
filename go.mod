@@ -34,7 +34,7 @@ require (
 	github.com/pkg/sftp v1.13.9
 	github.com/qiniu/go-sdk/v7 v7.25.3
 	github.com/tealeg/xlsx v1.0.5
-	github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/common v1.0.1210
+	github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/common v1.1.36
 	github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/ssl v1.0.1124
 	github.com/tjfoc/gmsm v1.4.1
 	github.com/volcengine/volcengine-go-sdk v1.1.11
@@ -119,6 +119,7 @@ require (
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/quasoft/memstore v0.0.0-20191010062613-2bce066d2b0b // indirect
 	github.com/remyoudompheng/bigfft v0.0.0-20230129092748-24d4a6f8daec // indirect
+	github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/teo v1.1.36 // indirect
 	github.com/twitchyliquid64/golang-asm v0.15.1 // indirect
 	github.com/ugorji/go/codec v1.2.12 // indirect
 	github.com/volcengine/volc-sdk-golang v1.0.216 // indirect

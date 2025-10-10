@@ -34,19 +34,19 @@ func Deploy(cfg map[string]any, logger *public.Logger) error {
 	case "tencentcloud-cdn":
 		cfg["resource_type"] = "cdn"
 		logger.Debug("部署到腾讯云CDN...")
-		return DeployToTX(cfg)
+		return DeployToTX(cfg, logger)
 	case "tencentcloud-cos":
 		cfg["resource_type"] = "cos"
 		logger.Debug("部署到腾讯云COS...")
-		return DeployToTX(cfg)
+		return DeployToTX(cfg, logger)
 	case "tencentcloud-waf":
 		cfg["resource_type"] = "waf"
 		logger.Debug("部署到腾讯云WAF...")
-		return DeployToTX(cfg)
+		return DeployToTX(cfg, logger)
 	case "tencentcloud-teo":
 		cfg["resource_type"] = "teo"
-		logger.Debug("部署到腾讯云EdgeOne...")
-		return DeployToTX(cfg)
+		logger.Debug("部署到腾讯云EO...")
+		return DeployToTX(cfg, logger)
 	case "1panel":
 		logger.Debug("部署到1Panel...")
 		return Deploy1panel(cfg)
