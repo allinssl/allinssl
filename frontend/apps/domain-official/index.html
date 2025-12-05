@@ -27,35 +27,38 @@
 								<button id="tab-normal-index" class="tab-btn active">
 									域名注册
 								</button>
-								               <button id="tab-ai-index" class="tab-btn">
-                 <i class="fa fa-search"></i>AI域名推荐
-                 <span class="new-badge">new</span>
-               </button>
+								<button id="tab-ai-index" class="tab-btn">
+									<i class="fa fa-search"></i>AI域名推荐
+									<span class="new-badge">new</span>
+								</button>
 							</div>
 						</div>
-						
+
 						<!-- 域名注册面板 -->
 						<div id="normal-search-panel-index" class="search-panel">
 							<div id="search-section" class="flex flex-col sm:flex-row gap-4">
-						<div class="input-container">
-							<input type="text" placeholder="输入您想注册的域名（如：yourbrand）" class="search-input" id="domain-query-input" />
-							<i class="fa fa-times-circle clear-input-button" id="clear-input-button" title="清空输入"></i>
-									<div class="mt-2 text-left"><a class="text-primary hover:text-primary" style="text-decoration: none;" href="/domain/domain/transfer">域名转入 .cn低至29.9元</a></div>
-						</div>
-						<div class="flex gap-4 relative">
-							<a id="domain-query-button"
-								class="primary-action-button text-lg hover:shadow-primary-30 hover:-translate-y-1">立即查询</a>
-							<a id="cart-button"
-								class="cart-action-button text-lg border-2 border-green-500 text-green-500 hover:bg-green-50 hover:-translate-y-1"
-								style="display: none;" href="/new/domain-query-register.html" title="查看购物车">
-								<i class="fa fa-shopping-cart mr-2"></i>
-								<span>购物车</span>
-							</a>
-							<a class="absolute btlink" href="https://qm.qq.com/q/fxbto4wZkk" target="_blank" rel="noopener" style="text-decoration: none;bottom: 0;right: 0;">加入QQ群</a>
+								<div class="input-container">
+									<input type="text" placeholder="输入您想注册的域名（如：yourbrand）" class="search-input"
+										id="domain-query-input" />
+									<i class="fa fa-times-circle clear-input-button" id="clear-input-button" title="清空输入"></i>
+									<div class="mt-2 text-left"><a class="text-primary hover:text-primary" style="text-decoration: none;"
+											href="/domain/domain/transfer">域名转入 .cn低至29.9元</a></div>
+								</div>
+								<div class="flex gap-4 relative">
+									<a id="domain-query-button"
+										class="primary-action-button text-lg hover:shadow-primary-30 hover:-translate-y-1">立即查询</a>
+									<a id="cart-button"
+										class="cart-action-button text-lg border-2 border-green-500 text-green-500 hover:bg-green-50 hover:-translate-y-1"
+										style="display: none;" href="/new/domain-query-register.html" title="查看购物车">
+										<i class="fa fa-shopping-cart mr-2"></i>
+										<span>购物车</span>
+									</a>
+									<a class="absolute btlink" href="https://qm.qq.com/q/fxbto4wZkk" target="_blank" rel="noopener"
+										style="text-decoration: none;bottom: 0;right: 0;">加入QQ群</a>
 								</div>
 							</div>
 						</div>
-						
+
 						<!-- AI推荐面板 -->
 						<div id="ai-search-panel-index" class="search-panel hidden">
 							<div class="flex w-full">
@@ -67,29 +70,17 @@
 												<!-- 品牌名称输入框 -->
 												<div class="ai-input-group flex-1">
 													<i class="ai-input-icon fa fa-building"></i>
-													<input 
-														type="text" 
-														id="brand-name-input-index" 
-														class="ai-search-input"
-														placeholder="请输入品牌/公司/个人/产品名称"
-														autocomplete="off"
-														spellcheck="false"
-													>
+													<input type="text" id="brand-name-input-index" class="ai-search-input"
+														placeholder="请输入品牌/公司/个人/产品名称" autocomplete="off" spellcheck="false">
 												</div>
-												
+
 												<!-- 行业信息输入框 -->
 												<div class="ai-input-group flex-1">
 													<i class="ai-input-icon fa fa-search"></i>
-													<input 
-														type="text" 
-														id="industry-input-index" 
-														class="ai-search-input"
-														placeholder="请输入行业信息"
-														autocomplete="off"
-														spellcheck="false"
-													>
+													<input type="text" id="industry-input-index" class="ai-search-input" placeholder="请输入行业信息"
+														autocomplete="off" spellcheck="false">
 												</div>
-												
+
 												<!-- AI推荐按钮 -->
 												<button type="button" id="ai-recommend-btn-index" class="ai-transparent-button">
 													<i class="ai-button-icon fa fa-search"></i>
@@ -111,7 +102,8 @@
 								<h2 class="activity-title text-2xl md:text-3xl font-bold text-primary mb-3">
 									开学季专属福利 · 0.01元限量秒杀
 								</h2>
-								<div class="activity-rules flex flex-col sm:flex-row items-center justify-center gap-4 text-sm text-secondary-70">
+								<div
+									class="activity-rules flex flex-col sm:flex-row items-center justify-center gap-4 text-sm text-secondary-70">
 									<div class="rule-item flex items-center gap-2">
 										<i class="fa fa-star text-primary"></i>
 										<span>每日限量100个名额</span>
@@ -178,7 +170,7 @@
 													<div class="progress-fill-mini" id="progress-fill-flat" style="width: 0%"></div>
 												</div>
 											</div>
-											
+
 											<!-- 倒计时区域（活动开始前显示） -->
 											<div class="countdown-section" id="countdown-section">
 												<div class="countdown-label-mini">距离下次开抢</div>
@@ -190,7 +182,7 @@
 													<span class="time-digit-mini" id="countdown-seconds-flat">00</span>
 												</div>
 											</div>
-											
+
 											<button class="seckill-btn-flat" id="seckill-action-btn-flat">
 												<span class="btn-text">即将开始</span>
 												<div class="btn-loading" style="display: none;">
@@ -206,17 +198,33 @@
 										</div>
 									</div>
 								</div>
+							</div>
 						</div>
 					</div>
-				</div>
 
-				
+
+					<!-- 域名限量秒杀 -->
+					<section id="domain-flash-section" class="domain-flash-section pb-[60px]" style="margin-top: 120px">
+						<div class="container">
+							<div class="title-container">
+								<div class="title-container-title">-</div>
+								<div class="title-container-desc">-</div>
+							</div>
+							<div class="products-grid domain-grid" id="domain-flash-grid"></div>
+							<div class="action-activity-desc" style="z-index:1;bottom:0">
+								*请抢购成功后前往<a href="https://www.bt.cn/domain/domain/list" target="_blank"
+									class="text-primary hover:text-primary">域名控制台</a>进行实名，否则域名无法使用！
+							</div>
+						</div>
+					</section>
+
 					<!-- 组队领取top优惠券区域 -->
-					<div id="team-coupon" class="activity-container act-super_discount pb-[100px]" style="scroll-margin-top: 100px;">
+					<div id="team-coupon" class="activity-container act-super_discount pb-[100px]"
+						style="scroll-margin-top: 100px;">
 						<div class="title-container">
 							<div class="title-container-title">组队领取0.01元.top及超低价.com/.cn购买资格</div>
 							<div class="title-container-desc">
-								满4人即可享受超低价首年购，数量有限，先到先得，数量领完则活动截止
+								满3人即可享受超低价首年购，数量有限，先到先得，数量领完则活动截止
 							</div>
 						</div>
 						<div class="container">
@@ -224,19 +232,16 @@
 								<div class="table-header">
 									<div class="table-header-item">
 										<div class="header-tr">
-											<div
-												class="table-header-th table-left border-left-[1px] border-top-[1px] bg-white">
+											<div class="table-header-th table-left border-left-[1px] border-top-[1px] bg-white">
 											</div>
-											<div
-												class="table-header-th !h-[60px] bg-[#E9F6EB] border-left-[2px] border-top-[2px] bg-white">
+											<div class="table-header-th !h-[60px] bg-[#E9F6EB] border-left-[2px] border-top-[2px] bg-white">
 												<div class="title-desc">超值优惠</div>
 												<div class="title">
 													<span>队长达标价格（首年）</span>
 													<span class="tips">最划算</span>
 												</div>
 											</div>
-											<div
-												class="table-header-th !h-[60px] bg-[#E9F6EB] border-left-[2px] border-top-[2px] bg-white">
+											<div class="table-header-th !h-[60px] bg-[#E9F6EB] border-left-[2px] border-top-[2px] bg-white">
 												<div class="title">
 													<span>队员达标价格（首年）</span>
 												</div>
@@ -250,14 +255,15 @@
 									</div>
 								</div>
 								<div class="table-body">
-									
+
 								</div>
 							</div>
-							<a href="javascript:void(0)" id="initiate-team-btn" class="initiate-team-btn !w-[400px]" style="margin-top:20px">
+							<a href="javascript:void(0)" id="initiate-team-btn" class="initiate-team-btn !w-[400px]"
+								style="margin-top:20px">
 								<div class="team-icon"></div>
 								<span>发起组队</span>
 							</a>
-							
+
 							<div class="action-activity-desc">
 								* 优惠资格有效期：4人组队成功后开始计时，72小时内有效，逾期未使用则自动失效，可再次组队领取。
 								<br>
@@ -266,51 +272,53 @@
 						</div>
 					</div>
 
-				<!-- 价格表格 -->
+					<!-- 价格表格 -->
 					<div class="mx-auto max-w-[900px]">
-					<div class="text-center mb-8">
+						<div class="text-center mb-8">
 							<h2 class="text-clamp font-bold text-dark mb-4" style="margin-top: 120px">域名价格一览表</h2>
 							<div class="text-secondary-80 max-w-4xl mx-auto px-4">
-								透明的价格体系，无隐藏费用，让您明明白白消费，更多服务请<a class="border-b border-dashed border-primary text-secondary-80" href="https://qm.qq.com/q/fxbto4wZkk" target="_blank" rel="noopener" style="text-decoration: none;">加入QQ群</a>或者<span
+								透明的价格体系，无隐藏费用，让您明明白白消费，更多服务请<a class="border-b border-dashed border-primary text-secondary-80"
+									href="https://qm.qq.com/q/fxbto4wZkk" target="_blank" rel="noopener"
+									style="text-decoration: none;">加入QQ群</a>或者<span
 									class="contact-service-trigger cursor-pointer border-b border-dashed border-primary relative">请联系客服咨询
-								<!-- 二维码悬浮层 -->
-								<div
-									class="qr-code-popup absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 opacity-0 invisible transition-all duration-300 z-50">
-									<div class="bg-white rounded-lg shadow-xl p-4 border border-gray-200">
-										<div class="text-center mb-2">
-											<p class="text-sm font-medium text-gray-700">扫码联系客服</p>
-										</div>
-										<!-- 二维码SVG -->
-										<img src="https://www.bt.cn/Public/new/images/wechat-qrcode.png" alt="二维码"
-											class="w-24 h-24 mx-auto" />
-										<div class="text-center mt-2">
-											<p class="text-xs text-gray-500">微信客服</p>
-										</div>
-										<!-- 小箭头 -->
-										<div
-											class="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-white">
+									<!-- 二维码悬浮层 -->
+									<div
+										class="qr-code-popup absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 opacity-0 invisible transition-all duration-300 z-50">
+										<div class="bg-white rounded-lg shadow-xl p-4 border border-gray-200">
+											<div class="text-center mb-2">
+												<p class="text-sm font-medium text-gray-700">扫码联系客服</p>
+											</div>
+											<!-- 二维码SVG -->
+											<img src="https://www.bt.cn/Public/new/images/wechat-qrcode.png" alt="二维码"
+												class="w-24 h-24 mx-auto" />
+											<div class="text-center mt-2">
+												<p class="text-xs text-gray-500">微信客服</p>
+											</div>
+											<!-- 小箭头 -->
+											<div
+												class="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-white">
+											</div>
 										</div>
 									</div>
-								</div>
-							</span>
-						</div>
-					</div>
-
-					<div class="overflow-x-auto px-4 md:px-0">
-						<!-- 现代化价格表格 -->
-						<div class="modern-price-table bg-white overflow-hidden shadow-lg">
-							<!-- 表头 -->
-							<div class="price-table-header bg-gradient-to-r from-primary to-green-600 text-white py-4 px-4">
-								<div class="grid grid-cols-4 gap-4 text-center">
-									<div class="text-sm md:text-base font-semibold">域名后缀</div>
-									<div class="text-sm md:text-base font-semibold">首年价格</div>
-									<div class="text-sm md:text-base font-semibold">续费价格</div>
-									<div class="text-sm md:text-base font-semibold">转入续费</div>
-								</div>
+								</span>
 							</div>
-							<!-- 表格内容 -->
-							<div class="price-table-body" id="price-table-body">
-								<!-- 动态生成的价格表格内容 -->
+						</div>
+
+						<div class="overflow-x-auto px-4 md:px-0">
+							<!-- 现代化价格表格 -->
+							<div class="modern-price-table bg-white overflow-hidden shadow-lg">
+								<!-- 表头 -->
+								<div class="price-table-header bg-gradient-to-r from-primary to-green-600 text-white py-4 px-4">
+									<div class="grid grid-cols-4 gap-4 text-center">
+										<div class="text-sm md:text-base font-semibold">域名后缀</div>
+										<div class="text-sm md:text-base font-semibold">首年价格</div>
+										<div class="text-sm md:text-base font-semibold">续费价格</div>
+										<div class="text-sm md:text-base font-semibold">转入续费</div>
+									</div>
+								</div>
+								<!-- 表格内容 -->
+								<div class="price-table-body" id="price-table-body">
+									<!-- 动态生成的价格表格内容 -->
 								</div>
 							</div>
 						</div>
@@ -328,7 +336,7 @@
 
 				<div class="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8 max-w-6xl mx-auto px-4 m">
 					<!-- 特点1 -->
-					<div class="bg-light rounded-xl p-8 card-shadow hover-lift">
+					<div class="bg-light p-8 card-shadow hover-lift">
 						<div class="w-12 h-12 bg-primary-10 rounded-full flex items-center justify-center mb-4">
 							<i class="fa fa-bolt text-primary text-xl"></i>
 						</div>
@@ -339,7 +347,7 @@
 					</div>
 
 					<!-- 特点2 -->
-					<div class="bg-light rounded-xl p-8 card-shadow hover-lift">
+					<div class="bg-light p-8 card-shadow hover-lift">
 						<div class="w-12 h-12 bg-primary-10 rounded-full flex items-center justify-center mb-4">
 							<i class="fa fa-dollar text-primary text-xl"></i>
 						</div>
@@ -350,7 +358,7 @@
 					</div>
 
 					<!-- 特点3 -->
-					<div class="bg-light rounded-xl p-8 card-shadow hover-lift">
+					<div class="bg-light p-8 card-shadow hover-lift">
 						<div class="w-12 h-12 bg-primary-10 rounded-full flex items-center justify-center mb-4">
 							<i class="fa fa-tag text-primary text-xl"></i>
 						</div>
@@ -361,7 +369,7 @@
 					</div>
 
 					<!-- 特点4 -->
-					<div class="bg-light rounded-xl p-8 card-shadow hover-lift">
+					<div class="bg-light p-8 card-shadow hover-lift">
 						<div class="w-12 h-12 bg-primary-10 rounded-full flex items-center justify-center mb-4">
 							<i class="fa fa-server text-primary text-xl"></i>
 						</div>
@@ -551,7 +559,7 @@
 					<!-- FAQ 折叠面板 -->
 					<div class="space-y-3 md:space-y-4">
 						<!-- 问题1 -->
-						<div class="bg-white rounded-xl overflow-hidden shadow-lg">
+						<div class="bg-white overflow-hidden shadow-lg">
 							<button
 								class="text-sm faq-toggle w-full cursor-pointer flex justify-between items-center p-6 text-left font-bold text-dark hover:bg-gray-50 transition-colors">
 								<span>域名注册后，能改名字吗？</span>
@@ -565,7 +573,7 @@
 						</div>
 
 						<!-- 问题2 -->
-						<div class="bg-white rounded-xl overflow-hidden shadow-lg">
+						<div class="bg-white overflow-hidden shadow-lg">
 							<button
 								class="text-sm faq-toggle w-full cursor-pointer flex justify-between items-center p-6 text-left font-bold text-dark hover:bg-gray-50 transition-colors">
 								<span>个人能注册.cn后缀吗？</span>
@@ -577,7 +585,7 @@
 						</div>
 
 						<!-- 问题3 -->
-						<div class="bg-white rounded-xl overflow-hidden shadow-lg">
+						<div class="bg-white overflow-hidden shadow-lg">
 							<button
 								class="text-sm faq-toggle w-full cursor-pointer flex justify-between items-center p-6 text-left font-bold text-dark hover:bg-gray-50 transition-colors">
 								<span>如果域名到期忘了续费，会怎么样？</span>
@@ -591,7 +599,7 @@
 						</div>
 
 						<!-- 问题4 -->
-						<div class="bg-white rounded-xl overflow-hidden shadow-lg">
+						<div class="bg-white overflow-hidden shadow-lg">
 							<button
 								class="text-sm faq-toggle w-full cursor-pointer flex justify-between items-center p-6 text-left font-bold text-dark hover:bg-gray-50 transition-colors">
 								<span>注册后不想用了，能退款吗？</span>
@@ -604,7 +612,7 @@
 							</div>
 						</div>
 						<!-- 问题5 -->
-						<div class="bg-white rounded-xl overflow-hidden shadow-lg">
+						<div class="bg-white overflow-hidden shadow-lg">
 							<button
 								class="text-sm faq-toggle w-full cursor-pointer flex justify-between items-center p-6 text-left font-bold text-dark hover:bg-gray-50 transition-colors">
 								<span>域名注册后去哪里备案？</span>
@@ -612,12 +620,15 @@
 							</button>
 							<div class="faq-content hidden p-6">
 								<p class="text-secondary-80 text-sm">
-									域名备案需要在您的网站托管服务商处进行，不是在域名注册商处。请前往您网站部署的云服务商（如阿里云、腾讯云等）的备案管理系统提交备案申请。详情请参考<a class="text-[#20a53a] hover:text-[#20a53a]-800 text-sm underline cursor-pointer" href="https://docs.bt.cn/domain/user-guide/domain-filing" target="_blank" rel="noopener noreferrer">帮助文档</a>
+									域名备案需要在您的网站托管服务商处进行，不是在域名注册商处。请前往您网站部署的云服务商（如阿里云、腾讯云等）的备案管理系统提交备案申请。详情请参考<a
+										class="text-[#20a53a] hover:text-[#20a53a]-800 text-sm underline cursor-pointer"
+										href="https://docs.bt.cn/domain/user-guide/domain-filing" target="_blank"
+										rel="noopener noreferrer">帮助文档</a>
 								</p>
 							</div>
 						</div>
 						<!-- 问题6 -->
-						<div class="bg-white rounded-xl overflow-hidden shadow-lg">
+						<div class="bg-white overflow-hidden shadow-lg">
 							<button
 								class="text-sm faq-toggle w-full cursor-pointer flex justify-between items-center p-6 text-left font-bold text-dark hover:bg-gray-50 transition-colors">
 								<span>堡塔怎么转入其他注册商的域名？</span>
@@ -625,12 +636,15 @@
 							</button>
 							<div class="faq-content hidden p-6">
 								<p class="text-secondary-80 text-sm">
-									域名转入需要满足注册满60天、距到期15天以上等条件，在原注册商获取转移密码后，登录堡塔域名控制台提交转入申请并支付费用（含1年续费），通常1-7个工作日完成。详情请参考文档：<a class="text-[#20a53a] hover:text-[#20a53a]-800 text-sm underline cursor-pointer" href="https://docs.bt.cn/domain/user-guide/domain-transfer-in" target="_blank" rel="noopener noreferrer">帮助文档</a>
+									域名转入需要满足注册满60天、距到期15天以上等条件，在原注册商获取转移密码后，登录堡塔域名控制台提交转入申请并支付费用（含1年续费），通常1-7个工作日完成。详情请参考文档：<a
+										class="text-[#20a53a] hover:text-[#20a53a]-800 text-sm underline cursor-pointer"
+										href="https://docs.bt.cn/domain/user-guide/domain-transfer-in" target="_blank"
+										rel="noopener noreferrer">帮助文档</a>
 								</p>
 							</div>
 						</div>
 						<!-- 问题7 -->
-						<div class="bg-white rounded-xl overflow-hidden shadow-lg">
+						<div class="bg-white overflow-hidden shadow-lg">
 							<button
 								class="text-sm faq-toggle w-full cursor-pointer flex justify-between items-center p-6 text-left font-bold text-dark hover:bg-gray-50 transition-colors">
 								<span>域名注册失败了怎么办？</span>
@@ -639,6 +653,36 @@
 							<div class="faq-content hidden p-6">
 								<p class="text-secondary-80 text-sm">
 									域名注册失败通常是因为域名已被注册、信息模板异常、包含敏感词或支付问题等原因，请根据具体错误提示进行相应处理，如仍有问题请联系客服。
+								</p>
+							</div>
+						</div>
+						<!-- 问题8 -->
+						<div class="bg-white overflow-hidden shadow-lg">
+							<button
+								class="text-sm faq-toggle w-full cursor-pointer flex justify-between items-center p-6 text-left font-bold text-dark hover:bg-gray-50 transition-colors">
+								<span>域名为什么会被注册局封禁（ServerHold）？</span>
+								<i class="fa fa-chevron-down text-primary transition-transform duration-300"></i>
+							</button>
+							<div class="faq-content hidden p-6">
+								<p class="text-secondary-80 text-sm">
+									部分后缀（如 .top、.xyz 等）因存在用户滥用（如垃圾邮件、恶意网站等），注册局可能会直接将域名设置为 ServerHold
+									状态，导致域名无法正常解析和使用。请您务必合规使用域名，避免涉及违规内容。若因滥用被封禁，域名通常无法恢复，且费用不予退还。
+								</p>
+							</div>
+						</div>
+						<!-- 问题9 -->
+						<div class="bg-white overflow-hidden shadow-lg">
+							<button
+								class="text-sm faq-toggle w-full cursor-pointer flex justify-between items-center p-6 text-left font-bold text-dark hover:bg-gray-50 transition-colors">
+								<span>未成年人可以注册域名吗？</span>
+								<i class="fa fa-chevron-down text-primary transition-transform duration-300"></i>
+							</button>
+							<div class="faq-content hidden p-6">
+								<p class="text-secondary-80 text-sm">
+									1. 域名注册需要完成实名认证，一般要求提供有效身份证件及本人手机号。未成年人通常因没有独立手机号，实名认证无法通过，因此可能无法正常注册域名，您可寻求监护人的帮助由监护人代为注册。
+								</p>
+								<p class="text-secondary-80 text-sm">
+									2. 请您确保注册人信息真实、有效，避免因不符合要求导致域名无法使用。
 								</p>
 							</div>
 						</div>
@@ -661,7 +705,102 @@
 				</div>
 			</div>
 		</section>
+		<!-- 域名限量秒杀 -->
+		<script type="text/template" id="domain-flash-modal-template">
+			<!--
+				域名闪购产品说明模态模板
+				动态数据（后缀、说明、订单信息）由 TS 的 showDomainFlashModal 渲染
+			-->
+		<div class="team-modal-container domain-flash-container">
 
+			<div class="team-modal-body">
+				<div class="team-modal-left">
+					<!-- 标题区域：后续通过 TS 更新 .suffix-text 内容 -->
+					<div class="team-modal-header">
+						<div class="team-modal-title">
+							<span class="suffix-text">.com</span>域名秒杀
+						</div>
+					</div>
+					<!-- 产品说明卡片 -->
+					<div class="team-card product-card">
+						<div class="team-card-title">产品说明</div>
+						<div id="feature-desc" class="team-card-desc opacity-0 translate-y-1 transition-all duration-300">
+							<span class="dot"></span>
+							<span class="desc-text">-</span>
+						</div>
+					</div>
+
+					<!-- 订单信息表格：四列布局（名称/年限/数量/价值） -->
+					<table class="w-full">
+						<thead>
+							<tr class="border-b bg-neutral-50 border-neutral-100">
+								<th class="team-modal-table-cell cell-name">名称</th>
+								<th class="team-modal-table-cell">年限</th>
+								<th class="team-modal-table-cell">数量</th>
+								<th class="team-modal-table-cell">价值</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr class="border-b border-neutral-100">
+								<td class="team-modal-table-cell order-domain cell-name">-</td>
+								<td class="team-modal-table-cell order-domain order-year">1年</td>
+								<td class="team-modal-table-cell order-domain order-qty">1份</td>
+								<td class="flex flex-col px-4 py-3 text-sm font-semibold text-neutral-800">
+									<span class="order-price-value">-</span>
+									<span class="text-neutral-600 line-through text-[10px] order-origin">-</span>
+								</td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+
+				<!-- 右侧价格与二维码占位区域（仅展示效果） -->
+				<div class="team-modal-right">
+					<!-- 顶部支付方式按钮 -->
+					<div class="px-4 py-4 border-b border-neutral-100">
+						<div class="flex justify-center">
+							<div
+								class="relative inline-flex w-[260px] h-10 p-1 rounded-lg bg-neutral-100/80 shadow-inner cursor-pointer"
+								role="tablist" aria-label="选择支付方式" id="pay-switch" data-current="wechat">
+								<div
+									class="absolute top-1 bottom-1 px-3 py-1 rounded-md shadow-md cursor-pointer bg-[#07C160] shadow-lg"
+									style="width: 48.4%; left: 1.6%; transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);" id="pay-slider">
+								</div>
+								<button
+									class="relative cursor-pointer flex-1 px-3 py-1 text-xs font-medium rounded-md transition-all duration-300 focus:outline-none focus-visible:ring-2 z-10 text-white focus-visible:ring-white/50"
+									aria-selected="true" tabindex="0" role="tab" id="pay-wechat" data-method="wechat">
+									<div class="flex gap-1.5 justify-center items-center">
+										<img src="https://www.bt.cn/static/astro/icon/wechat-white.svg" alt="微信支付图标"
+											class="flex-shrink-0 w-3.5 h-3.5 transition-opacity duration-200">
+										<span class="whitespace-nowrap">微信支付</span>
+									</div>
+								</button>
+								<button
+									class="relative cursor-pointer flex-1 px-3 py-1 text-xs font-medium rounded-md transition-all duration-300 focus:outline-none focus-visible:ring-2 z-10 text-neutral-500 hover:text-neutral-700"
+									aria-selected="false" tabindex="-1" role="tab" id="pay-alipay" data-method="alipay">
+									<div class="flex gap-1.5 justify-center items-center">
+										<img src="https://www.bt.cn/static/astro/icon/alipay.svg" alt="支付宝图标"
+											class="flex-shrink-0 w-3.5 h-3.5 transition-opacity duration-200">
+										<span class="whitespace-nowrap">支付宝</span>
+									</div>
+								</button>
+							</div>
+						</div>
+					</div>
+					<!-- 订单有效期提示（展示文案） -->
+					<div class="order-expiry">订单有效期：剩余 <span class="expiry-time">-</span></div>
+					<div class="qr-box relative overflow-hidden rounded-md p-4 inline-block mx-auto mb-4 shadow-sm">
+						<div id="payment-qr" class="qr-placeholder" style="width:180px;height:180px;"></div>
+					</div>
+					<div class="price-summary">
+						<div class="price-now text-2xl font-bold">¥<span class="summary-price">-</span></div>
+						<div class="price-discount text-sm text-green-600">限时折扣：-<span class="summary-discount">-</span></div>
+						<div class="price-origin text-sm line-through text-neutral-400">原价：¥<span class="summary-origin">-</span>
+						</div>
+					</div>
+				</div>
+			</div>
+		</script>
 		<!-- Notification模板 -->
 		<!-- Notification容器模板 -->
 		<script type="text/template" id="notification-container-template">
@@ -711,8 +850,8 @@
       	</div>
       </div>
     </script>
-	
-	<script type="text/template" id="team-rule-modal-template">
+
+		<script type="text/template" id="team-rule-modal-template">
 		<div>
 			<div class="rule-item">
 				<div class="flex items-center gap-x-3 mb-4">
@@ -747,7 +886,7 @@
 			</div>
 		</div>
 		</script>
-	
+
 		<script type="text/template" id="team-modal-template">
 			<div class="team-modal-container">
 				<div class="team-modal-header">
@@ -770,9 +909,9 @@
 				<div class="team-modal-notes">
 					<h4>重要说明</h4>
 					<ol>
-						<li>每个账户只能参与1次组队，参与过队长/队员的，无法再次参与其他组队。</li>
-						<li>4人组队成功后开始计时，72小时内有效，逾期未使用则自动失效，可再次组队领取。</li>
-						<li>每个用户实名只能使用1次，优惠资格不可折现、不可转赠。</li>
+						<li>1.队伍创建后 72 小时内有效，组队总人数不限；需满 3 人且至少 2 名队员完成购买，队长方可享有优惠购买资格。​</li>
+						<li>2.优惠购买资格有效期为 72 小时，逾期未使用自动失效；每个用户实名仅限使用 1 次，优惠资格不可折现、不可转赠。​</li>
+						<li>3.每个账户仅能参与 1 次组队，无论此前担任队长或队员，均无法再加入其他队伍。​</li>
 					</ol>
 				</div>
 				<div class="team-modal-footer">
@@ -781,7 +920,7 @@
 				</div>
 			</div>
 		</script>
-	
+
 		<script type="text/template" id="my-team-modal-template">
 			<div class="my-team-container">
 				<div class="team-modal-header">
@@ -803,24 +942,24 @@
 										<div class="progress-milestone-icon no-icon"></div>
 										<span>1人</span>
 									</div>
-									<div class="progress-milestone" style="left: 33.3%;" data-member="3">
+									<div class="progress-milestone" style="left: 50%;" data-member="3">
 										<div class="progress-milestone-icon">
 											<img src="/static/new/images/724/discount.svg" alt="gift">
 										</div>
 										<span>2人</span>
 									</div>
-									<div class="progress-milestone" style="left: 66.6%;" data-member="5">
+									<div class="progress-milestone" style="right:-20px" data-member="5">
 										<div class="progress-milestone-icon">
 											<img src="/static/new/images/724/discount.svg" alt="gift">
 										</div>
 										<span>3人</span>
 									</div>
-									<div class="progress-milestone" style="right:-20px" data-member="10">
+									<!-- <div class="progress-milestone" style="right:-20px" data-member="10">
 										<div class="progress-milestone-icon">
 											<img src="/static/new/images/724/discount.svg" alt="gift">
 										</div>
 										<span>4人</span>
-									</div>
+									</div> -->
 								</div>
 								<div class="tier-members" id="my-team-members">
 									<div class="member-item">
@@ -854,6 +993,14 @@
 						</div>
 					</div>
 	
+				</div>
+				<div class="team-modal-notes" style="padding: 0px 32px;">
+					<h4>重要说明</h4>
+					<ol style="font-size: 12px;">
+						<li>1.队伍创建后 72 小时内有效，组队总人数不限；需满 3 人且至少 2 名队员完成购买，队长方可享有优惠购买资格。​</li>
+						<li>2.优惠购买资格有效期为 72 小时，逾期未使用自动失效；每个用户实名仅限使用 1 次，优惠资格不可折现、不可转赠。​</li>
+						<li>3.每个账户仅能参与 1 次组队，无论此前担任队长或队员，均无法再加入其他队伍。​</li>
+					</ol>
 				</div>
 				<div class="team-modal-footer">
 					<!-- <button class="btn btn-quit">退出组队</button> -->

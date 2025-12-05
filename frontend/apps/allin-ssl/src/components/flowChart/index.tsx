@@ -1,4 +1,5 @@
 import { NButton, NIcon, NInput } from 'naive-ui'
+import { useTheme } from "@baota/naive-ui/theme";
 import { SaveOutlined, ArrowLeftOutlined, ReloadOutlined } from "@vicons/antd";
 import { $t } from '@locales/index'
 import SvgIcon from '@components/SvgIcon'
@@ -35,6 +36,7 @@ export default defineComponent({
     },
   },
   setup(props: FlowNodeProps, { slots }) {
+	const { isDark } = useTheme()
     const cssVars = useThemeCssVar([
       "borderColor",
       "dividerColor",
@@ -195,11 +197,15 @@ export default defineComponent({
         wheelTimeout = null;
       }
     });
+    const zoomIconColor = computed(() =>
+      isDark.value ? "#ffffff" : "#5a5e66"
+    );
+
     return () => (
       <div class="flex flex-col w-full h-full" style={cssVars.value}>
         <div class="w-full h-[6rem] px-[2rem] mb-[2rem] rounded-lg flex items-center gap-2 justify-between">
           <div class="flex items-center">
-            <NButton onClick={goBack}>
+            <NButton class="gradient-default-btn" onClick={goBack}>
               <NIcon class="mr-1">
                 <ArrowLeftOutlined />
               </NIcon>
@@ -210,12 +216,12 @@ export default defineComponent({
             <NInput
               v-model:value={flowData.value.name}
               placeholder={$t("t_0_1745490735213")}
-              class="!w-[30rem] !border-none "
+              class="!w-[30rem] !border-none !bg-[var(--workflow-header-input-bg)]"
             />
           </div>
           <div class="flex items-center gap-2">
             <NButton
-              type="primary"
+              type={isDark.value ? "tertiary" : "primary"}
               onClick={handleSaveConfig}
               disabled={!selectedNodeId}
             >
@@ -254,28 +260,50 @@ export default defineComponent({
           </div>
         </div>
         {/*  缩放控制区 */}
-        <div class={styles.flowZoom}>
-          <div class={styles.flowZoomIcon} onClick={() => handleZoom(1)}>
+        <div class={[styles.flowZoom, isDark.value ? styles.flowZoomDark : ""]}>
+          <div
+            class={[
+              styles.flowZoomIcon,
+              isDark.value ? styles.flowZoomIconDark : "",
+            ]}
+            onClick={() => handleZoom(1)}
+          >
             <SvgIcon
               icon="subtract"
               class={`${flowZoom.value === 50 ? styles.disabled : ""}`}
-              color="#5a5e66"
-            />
-          </div>
-          <span>{flowZoom.value}%</span>
-          <div class={styles.flowZoomIcon} onClick={() => handleZoom(2)}>
-            <SvgIcon
-              icon="plus"
-              class={`${flowZoom.value === 300 ? styles.disabled : ""}`}
-              color="#5a5e66"
+              color={zoomIconColor.value}
             />
           </div>
           <div
-            class={styles.flowZoomIcon}
+            class={[
+              styles.flowZoomValue,
+              isDark.value ? styles.flowZoomValueDark : "",
+            ]}
+          >
+            {flowZoom.value}%
+          </div>
+          <div
+            class={[
+              styles.flowZoomIcon,
+              isDark.value ? styles.flowZoomIconDark : "",
+            ]}
+            onClick={() => handleZoom(2)}
+          >
+            <SvgIcon
+              icon="plus"
+              class={`${flowZoom.value === 300 ? styles.disabled : ""}`}
+              color={zoomIconColor.value}
+            />
+          </div>
+          <div
+            class={[
+              styles.flowZoomIcon,
+              isDark.value ? styles.flowZoomIconDark : "",
+            ]}
             onClick={handleReset}
             title="重置视图"
           >
-            <NIcon size="16" color="#5a5e66">
+            <NIcon size="16" color={zoomIconColor.value}>
               <ReloadOutlined />
             </NIcon>
           </div>

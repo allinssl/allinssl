@@ -213,10 +213,10 @@ export default defineComponent({
 						<NGi span={11}>
 							<div class="flex items-center h-full">
 								<NDivider vertical />
-								<NButton class="mx-[8px]" onClick={goToAddNotifyProvider} ghost>
+								<NButton class="flex-1 table-action-btn mx-[8px]" onClick={goToAddNotifyProvider} ghost>
 									{$t('t_2_1745887834248')}
 								</NButton>
-								<NButton onClick={fetchNotifyProviderData} ghost>
+								<NButton class="table-action-btn" onClick={fetchNotifyProviderData} ghost>
 									{$t('t_0_1746497662220')}
 								</NButton>
 							</div>

@@ -1,12 +1,12 @@
 import { v4 as uuidv4 } from 'uuid'
 import nodeOptions from '@components/FlowChart/lib/config'
 import { useStore } from '@components/FlowChart/useStore'
-import { CONDITION } from '@components/FlowChart/lib/alias'
+import { CONDITION, EXECUTE_RESULT_CONDITION } from '@components/FlowChart/lib/alias'
 
 import NodeWrap from '@components/FlowChart/components/render/nodeWrap'
 import AddNode from '@components/FlowChart/components/other/addNode'
 import styles from '../branchNode/index.module.css'
-import type { BaseRenderNodeOptions, ExecuteResultBranchNodeData } from '@components/FlowChart/types'
+import type { BaseRenderNodeOptions, ExecuteResultBranchNodeData, ExecuteResultConditionNodeData } from '@components/FlowChart/types'
 
 export default defineComponent({
 	name: 'BranchNode',
@@ -82,6 +82,7 @@ export default defineComponent({
 							key={index}
 							data-branch-index={index}
 							data-branches-count={props.node.conditionNodes?.length}
+							data-branch-type={condition.type === EXECUTE_RESULT_CONDITION && condition.config?.type ? condition.config.type : undefined}
 						>
 							{/* 条件节点 */}
 							<NodeWrap node={condition} />

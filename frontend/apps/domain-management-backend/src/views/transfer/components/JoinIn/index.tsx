@@ -1,11 +1,11 @@
 import { defineComponent, ref } from 'vue'
-import { NCard, NFlex, NButton, NDivider, NIcon, NAlert } from 'naive-ui'
+import { NFlex, NButton, NDivider, NIcon, NAlert } from 'naive-ui'
 import { CloseOutline, SearchOutline } from '@vicons/ionicons5'
 import { useController } from './useController'
 import { useApp } from '@/components/layout/useStore'
 
 export default defineComponent({
-	name: 'DomainTransferView',
+	name: 'DomainTransferJoinInView',
 	setup() {
 		const { loading, TableComponent, PageComponent, FilterForm, TransferCardList, tableData, openTransferDialog } =
 			useController()
@@ -98,8 +98,8 @@ export default defineComponent({
 		)
 
 		return () => (
-			<div class="flex flex-col justify-between min-h-[calc(100vh-160px)]">
-				<div class="flex flex-col gap-[16px] p-4">
+			<div class="flex flex-col justify-between">
+				<div class="flex flex-col gap-[16px]">
 					{renderFilterSection()}
 					{renderList()}
 				</div>

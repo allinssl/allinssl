@@ -34,6 +34,8 @@ import {
 import { useApp } from '@/components/layout/useStore'
 import { addExternalDomain, removeDomain } from '@/api/resolve'
 import { useError } from '@baota/hooks/error'
+// 导入域名详情页面的实名模板更换功能
+import { useDomainDetailState } from '../domain-details/useStore'
 
 const message = useMessage()
 const { handleError } = useError()
@@ -265,12 +267,42 @@ export function useController() {
 		setSelectedDomainInfo,
 	} = useDomainResolveState()
 
+	// 获取域名详情状态管理，用于实名模板更换功能
+	const { fetchRealNameTemplateList, openTemplateChangeDialog, domainInfo, realNameInfo } = useDomainDetailState()
+
 	const { useFormInput, useFormSelect } = useFormHooks()
 	const dialog = useDialog()
 	// 获取移动端状态
 	const { isMobile } = useApp()
 
 	// -------------------- 事件处理方法 --------------------
+
+	/**
+	 * 打开实名模板更换弹窗
+	 * @param row 域名行数据
+	 */
+	async function openTemplateChangeModal(domainId: string | number) {
+		// 先加载实名模板列表
+		await fetchRealNameTemplateList()
+
+		// 遵循 real-name 模式，将 useModal 结果赋值给 store 中的 ref
+		openTemplateChangeDialog.value = useModal({
+			title: '更换实名模板',
+			area: '650px',
+			component: () => import('../domain-details/components/RealNameTemplateChangeDialog'),
+			componentProps: {
+				domainId: Number(domainId),
+				domainInfo: domainInfo.value,
+				isNotReal: true,
+				currentTemplate: realNameInfo.value,
+				refresh: async () => {
+					// 刷新解析列表
+					await fetchResolveListData()
+				},
+			},
+			footer: false,
+		})
+	}
 
 	/**
 	 * 添加域名表单配置
@@ -550,18 +582,42 @@ export function useController() {
 			width: 150,
 			align: 'right',
 			fixed: 'right',
-			render: (row: ResolveItem) => (
-				<NSpace justify="end">
-					<NButton size="small" type="primary" ghost onClick={() => handleResolve(row)}>
-						解析
-					</NButton>
-					{row.domain_type === 2 && (
-						<NButton size="small" type="error" ghost onClick={() => handleDelete(row)}>
-							删除
+			render: (row: ResolveItem) => {
+				// 完全按照域名管理页面的立即实名逻辑实现
+				if (row.real_name_status === 0) {
+					// 实名状态为未实名时，显示立即实名按钮
+					return (
+						<NSpace justify="end">
+							<NButton size="small" type="error" ghost onClick={() => openTemplateChangeModal(row.local_id)}>
+								立即实名
+							</NButton>
+						</NSpace>
+					)
+				} else if (row.real_name_status === 4) {
+					// 更换中
+					return (
+						<NSpace justify="end">
+							<NButton size="small" type="warning" ghost disabled>
+								更换中
+							</NButton>
+						</NSpace>
+					)
+				}
+
+				// NS状态已设置时，显示常规操作按钮
+				return (
+					<NSpace justify="end">
+						<NButton size="small" type="primary" ghost onClick={() => handleResolve(row)}>
+							解析
 						</NButton>
-					)}
-				</NSpace>
-			),
+						{row.domain_type === 2 && (
+							<NButton size="small" type="error" ghost onClick={() => handleDelete(row)}>
+								删除
+							</NButton>
+						)}
+					</NSpace>
+				)
+			},
 		},
 	] as TableColumns<ResolveItem>
 
@@ -804,6 +860,7 @@ export function useController() {
 		handleResolve,
 		handleDelete,
 		handleStatusClick,
+		openTemplateChangeModal, // 导出立即实名处理函数
 
 		// 模态框
 		handleShowAddDomainModal,

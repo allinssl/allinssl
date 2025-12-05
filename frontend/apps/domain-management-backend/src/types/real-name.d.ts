@@ -127,6 +127,8 @@ export interface CreateContactRequest {
 	id_type: number
 	/** 证件号 */
 	id_number: string
+	/** 企业联系人证件号码 */
+	business_concat_id_number?: string
 	/** 证件照（正面 Base64） */
 	id_image_front: string
 	/** 证件照（背面 Base64） */

@@ -1,65 +1,277 @@
+const domainFlashInfo = {
+  data: [
+    {
+      id: 45,
+      name: "域名限量秒杀",
+      status: 1,
+      starttime: "2025-10-24 10:00:00",
+      endtime: "2026-08-31 10:24:07",
+      total: 0,
+      times: 1,
+      interval: 0,
+      type: 7,
+      old_price: "0.00",
+      new_price: null,
+      ps: null,
+      addtime: "2025-11-12 14:52:24",
+      description:
+        "每日10:00-11:00,15:00-16:00两场，数量有限。每个账号一个实名仅限参与1次",
+      user_limit: 0,
+      daily_limit: 0,
+      interval_time: 0,
+      min_amount: "0.00",
+      discount_amount: "0.00",
+      discount_rate: "0.00",
+      sort: 1,
+      detail: [
+        {
+          id: 37491,
+          pid: 45,
+          type: 3,
+          name: ".com",
+          num: 1,
+          original_price: "89.00",
+          status: 1,
+          activity_price: "29.90",
+          product_id: 0,
+          product_class: 4,
+          cycle: 1,
+          unit: "year",
+          starttime: "2025-10-04 14:31:55",
+          endtime: "2026-08-31 10:24:07",
+          sort: 1,
+          user_limit: 0,
+          daily_limit: 0,
+          is_receive: 0,
+          is_auth: 0,
+          limit_detail: "37479|",
+          gifts: [],
+          seckill: {
+            id: 10,
+            activity_id: 45,
+            detail_id: 37491,
+            seckill_start_date: "2025-10-14",
+            seckill_end_date: "2026-04-01",
+            daily_start_time: "10:00:00",
+            price: "0.90",
+            user_limit: 0,
+            daily_limit: 0,
+            status: 1,
+          },
+          status_message: "活动进行中",
+          buy_status: 1,
+          buy_message: "可以购买",
+          remaining_stock: "1",
+          seckill_daily: {
+            id: 348,
+            seckill_id: 10,
+            activity_id: 45,
+            detail_id: 37491,
+            seckill_date: "2025-11-14",
+            total_stock: 1,
+            remaining_stock: 1,
+            sold_count: 0,
+            is_first_day: 0,
+            status: 1,
+            start_time: "2025-11-14 15:00:00",
+            end_time: "2025-11-14 16:00:00",
+          },
+        },
+        {
+          id: 37492,
+          pid: 45,
+          type: 3,
+          name: ".cn",
+          num: 1,
+          original_price: "39.00",
+          status: 1,
+          activity_price: "0.90",
+          product_id: 0,
+          product_class: 4,
+          cycle: 1,
+          unit: "year",
+          starttime: "2025-10-04 14:31:55",
+          endtime: "2026-08-31 10:24:07",
+          sort: 2,
+          user_limit: 0,
+          daily_limit: 0,
+          is_receive: 0,
+          is_auth: 0,
+          limit_detail: "37480|",
+          gifts: [],
+          seckill: {
+            id: 11,
+            activity_id: 45,
+            detail_id: 37492,
+            seckill_start_date: "2025-10-14",
+            seckill_end_date: "2026-04-01",
+            daily_start_time: "10:00:00",
+            price: "0.90",
+            user_limit: 0,
+            daily_limit: 0,
+            status: 1,
+          },
+          status_message: "活动进行中",
+          buy_status: 1,
+          buy_message: "可以购买",
+          remaining_stock: "1",
+          seckill_daily: {
+            id: 355,
+            seckill_id: 11,
+            activity_id: 45,
+            detail_id: 37492,
+            seckill_date: "2025-11-14",
+            total_stock: 1,
+            remaining_stock: 1,
+            sold_count: 0,
+            is_first_day: 0,
+            status: 1,
+            start_time: "2025-11-14 15:00:00",
+            end_time: "2025-11-14 16:00:00",
+          },
+        },
+        {
+          id: 37493,
+          pid: 45,
+          type: 3,
+          name: ".top/.xyz/.icu/.cyou",
+          num: 1,
+          original_price: "109.00",
+          status: 1,
+          activity_price: "0.01",
+          product_id: 0,
+          product_class: 4,
+          cycle: 1,
+          unit: "year",
+          starttime: "2025-10-04 14:31:55",
+          endtime: "2026-08-31 10:24:07",
+          sort: 3,
+          user_limit: 1,
+          daily_limit: 1,
+          is_receive: 0,
+          is_auth: 0,
+          limit_detail: "37481",
+          gifts: [],
+          seckill: {
+            id: 12,
+            activity_id: 45,
+            detail_id: 37493,
+            seckill_start_date: "2025-10-14",
+            seckill_end_date: "2026-04-01",
+            daily_start_time: "10:00:00",
+            price: "0.90",
+            user_limit: 0,
+            daily_limit: 0,
+            status: 1,
+          },
+          status_message: "活动进行中",
+          buy_status: 1,
+          buy_message: "可以购买",
+          remaining_stock: "1",
+          seckill_daily: {
+            id: 353,
+            seckill_id: 12,
+            activity_id: 45,
+            detail_id: 37493,
+            seckill_date: "2025-11-14",
+            total_stock: 1,
+            remaining_stock: 1,
+            sold_count: 0,
+            is_first_day: 0,
+            status: 1,
+            start_time: "2025-11-14 15:00:00",
+            end_time: "2025-11-14 16:00:00",
+          },
+        },
+      ],
+    },
+  ],
+};
 import "virtual:uno.css";
 import "../styles/index.css";
 import { renderTemplateList } from "@utils/core";
-import type { DomainPrice } from "@types";
+import type { DomainPrice, ActivityDetail } from "@types";
 import { NotificationManager } from "@utils";
 import { bindContactServicePopupClick } from "@utils";
-import { getSeckillActivityInfo, grabSeckill } from "../api/landing";
+import {
+  getSeckillActivityInfo,
+  grabSeckill,
+  getActivityInfo,
+  searchDomain,
+  createFlashOrder,
+  getSeckillStatus,
+  getPaymentStatus,
+} from "../api/landing";
 
-window.isLoggedIn = localStorage.getItem("isLogin") === "true";
-// window.isLoggedIn = true;
 const isDev = (): boolean => process.env.NODE_ENV === "development";
 
+// 动态获取登录状态的函数
+function getLoginStatus(): boolean {
+  return localStorage.getItem("isLogin") === "true" || isDev();
+}
+/**
+ * 活动状态枚举
+ */
+enum ActivityStatus {
+  /** 未开始 */
+  NOT_STARTED = 0,
+  /** 进行中 */
+  IN_PROGRESS = 1,
+  /** 已结束 */
+  ENDED = 2,
+  /** 已暂停 */
+  PAUSED = 3,
+}
 /**
  * 秒杀活动状态枚举
  */
-// enum SeckillStatus {
-//   NOT_STARTED = "not_started", // 未开始
-//   CAN_QUALIFY = "can_qualify", // 可领资格
-//   CAN_SECKILL = "can_seckill", // 可秒杀
-//   PARTICIPATED = "participated", // 已参与
-//   SOLD_OUT = "sold_out", // 已抢完
-// }
+enum SeckillStatus {
+  NOT_STARTED = "not_started", // 未开始
+  CAN_QUALIFY = "can_qualify", // 可领资格
+  CAN_SECKILL = "can_seckill", // 可秒杀
+  PARTICIPATED = "participated", // 已参与
+  SOLD_OUT = "sold_out", // 已抢完
+}
 /**
  * 秒杀活动数据接口
  */
-// interface SeckillActivityData {
-//   startTime: string; // 开始时间 (HH:mm 格式)
-//   totalQuota: number; // 总配额
-//   grabbedCount: number; // 已抢数量
-//   userStatus: SeckillStatus; // 用户状态
-//   isActive: boolean; // 活动是否激活
-// }
+interface SeckillActivityData {
+  startTime: string; // 开始时间 (HH:mm 格式)
+  totalQuota: number; // 总配额
+  grabbedCount: number; // 已抢数量
+  userStatus: SeckillStatus; // 用户状态
+  isActive: boolean; // 活动是否激活
+}
 
 /**
  * 秒杀活动数据适配器
  */
-// class SeckillDataAdapter {
-//   /**
-//    * 映射API状态到前端状态
-//    */
-//   static mapGrabStatusToSeckillStatus(
-//     grabStatus: number,
-//     isLoggedIn: boolean
-//   ): SeckillStatus {
-//     switch (grabStatus) {
-//       case 0: // 可抢
-//         return isLoggedIn
-//           ? SeckillStatus.CAN_SECKILL
-//           : SeckillStatus.CAN_QUALIFY;
-//       case 1: // 已抢到未使用
-//       case 2: // 已使用
-//         return SeckillStatus.PARTICIPATED;
-//       case 3: // 活动未开始
-//         return SeckillStatus.NOT_STARTED;
-//       case 4: // 活动已结束
-//       case 5: // 已抢完
-//         return SeckillStatus.SOLD_OUT;
-//       default:
-//         return SeckillStatus.NOT_STARTED;
-//     }
-//   }
-// }
+class SeckillDataAdapter {
+  /**
+   * 映射API状态到前端状态
+   */
+  static mapGrabStatusToSeckillStatus(
+    grabStatus: number,
+    isLoggedIn: boolean,
+  ): SeckillStatus {
+    switch (grabStatus) {
+      case 0: // 可抢
+        return isLoggedIn
+          ? SeckillStatus.CAN_SECKILL
+          : SeckillStatus.CAN_QUALIFY;
+      case 1: // 已抢到未使用
+      case 2: // 已使用
+        return SeckillStatus.PARTICIPATED;
+      case 3: // 活动未开始
+        return SeckillStatus.NOT_STARTED;
+      case 4: // 活动已结束
+      case 5: // 已抢完
+        return SeckillStatus.SOLD_OUT;
+      default:
+        return SeckillStatus.NOT_STARTED;
+    }
+  }
+}
 
 /**
  * 折扣数据接口
@@ -81,534 +293,533 @@ interface TeamPrice {
 /**
  * 倒计时管理器
  */
-// class SeckillTimer {
-//   private targetTime: Date;
-//   private timer: number | null = null;
-//   private onUpdate:
-//     | ((timeLeft: { hours: number; minutes: number; seconds: number }) => void)
-//     | null = null;
-//   private onComplete: (() => void) | null = null;
+class SeckillTimer {
+  private targetTime: Date;
+  private timer: number | null = null;
+  private onUpdate:
+    | ((timeLeft: { hours: number; minutes: number; seconds: number }) => void)
+    | null = null;
+  private onComplete: (() => void) | null = null;
 
-//   constructor(targetHour: number = 10, targetMinute: number = 0) {
-//     this.targetTime = this.calculateNextTarget(targetHour, targetMinute);
-//   }
+  constructor(targetHour: number = 10, targetMinute: number = 0) {
+    this.targetTime = this.calculateNextTarget(targetHour, targetMinute);
+  }
 
-//   /**
-//    * 计算下一个目标时间
-//    */
-//   private calculateNextTarget(hour: number, minute: number): Date {
-//     const now = new Date();
-//     const today = new Date(
-//       now.getFullYear(),
-//       now.getMonth(),
-//       now.getDate(),
-//       hour,
-//       minute,
-//       0
-//     );
+  /**
+   * 计算下一个目标时间
+   */
+  private calculateNextTarget(hour: number, minute: number): Date {
+    const now = new Date();
+    const today = new Date(
+      now.getFullYear(),
+      now.getMonth(),
+      now.getDate(),
+      hour,
+      minute,
+      0,
+    );
 
-//     // 如果今天的时间已过，计算明天的时间
-//     if (today <= now) {
-//       today.setDate(today.getDate() + 1);
-//     }
+    // 如果今天的时间已过，计算明天的时间
+    if (today <= now) {
+      today.setDate(today.getDate() + 1);
+    }
 
-//     return today;
-//   }
+    return today;
+  }
 
-//   /**
-//    * 开始倒计时
-//    */
-//   start(
-//     onUpdate?: (timeLeft: {
-//       hours: number;
-//       minutes: number;
-//       seconds: number;
-//     }) => void,
-//     onComplete?: () => void
-//   ): void {
-//     this.onUpdate = onUpdate || null;
-//     this.onComplete = onComplete || null;
-//     this.tick();
-//   }
+  /**
+   * 开始倒计时
+   */
+  start(
+    onUpdate?: (timeLeft: {
+      hours: number;
+      minutes: number;
+      seconds: number;
+    }) => void,
+    onComplete?: () => void,
+  ): void {
+    this.onUpdate = onUpdate || null;
+    this.onComplete = onComplete || null;
+    this.tick();
+  }
 
-//   /**
-//    * 停止倒计时
-//    */
-//   stop(): void {
-//     if (this.timer) {
-//       window.clearTimeout(this.timer);
-//       this.timer = null;
-//     }
-//   }
+  /**
+   * 停止倒计时
+   */
+  stop(): void {
+    if (this.timer) {
+      window.clearTimeout(this.timer);
+      this.timer = null;
+    }
+  }
 
-//   /**
-//    * 倒计时逻辑
-//    */
-//   private tick(): void {
-//     const now = new Date();
-//     const timeLeft = this.targetTime.getTime() - now.getTime();
+  /**
+   * 倒计时逻辑
+   */
+  private tick(): void {
+    const now = new Date();
+    const timeLeft = this.targetTime.getTime() - now.getTime();
 
-//     if (timeLeft <= 0) {
-//       // 倒计时结束
-//       if (this.onComplete) {
-//         this.onComplete();
-//       }
-//       return;
-//     }
+    if (timeLeft <= 0) {
+      // 倒计时结束
+      if (this.onComplete) {
+        this.onComplete();
+      }
+      return;
+    }
 
-//     const hours = Math.floor(timeLeft / (1000 * 60 * 60));
-//     const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
-//     const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
+    const hours = Math.floor(timeLeft / (1000 * 60 * 60));
+    const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
+    const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
 
-//     if (this.onUpdate) {
-//       this.onUpdate({ hours, minutes, seconds });
-//     }
+    if (this.onUpdate) {
+      this.onUpdate({ hours, minutes, seconds });
+    }
 
-//     this.timer = window.setTimeout(() => this.tick(), 1000);
-//   }
-// }
+    this.timer = window.setTimeout(() => this.tick(), 1000);
+  }
+}
 
 /**
  * 秒杀活动状态管理器
  */
-// class SeckillStateManager {
-//   private currentStatus: SeckillStatus = SeckillStatus.NOT_STARTED;
-//   private activityData!: SeckillActivityData;
-//   private clickDebounceTimer: number | null = null;
+class SeckillStateManager {
+  private currentStatus: SeckillStatus = SeckillStatus.NOT_STARTED;
+  private activityData!: SeckillActivityData;
+  private clickDebounceTimer: number | null = null;
 
-//   constructor() {
-//     // 初始化默认状态，等待API数据
-//     this.setupDefaultData();
-//   }
+  constructor() {
+    // 初始化默认状态，等待API数据
+    this.setupDefaultData();
+  }
 
-//   /**
-//    * 异步初始化API数据
-//    */
-//   async initialize(): Promise<void> {
-//     await this.initWithApiData();
-//   }
+  /**
+   * 异步初始化API数据
+   */
+  async initialize(): Promise<void> {
+    await this.initWithApiData();
+  }
 
-//   /**
-//    * 通过API初始化活动数据
-//    */
-//   async initWithApiData(): Promise<void> {
-//     try {
-//       const response = await getSeckillActivityInfo();
-//       if (response.status === true && response.data) {
-//         const { grab_status, remaining_coupons, total_coupons } = response.data;
+  /**
+   * 通过API初始化活动数据
+   */
+  async initWithApiData(): Promise<void> {
+    try {
+      const response = await getSeckillActivityInfo();
+      if (response.status === true && response.data) {
+        const { grab_status, remaining_coupons, total_coupons } = response.data;
+        // 设置初始状态
+        const isLoggedIn = getLoginStatus();
+        this.currentStatus = SeckillDataAdapter.mapGrabStatusToSeckillStatus(
+          grab_status,
+          isLoggedIn,
+        );
 
-//         // 设置初始状态
-//         const isLoggedIn = (window as any).isLoggedIn;
-//         this.currentStatus = SeckillDataAdapter.mapGrabStatusToSeckillStatus(
-//           grab_status,
-//           isLoggedIn
-//         );
+        // 设置活动数据（保持现有结构）
+        this.activityData = {
+          startTime: "10:00", // 保持现有逻辑
+          totalQuota: total_coupons,
+          grabbedCount: total_coupons - remaining_coupons,
+          userStatus: this.currentStatus,
+          isActive: true, // 保持现有逻辑
+        };
+      } else {
+        // API调用失败，使用默认数据
+        this.setupDefaultData();
+      }
+    } catch (error) {
+      console.error("获取活动数据失败:", error);
+      // 错误时使用默认数据
+      this.setupDefaultData();
+    }
+  }
 
-//         // 设置活动数据（保持现有结构）
-//         this.activityData = {
-//           startTime: "10:00", // 保持现有逻辑
-//           totalQuota: total_coupons,
-//           grabbedCount: total_coupons - remaining_coupons,
-//           userStatus: this.currentStatus,
-//           isActive: true, // 保持现有逻辑
-//         };
-//       } else {
-//         // API调用失败，使用默认数据
-//         this.setupDefaultData();
-//       }
-//     } catch (error) {
-//       console.error("获取活动数据失败:", error);
-//       // 错误时使用默认数据
-//       this.setupDefaultData();
-//     }
-//   }
+  /**
+   * 设置默认数据
+   */
+  private setupDefaultData(): void {
+    // 使用默认数据，保持现有逻辑
+    const randomGrabbedCount = Math.floor(Math.random() * 30) + 5;
+    this.activityData = {
+      startTime: "10:00",
+      totalQuota: 100,
+      grabbedCount: randomGrabbedCount,
+      userStatus: SeckillStatus.NOT_STARTED,
+      isActive: true,
+    };
+    this.currentStatus = SeckillStatus.NOT_STARTED;
+  }
 
-//   /**
-//    * 设置默认数据
-//    */
-//   private setupDefaultData(): void {
-//     // 使用默认数据，保持现有逻辑
-//     const randomGrabbedCount = Math.floor(Math.random() * 30) + 5;
-//     this.activityData = {
-//       startTime: "10:00",
-//       totalQuota: 100,
-//       grabbedCount: randomGrabbedCount,
-//       userStatus: SeckillStatus.NOT_STARTED,
-//       isActive: true,
-//     };
-//     this.currentStatus = SeckillStatus.NOT_STARTED;
-//   }
+  /**
+   * 更新状态
+   */
+  updateStatus(newStatus: SeckillStatus): void {
+    this.currentStatus = newStatus;
+  }
 
-//   /**
-//    * 更新状态
-//    */
-//   updateStatus(newStatus: SeckillStatus): void {
-//     this.currentStatus = newStatus;
-//   }
+  /**
+   * 获取当前状态
+   */
+  getCurrentStatus(): SeckillStatus {
+    return this.currentStatus;
+  }
 
-//   /**
-//    * 获取当前状态
-//    */
-//   getCurrentStatus(): SeckillStatus {
-//     return this.currentStatus;
-//   }
+  /**
+   * 获取活动数据
+   */
+  getActivityData(): SeckillActivityData {
+    return { ...this.activityData };
+  }
 
-//   /**
-//    * 获取活动数据
-//    */
-//   getActivityData(): SeckillActivityData {
-//     return { ...this.activityData };
-//   }
+  /**
+   * 更新进度
+   */
+  updateProgress(grabbedCount: number): void {
+    this.activityData.grabbedCount = Math.min(
+      grabbedCount,
+      this.activityData.totalQuota,
+    );
+  }
 
-//   /**
-//    * 更新进度
-//    */
-//   updateProgress(grabbedCount: number): void {
-//     this.activityData.grabbedCount = Math.min(
-//       grabbedCount,
-//       this.activityData.totalQuota
-//     );
-//   }
+  /**
+   * 防重复点击
+   */
+  debounceClick(callback: () => void, delay: number = 3000): void {
+    if (this.clickDebounceTimer) {
+      return;
+    }
 
-//   /**
-//    * 防重复点击
-//    */
-//   debounceClick(callback: () => void, delay: number = 3000): void {
-//     if (this.clickDebounceTimer) {
-//       return;
-//     }
-
-//     callback();
-//     this.clickDebounceTimer = window.setTimeout(() => {
-//       this.clickDebounceTimer = null;
-//     }, delay);
-//   }
-// }
+    callback();
+    this.clickDebounceTimer = window.setTimeout(() => {
+      this.clickDebounceTimer = null;
+    }, delay);
+  }
+}
 
 /**
  * 秒杀活动主类
  */
-// class SeckillActivity {
-//   private timer: SeckillTimer;
-//   private stateManager: SeckillStateManager;
-//   private $container: any;
-//   private $btn: any;
-//   private $btnText: any;
-//   private $btnLoading: any;
-//   private $tips: any;
-//   private $progressBar: any;
-//   private $progressText: any;
-//   private $countdownSection: any;
-//   private $progressSection: any;
+class SeckillActivity {
+  private timer: SeckillTimer;
+  private stateManager: SeckillStateManager;
+  private $container: any;
+  private $btn: any;
+  private $btnText: any;
+  private $btnLoading: any;
+  private $tips: any;
+  private $progressBar: any;
+  private $progressText: any;
+  private $countdownSection: any;
+  private $progressSection: any;
 
-//   constructor() {
-//     // 倒计时时间，10:00
-//     this.timer = new SeckillTimer(10, 0);
+  constructor() {
+    // 倒计时时间，10:00
+    this.timer = new SeckillTimer(10, 0);
 
-//     this.stateManager = new SeckillStateManager();
-//     this.$container = $("#seckill-activity");
-//     this.$btn = $("#seckill-action-btn-flat");
-//     this.$btnText = this.$btn.find(".btn-text");
-//     this.$btnLoading = this.$btn.find(".btn-loading");
-//     this.$tips = $("#action-tips-flat");
-//     this.$progressBar = $("#progress-fill-flat");
-//     this.$progressText = $("#progress-text-flat");
-//     this.$countdownSection = $("#countdown-section");
-//     this.$progressSection = $("#progress-info-section");
-//   }
+    this.stateManager = new SeckillStateManager();
+    this.$container = $("#seckill-activity");
+    this.$btn = $("#seckill-action-btn-flat");
+    this.$btnText = this.$btn.find(".btn-text");
+    this.$btnLoading = this.$btn.find(".btn-loading");
+    this.$tips = $("#action-tips-flat");
+    this.$progressBar = $("#progress-fill-flat");
+    this.$progressText = $("#progress-text-flat");
+    this.$countdownSection = $("#countdown-section");
+    this.$progressSection = $("#progress-info-section");
+  }
 
-//   /**
-//    * 初始化活动
-//    */
-//   async init(): Promise<void> {
-//     // 等待状态管理器数据加载完成
-//     await this.stateManager.initialize();
+  /**
+   * 初始化活动
+   */
+  async init(): Promise<void> {
+    // 等待状态管理器数据加载完成
+    await this.stateManager.initialize();
 
-//     this.renderInitialState();
-//     this.bindEvents();
-//     this.startTimer();
-//     this.checkActivityVisibility();
-//   }
+    this.renderInitialState();
+    this.bindEvents();
+    this.startTimer();
+    this.checkActivityVisibility();
+  }
 
-//   /**
-//    * 刷新活动状态和数据（用于API数据更新后重新渲染）
-//    */
-//   refreshState(): void {
-//     this.renderInitialState();
-//   }
+  /**
+   * 刷新活动状态和数据（用于API数据更新后重新渲染）
+   */
+  refreshState(): void {
+    this.renderInitialState();
+  }
 
-//   /**
-//    * 检查活动显示状态
-//    */
-//   private checkActivityVisibility(): void {
-//     // 模拟检查活动是否应该显示的逻辑
-//     const shouldShow = false; // 可以根据实际需求调整逻辑
+  /**
+   * 检查活动显示状态
+   */
+  private checkActivityVisibility(): void {
+    // 模拟检查活动是否应该显示的逻辑
+    const shouldShow = true; // 可以根据实际需求调整逻辑
 
-//     if (shouldShow) {
-//       this.$container.show().addClass("animate-fade-in");
-//     }
-//   }
+    if (shouldShow) {
+      this.$container.show().addClass("animate-fade-in");
+    }
+  }
 
-//   /**
-//    * 渲染初始状态
-//    */
-//   private async renderInitialState(): Promise<void> {
-//     const status = this.stateManager.getCurrentStatus();
-//     const data = this.stateManager.getActivityData();
+  /**
+   * 渲染初始状态
+   */
+  private async renderInitialState(): Promise<void> {
+    const status = this.stateManager.getCurrentStatus();
+    const data = this.stateManager.getActivityData();
 
-//     this.updateButtonState(status);
+    this.updateButtonState(status);
 
-//     // 根据状态决定显示倒计时还是进度条
-//     if (status === SeckillStatus.NOT_STARTED) {
-//       // 活动未开始，显示倒计时，隐藏进度条
-//       this.$countdownSection.show();
-//       this.$progressSection.hide();
-//     } else {
-//       // 等待状态管理器数据加载完成
-//       await this.stateManager.initialize();
-//       // 活动已开始，隐藏倒计时，显示进度条
-//       this.$countdownSection.hide();
-//       this.$progressSection.show();
-//       this.updateProgress(data.grabbedCount, data.totalQuota);
-//     }
-//   }
+    // 根据状态决定显示倒计时还是进度条
+    if (status === SeckillStatus.NOT_STARTED) {
+      // 活动未开始，显示倒计时，隐藏进度条
+      this.$countdownSection.show();
+      this.$progressSection.hide();
+    } else {
+      // 等待状态管理器数据加载完成
+      await this.stateManager.initialize();
+      // 活动已开始，隐藏倒计时，显示进度条
+      this.$countdownSection.hide();
+      this.$progressSection.show();
+      this.updateProgress(data.grabbedCount, data.totalQuota);
+    }
+  }
 
-//   /**
-//    * 绑定事件
-//    */
-//   private bindEvents(): void {
-//     this.$btn.on("click", () => {
-//       this.stateManager.debounceClick(() => {
-//         this.handleButtonClick();
-//       });
-//     });
-//   }
+  /**
+   * 绑定事件
+   */
+  private bindEvents(): void {
+    this.$btn.on("click", () => {
+      this.stateManager.debounceClick(() => {
+        this.handleButtonClick();
+      });
+    });
+  }
 
-//   /**
-//    * 开始倒计时
-//    */
-//   private startTimer(): void {
-//     this.timer.start(
-//       (timeLeft) => this.updateCountdown(timeLeft),
-//       () => this.onTimerComplete()
-//     );
-//   }
+  /**
+   * 开始倒计时
+   */
+  private startTimer(): void {
+    this.timer.start(
+      (timeLeft) => this.updateCountdown(timeLeft),
+      () => this.onTimerComplete(),
+    );
+  }
 
-//   /**
-//    * 更新倒计时显示 - 适配扁平化布局
-//    */
-//   private updateCountdown(timeLeft: {
-//     hours: number;
-//     minutes: number;
-//     seconds: number;
-//   }): void {
-//     const $hours = $("#countdown-hours-flat");
-//     const $minutes = $("#countdown-minutes-flat");
-//     const $seconds = $("#countdown-seconds-flat");
+  /**
+   * 更新倒计时显示 - 适配扁平化布局
+   */
+  private updateCountdown(timeLeft: {
+    hours: number;
+    minutes: number;
+    seconds: number;
+  }): void {
+    const $hours = $("#countdown-hours-flat");
+    const $minutes = $("#countdown-minutes-flat");
+    const $seconds = $("#countdown-seconds-flat");
 
-//     // 更新数字（无动画效果）
-//     const updateDigit = ($element: any, value: number) => {
-//       const newValue = value.toString().padStart(2, "0");
-//       $element.text(newValue);
-//     };
+    // 更新数字（无动画效果）
+    const updateDigit = ($element: any, value: number) => {
+      const newValue = value.toString().padStart(2, "0");
+      $element.text(newValue);
+    };
 
-//     updateDigit($hours, timeLeft.hours);
-//     updateDigit($minutes, timeLeft.minutes);
-//     updateDigit($seconds, timeLeft.seconds);
+    updateDigit($hours, timeLeft.hours);
+    updateDigit($minutes, timeLeft.minutes);
+    updateDigit($seconds, timeLeft.seconds);
 
-//     // 时间紧迫时的特殊样式
-//     const totalMinutes = timeLeft.hours * 60 + timeLeft.minutes;
-//     if (totalMinutes < 10) {
-//       $(".time-digit-mini").addClass("urgent");
-//     } else {
-//       $(".time-digit-mini").removeClass("urgent");
-//     }
-//   }
+    // 时间紧迫时的特殊样式
+    const totalMinutes = timeLeft.hours * 60 + timeLeft.minutes;
+    if (totalMinutes < 10) {
+      $(".time-digit-mini").addClass("urgent");
+    } else {
+      $(".time-digit-mini").removeClass("urgent");
+    }
+  }
 
-//   /**
-//    * 倒计时完成处理
-//    */
-//   private onTimerComplete(): void {
-//     const isLoggedIn = (window as any).isLoggedIn;
-//     const newStatus = isLoggedIn
-//       ? SeckillStatus.CAN_SECKILL
-//       : SeckillStatus.CAN_QUALIFY;
+  /**
+   * 倒计时完成处理
+   */
+  private onTimerComplete(): void {
+    const isLoggedIn = getLoginStatus();
+    const newStatus = isLoggedIn
+      ? SeckillStatus.CAN_SECKILL
+      : SeckillStatus.CAN_QUALIFY;
 
-//     this.stateManager.updateStatus(newStatus);
-//     this.updateButtonState(newStatus);
+    this.stateManager.updateStatus(newStatus);
+    this.updateButtonState(newStatus);
 
-//     // 隐藏倒计时，显示进度条
-//     this.$countdownSection.hide();
-//     this.$progressSection.show();
+    // 隐藏倒计时，显示进度条
+    this.$countdownSection.hide();
+    this.$progressSection.show();
 
-//     // 更新进度条显示
-//     const data = this.stateManager.getActivityData();
-//     this.updateProgress(data.grabbedCount, data.totalQuota);
+    // 更新进度条显示
+    const data = this.stateManager.getActivityData();
+    this.updateProgress(data.grabbedCount, data.totalQuota);
 
-//     // 按钮闪烁提示
-//     this.$btn.addClass("blink");
-//     setTimeout(() => this.$btn.removeClass("blink"), 1500);
-//   }
+    // 按钮闪烁提示
+    this.$btn.addClass("blink");
+    setTimeout(() => this.$btn.removeClass("blink"), 1500);
+  }
 
-//   /**
-//    * 更新按钮状态
-//    */
-//   private updateButtonState(status: SeckillStatus): void {
-//     // 清除所有状态类
-//     this.$btn.removeClass(
-//       "not-started can-qualify can-seckill participated sold-out loading"
-//     );
+  /**
+   * 更新按钮状态
+   */
+  private updateButtonState(status: SeckillStatus): void {
+    // 清除所有状态类
+    this.$btn.removeClass(
+      "not-started can-qualify can-seckill participated sold-out loading",
+    );
 
-//     const config = this.getButtonConfig(status);
-//     this.$btn.addClass(config.className);
-//     this.$btnText.text(config.text);
-//     this.$tips.html(config.tips);
-//   }
+    const config = this.getButtonConfig(status);
+    this.$btn.addClass(config.className);
+    this.$btnText.text(config.text);
+    this.$tips.html(config.tips);
+  }
 
-//   /**
-//    * 获取按钮配置
-//    */
-//   private getButtonConfig(status: SeckillStatus): {
-//     className: string;
-//     text: string;
-//     tips: string;
-//   } {
-//     const configs = {
-//       [SeckillStatus.NOT_STARTED]: {
-//         className: "not-started",
-//         text: "即将开始",
-//         tips: "活动即将开始，请耐心等待",
-//       },
-//       [SeckillStatus.CAN_QUALIFY]: {
-//         className: "can-qualify",
-//         text: "领取资格",
-//         tips: "点击领取秒杀资格",
-//       },
-//       [SeckillStatus.CAN_SECKILL]: {
-//         className: "can-seckill",
-//         text: "立即领取",
-//         tips: "限时秒杀进行中，立即抢购",
-//       },
-//       [SeckillStatus.PARTICIPATED]: {
-//         className: "participated",
-//         text: "已领取",
-//         tips: "您已成功领取秒杀名额</br>快去<a href='/new/domain-query-register.html' class='text-primary hover:text-primary' target='_blank' rel='noopener'>注册域名</a>吧",
-//       },
-//       [SeckillStatus.SOLD_OUT]: {
-//         className: "sold-out",
-//         text: "已抢完",
-//         tips: "今日名额已抢完，明日再来",
-//       },
-//     };
+  /**
+   * 获取按钮配置
+   */
+  private getButtonConfig(status: SeckillStatus): {
+    className: string;
+    text: string;
+    tips: string;
+  } {
+    const configs = {
+      [SeckillStatus.NOT_STARTED]: {
+        className: "not-started",
+        text: "即将开始",
+        tips: "活动即将开始，请耐心等待",
+      },
+      [SeckillStatus.CAN_QUALIFY]: {
+        className: "can-qualify",
+        text: "领取资格",
+        tips: "点击领取秒杀资格",
+      },
+      [SeckillStatus.CAN_SECKILL]: {
+        className: "can-seckill",
+        text: "立即领取",
+        tips: "限时秒杀进行中，立即抢购",
+      },
+      [SeckillStatus.PARTICIPATED]: {
+        className: "participated",
+        text: "已领取",
+        tips: "您已成功领取秒杀名额</br>快去<a href='/new/domain-query-register.html' class='text-primary hover:text-primary' target='_blank' rel='noopener'>注册域名</a>吧",
+      },
+      [SeckillStatus.SOLD_OUT]: {
+        className: "sold-out",
+        text: "已抢完",
+        tips: "今日名额已抢完，明日再来",
+      },
+    };
 
-//     return configs[status];
-//   }
+    return configs[status];
+  }
 
-//   /**
-//    * 处理按钮点击
-//    */
-//   private handleButtonClick(): void {
-//     const status = this.stateManager.getCurrentStatus();
+  /**
+   * 处理按钮点击
+   */
+  private handleButtonClick(): void {
+    const status = this.stateManager.getCurrentStatus();
 
-//     this.$btn.addClass("btn-click");
-//     setTimeout(() => this.$btn.removeClass("btn-click"), 200);
+    this.$btn.addClass("btn-click");
+    setTimeout(() => this.$btn.removeClass("btn-click"), 200);
 
-//     switch (status) {
-//       case SeckillStatus.CAN_QUALIFY:
-//         this.handleQualifyAction();
-//         break;
-//       case SeckillStatus.CAN_SECKILL:
-//         this.handleSeckillAction();
-//         break;
-//       default:
-//         break;
-//     }
-//   }
+    switch (status) {
+      case SeckillStatus.CAN_QUALIFY:
+        this.handleQualifyAction();
+        break;
+      case SeckillStatus.CAN_SECKILL:
+        this.handleSeckillAction();
+        break;
+      default:
+        break;
+    }
+  }
 
-//   /**
-//    * 处理资格领取
-//    */
-//   private handleQualifyAction(): void {
-//     NotificationManager.show({
-//       type: "warning",
-//       message: "请先登录后再领取资格",
-//     });
-//     setTimeout(() => {
-//       location.href = `/login.html?ReturnUrl=${location.href}`;
-//     }, 2000);
-//   }
+  /**
+   * 处理资格领取
+   */
+  private handleQualifyAction(): void {
+    NotificationManager.show({
+      type: "warning",
+      message: "请先登录后再领取资格",
+    });
+    setTimeout(() => {
+      location.href = `/login.html?ReturnUrl=${location.href}`;
+    }, 2000);
+  }
 
-//   /**
-//    * 处理秒杀操作
-//    */
-//   private async handleSeckillAction(): Promise<void> {
-//     try {
-//       this.setButtonLoading(true);
-//       // 这里请求领取接口
-//       const response = (await grabSeckill()) as any;
+  /**
+   * 处理秒杀操作
+   */
+  private async handleSeckillAction(): Promise<void> {
+    try {
+      this.setButtonLoading(true);
+      // 这里请求领取接口
+      const response = (await grabSeckill()) as any;
 
-//       if (response.status === true) {
-//         // 成功后更新状态
-//         this.stateManager.updateStatus(SeckillStatus.PARTICIPATED);
+      if (response.status === true) {
+        // 成功后更新状态
+        this.stateManager.updateStatus(SeckillStatus.PARTICIPATED);
 
-//         // 更新进度（模拟增加一个已抢数量）
-//         const data = this.stateManager.getActivityData();
-//         const newGrabbedCount = data.grabbedCount + 1;
-//         this.stateManager.updateProgress(newGrabbedCount);
-//         this.updateProgress(newGrabbedCount, data.totalQuota);
+        // 更新进度（模拟增加一个已抢数量）
+        const data = this.stateManager.getActivityData();
+        const newGrabbedCount = data.grabbedCount + 1;
+        this.stateManager.updateProgress(newGrabbedCount);
+        this.updateProgress(newGrabbedCount, data.totalQuota);
 
-//         // 显示成功消息
-//         NotificationManager.show({
-//           type: "success",
-//           message: response.msg || "恭喜您！成功领取秒杀名额",
-//         });
-//       } else {
-//         // 失败时显示错误消息
-//         NotificationManager.show({
-//           type: "error",
-//           message: response.msg || "领取失败，请稍后重试",
-//         });
-//       }
-//     } catch (error: any) {
-//       NotificationManager.show({
-//         type: "error",
-//         message: error.message || "网络错误，请稍后重试",
-//       });
-//     } finally {
-//       this.setButtonLoading(false);
-//     }
-//   }
+        // 显示成功消息
+        NotificationManager.show({
+          type: "success",
+          message: response.msg || "恭喜您！成功领取秒杀名额",
+        });
+      } else {
+        // 失败时显示错误消息
+        NotificationManager.show({
+          type: "error",
+          message: response.msg || "领取失败，请稍后重试",
+        });
+      }
+    } catch (error: any) {
+      NotificationManager.show({
+        type: "error",
+        message: error.message || "网络错误，请稍后重试",
+      });
+    } finally {
+      this.setButtonLoading(false);
+    }
+  }
 
-//   /**
-//    * 设置按钮加载状态
-//    */
-//   private setButtonLoading(loading: boolean): void {
-//     if (loading) {
-//       this.$btn.addClass("loading");
-//       this.$btnLoading.show();
-//     } else {
-//       this.$btn.removeClass("loading");
-//       this.$btnLoading.hide();
-//       const status = this.stateManager.getCurrentStatus();
-//       this.updateButtonState(status);
-//     }
-//   }
+  /**
+   * 设置按钮加载状态
+   */
+  private setButtonLoading(loading: boolean): void {
+    if (loading) {
+      this.$btn.addClass("loading");
+      this.$btnLoading.show();
+    } else {
+      this.$btn.removeClass("loading");
+      this.$btnLoading.hide();
+      const status = this.stateManager.getCurrentStatus();
+      this.updateButtonState(status);
+    }
+  }
 
-//   /**
-//    * 更新进度条 - 支持百分比显示
-//    */
-//   private updateProgress(current: number, total: number): void {
-//     const percentage = Math.min((current / total) * 100, 100);
-//     this.$progressBar.css("width", `${percentage}%`);
+  /**
+   * 更新进度条 - 支持百分比显示
+   */
+  private updateProgress(current: number, total: number): void {
+    const percentage = Math.min((current / total) * 100, 100);
+    this.$progressBar.css("width", `${percentage}%`);
 
-//     // 显示百分比
-//     if (percentage >= 100) {
-//       this.$progressText.text("已抢100%");
-//     } else {
-//       this.$progressText.text(`已抢${Math.floor(percentage)}%`);
-//     }
-//   }
-// }
+    // 显示百分比
+    if (percentage >= 100) {
+      this.$progressText.text("已抢100%");
+    } else {
+      this.$progressText.text(`已抢${Math.floor(percentage)}%`);
+    }
+  }
+}
 
 /**
  * 组队活动主类
@@ -628,7 +839,7 @@ const TeamTableRenderer = {
    */
   renderDesktopTable: function (teamList: TeamPrice[], type: string) {
     const tableBody = $(
-      `.activity-simulated-table.opt-super_discount .table-body`
+      `.activity-simulated-table.opt-super_discount .table-body`,
     );
     if (!tableBody.length) return;
 
@@ -747,10 +958,10 @@ const TeamTableRenderer = {
     // 渲染产品行
     teamList.forEach((product: any, index: any) => {
       const dailyPrice: any = product.discounts.find(
-        (d: any) => d.member_count === 0
+        (d: any) => d.member_count === 0,
       );
       const tier10: any = product.discounts.find(
-        (d: any) => d.member_count === 4
+        (d: any) => d.member_count === 4,
       );
 
       const originalPrice: any = parseFloat(product.original_price).toFixed(0);
@@ -879,34 +1090,28 @@ const TeamManager = {
         case 1:
           return 0;
         case 2:
-          return 33.33;
+          return 50;
         case 3:
-          return 66.66;
-        case 4:
           return 100;
         default:
-          if (memberCount < 3) return 11.1 * memberCount;
-          if (memberCount < 5) return (33.33 / 2 + 33.33).toFixed(2);
-          if (memberCount < 10)
-            return ((33.33 / 5) * (memberCount - 5) + 66.66).toFixed(2);
           return 100;
       }
     })();
 
     $("#my-team-progress-bar .progress-line").css("width", `${progressPerc}%`);
 
-    const milestones = { 4: "4人组队" };
+    const milestones = { 3: "3人组队" };
     const milestoneDesc = {
-      4: "4人组队可获得0.01元.top及超低价.com/.cn购买资格",
+      3: "3人组队可获得0.01元.top及超低价.com/.cn购买资格",
     };
     let achievedMilestone = 0;
-    for (const count of [4]) {
+    for (const count of [3]) {
       const isAchieved = memberCount >= count;
       if (isAchieved) {
         achievedMilestone = count;
       }
       const $milestone = $(
-        `#my-team-progress-bar .progress-milestone[data-member="${count}"]`
+        `#my-team-progress-bar .progress-milestone[data-member="${count}"]`,
       );
       $milestone.toggleClass("active", isAchieved);
       $milestone
@@ -914,10 +1119,10 @@ const TeamManager = {
         .toggleClass("active", isAchieved);
     }
 
-    const nextMilestone = [4].find((count) => memberCount < count) || 4;
+    const nextMilestone = [3].find((count) => memberCount < count) || 3;
 
     // 更新里程碑提示信息
-    if (achievedMilestone < 4) {
+    if (achievedMilestone < 3) {
       $("#my-team-milestone-info").html(
         `当前 <strong>${memberCount}</strong> 人，再邀请 <strong>${
           nextMilestone - memberCount
@@ -925,20 +1130,14 @@ const TeamManager = {
           milestones[nextMilestone]
         }目标】</strong><span class="btn-quit refresh-team-icon" data-type="super_discount" data-team-code="${
           team.code
-        }"></span>`
+        }"></span>`,
       );
       $("#my-team-milestone-desc").text(`${milestoneDesc[nextMilestone]}`);
     } else {
       $("#my-team-milestone-info").html(
-        `<strong>恭喜！已达成 4 人组队！</strong>`
+        `<strong>恭喜！已达成 3 人组队！</strong>`,
       );
       $("#my-team-milestone-desc").text(`每人已获得超低价购买资格`);
-      $(".btn-invite")
-        .text("队伍已满")
-        .css("background-color", "#999")
-        .css("color", "#fff")
-        .css("cursor", "not-allowed")
-        .data("invite-link", ``);
     }
 
     // 更新成员列表
@@ -959,21 +1158,20 @@ const TeamManager = {
             }">
           </div>
           <span class="member-label ${isLeader ? "leader-label" : ""}">${
-        isPresent ? "我" : isLeader ? "队长" : "队员"
-      }</span>
+            isPresent ? "我" : isLeader ? "队长" : "队员"
+          }</span>
         </div>`;
       $membersContainer.append(memberHtml);
     });
-
+    const inviteCode = `${window.location.origin}/new/domain-register?activity_code=${team.code}`;
     // 添加 "添加成员" 按钮
-    if (memberCount < 4) {
-      $membersContainer.append(`
-            <div class="member-item add-member-item" data-invite-link="${window.location.origin}/new/domain-register?activity_code=${team.code}">
-                <div class="add-member"></div>
-                <span class="member-label">添加成员</span>
-            </div>
-        `);
-    }
+    $membersContainer.append(`
+				<div class="member-item add-member-item" data-invite-link="${inviteCode}">
+						<div class="add-member"></div>
+						<span class="member-label">添加成员</span>
+				</div>
+		`);
+    $(".btn-invite").attr("data-invite-link", inviteCode);
 
     // 更新状态文本
     const $status = $("#my-team-status");
@@ -991,7 +1189,8 @@ const TeamManager = {
     // 更新优惠券列表
     const $couponSection = $("#claimed-coupons-section");
     const $couponList = $("#claimed-coupons-list");
-    const claimedCoupons = packages;
+    // 深拷贝数组packages
+    let claimedCoupons = packages;
 
     if (claimedCoupons.length > 0) {
       $couponList.empty();
@@ -1008,9 +1207,9 @@ const TeamManager = {
 							</div>
 							<div class="coupon-right">
 								<div class="coupon-title" title="${coupon.product_name}">${
-          coupon.product_name
-        }</div>
-								<div class="coupon-value">满4人发放</div>
+                  coupon.product_name
+                }</div>
+								<div class="coupon-value">满3人发放</div>
 							</div>
               </div>
             </div>
@@ -1080,18 +1279,18 @@ const TeamManager = {
       const $footer = $modal.find(".team-modal-footer");
       if (teamInfo.team.member_count === 10) {
         $footer.append(
-          `<button class="btn btn-confirm-join" disabled>当前队伍已满员，请加入其他队伍</button>`
+          `<button class="btn btn-confirm-join" disabled>当前队伍已满员，请加入其他队伍</button>`,
         );
       } else {
         $footer.append(
-          `<button class="btn btn-confirm-join" data-type="${type}" style="background-color: #20a53a;color: white;">立即加入队伍</button>`
+          `<button class="btn btn-confirm-join" data-type="${type}" style="background-color: #20a53a;color: white;">立即加入队伍</button>`,
         );
       }
       $footer.find(".btn-confirm-join").data("team-code", teamInfo.team.code);
     } else {
       const $footer = $modal.find(".team-modal-footer");
       $footer.append(
-        `<button class="btn btn-confirm-join" disabled>当前已加入队伍，请勿重复加入</button>`
+        `<button class="btn btn-confirm-join" disabled>当前已加入队伍，请勿重复加入</button>`,
       );
     }
   },
@@ -1127,7 +1326,7 @@ async function handleTeamUrlCode(code, type) {
   try {
     // 根据邀请码获取团队信息，不管有没有
     // 如果邀请码无效或已过期，此请求会失败，这是一个关键错误，
-    const TeamInfo = await ApiService.getTeamInfo(code, 12, !!code);
+    const TeamInfo = await ApiService.getTeamInfo(code, 13, !!code);
 
     // 两个请求都完成后，隐藏加载提示
     // MessageManager.hideLoading();
@@ -1147,7 +1346,7 @@ async function handleTeamUrlCode(code, type) {
           TeamManager.showJoinTeamModal(
             TeamInfo,
             TeamInfo.team.user_team,
-            type
+            type,
           );
           break;
       }
@@ -1181,7 +1380,20 @@ async function handleTeamUrlCode(code, type) {
 const ModalManager = {
   modal: null,
   modalContent: null,
-  pollingId: null, // 用于跟踪当前的轮询ID
+  // 仅用于支付状态轮询
+  paymentPollId: null as number | null,
+  // 用于5分钟超时的定时器ID
+  timeoutId: null as number | null,
+  // 用于订单有效期倒计时（MM:SS）的定时器ID
+  countdownId: null as number | null,
+  // 当前秒杀创建任务ID（用于初始化支付信息）
+  currentFlashTaskId: null as string | null,
+  // 当前订单号（用于支付状态轮询）
+  currentOrderNo: null as string | null,
+  // 秒杀状态查询轮询ID（当API未返回result时触发）
+  seckillPollId: null as number | null,
+  // 页面卸载事件是否已绑定（避免重复注册）
+  _unloadBound: false,
 
   /**
    * 初始化模态框管理器，获取DOM元素并绑定基础事件。
@@ -1203,6 +1415,12 @@ const ModalManager = {
     //     this.hide();
     //   }
     // });
+
+    // 页面卸载时自动清理轮询与定时器（只绑定一次）
+    if (!this._unloadBound) {
+      window.addEventListener("beforeunload", () => stopPolling());
+      this._unloadBound = true;
+    }
   },
 
   /**
@@ -1217,7 +1435,7 @@ const ModalManager = {
     // 重置样式
     this.modalContent.css({ width: "", height: "" });
     this.modal.removeClass(
-      "team-view my-team-view payment-view payment-success-view"
+      "team-view my-team-view payment-view payment-success-view",
     );
 
     // 应用自定义尺寸
@@ -1246,15 +1464,27 @@ const ModalManager = {
     setTimeout(() => {
       this.modal.hide();
       this.modal.removeClass(
-        "team-view my-team-view payment-view payment-success-view"
+        "team-view my-team-view payment-view payment-success-view",
       );
       // 清空内容
       this.modal.find(".modal-body").empty();
-      // 停止轮询
-      if (this.pollingId) {
-        stopPolling();
-        this.pollingId = null;
+      // 停止所有定时器与事件
+      stopPolling();
+      if (this.countdownId) {
+        window.clearInterval(this.countdownId);
+        this.countdownId = null;
       }
+      if (this.timeoutId) {
+        window.clearTimeout(this.timeoutId);
+        this.timeoutId = null;
+      }
+      if (this.seckillPollId) {
+        window.clearInterval(this.seckillPollId);
+        this.seckillPollId = null;
+      }
+      // 解绑当前视图内的支付切换事件，防止重复绑定
+      this.modal.off("click", "#pay-wechat");
+      this.modal.off("click", "#pay-alipay");
     }, 300);
   },
 
@@ -1269,6 +1499,30 @@ const ModalManager = {
     this.show(options);
   },
 };
+
+/**
+ * 清理支付状态轮询与超时定时器
+ */
+function stopPolling() {
+  if ((ModalManager as any).paymentPollId) {
+    try {
+      window.clearInterval((ModalManager as any).paymentPollId);
+    } catch (e) {}
+    (ModalManager as any).paymentPollId = null;
+  }
+  if ((ModalManager as any).timeoutId) {
+    try {
+      window.clearTimeout((ModalManager as any).timeoutId);
+    } catch (e) {}
+    (ModalManager as any).timeoutId = null;
+  }
+  if ((ModalManager as any).seckillPollId) {
+    try {
+      window.clearInterval((ModalManager as any).seckillPollId);
+    } catch (e) {}
+    (ModalManager as any).seckillPollId = null;
+  }
+}
 
 // ==================== 组队API 服务 ====================
 
@@ -1307,7 +1561,7 @@ const ApiService = {
     method = "POST",
     data = {},
     isShowMessage = true,
-    isJumpLogin = false
+    isJumpLogin = false,
   ) {
     return new Promise((resolve, reject) => {
       window.jQuery.ajax({
@@ -1339,7 +1593,7 @@ const ApiService = {
           if (filterList.includes(endpoint)) {
             const result = jqXHR.responseJSON ? jqXHR.responseJSON.res : "";
             return resolve(
-              jqXHR.status === 401 ? "当前未登录，请先登录" : result
+              jqXHR.status === 401 ? "当前未登录，请先登录" : result,
             );
           }
           if (jqXHR.status === 401) {
@@ -1451,7 +1705,7 @@ const ApiService = {
       "POST",
       { team_code, activity: id },
       true,
-      isJumpLogin
+      isJumpLogin,
     );
   },
 
@@ -1464,7 +1718,7 @@ const ApiService = {
   claimVoucher: function (team_code) {
     return this.request("/get_domain_voucher", "POST", {
       team_code,
-      activity: 12,
+      activity: 13,
     });
   },
 
@@ -1625,7 +1879,7 @@ const teamPriceData: TeamPrice[] = [
       },
       {
         name: "队员",
-        discounted_price: 3.9,
+        discounted_price: 0.9,
       },
       {
         name: "日常",
@@ -1639,12 +1893,12 @@ const teamPriceData: TeamPrice[] = [
     discounts: [
       {
         name: "队长",
-        discounted_price: 4.9,
-        price: 35,
+        discounted_price: 0.9,
+        price: 36,
       },
       {
         name: "队员",
-        discounted_price: 8.9,
+        discounted_price: 3.9,
       },
       {
         name: "日常",
@@ -1658,12 +1912,12 @@ const teamPriceData: TeamPrice[] = [
     discounts: [
       {
         name: "队长",
-        discounted_price: 39.9,
-        price: 50,
+        discounted_price: 34.9,
+        price: 52,
       },
       {
         name: "队员",
-        discounted_price: 44.9,
+        discounted_price: 37.9,
       },
       {
         name: "日常",
@@ -1700,7 +1954,7 @@ const domainPriceData: DomainPrice[] = [
   {
     suffix: ".top",
     originalPrice: 49,
-    firstYearPrice: 13.9,
+    firstYearPrice: 11.9,
     renewPrice: 29.9,
     transferPrice: 29.9,
     // isWan: true,
@@ -1785,7 +2039,7 @@ const initPageLoadAnimations = (): void => {
         }
       });
     },
-    { threshold: 0.1 }
+    { threshold: 0.1 },
   );
 
   $("section").each(function (this: any) {
@@ -1967,7 +2221,7 @@ const initAiSearchEvents = (): void => {
         e.preventDefault();
         $("#ai-recommend-btn-index").trigger("click");
       }
-    }
+    },
   );
 
   // 阻止AI搜索容器内的form表单提交
@@ -2018,7 +2272,7 @@ const initStepSwitcher = (): void => {
       .prop("disabled", stepIndex === $steps.length - 1)
       .toggleClass(
         "opacity-50 cursor-not-allowed",
-        stepIndex === $steps.length - 1
+        stepIndex === $steps.length - 1,
       ); // 末步禁用“下一步”
   };
 
@@ -2196,7 +2450,7 @@ const initCartButton = (): void => {
   const $cartButton = $("#cart-button");
 
   // 检测用户登录状态
-  if ((window as any).isLoggedIn) {
+  if (getLoginStatus()) {
     $cartButton.show();
   } else {
     $cartButton.hide();
@@ -2206,10 +2460,780 @@ const initCartButton = (): void => {
 /**
  * 初始化秒杀活动
  */
-// const initSeckillActivity = async (): Promise<void> => {
-//   const seckillActivity = new SeckillActivity();
-//   await seckillActivity.init();
-// };
+const initSeckillActivity = async (): Promise<void> => {
+  const seckillActivity = new SeckillActivity();
+  await seckillActivity.init();
+};
+export interface DomainSeckillStatus {
+  /** 是否秒杀活动 */
+  isSeckill: boolean;
+  /** 活动是否已开始 */
+  started: boolean;
+  /** 活动是否已过期 */
+  expired: boolean;
+  /** 当日抢购时间是否已到 */
+  timeReady: boolean;
+  /** 是否已参与活动（仅一次） */
+  participated: boolean;
+  /** 是否售空 */
+  soldOut: boolean;
+  /** 活动状态（基于status字段） */
+  activityStatus: ActivityStatus;
+  /** 活动是否暂停 */
+  isPaused: boolean;
+  /** 活动时间段 */
+  isMorning: boolean;
+}
+/**
+ * 域名限量秒杀版块初始化
+ */
+const initDomainFlashSection = async (): Promise<void> => {
+  const $fBox = $("#domain-flash-section");
+  const $grid = $("#domain-flash-grid");
+  let domainHTML = "";
+  let seckillInfo: any;
+  if (!$grid || $grid.length === 0) return;
+  try {
+    const response = await getActivityInfo({ activity_id: "45" });
+    // const response = domainFlashInfo;
+    console.log(response, "--");
+    seckillInfo = response.data[0];
+    const defaultCardData = seckillInfo.detail;
+    defaultCardData.forEach((product: any, index: any) => {
+      const { name, num, cycle, activity_price, original_price } = product;
+      // 拆分name
+      const nameList = name.split("/");
+      // 按钮状态
+      const {
+        disabled: buttonDisabled,
+        text: buttonText,
+        stage: buttonStage,
+      } = getSeckillButtonState(product, "立即抢购");
+      const isWaiting = buttonStage === "waiting";
+      domainHTML += `
+					<div class="baota-card">
+						<div class="discount-tag">超值秒杀</div>
+						<div class="title-area">
+							<h2 class="title">${name}</h2>
+							<div class="cloud-icon">
+								<img alt="cloud decoration" class="cloud-decoration-image" lazy="loaded" src="https://bt.cn/static/astro/images/activites/1024/activities-domain-ico.png" style="filter: none; transition: filter 0.3s;">
+							</div>
+						</div>
+						<div class="domain-info">
+						<div class="domain-search">
+							<div class="search-label">查询域名是否注册</div>
+							<div class="search-input-group">
+								<div class="flex relative flex-1">
+								<input type="text" placeholder="输入域名前缀，如：example" class="domain-input" value="">
+								<select class="domain-select">
+									${nameList
+                    .map(
+                      (suffix: string) =>
+                        `<option value="${suffix.trim()}">${suffix.trim()}</option>`,
+                    )
+                    .join("")}
+								</select>
+								</div>
+								<button class="search-btn" disabled>查询</button>
+							</div>
+							<div class="search-message"></div>
+						</div>
+							<div class="info-item">
+								<span class="label">数量</span>
+								<span class="value">${num}个</span>
+							</div>
+							<div class="info-item">
+								<span class="label">时长</span>
+								<span class="value">${cycle}年</span>
+							</div>
+						</div>
+						<div class="px-[10%] pb-[4%]">
+							<div class="price-area">
+								<div class="activity-price">
+									<span class="bold-label">秒杀价：</span>
+									<span class="flex items-center">
+										<span class="flex">${activity_price}</span>
+										<span class="duration"> 元/首年</span>
+									</span>
+								</div>
+								<div class="normal-price-row">
+									<span class="bold-label">日常价：</span>
+									<span>${original_price}元/首年</span>
+								</div>
+							</div>
+						</div>
+          
+						<button type="button" class="buy-button" data-stage="${buttonStage}" data-detail-id="${product.id}" data-detail-dailyid="${product.seckill_daily.id}" data-activity-price="${activity_price}" data-original-price="${original_price}" data-cycle="${cycle}" data-num="${num}" data-product-name="${name}" ${buttonDisabled ? "disabled" : ""} data-buy-status="${product.buy_status}">
+								<span class="block">${
+                  isWaiting
+                    ? `
+										<div class="countdown-section-card">
+											<div class="countdown-title">等待活动开始</div>
+											<div class="countdown-timer">
+												<span class="timer-digit">00</span>
+												<span class="timer-separator">:</span>
+												<span class="timer-digit">00</span>
+												<span class="timer-separator">:</span>
+												<span class="timer-digit">00</span>
+											</div>
+										</div>
+										`
+                    : buttonText
+                }</span>
+						</button>
+					</div>`;
+    });
+  } catch (err) {
+    console.log(err);
+  }
+
+  $grid.html(domainHTML);
+  $fBox.find(".title-container-title").text(seckillInfo.name);
+  $fBox.find(".title-container-desc").text(seckillInfo.description);
+  const tickUpdateCards = () => {
+    const now = new Date();
+    const y = now.getFullYear();
+    const m = now.getMonth();
+    const d = now.getDate();
+    const t10 = new Date(y, m, d, 10, 0, 0, 0).getTime();
+    const t11 = new Date(y, m, d, 11, 0, 0, 0).getTime();
+    const t15 = new Date(y, m, d, 15, 0, 0, 0).getTime();
+    const t16 = new Date(y, m, d, 16, 0, 0, 0).getTime();
+    const nowMs = now.getTime();
+    $grid.find(".baota-card").each(function () {
+      const $card = $(this);
+      const $btn = $card.find(".buy-button");
+      const buyStatus = Number($btn.data("buyStatus")) || 0;
+      const participated = buyStatus === 2;
+      const soldOutFlag = buyStatus === 3;
+      let stage = "waiting";
+      let text = "等待活动开始";
+      let disabled = true;
+      if (participated) {
+        stage = "participated";
+        text = "已参与";
+        disabled = true;
+      } else if (soldOutFlag || nowMs >= t16) {
+        stage = "soldOut";
+        text = "今日已售空";
+        disabled = true;
+      } else if (nowMs < t10) {
+        stage = "waiting";
+        text = "等待活动开始";
+        disabled = true;
+      } else if (nowMs >= t10 && nowMs < t11) {
+        stage = "ready";
+        text = "立即抢购";
+        disabled = false;
+      } else if (nowMs >= t11 && nowMs < t15) {
+        stage = "waiting";
+        text = "等待活动开始";
+        disabled = true;
+      } else if (nowMs >= t15 && nowMs < t16) {
+        stage = "ready";
+        text = "立即抢购";
+        disabled = false;
+      } else {
+        stage = "soldOut";
+        text = "今日已售空";
+        disabled = true;
+      }
+      $btn.attr("data-stage", stage);
+      $btn.prop("disabled", disabled);
+      if (stage !== "waiting") {
+        $btn.find("span.block").text(text);
+      }
+      const $countdown = $card.find(".countdown-section-card");
+      if (stage === "waiting") {
+        if ($countdown.length === 0) {
+          const html = `
+          <div class="countdown-section-card">
+            <div class="countdown-title">等待活动开始</div>
+            <div class="countdown-timer">
+              <span class="timer-digit">00</span>
+              <span class="timer-separator">:</span>
+              <span class="timer-digit">00</span>
+              <span class="timer-separator">:</span>
+              <span class="timer-digit">00</span>
+            </div>
+          </div>`;
+          $btn.before(html);
+        }
+        const $digits = $card.find(".countdown-timer .timer-digit");
+        let targetMs = nowMs < t10 ? t10 : t15;
+        const diff = Math.max(targetMs - nowMs, 0);
+        const h = Math.floor(diff / 3600000);
+        const mLeft = diff % 3600000;
+        const m = Math.floor(mLeft / 60000);
+        const s = Math.floor((mLeft % 60000) / 1000);
+        const pad = (n: number) => n.toString().padStart(2, "0");
+        $digits.eq(0).text(pad(h));
+        $digits.eq(1).text(pad(m));
+        $digits.eq(2).text(pad(s));
+      } else {
+        $countdown.remove();
+      }
+    });
+  };
+  tickUpdateCards();
+  window.setInterval(() => tickUpdateCards(), 1000);
+  // 绑定查询与抢购事件
+  const debounce = (fn: Function, delay: number = 600) => {
+    let t: number | null = null;
+    return function (this: any, ...args: any[]) {
+      if (t) window.clearTimeout(t);
+      t = window.setTimeout(() => fn.apply(this, args), delay);
+    };
+  };
+
+  const isValidPrefix = (prefix: string): boolean => {
+    return /^[a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?$/.test(prefix);
+  };
+
+  $grid.find(".baota-card").each(function () {
+    const $card = $(this);
+    const $input = $card.find(".domain-input");
+    const $select = $card.find(".domain-select");
+    const $searchBtn = $card.find(".search-btn");
+    const $message = $card.find(".search-message");
+    const $buyBtn = $card.find(".buy-button");
+    const $title = $card.find("h2.title");
+
+    const setLoading = (loading: boolean) => {
+      $searchBtn.prop("disabled", loading);
+      $searchBtn.text(loading ? "查询中" : "查询");
+    };
+
+    const clearMessage = () => {
+      $message.removeClass("msg-success msg-error").text("");
+    };
+
+    $input.on("input", () => {
+      const prefix = String(($input.val() as string) || "")
+        .trim()
+        .toLowerCase();
+      const enabled = !!prefix && isValidPrefix(prefix);
+      $searchBtn.prop("disabled", !enabled);
+      clearMessage();
+    });
+
+    $select.on("change", () => {
+      clearMessage();
+    });
+
+    const doSearch = async () => {
+      const prefix = String(($input.val() as string) || "")
+        .trim()
+        .toLowerCase();
+      if (!prefix || !isValidPrefix(prefix)) {
+        $message
+          .removeClass("msg-success")
+          .addClass("msg-error")
+          .text("请输入有效的域名前缀");
+        return;
+      }
+      const suffix = String(($select.val() as string) || "").trim();
+      const fullDomain = `${prefix}${suffix}`;
+      setLoading(true);
+      $message.removeClass("msg-success").text("查询中...");
+      let res: any;
+      try {
+        res = await searchDomain({ domain: fullDomain });
+      } catch (err: any) {
+        res = {
+          status: false,
+          msg: err.message,
+        };
+      }
+      const available = !!res?.status; // 文档约定：status 表示“可注册”
+      $message
+        .removeClass("msg-success msg-error")
+        .addClass(available ? "msg-success" : "msg-error")
+        .text(res.msg);
+      if (available) {
+        $buyBtn.data("domainOk", true);
+        $buyBtn.data("domainValue", fullDomain);
+      } else {
+        $buyBtn.data("domainOk", false);
+        $buyBtn.data("domainValue", fullDomain);
+      }
+      setLoading(false);
+    };
+
+    const debouncedSearch = debounce(doSearch, 600);
+    $searchBtn.on("click", () => debouncedSearch());
+
+    $buyBtn.on("click", async function () {
+      const title = String($title.text());
+      const stage = String($buyBtn.data("stage") || "");
+      if (stage !== "ready") return;
+      const prefix = String(($input.val() as string) || "")
+        .trim()
+        .toLowerCase();
+      const suffix = String(($select.val() as string) || "").trim();
+      const fullDomain = `${prefix}${suffix}`;
+      const ok = !!$buyBtn.data("domainOk");
+      if (!prefix || !isValidPrefix(prefix) || !ok) {
+        MessageManager.error("请先查询并选择可注册的域名");
+        return;
+      }
+      // 展示产品说明模态（数据来自按钮 data-* 属性与当前选择）
+      const detailId = Number($buyBtn.data("detailId")) || 0;
+      const detailDailyId = Number($buyBtn.data("detailDailyid")) || 0;
+      const cycle = Number($buyBtn.data("cycle")) || 1;
+      const num = Number($buyBtn.data("num")) || 1;
+      const activityPrice = String($buyBtn.data("activityPrice") || "0");
+      const originalPrice = String($buyBtn.data("originalPrice") || "0");
+      MessageManager.loading("抢购中...");
+      try {
+        const isLoggedIn = getLoginStatus();
+        if (!isLoggedIn) {
+          // 没登录会进这里
+          MessageManager.error("您尚未登录或登录已过期，即将跳转登录页面。");
+          setTimeout(() => {
+            window.location.href =
+              "/login.html?ReturnUrl=" + window.location.href;
+          }, 1000);
+        }
+        // 调用创建订单逻辑，使用 data-detail-id 属性回填 detail_id
+        const resp: any = await createFlashOrder({
+          detail_id: detailId,
+          domain: fullDomain,
+          seckill_daily_id: detailDailyId,
+        });
+        const payload = resp?.data ?? resp;
+        if (payload && typeof payload === "object" && "task_id" in payload) {
+          // 保存当前创建任务ID，供支付信息初始化使用
+          (ModalManager as any).currentFlashTaskId = (payload as any).task_id;
+          showDomainFlashModal({
+            suffix,
+            domain: fullDomain,
+            detailId,
+            cycle,
+            num,
+            activityPrice,
+            originalPrice,
+            title,
+          });
+        } else if (
+          payload &&
+          typeof payload === "object" &&
+          "payment_urls" in payload
+        ) {
+          MessageManager.success("订单已生成，请前往支付页面");
+        } else {
+          MessageManager.info("抢购已触发");
+        }
+      } catch (err) {
+        MessageManager.error("抢购失败，请稍后重试");
+      } finally {
+        MessageManager.hideLoading();
+      }
+    });
+  });
+};
+const computeSeckillStatus = (
+  product: ActivityDetail | Readonly<ActivityDetail>,
+): { participated: boolean; soldOutFlag: boolean; now: Date } => {
+  const now = new Date();
+  const participated = product?.buy_status === 2;
+  const soldOutFlag = product?.buy_status === 3;
+  return { participated, soldOutFlag, now };
+};
+const getSeckillButtonState = (
+  product: ActivityDetail | Readonly<ActivityDetail>,
+  defaultText: string,
+): { disabled: boolean; text: string; stage: string } => {
+  const { participated, soldOutFlag, now } = computeSeckillStatus(product);
+  const y = now.getFullYear();
+  const m = now.getMonth();
+  const d = now.getDate();
+  const t10 = new Date(y, m, d, 10, 0, 0, 0).getTime();
+  const t11 = new Date(y, m, d, 11, 0, 0, 0).getTime();
+  const t15 = new Date(y, m, d, 15, 0, 0, 0).getTime();
+  const t16 = new Date(y, m, d, 16, 0, 0, 0).getTime();
+  const nowMs = now.getTime();
+
+  if (participated)
+    return { disabled: true, text: "已参与", stage: "participated" };
+
+  if (soldOutFlag || nowMs >= t16)
+    return { disabled: true, text: "今日已售空", stage: "soldOut" };
+
+  if (nowMs < t10)
+    return { disabled: true, text: "等待活动开始", stage: "waiting" };
+
+  if (nowMs >= t10 && nowMs < t11)
+    return { disabled: false, text: defaultText, stage: "ready" };
+
+  if (nowMs >= t11 && nowMs < t15)
+    return { disabled: true, text: "等待活动开始", stage: "waiting" };
+
+  if (nowMs >= t15 && nowMs < t16)
+    return { disabled: false, text: defaultText, stage: "ready" };
+
+  return { disabled: true, text: "今日已售空", stage: "soldOut" };
+};
+function composeTodayTimeMs(time?: string): number {
+  const now = new Date();
+  const y = now.getFullYear();
+  const m = now.getMonth();
+  const d = now.getDate();
+
+  if (!time) {
+    return new Date(y, m, d, 0, 0, 0, 0).getTime();
+  }
+  const t = String(time).trim();
+
+  // 若已包含日期，尝试直接解析
+  if (/^\d{4}-\d{2}-\d{2}/.test(t)) {
+    const dt = new Date(t);
+    if (!Number.isNaN(dt.getTime())) return dt.getTime();
+  }
+
+  const [hhStr = "0", mmStr = "0", ssStr = "0"] = t.split(":");
+  const hh = parseInt(hhStr, 10) || 0;
+  const mm = parseInt(mmStr, 10) || 0;
+  const ss = parseInt(ssStr, 10) || 0;
+
+  return new Date(y, m, d, hh, mm, ss, 0).getTime();
+}
+
+/**
+ * 显示域名秒杀弹窗（产品说明展示）
+ * 保留 getDomainFeatureDescription 的既有实现，仅在此处调用用于渲染说明文本
+ */
+interface DomainFlashModalInfo {
+  suffix: string; // 选择的域名后缀（如 .com）
+  domain: string; // 完整域名（如 example.com）
+  detailId: number; // 详情ID，用于订单关联
+  cycle: number; // 年限
+  num: number; // 数量
+  activityPrice: string; // 活动价（字符串，保持与数据源一致）
+  originalPrice: string; // 原价（字符串，保持与数据源一致）
+  title: string; // 标题
+}
+
+function showDomainFlashModal(info: DomainFlashModalInfo) {
+  const flashPayTemplate = $("#domain-flash-modal-template").html();
+  ModalManager.render(flashPayTemplate, { viewClass: "domain-flash-view" });
+
+  const $modal = $("#custom-modal");
+  // 标题区域：更新后缀
+  $modal.find(".suffix-text").text(info.title);
+
+  // 正则匹配所有 ".xxx" 格式的后缀，提取 xxx 部分
+  const suffixes = Array.from(
+    info.title.matchAll(/\.(\w+)/g), // 全局匹配 ".字母/数字"，捕获字母部分
+    (match) => match[1], // 提取捕获组1（去掉前面的点）
+  );
+  //
+  const parts = suffixes.map(
+    (suff: any) => `<div>${getDomainFeatureDescription(suff)}</div>`,
+  );
+
+  $modal.find("#feature-desc .desc-text").html(parts);
+  // 入场过渡动画
+  setTimeout(() => {
+    $modal.find("#feature-desc").removeClass("opacity-0 translate-y-1");
+  }, 30);
+
+  // 表格信息与右侧价格汇总
+  $modal.find(".order-domain").text(info.domain);
+  $modal.find(".order-year").text(`${info.cycle}年`);
+  $modal.find(".order-qty").text(`${info.num}份`);
+  $modal.find(".order-price-value").text(`${info.activityPrice}`);
+  $modal.find(".order-origin").text(`¥${info.originalPrice}`);
+
+  const act = parseFloat(info.activityPrice) || 0;
+  const org = parseFloat(info.originalPrice) || 0;
+  const discount = Math.max(org - act, 0);
+  $modal.find(".summary-price").text(act.toFixed(2));
+  $modal.find(".summary-origin").text(org.toFixed(2));
+  $modal.find(".summary-discount").text(discount.toFixed(1));
+
+  // 精确五分钟倒计时：仅更新 .expiry-time 的文本内容
+  const $expiry = $modal.find(".expiry-time");
+  const durationMs = 5 * 60 * 1000; // 5分钟
+  const endTime = Date.now() + durationMs;
+  const pad2 = (n: number) => n.toString().padStart(2, "0");
+
+  // 若已有定时器，先清理避免重复计时
+  if ((ModalManager as any).countdownId) {
+    window.clearInterval((ModalManager as any).countdownId);
+    (ModalManager as any).countdownId = null;
+  }
+
+  // 初始显示 05:00
+  $expiry.text("05:00");
+
+  const tick = () => {
+    const remaining = Math.max(0, endTime - Date.now());
+    const mm = Math.floor(remaining / 60000);
+    const ss = Math.floor((remaining % 60000) / 1000);
+    $expiry.text(`${pad2(mm)}:${pad2(ss)}`);
+    if (remaining <= 0) {
+      // 到达 00:00 立即停止
+      if ((ModalManager as any).countdownId) {
+        window.clearInterval((ModalManager as any).countdownId);
+        (ModalManager as any).countdownId = null;
+      }
+    }
+  };
+  (ModalManager as any).countdownId = window.setInterval(tick, 1000);
+  // 立即执行一次，避免首秒的视觉延迟
+  tick();
+
+  // ================= 支付信息初始化与二维码展示 =================
+  const $paySwitch = $modal.find("#pay-switch");
+  const $payWechat = $modal.find("#pay-wechat");
+  const $payAlipay = $modal.find("#pay-alipay");
+  const $slider = $modal.find("#pay-slider");
+  const $qr = $modal.find("#payment-qr");
+
+  let paymentData: {
+    order_no: string;
+    amount?: string;
+    expire_time?: number | string;
+    payment_urls?: { wechat?: string; alipay?: string };
+  } | null = null;
+  let currentMethod: "wechat" | "alipay" = "wechat";
+
+  const renderQRCode = (text: string | undefined) => {
+    $qr.empty();
+    if (!text) {
+      $qr.text("支付链接缺失");
+      return;
+    }
+    try {
+      new (window as any).QRCode($qr[0], {
+        text: String(text),
+        width: 180,
+        height: 180,
+        colorDark: "#000000",
+        colorLight: "#ffffff",
+        correctLevel: (window as any).QRCode.CorrectLevel?.H ?? 2,
+      });
+    } catch (e) {
+      console.error("生成二维码失败:", e);
+      $qr.text("二维码生成失败");
+    }
+  };
+
+  const updateMethodUI = (method: "wechat" | "alipay") => {
+    currentMethod = method;
+    $payWechat.attr("aria-selected", method === "wechat" ? "true" : "false");
+    $payAlipay.attr("aria-selected", method === "alipay" ? "true" : "false");
+    // 移动滑块位置
+    if (method === "wechat") {
+      $slider.css({ left: "1.6%", background: "#07C160" });
+      $payWechat.addClass("text-white");
+      $payAlipay.removeClass("text-white").addClass("text-neutral-500");
+      // 图标切换（选中：微信白色、支付宝普通）
+      const $wxImg = $payWechat.find("img");
+      const $aliImg = $payAlipay.find("img");
+      const fadeSwap = (imgEl: JQuery, src: string) => {
+        imgEl.addClass("opacity-0");
+        imgEl.attr("src", src);
+        window.setTimeout(() => imgEl.removeClass("opacity-0"), 30);
+      };
+      fadeSwap($wxImg, "https://www.bt.cn/static/astro/icon/wechat-white.svg");
+      fadeSwap($aliImg, "https://www.bt.cn/static/astro/icon/alipay.svg");
+    } else {
+      $slider.css({ left: "50%", background: "#1677ff" });
+      $payAlipay.removeClass("text-neutral-500").addClass("text-white");
+      $payWechat.removeClass("text-white").addClass("text-neutral-500");
+      // 图标切换（选中：支付宝白色、微信普通）
+      const $wxImg = $payWechat.find("img");
+      const $aliImg = $payAlipay.find("img");
+      const fadeSwap = (imgEl: JQuery, src: string) => {
+        imgEl.addClass("opacity-0");
+        imgEl.attr("src", src);
+        window.setTimeout(() => imgEl.removeClass("opacity-0"), 30);
+      };
+      fadeSwap($wxImg, "https://www.bt.cn/static/astro/icon/wechat.svg");
+      fadeSwap($aliImg, "https://www.bt.cn/static/astro/icon/alipay-white.svg");
+    }
+    // 更新二维码
+    const url =
+      method === "wechat"
+        ? paymentData?.payment_urls?.wechat
+        : paymentData?.payment_urls?.alipay;
+    renderQRCode(url);
+  };
+
+  const startPaymentPolling = (orderNo: string) => {
+    stopPolling();
+    (ModalManager as any).paymentPollId = window.setInterval(async () => {
+      try {
+        const res = await getPaymentStatus({
+          order_no: String(orderNo),
+        } as any);
+        const status = (res as any)?.data?.status;
+        if (status === 1) {
+          // 支付成功
+          stopPolling();
+          (ModalManager as any).currentOrderNo = null;
+          MessageManager.success("支付成功，即将跳转到域名控制台...");
+          ModalManager.hide();
+          setTimeout(() => {
+            window.location.href = "https://www.bt.cn/domain/domain/list";
+          }, 2000);
+        }
+      } catch (err) {
+        console.warn("支付状态查询失败:", err);
+      }
+    }, 3000);
+    // 5分钟后自动停止并提示超时
+    (ModalManager as any).timeoutId = window.setTimeout(
+      () => {
+        stopPolling();
+        MessageManager.info("支付超时，请重新下单或刷新页面");
+      },
+      5 * 60 * 1000,
+    );
+  };
+
+  const initPaymentInfo = async () => {
+    const taskId = (ModalManager as any).currentFlashTaskId;
+    if (!taskId) {
+      console.warn("缺少 task_id，无法初始化支付信息");
+      return;
+    }
+    // 首次查询
+    MessageManager.loading("正在加载支付信息...");
+    let failCount = 0;
+    const handleSuccessResult = (result: any) => {
+      paymentData = {
+        order_no: String(result.order_no),
+        amount: result.amount,
+        expire_time: result.expire_time,
+        payment_urls: result.payment_urls || {},
+      };
+      (ModalManager as any).currentOrderNo = paymentData.order_no;
+      // 默认展示微信二维码
+      updateMethodUI("wechat");
+      startPaymentPolling(paymentData.order_no);
+      MessageManager.hideLoading();
+    };
+
+    const queryOnce = async (): Promise<boolean> => {
+      const res = await getSeckillStatus({ task_id: String(taskId) } as any);
+      const result = (res as any)?.data?.result;
+
+      // 优先处理接口错误：存在 error_code 时立即终止当前轮询
+      if (result && typeof result === "object" && "error_code" in result) {
+        // 清除所有相关轮询与定时器，并重置本地状态
+        if ((ModalManager as any).seckillPollId) {
+          try {
+            window.clearInterval((ModalManager as any).seckillPollId);
+          } catch (e) {}
+          (ModalManager as any).seckillPollId = null;
+        }
+        stopPolling();
+        failCount = 0; // 重置失败计数
+        MessageManager.hideLoading();
+        const reason = (res as any)?.data?.task_message ?? "接口返回错误";
+        MessageManager.error(String(reason));
+        ModalManager.hide();
+        // 返回 true 表示已处理，不再继续后续轮询逻辑
+        return true;
+      }
+
+      if (result) {
+        // 有结果则停止轮询并处理
+        if ((ModalManager as any).seckillPollId) {
+          window.clearInterval((ModalManager as any).seckillPollId);
+          (ModalManager as any).seckillPollId = null;
+        }
+        handleSuccessResult(result);
+        return true;
+      }
+      return false;
+    };
+
+    try {
+      const ok = await queryOnce();
+      if (!ok) {
+        // 无 result 字段 -> 开始 2s 轮询；显示加载状态
+        MessageManager.loading("正在生成订单，请稍候...");
+        // 防止重复轮询
+        if ((ModalManager as any).seckillPollId) {
+          window.clearInterval((ModalManager as any).seckillPollId);
+          (ModalManager as any).seckillPollId = null;
+        }
+        (ModalManager as any).seckillPollId = window.setInterval(async () => {
+          try {
+            const okInner = await queryOnce();
+            if (okInner) {
+              // 成功后由 queryOnce 负责清理与后续逻辑
+              return;
+            }
+          } catch (err) {
+            failCount++;
+            if (failCount >= 3) {
+              // 连续3次失败后停止并提示
+              if ((ModalManager as any).seckillPollId) {
+                window.clearInterval((ModalManager as any).seckillPollId);
+                (ModalManager as any).seckillPollId = null;
+              }
+              MessageManager.hideLoading();
+              MessageManager.error("网络异常，支付信息加载失败");
+            }
+          }
+        }, 2000);
+      }
+    } catch (err) {
+      MessageManager.hideLoading();
+      MessageManager.error("网络异常，支付信息加载失败");
+    }
+  };
+
+  // 绑定支付方式切换
+  $modal.on("click", "#pay-wechat", function () {
+    if (!paymentData) return;
+    updateMethodUI("wechat");
+  });
+  $modal.on("click", "#pay-alipay", function () {
+    if (!paymentData) return;
+    updateMethodUI("alipay");
+  });
+
+  // 初始化支付信息
+  initPaymentInfo();
+}
+/**
+ * 移除域名后缀前的点号并转换为小写
+ * @param suffix 域名后缀
+ * @returns 处理后的后缀
+ */
+const stripDot = (suffix: string): string =>
+  suffix.replace(/^\./, "").trim().toLowerCase();
+/**
+ * 根据域名后缀获取对应的特性描述
+ * @param suffix 域名后缀
+ * @returns 特性描述字符串
+ */
+const getDomainFeatureDescription = (suffix: string): string => {
+  const cleanSuffix = stripDot(suffix);
+  const featureMap: Record<string, string> = {
+    top: ".top：易记又具突破力的顶级域名，适合创新企业和个人品牌",
+    xyz: ".xyz：通用易记的创新数字标识，新一代互联网的首选域名",
+    icu: ".icu：辨识度拉满的核心网络标识，专为个性化品牌打造",
+    cyou: ".cyou：打造有温度的品牌线上标识，传递情感连接的域名",
+    cn: ".cn：中国品牌的权威网络标识，本土化运营的最佳选择",
+    com: ".com：全球通用的经典商业域名，国际化业务的标准配置",
+    net: ".net：网络服务的专业域名，技术类企业的理想选择",
+    org: ".org：非营利组织的专属域名，公益机构的权威标识",
+    info: ".info：信息分享的专业平台，知识型网站的首选域名",
+    biz: ".biz：商业活动的专用标识，企业级应用的专业选择",
+  };
+
+  return (
+    featureMap[cleanSuffix] ||
+    `${suffix}：专业可靠的域名选择，助力您的网络品牌建设`
+  );
+};
 
 /**
  * 初始化组队活动
@@ -2248,30 +3272,29 @@ const initTeamActivity = async (): Promise<void> => {
   $(".act-super_discount #initiate-team-btn").on("click", function (e) {
     e.preventDefault();
     MessageManager.loading("正在加载...");
-    ApiService.getTeamInfo(null, 12)
-      .then((info) => {
-        MessageManager.hideLoading();
-        if (info && info.team) {
-          TeamManager.showMyTeamModal(info, "super_discount");
-        } else if (info.includes("未登录")) {
-          MessageManager.error("您尚未登录或登录已过期，即将跳转登录页面。");
-          setTimeout(() => {
-            window.location.href =
-              "/login.html?ReturnUrl=" + window.location.href;
-          }, 1000);
-        } else {
-          showTeamModal("super_discount");
-        }
-      })
-      .catch((err) => {
-        MessageManager.hideLoading();
-        // 没登录会进这里
+    ApiService.getTeamInfo(null, 13).then((info) => {
+      MessageManager.hideLoading();
+      if (info && info.team) {
+        TeamManager.showMyTeamModal(info, "super_discount");
+      } else if (info.includes("未登录")) {
         MessageManager.error("您尚未登录或登录已过期，即将跳转登录页面。");
         setTimeout(() => {
           window.location.href =
             "/login.html?ReturnUrl=" + window.location.href;
         }, 1000);
-      });
+      } else {
+        showTeamModal("super_discount");
+      }
+    });
+    // .catch((err) => {
+    //   MessageManager.hideLoading();
+    //   // 没登录会进这里
+    //   MessageManager.error("您尚未登录或登录已过期，即将跳转登录页面。");
+    //   setTimeout(() => {
+    //     window.location.href =
+    //       "/login.html?ReturnUrl=" + window.location.href;
+    //   }, 1000);
+    // });
   });
 
   // 组队规则模态框
@@ -2287,10 +3310,10 @@ const initTeamActivity = async (): Promise<void> => {
   // 模态框内确认发起按钮事件处理
   $("#custom-modal").on("click", ".btn-confirm", function () {
     MessageManager.loading("正在创建队伍...");
-    ApiService.createTeam(12)
+    ApiService.createTeam(13)
       .then(() => {
         // 创建成功后，获取最新的队伍信息来展示
-        return ApiService.getTeamInfo(null, 12);
+        return ApiService.getTeamInfo(null, 13);
       })
       .then((newTeamInfo) => {
         MessageManager.success("队伍创建成功！");
@@ -2307,9 +3330,9 @@ const initTeamActivity = async (): Promise<void> => {
   $("#custom-modal").on("click", ".btn-confirm-join", function () {
     const teamCode = window.jQuery(this).data("team-code");
     MessageManager.loading("正在加入队伍...");
-    ApiService.joinTeam(teamCode, 12)
+    ApiService.joinTeam(teamCode, 13)
       .then(() => {
-        return ApiService.getTeamInfo(null, 12); // 获取自己最新的队伍信息
+        return ApiService.getTeamInfo(null, 13); // 获取自己最新的队伍信息
       })
       .then((myTeamInfo) => {
         MessageManager.success("成功加入队伍！");
@@ -2334,7 +3357,7 @@ const initTeamActivity = async (): Promise<void> => {
 
       if (now - lastRefreshTime < cooldownPeriod) {
         const remainingTime = Math.ceil(
-          (cooldownPeriod - (now - lastRefreshTime)) / 1000
+          (cooldownPeriod - (now - lastRefreshTime)) / 1000,
         );
         MessageManager.info(`请稍等${remainingTime}秒后再刷新`);
         return;
@@ -2342,7 +3365,7 @@ const initTeamActivity = async (): Promise<void> => {
 
       lastRefreshTime = now;
       MessageManager.loading("正在刷新...");
-      ApiService.getTeamInfo(null, 12)
+      ApiService.getTeamInfo(null, 13)
         .then((info) => {
           MessageManager.hideLoading();
           TeamManager.updateMyTeamModal(info, "super_discount");
@@ -2352,7 +3375,7 @@ const initTeamActivity = async (): Promise<void> => {
           MessageManager.hideLoading();
           MessageManager.error("刷新失败");
         });
-    }
+    },
   );
 
   // 我的队伍视图中"复制组队邀请链接"按钮事件处理(原.btn-invite)
@@ -2397,6 +3420,8 @@ const initUIEvents = async (): Promise<void> => {
   initScrollToSearchButton();
   initServiceQRCode();
   initCartButton();
+  // 初始化域名限量秒杀板块（仅结构与交互骨架）
+  await initDomainFlashSection();
   // 异步初始化秒杀活动，等待API数据加载
   // await initSeckillActivity();
   await initTeamActivity(); // 组队活动初始化

@@ -54,6 +54,8 @@ import {
   queryPaymentStatus as apiQueryPaymentStatus,
   getContactUserDetail,
   getOrderDetail as apiGetOrderDetail,
+  getAccountBalance,
+  payWithBalance,
 } from "@api/landing";
 
 import type {
@@ -64,7 +66,6 @@ import { Item } from "../types/api-types/order-cart-list";
 import { Datum } from "../types/api-types/contact-get-user-detail";
 import type { OrderCreateResponseData } from "../types/api-types/order-create";
 import type { OrderDetailResponseData } from "../types/api-types/order-detail";
-
 
 // ----------------------------
 // 全局 Store（函数式）
@@ -106,10 +107,10 @@ type DomainStore = {
 type CartStore = { list: Item[]; originalTotal: number; payableTotal: number };
 type RealNameStore = { list: Datum[]; current: Datum | null };
 
+const isDev = (): boolean => process.env.NODE_ENV === "development";
 // 动态获取登录状态的函数
 function getLoginStatus(): boolean {
-	// return true
-  return localStorage.getItem("isLogin") === "true";
+  return localStorage.getItem("isLogin") === "true" || isDev();
 }
 
 // 定义全局状态-域名
@@ -281,8 +282,8 @@ function renderDomainList(list: DomainItem[]) {
   // 根据购物车内容标记搜索结果中的已选中（已加入购物车）项
   const inCartDomainSet = new Set(
     (cartState.list || []).map((it: any) =>
-      String(it.full_domain || it.domain_name || "")
-    )
+      String(it.full_domain || it.domain_name || ""),
+    ),
   );
   console.log(list, "--");
   const mapped = list.map((it, index) => {
@@ -308,9 +309,11 @@ function renderDomainList(list: DomainItem[]) {
       canShowTags && hasOriginalPrice
         ? Math.round(
             ((Number(originalPrice) - Number(price)) / Number(originalPrice)) *
-              100
+              100,
           )
         : 0;
+    const isCnSuffix = canShowTags && it.suffix === "cn";
+    const isTopSuffix = canShowTags && it.suffix === "top";
     return {
       domain: fullDomain,
       suffix: it.suffix,
@@ -341,17 +344,19 @@ function renderDomainList(list: DomainItem[]) {
         domainState.searchMode === "ai" && Boolean((it as any)?.meaning), // 是否显示AI解释
       // 多年价格（首年按优惠价，续费按续费价）
       price3Years: formatPriceInteger(
-        Number(price) + Number(renewPriceDiscount) * 2
+        Number(price) + Number(renewPriceDiscount) * 2,
       ),
       price5Years: formatPriceInteger(
-        Number(price) + Number(renewPriceDiscount) * 4
+        Number(price) + Number(renewPriceDiscount) * 4,
       ),
       price10Years: formatPriceInteger(
-        Number(price) + Number(renewPriceDiscount) * 9
+        Number(price) + Number(renewPriceDiscount) * 9,
       ),
       renewPrice3Years: formatPriceInteger(Number(renewPriceDiscount) * 3),
       renewPrice5Years: formatPriceInteger(Number(renewPriceDiscount) * 5),
       renewPrice10Years: formatPriceInteger(Number(renewPriceDiscount) * 10),
+      isCnSuffix,
+      isTopSuffix,
     };
   });
 
@@ -368,8 +373,8 @@ function appendDomainList(list: DomainItem[]) {
   if (!$) return;
   const inCartDomainSet = new Set(
     (cartState.list || []).map((it: any) =>
-      String(it.full_domain || it.domain_name || "")
-    )
+      String(it.full_domain || it.domain_name || ""),
+    ),
   );
   const mapped = list.map((it, index) => {
     const price =
@@ -394,7 +399,7 @@ function appendDomainList(list: DomainItem[]) {
       canShowTags && hasOriginalPrice
         ? Math.round(
             ((Number(originalPrice) - Number(price)) / Number(originalPrice)) *
-              100
+              100,
           )
         : 0;
     return {
@@ -423,13 +428,13 @@ function appendDomainList(list: DomainItem[]) {
       hasAiMeaning:
         domainState.searchMode === "ai" && Boolean((it as any)?.meaning), // 是否显示AI解释
       price3Years: formatPriceInteger(
-        Number(price) + Number(renewPriceDiscount) * 2
+        Number(price) + Number(renewPriceDiscount) * 2,
       ),
       price5Years: formatPriceInteger(
-        Number(price) + Number(renewPriceDiscount) * 4
+        Number(price) + Number(renewPriceDiscount) * 4,
       ),
       price10Years: formatPriceInteger(
-        Number(price) + Number(renewPriceDiscount) * 9
+        Number(price) + Number(renewPriceDiscount) * 9,
       ),
       renewPrice3Years: formatPriceInteger(Number(renewPriceDiscount) * 3),
       renewPrice5Years: formatPriceInteger(Number(renewPriceDiscount) * 5),
@@ -483,7 +488,7 @@ function renderCart(cart: CartStore) {
   const mapped = items.map((item, index) => {
     // 后端已按年限计算过汇总，这里价格用于单项展示，不乘年限
     const price = Number(
-      item.total_price ?? item.price ?? item.domain_service_price ?? 0
+      item.total_price ?? item.price ?? item.domain_service_price ?? 0,
     );
     const original = Number(item.original_price ?? price);
     return {
@@ -587,7 +592,7 @@ async function fetchDomainList(param: DomainQueryCheckRequest) {
     if (domainState.searchMode === requestTargetMode) {
       setHTML(
         "#search-results",
-        `<div class="text-center py-8 text-red-500">${message}</div>`
+        `<div class="text-center py-8 text-red-500">${message}</div>`,
       );
     }
   } finally {
@@ -615,15 +620,15 @@ async function fetchAiDomainList(params: {
   try {
     OverlayManager.showView?.("#search-results", { content: "AI推荐中..." });
 
-		// 使用AI推荐接口
-		const res = await aiDomainQueryCheck({
-			brand: params.brandName,
-			industry: params.industry,
-			// 注意：AI接口可能不支持分页和推荐类型，根据实际API调整
-			// p: params.p || 1,
-			// rows: params.rows || 20,
-			// recommend_type: params.recommend_type || -1
-		});
+    // 使用AI推荐接口
+    const res = await aiDomainQueryCheck({
+      brand: params.brandName,
+      industry: params.industry,
+      // 注意：AI接口可能不支持分页和推荐类型，根据实际API调整
+      // p: params.p || 1,
+      // rows: params.rows || 20,
+      // recommend_type: params.recommend_type || -1
+    });
 
     const data = res.data as any;
     const list: DomainItem[] = data || [];
@@ -688,7 +693,7 @@ function calculateSelectedTotals(items: any[]) {
         it.originalPrice ??
         it.price ??
         it.domain_service_price ??
-        0
+        0,
     );
     return sum + Math.max(0, original);
   }, 0);
@@ -727,7 +732,7 @@ async function buildPaymentModalContent(init: boolean = true) {
   const idMasked = template?.id_number
     ? String(template.id_number).replace(
         /(\d{6})\d{8}(\d{3}[0-9Xx])/,
-        "$1****$2"
+        "$1****$2",
       )
     : template?.id_number_masked || "";
   const selectedTemplateName = idMasked
@@ -755,7 +760,7 @@ async function buildPaymentModalContent(init: boolean = true) {
     totalItems: itemsWithFormatted.length,
     cartItemsHtml: renderTemplateList(
       TPL_PAYMENT_CART_ITEM,
-      itemsWithFormatted
+      itemsWithFormatted,
     ),
   });
 
@@ -765,7 +770,8 @@ async function buildPaymentModalContent(init: boolean = true) {
     payableTotal: Number(cartState.payableTotal ?? 0),
     discount: Math.max(
       0,
-      Number(cartState.originalTotal ?? 0) - Number(cartState.payableTotal ?? 0)
+      Number(cartState.originalTotal ?? 0) -
+        Number(cartState.payableTotal ?? 0),
     ),
   };
 
@@ -825,7 +831,7 @@ async function showPaymentModal() {
       $body.css("touch-action", prevTouchAction || "");
       $body.css("overscroll-behavior", prevOverscroll || "");
       $body.removeData(
-        "cartPaymentModalOverflow cartPaymentModalTouchAction cartPaymentModalOverscroll"
+        "cartPaymentModalOverflow cartPaymentModalTouchAction cartPaymentModalOverscroll",
       );
     },
   });
@@ -849,15 +855,7 @@ function buildOrderItemsHtml(items: any[]) {
   const mapped = (items || []).map((it: any) => {
     const years = Math.max(1, Number(it.years || 1));
     // 注意：后端已给出总价（total_price 或等效字段），避免再次乘以 years
-    const total = Number(
-      it.total_price != null
-        ? it.total_price
-        : it.price != null
-        ? it.price * years
-        : it.domain_service_price != null
-        ? it.domain_service_price * years
-        : 0
-    );
+    const total = Number(it.price);
     const domain = String(it.full_domain || it.domain_name || "");
     const template = (realNameState.current as any) || {};
     const templateName =
@@ -879,10 +877,10 @@ function buildOrderItemsHtml(items: any[]) {
 /**
  * 显示支付界面（不跳转外部支付页）
  */
-function showPaymentInterface() {
+async function showPaymentInterface() {
   const $ = safe$();
   const selectedItems = (cartState.list || []).filter(
-    (it: any) => (it.selected ?? 1) !== 0
+    (it: any) => (it.selected ?? 1) !== 0,
   );
   if (selectedItems.length === 0) {
     NotificationManager.show?.({
@@ -896,7 +894,7 @@ function showPaymentInterface() {
     calculateSelectedTotals(selectedItems);
   const hasDiscount = discount > 0;
 
-  // 基础用户/余额信息（占位，实际可接入账户接口）
+  // 基础用户信息
   const template = (realNameState.current as any) || {};
   const phone =
     template?.phone ||
@@ -906,9 +904,21 @@ function showPaymentInterface() {
     "***";
   const userName = template?.owner_name || template?.contact_person || "用户";
   const userInitial = String(userName).trim().slice(0, 1) || "用";
-  const accountBalance = 0; // TODO: 可接后端账户余额接口
-  const remainingBalance = Math.max(0, accountBalance - payableTotal);
-  const insufficientBalance = payableTotal > accountBalance;
+
+  // 获取账户余额
+  let accountBalance = 0;
+  let insufficientBalance = false;
+  try {
+    const balanceRes = await getAccountBalance();
+    if (balanceRes?.data?.balance !== undefined) {
+      accountBalance = balanceRes.data.balance / 100;
+      insufficientBalance = accountBalance < payableTotal;
+    }
+  } catch (err) {
+    console.error("获取账户余额失败", err);
+    // 余额获取失败时，默认为余额不足
+    insufficientBalance = true;
+  }
 
   const content = renderTemplate(TPL_PAYMENT_INTERFACE, {
     orderItemsHtml: buildOrderItemsHtml(selectedItems),
@@ -917,10 +927,9 @@ function showPaymentInterface() {
     formattedPayableTotal: formatPrice(payableTotal),
     hasDiscount,
     accountBalance: formatPrice(accountBalance),
-    remainingBalance: formatPrice(remainingBalance),
-    insufficientBalance,
     userPhone: phone,
     userInitial,
+    insufficientBalance,
     isWechatSelected: selectedPaymentMethod === "wechat",
     isAlipaySelected: selectedPaymentMethod === "alipay",
     isBalanceSelected: selectedPaymentMethod === "balance",
@@ -954,17 +963,17 @@ function showPaymentInterface() {
   // 初始显示二维码区域（微信）
   if ($) {
     if (selectedPaymentMethod === "balance") {
-      $("#qr-code-section").addClass("hidden");
-      $("#balance-payment-section").removeClass("hidden");
+      $("#qr-code-section").addClass("!hidden");
+      $("#balance-payment-section").removeClass("!hidden");
     } else if (selectedPaymentMethod === "alipay") {
-      $("#balance-payment-section").addClass("hidden");
-      $("#qr-code-section").removeClass("hidden");
+      $("#balance-payment-section").addClass("!hidden");
+      $("#qr-code-section").removeClass("!hidden");
       $("#qr-code-title").text("请使用支付宝扫码支付");
       $("#qr-code-tip").text("请在手机上打开支付宝，扫描上方二维码完成支付");
       generateQRCodeForSelectedMethod();
     } else {
-      $("#balance-payment-section").addClass("hidden");
-      $("#qr-code-section").removeClass("hidden");
+      $("#balance-payment-section").addClass("!hidden");
+      $("#qr-code-section").removeClass("!hidden");
       $("#qr-code-title").text("请使用微信扫码支付");
       $("#qr-code-tip").text("请在手机上打开微信，扫描上方二维码完成支付");
       generateQRCodeForSelectedMethod();
@@ -998,20 +1007,29 @@ function bindPaymentInterfaceEvents() {
       selectedPaymentMethod = method;
 
       if (method === "balance") {
-        $("#qr-code-section").addClass("hidden");
-        $("#balance-payment-section").removeClass("hidden");
+        // 切换到余额支付：隐藏二维码，停止轮询
+        $("#qr-code-section").addClass("!hidden");
+        $("#balance-payment-section").removeClass("!hidden");
+        if (paymentPollTimer) {
+          clearInterval(paymentPollTimer);
+          paymentPollTimer = null;
+        }
       } else if (method === "wechat") {
-        $("#balance-payment-section").addClass("hidden");
-        $("#qr-code-section").removeClass("hidden");
+        // 切换到微信支付：显示二维码，启动轮询
+        $("#balance-payment-section").addClass("!hidden");
+        $("#qr-code-section").removeClass("!hidden");
         $("#qr-code-title").text("请使用微信扫码支付");
         $("#qr-code-tip").text("请在手机上打开微信，扫描上方二维码完成支付");
         generateQRCodeForSelectedMethod();
+        startPaymentPolling();
       } else if (method === "alipay") {
-        $("#balance-payment-section").addClass("hidden");
-        $("#qr-code-section").removeClass("hidden");
+        // 切换到支付宝支付：显示二维码，启动轮询
+        $("#balance-payment-section").addClass("!hidden");
+        $("#qr-code-section").removeClass("!hidden");
         $("#qr-code-title").text("请使用支付宝扫码支付");
         $("#qr-code-tip").text("请在手机上打开支付宝，扫描上方二维码完成支付");
         generateQRCodeForSelectedMethod();
+        startPaymentPolling();
       }
       updateSegmentedSlider();
     });
@@ -1030,8 +1048,38 @@ function bindPaymentInterfaceEvents() {
         });
         return;
       }
-      // 此处可接余额扣款接口；当前仅进行状态轮询
-      startPaymentPolling();
+
+      const $btn = $(this);
+      const originalText = $btn.text();
+
+      try {
+        // 禁用按钮并显示加载状态
+        $btn.prop("disabled", true).text("支付中...");
+
+        // 调用余额支付接口
+        const res = await payWithBalance({
+          order_no: currentOrderNo,
+        });
+        if (res?.code === 0) {
+          // 支付成功，直接处理成功逻辑
+          handlePaymentSuccess();
+        } else {
+          // 支付失败，显示错误信息
+          NotificationManager.show?.({
+            type: "error",
+            message: res?.msg || "余额支付失败，请重试",
+          });
+        }
+      } catch (err: any) {
+        console.error("余额支付失败", err);
+        NotificationManager.show?.({
+          type: "error",
+          message: err?.message || "余额支付失败，请重试",
+        });
+      } finally {
+        // 恢复按钮状态
+        $btn.prop("disabled", false).text(originalText);
+      }
     });
 }
 
@@ -1062,19 +1110,19 @@ function updatePaymentSummary() {
   const $ = safe$();
   if (!$) return;
   const selected = (cartState.list || []).filter(
-    (it: any) => (it.selected ?? 1) !== 0
+    (it: any) => (it.selected ?? 1) !== 0,
   );
   const { originalTotal, payableTotal, discount } =
     calculateSelectedTotals(selected);
 
   $("#cart-payment-modal .payment-section .line-through").text(
-    formatPrice(originalTotal)
+    formatPrice(originalTotal),
   );
   $("#cart-payment-modal .payment-section .text-green-600").text(
-    `-${formatPrice(discount)}`
+    `-${formatPrice(discount)}`,
   );
   $("#cart-payment-modal .payment-section .text-orange-500.font-bold").text(
-    formatPrice(payableTotal)
+    formatPrice(payableTotal),
   );
 
   $("#delete-selected-link").toggleClass("hidden", !selected.length);
@@ -1197,7 +1245,7 @@ function bindPaymentModalEvents() {
     .off("click", "#confirm-payment-btn")
     .on("click", "#confirm-payment-btn", async function () {
       const selectedItems = (cartState.list || []).filter(
-        (it: any) => (it.selected ?? 1) !== 0
+        (it: any) => (it.selected ?? 1) !== 0,
       );
 
       if (selectedItems.length === 0) {
@@ -1252,7 +1300,7 @@ function bindPaymentModalEvents() {
       }
 
       // 展示站内支付界面
-      showPaymentInterface();
+      await showPaymentInterface();
     });
 
   // 年限选择（弹窗内）
@@ -1273,7 +1321,8 @@ function bindPaymentModalEvents() {
           const options = [1, 2, 3, 5, 10];
           const html = options
             .map(
-              (y) => `<div class="select-option" data-value="${y}">${y}年</div>`
+              (y) =>
+                `<div class="select-option" data-value="${y}">${y}年</div>`,
             )
             .join("");
           $menu.html(html);
@@ -1284,7 +1333,7 @@ function bindPaymentModalEvents() {
         const index = Number($selector.data("index"));
         const item = (cartState.list || [])[index] as any;
         const currentYears = Number(
-          item?.years || $selector.data("value") || 1
+          item?.years || $selector.data("value") || 1,
         );
         $menu
           .find(`.select-option[data-value="${currentYears}"]`)
@@ -1342,14 +1391,14 @@ function bindPaymentModalEvents() {
               $menu.hide();
             }
           });
-      }
+      },
     );
 
   // 实名模板选择（弹窗内）
   $(document)
     .off(
       "click",
-      ".cart-payment-modal .real-name-template-selector .select-display"
+      ".cart-payment-modal .real-name-template-selector .select-display",
     )
     .on(
       "click",
@@ -1455,7 +1504,7 @@ function bindPaymentModalEvents() {
                 found.id_number_masked ||
                 found.id_number.replace(
                   /(\d{6})\d{8}(\d{3}[0-9Xx])/,
-                  "$1****$2"
+                  "$1****$2",
                 ) ||
                 "";
               $selector
@@ -1464,7 +1513,7 @@ function bindPaymentModalEvents() {
             }
             $menu.remove();
           });
-      }
+      },
     );
 
   // 批量删除选中（弹窗内）
@@ -1473,7 +1522,7 @@ function bindPaymentModalEvents() {
     .on("click", "#delete-selected-link", async function (e: any) {
       e.preventDefault();
       const selectedItems = (cartState.list || []).filter(
-        (it: any) => (it.selected ?? 1) !== 0
+        (it: any) => (it.selected ?? 1) !== 0,
       );
       if (selectedItems.length === 0) {
         NotificationManager.show?.({
@@ -1571,7 +1620,7 @@ function generateQRCodeForSelectedMethod() {
       ($qr as any).qrcode({ text: qrText, width: 180, height: 180 });
     } else {
       $qr.append(
-        `<div class="w-180 h-180 flex items-center justify-center text-xs text-gray-500">二维码插件缺失，显示链接：${qrText}</div>`
+        `<div class="w-180 h-180 flex items-center justify-center text-xs text-gray-500">二维码插件缺失，显示链接：${qrText}</div>`,
       );
     }
     $qrImage.append($qr);
@@ -1642,7 +1691,7 @@ async function showPaymentSuccess() {
     years: it.years || 1,
     templateName: realNameState.current?.template_name,
     formattedPrice: formatPrice(
-      Number(it.total_amount || it.discount_price || it.one_price || 0)
+      Number(it.total_amount || it.discount_price || it.one_price || 0),
     ),
   }));
 
@@ -1654,7 +1703,7 @@ async function showPaymentSuccess() {
     : formatPrice(0);
   const discountNumber = Math.max(
     0,
-    Number(formattedOriginalTotal) - Number(formattedPayableTotal)
+    Number(formattedOriginalTotal) - Number(formattedPayableTotal),
   );
 
   const successHtml = renderTemplate("order-success-template", {
@@ -1668,8 +1717,8 @@ async function showPaymentSuccess() {
       selectedPaymentMethod === "balance"
         ? "余额支付"
         : selectedPaymentMethod === "alipay"
-        ? "支付宝"
-        : "微信",
+          ? "支付宝"
+          : "微信",
     paymentTime: new Date().toLocaleString(),
     transactionId: (currentOrderData as any)?.order_no || "",
   });
@@ -1765,7 +1814,7 @@ async function fetchRealNameList() {
     const first =
       realNameState.list.find(
         (t) =>
-          (t as any).template_status === "approved" || (t as any).status === 1
+          (t as any).template_status === "approved" || (t as any).status === 1,
       ) || null;
     realNameState.current = first || realNameState.list[0] || null;
 
@@ -2212,7 +2261,7 @@ function bindEvents() {
       const target = $(e.target);
       if (
         !target.closest(
-          "#mobile-cart-dropdown, #mobile-cart-toggle, #mobile-cart-bar"
+          "#mobile-cart-dropdown, #mobile-cart-toggle, #mobile-cart-bar",
         ).length &&
         $("#mobile-cart-dropdown").hasClass("open")
       ) {
@@ -2270,7 +2319,7 @@ function bindEvents() {
           $btn.prop("disabled", false);
           OverlayManager.hideGlobal?.();
         }
-      }
+      },
     );
 
   // 移动端下拉：年限选择
@@ -2365,7 +2414,7 @@ function bindEvents() {
             $menu.remove();
           }
         });
-    }
+    },
   );
 
   const triggerSearch = () => {
@@ -2470,7 +2519,7 @@ function bindEvents() {
           setTimeout(() => $input.removeClass("input-highlight"), 1500);
         }
       } catch {}
-    }
+    },
   );
 
   // 4) 筛选按钮：切换 recommend_type 并触发请求
@@ -2501,7 +2550,7 @@ function bindEvents() {
     domainState.param.recommend_type = recommend;
     updateUrlParam(
       "recommend_type",
-      recommend === -1 ? undefined : String(recommend)
+      recommend === -1 ? undefined : String(recommend),
     );
     // 不修改 domain，交由订阅在 param 变化时重新拉取
   });
@@ -2525,7 +2574,7 @@ function bindEvents() {
 
     // 从当前查询结果中查找后缀；若找不到则回退解析
     const item = (domainState.list || []).find(
-      (it: any) => String((it as any).domain) === fullDomain
+      (it: any) => String((it as any).domain) === fullDomain,
     ) as any;
     let suffix: string = (item && (item as any).suffix) || "";
     if (!suffix) {
@@ -2559,7 +2608,7 @@ function bindEvents() {
             type: "success",
             message: "已加入购物车",
           }),
-        1000
+        1000,
       );
 
       // 立即更新按钮文案与状态（无等待）
@@ -2918,9 +2967,9 @@ function bindEvents() {
       // 跳转到独立的WHOIS查询页面
       window.open(
         `https://www.bt.cn/new/domain-whois.html?domain=${encodeURIComponent(
-          domain
+          domain,
         )}`,
-        "_blank"
+        "_blank",
       );
     });
 }
@@ -2964,7 +3013,7 @@ function renderMobileCartList(cart: CartStore) {
   const rows = items.map((item: any, index: number) => {
     const years = Number(item.years || 1);
     const unit = Number(
-      item.total_price ?? item.price ?? item.domain_service_price ?? 0
+      item.total_price ?? item.price ?? item.domain_service_price ?? 0,
     );
     const domain = String(item.full_domain || item.domain_name || "");
     return `
@@ -3011,14 +3060,14 @@ function updateMobileCartBar(cart: CartStore) {
     $bar.removeClass("empty");
     $empty.hide();
     $(
-      ".mobile-cart-summary, .mobile-cart-discount, #mobile-cart-toggle, #mobile-checkout-button"
+      ".mobile-cart-summary, .mobile-cart-discount, #mobile-cart-toggle, #mobile-checkout-button",
     ).show();
   } else {
     // 空态：展示提示，仅显示底部条
     $bar.addClass("empty");
     $empty.show();
     $(
-      ".mobile-cart-summary, .mobile-cart-discount, #mobile-cart-toggle, #mobile-checkout-button"
+      ".mobile-cart-summary, .mobile-cart-discount, #mobile-cart-toggle, #mobile-checkout-button",
     ).hide();
     // 关闭下拉
     $dropdown.removeClass("open").attr("aria-hidden", "true");

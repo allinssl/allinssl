@@ -34,7 +34,7 @@ export default defineComponent({
                 <NButton
                   type="primary"
                   size="large"
-                  class="px-5"
+                  class="gradient-primary-btn px-5"
                   onClick={openCreateLeafCertModal}
                 >
                   签发证书
@@ -57,6 +57,7 @@ export default defineComponent({
                     onUpdateValue={handleCaIdChange}
                   />
                   <SearchComponent
+				    class="header-search"
                     placeholder="请输入名称搜索"
                     style={{ width: "240px" }}
                   />

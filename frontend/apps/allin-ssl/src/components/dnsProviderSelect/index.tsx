@@ -109,12 +109,12 @@ export default defineComponent<DnsProviderSelectProps>({
 			<NSpin show={controller.isLoading.value}>
 				<NGrid cols={24} class={props.customClass}>
 					<NFormItemGi
-						span={props.isAddMode ? 13 : 24}
+						span={props.isAddMode ? 14 : 24}
 						label={props.type === 'dns' ? $t('t_3_1745735765112') : $t('t_0_1746754500246')}
 						path={props.path}
 					>
 						<NSelect
-							class="flex-1 w-full"
+							class="flex-1 w-full "
 							filterable
 							options={controller.dnsProviderRef.value}
 							renderLabel={renderLabel}
@@ -139,11 +139,12 @@ export default defineComponent<DnsProviderSelectProps>({
 						/>
 					</NFormItemGi>
 					{props.isAddMode && (
-						<NFormItemGi span={11}>
-							<NButton class="mx-[8px]" onClick={controller.goToAddDnsProvider} disabled={props.disabled}>
+						<NFormItemGi span={10}>
+							<NButton class="gradient-default-btn mx-[8px]" onClick={controller.goToAddDnsProvider} disabled={props.disabled}>
 								{props.type === 'dns' ? $t('t_1_1746004861166') : $t('t_3_1746858920060')}
 							</NButton>
 							<NButton
+								class="gradient-default-btn"
 								onClick={() => controller.loadDnsProviders(props.type)}
 								loading={controller.isLoading.value}
 								disabled={props.disabled}

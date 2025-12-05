@@ -47,6 +47,8 @@ export interface DomainItem {
 	status: number
 	/** 域名后缀，例如 com/net */
 	suffix: string
+	/** 域名锁(0未锁定 可以操作 1已锁定 无法操作) */
+	transfer_lock: number
 }
 
 export interface DomainListData {
@@ -176,6 +178,11 @@ export interface DomainInfo {
 	suffix: string
 	/** 转移锁（1 锁定，0 解锁） */
 	transfer_lock: number
+	/** 转移锁状态 */
+	transfer_status: {
+		msg: string
+		status: number //(0 禁止转移  1 可以转移)
+	}
 	/** 用户 ID */
 	uid: number
 	/** 更新锁（1 锁定，0 解锁） */
@@ -248,7 +255,6 @@ export interface RealNameInfo {
 	verify_time: string
 }
 
-
 /**
  * 域名详情响应数据
  */
@@ -257,6 +263,10 @@ export interface DomainDetailData {
 	dns_records: DnsRecordItem[]
 	/** 域名详情信息 */
 	domain_info: DomainInfo
+	/** 内部转移状态 */
+	inside_transfer_status: null | { domain: string; status: number; to_account: string; transfer_code: string }
+	/** 外部转移状态 */
+	outside_transfer_status: null | number
 	/** 实名模板信息 */
 	real_name_info: RealNameInfo
 	/** 实名信息更新状态 */
@@ -391,32 +401,30 @@ export interface DomainPriceQueryRequest {
 }
 
 export interface DomainPriceResult {
-  domain: string;
-  year: number;
-  /** 原价（字符串金额） */
-  price: string;
-  /** 折扣价（字符串金额） */
-  discount_price: string;
-  /** 节省金额（字符串金额） */
-  savings: string;
-  /** 失败信息（可选） */
-  error?: string;
+	domain: string
+	year: number
+	/** 原价（字符串金额） */
+	price: string
+	/** 折扣价（字符串金额） */
+	discount_price: string
+	/** 节省金额（字符串金额） */
+	savings: string
+	/** 失败信息（可选） */
+	error?: string
 }
 
 export interface DomainPriceQueryData {
-  query_time: string;
-  year: number;
-  results: DomainPriceResult[];
+	query_time: string
+	year: number
+	results: DomainPriceResult[]
 }
 
-export type DomainPriceQueryResponse = ApiResponse<DomainPriceQueryData>;
-
+export type DomainPriceQueryResponse = ApiResponse<DomainPriceQueryData>
 
 export type DomainAutoRenewRequest = {
 	domain_id: number
 	status: 0 | 1
 }
-
 
 export interface DomainRealNameUpdateRequest {
 	/** 域名 ID */
@@ -453,8 +461,28 @@ export interface PrivacyData {
 export type PrivacyResponse = ApiResponse<PrivacyRequest>
 
 export interface PrivacyPriceRequest {
-	/** 1:新购 2:续费 */
+	/** 隐私保护类型 */
 	type: number
-	/** 年份 */
+	/** 年限 */
 	year: number
 }
+
+/**
+ * 删除域名请求参数
+ */
+export interface DeleteDomainRequest {
+	/** 域名ID */
+	id: number
+}
+
+/**
+ * 删除域名响应数据
+ */
+export interface DeleteDomainResponse {
+	/** 删除结果 */
+	success: boolean
+	/** 响应消息 */
+	message?: string
+}
+
+export type DeleteDomainApiResponse = ApiResponse<DeleteDomainResponse>

@@ -23,7 +23,7 @@ export default defineComponent({
 			<BaseComponent
 				v-slots={{
 					headerLeft: () => (
-						<NButton type="primary" onClick={handleOpenAddForm}>
+						<NButton class="gradient-primary-btn" type="primary" onClick={handleOpenAddForm} >
 							<PlusOutlined class="text-[var(--text-color-3)] mr-1" />
 							<span>{$t('t_4_1747903685371')}</span>
 						</NButton>

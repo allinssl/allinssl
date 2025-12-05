@@ -18,15 +18,29 @@
 
 /* 快捷入口卡片基础样式 */
 .quickEntryCard {
-	height: 100%	;
+  height: 100%;
   transition: all 0.3s ease;
-  border-radius: 0.6rem; /* 圆角 */
+  border-radius: 1rem; /* 圆角 */
+  background-color: transparent;
+  overflow: hidden;
 }
 
 .quickEntryCard:hover {
   transform: translateY(-4px); /* 悬停时上移效果更明显 */
 }
 
+.quickEntryImage {
+  width: 100%;
+  display: block;
+}
+
+.quickEntryCardContent {
+  padding: 24px;
+  flex: 1;
+  background-color: var(--n-body-color);
+  width: 100%;
+  padding: 24px;
+}
 /* 工作流快捷入口特定样式 */
 .workflow {
   background: var(--color-workflow-bg); /* 使用 variable.css 中定义的变量 */
@@ -81,18 +95,29 @@
 /* 快捷入口卡片内标题样式 */
 .title {
   font-size: 2rem;
-  font-weight: 500; /* 中等字重 */
+  font-weight: 600; /* 中等字重 */
   margin-bottom: 0.75rem;
 }
 
 /* 表格内文本、卡片内描述文本等通用文本样式 */
 .tableText {
   font-size: 1.4rem; /* 14px */
-  color: var(--n-text-color2); /* Naive UI secondary text color */
   line-height: 1.6; /* Improved readability */
 }
 
+.tableTitle {
+  font-size: 1.6rem;
+  font-weight: 600;
+  line-height: 24px;
+  color: var(--n-text-color4);
+  margin-bottom: 12px;
+}
 
+.tableSubtitle {
+  font-size: 1.2rem;
+  color: var(--n-text-color-3);
+  line-height: 21px;
+}
 
 /* 概览卡片中的图标区域样式 */
 .workflowIcon,
@@ -116,4 +141,31 @@
 
 .bgUtilDecorative {
   background-color: var(--n-primary-color); /* 修改：使用 Naive UI 标准变量 (假设 primaryColor 是期望的装饰色) */
+}
+
+.borderColor {
+  border-color: #E5E7EB;
+}
+
+:global(.defaultDark) {
+	.quickEntryImageWrapper {
+		background-color: var(--n-body-color);
+		padding: 4px;
+		img {
+			border-top-left-radius: 1rem;
+			border-top-right-radius: 1rem;
+		}
+	}
+	.gradientNumber {
+		background-image: linear-gradient(90deg, #9C6240, #FFCF76);
+		-webkit-background-clip: text;
+		background-clip: text;
+		color: transparent;
+	}
+	.tableSubtitle {
+		color: #856C5F;
+	}
+	.borderColor {
+		border-color: #454545;
+	}
 }

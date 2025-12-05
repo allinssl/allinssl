@@ -4,7 +4,7 @@
 import { defineComponent, defineAsyncComponent } from 'vue'
 import { NTabs, NTabPane, NCard } from 'naive-ui'
 import { useController } from './useController'
-import type{ DomainTransferTabKey } from './types'
+import type { DomainTransferTabKey } from './types'
 
 /**
  * 页面组件
@@ -13,6 +13,8 @@ export default defineComponent({
 	name: 'DomainTransferView',
 	setup() {
 		const JoinIn = defineAsyncComponent(() => import('./components/JoinIn'))
+		const LeaveIn = defineAsyncComponent(() => import('./components/Leave'))
+		const BtAccount = defineAsyncComponent(() => import('./components/BtAccount'))
 
 		// 获取控制器
 		const { loading, activeTab, switchTab } = useController()
@@ -29,9 +31,13 @@ export default defineComponent({
 						class="mb-4"
 					>
 						<NTabPane name="join" tab="域名转入">
-							<JoinIn/>
+							<JoinIn />
+						</NTabPane>
+						<NTabPane name="btaccount" tab="堡塔账号转入">
+							<BtAccount />
 						</NTabPane>
 						<NTabPane name="level" tab="域名转出">
+							<LeaveIn />
 						</NTabPane>
 					</NTabs>
 				</NCard>

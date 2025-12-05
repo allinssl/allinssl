@@ -28,7 +28,7 @@ const authMiddleware = requestMiddleware((config: AxiosRequestConfig) => {
 	if (isDev()) {
 		config.headers = {
 			...config.headers,
-			'X-UID': '1112',
+			'X-UID': localStorage.getItem('x-uid') || '1112',
 		}
 	}
 	return config

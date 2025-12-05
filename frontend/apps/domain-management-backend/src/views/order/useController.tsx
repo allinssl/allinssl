@@ -19,7 +19,7 @@ import {
 } from 'naive-ui'
 import { formatCurrency } from '@baota/utils/data'
 
-import { formatRelativeTime } from '@baota/utils/date'
+import { formatDate } from '@baota/utils/date'
 import { useOrderState, ORDER_STATUS, STATUS_OPTIONS, TYPE_OPTIONS } from './useStore'
 import { useTable, useForm, useFormHooks } from '@baota/naive-ui/hooks'
 import { useApp } from '@/components/layout/useStore'
@@ -173,7 +173,7 @@ export function useController() {
 			title: '创建时间',
 			key: 'created_at',
 			width: 180,
-			render: (row) => formatRelativeTime(row.created_at),
+			render: (row) => formatDate(row.created_at, 'yyyy-MM-dd'),
 		},
 		{
 			title: '操作',
@@ -238,7 +238,7 @@ export function useController() {
 								<NFlex justify="space-between" class="time-text">
 									<div class="text-xs text-gray-500">
 										<span>创建时间：</span>
-										{formatRelativeTime(item.created_at)}
+										{formatDate(item.created_at, 'yyyy-MM-dd')}
 									</div>
 								</NFlex>
 

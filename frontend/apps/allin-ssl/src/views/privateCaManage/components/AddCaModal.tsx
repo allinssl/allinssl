@@ -253,10 +253,12 @@ export default defineComponent({
           >
             <NDivider>
               <div class="flex items-center gap-2">
-                <span class="text-[#18a058] font-medium">更多配置</span>
+                <span class="text-[var(--form-more-color)] font-medium">
+                  更多配置
+                </span>
                 <NIcon
                   size="16"
-                  color="#18a058"
+                  color="var(--form-more-color)"
                   class="transition-transform duration-200"
                   style={{
                     transform: showAdvancedConfig.value
@@ -309,7 +311,11 @@ export default defineComponent({
         </div>
         <div class="flex justify-end gap-3 mt-6">
           <NButton onClick={handleCancel}>取消</NButton>
-          <NButton type="primary" onClick={handleFormSubmit}>
+          <NButton
+            class="gradient-primary-btn"
+            type="primary"
+            onClick={handleFormSubmit}
+          >
             确定
           </NButton>
         </div>

@@ -11727,5 +11727,22 @@
       "arDZ": "الهيئة الخاصة"
     },
     "timestamp": "2025-08-26T10:10:20.746Z"
+  },
+  "请输入证书名称搜索": {
+    "text": "请输入证书名称搜索",
+    "key": "t_0_1763542847861",
+    "translations": {
+      "zhCN": "请输入证书名称搜索",
+      "zhTW": "請輸入憑證名稱搜尋",
+      "enUS": "Please enter the certificate name to search",
+      "jaJP": "証明書の名前を入力して検索してください",
+      "koKR": "인증서 이름을 입력하여 검색하세요",
+      "ruRU": "Введите название сертификата для поиска",
+      "ptBR": "Por favor, insira o nome do certificado para pesquisar",
+      "frFR": "Veuillez entrer le nom du certificat pour rechercher",
+      "esAR": "Ingrese el nombre del certificado para buscar",
+      "arDZ": "الرجاء إدخال اسم الشهادة للبحث"
+    },
+    "timestamp": "2025-11-19T09:00:47.861Z"
   }
 }

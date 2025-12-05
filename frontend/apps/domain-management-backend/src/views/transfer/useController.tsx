@@ -3,8 +3,8 @@
  * 负责处理业务逻辑、事件响应和生命周期管理
  */
 
-import { ref, onMounted } from 'vue'
-import { useDomainTransferStore } from './useStore'
+import { onMounted } from 'vue'
+import { useDomainTransferState } from './useStore'
 import type { DomainTransferTabKey } from './types.d'
 
 /**
@@ -12,10 +12,7 @@ import type { DomainTransferTabKey } from './types.d'
  */
 export function useController() {
 	// 获取状态管理
-	const { loading } = useDomainTransferStore()
-
-	// 当前激活的标签页
-	const activeTab = ref<DomainTransferTabKey>('join')
+	const { loading, activeTab } = useDomainTransferState()
 
 	/**
 	 * 切换标签页

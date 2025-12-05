@@ -2,7 +2,8 @@ import { defineComponent, onMounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { NButton, NCard, NSpin, NIcon, NSpace, NText, NEmpty, NDataTable, NPagination } from 'naive-ui'
 import { ArrowLeft, Information, ErrorOutline } from '@vicons/carbon'
-import { useThemeCssVar } from '@baota/naive-ui/theme'
+import { CloseCircleOutlined, ClockCircleOutlined, CheckCircleOutlined, GlobalOutlined } from '@vicons/antd'
+import { useThemeCssVar, useTheme } from '@baota/naive-ui/theme'
 import { useTable } from '@baota/naive-ui/hooks'
 
 // 工具和钩子
@@ -11,6 +12,9 @@ import { useError } from '@baota/hooks/error'
 // API和类型
 import { getMonitorDetail, getMonitorErrorRecord } from '@/api/monitor'
 import type { MonitorDetailInfo, ErrorRecord, GetErrorRecordParams, CertChainNode } from '@/types/monitor'
+
+// 样式
+import styles from './index.module.css'
 
 /**
  * 错误列表卡片组件
@@ -25,7 +29,6 @@ const ErrorListCard = defineComponent({
 	},
 	setup(props) {
 		const { handleError } = useError()
-
 		/**
 		 * 格式化日期时间
 		 */
@@ -37,7 +40,7 @@ const ErrorListCard = defineComponent({
 		// 错误记录表格配置
 		const errorColumns = [
 			{
-				title: '错误时间',
+				title: () => <span class="font-semibold">错误时间</span>,
 				key: 'create_time',
 				width: 200,
 				render: (row: ErrorRecord) => (
@@ -45,7 +48,7 @@ const ErrorListCard = defineComponent({
 				),
 			},
 			{
-				title: '错误消息',
+				title: () => <span class="font-semibold">错误消息</span>,
 				key: 'msg',
 				render: (row: ErrorRecord) => (
 					<div class="text-[1.3rem] sm:text-[1.4rem] text-red-600 dark:text-red-400 break-words leading-relaxed">
@@ -105,8 +108,8 @@ const ErrorListCard = defineComponent({
 
 		return () => (
 			<NCard
-				title="错误列表"
-				class="h-fit [&_.n-card-header_.n-card-header__main]:text-[1.5rem] [&_.n-card-header_.n-card-header__main]:font-medium"
+				title={ () => <h1 class="text-[1.8rem] font-semibold">错误列表</h1> }
+				class="h-fit [&_.n-card-header_.n-card-header__main]:text-[1.5rem] [&_.n-card-header_.n-card-header__main]:font-medium !bg-[var(--content-bg-base)]"
 				bordered
 			>
 				{{
@@ -160,6 +163,7 @@ export default defineComponent({
 		const route = useRoute()
 		const router = useRouter()
 		const { handleError } = useError()
+		const { isDark } = useTheme();
 
 		// 响应式数据
 		const loading = ref(false)
@@ -176,6 +180,7 @@ export default defineComponent({
 			'errorColor',
 			'warningColor',
 			'primaryColor',
+			'textColorSecondary',
 		])
 
 		/**
@@ -241,16 +246,130 @@ export default defineComponent({
 		 * 获取剩余天数的颜色
 		 */
 		const getDaysLeftColor = (daysLeft: number): string => {
-			if (daysLeft <= 7) return 'var(--n-error-color)'
-			if (daysLeft <= 30) return 'var(--n-warning-color)'
-			return 'var(--n-success-color)'
+			if (daysLeft <= 7) return 'var(--n-error-primary-color)'
+			if (daysLeft <= 30) return 'var(--n-warning-primary-color)'
+			return 'var(--n-success-primary-color)'
 		}
 
+		/**
+		 * 统一的状态主题方案（success / warning / error）
+		 */
+		const getScheme = (type: 'success' | 'warning' | 'error') => {
+			if (type === 'success') {
+				return {
+					iconBgClass: 'bg-[#D8FFE4]',
+					style: {
+						backgroundColor: 'var(--n-success-bg-color-light)',
+						color: 'var(--n-success-primary-color)',
+						borderColor: 'var(--n-success-border-color)',
+					},
+					labelStyle: { color: 'var(--n-success-text-color)' },
+				}
+			}
+			if (type === 'warning') {
+				return {
+					iconBgClass: 'bg-[#fff4e2]',
+					style: {
+						backgroundColor: 'var(--n-warning-bg-color-light)',
+						color: 'var(--n-warning-primary-color)',
+						borderColor: 'var(--n-warning-primary-color)',
+					},
+					labelStyle: { color: 'var(--n-warning-primary-color)' },
+				}
+			}
+			return {
+				iconBgClass: 'bg-[#FFE7E7]',
+				style: {
+					backgroundColor: 'var(--n-error-bg-color-light)',
+					color: 'var(--n-error-primary-color)',
+					borderColor: 'var(--n-error-border-color)',
+				},
+				labelStyle: { color: 'var(--n-error-text-color)' },
+			}
+		}
+
+
+		const CoreStatusCard = ref([
+			{
+				label: '当前状态',
+				icon: <CheckCircleOutlined />,
+				class: 'border',
+				getThemeType: () => (detailData.value?.valid === 1 ? 'success' : 'error'),
+				render: () => detailData.value ? (
+					<span>
+						{getValidStatus(detailData.value.valid).text}
+					</span>
+				) : '-'
+			},
+			{
+				label: '剩余天数',
+				icon: <ClockCircleOutlined />,
+				class: 'border',
+				getThemeType: () => {
+					const d = detailData.value?.days_left ?? 0
+					if (d <= 7) return 'error'
+					if (d <= 30) return 'warning'
+					return 'success'
+				},
+				render: () => detailData.value ? (
+					<span style={{ color: getDaysLeftColor(detailData.value.days_left) }}>
+						{detailData.value.days_left} 天
+					</span>
+				) : '-'
+			},
+			{
+				label: '错误次数',
+				iconBgClass: 'bg-[#fff4e2] text-[#FF9D00]',
+				icon: <CloseCircleOutlined />,
+				render: () => `${detailData.value?.err_count || 0} 次`
+			},
+			{
+				label: '协议类型',
+				iconBgClass: 'bg-[#E6F1FF] text-[#3B82F6]',
+				icon: <GlobalOutlined />,
+				render: () => detailData.value?.monitor_type || '-',
+				uppercase: true
+			},
+		])
+
+
+		const ValidPeriodCard = ref([
+			{
+				label: '生效时间',
+				labelColor: '#67C23A',
+				render: () => formatDateTime(detailData.value?.not_before || ''),
+				class: 'font-mono',
+			},
+			{
+				label: '到期时间',
+				labelColor: '#FF9D00',
+				render: () => formatDateTime(detailData.value?.not_after || ''),
+				class: 'font-mono',
+			},
+			{
+				label: '距离到期',
+				labelColor: '#EF4444',
+				render: () => detailData.value ? (
+					<span>
+						{detailData.value.days_left} 天
+					</span>
+				) : '-',
+				class: '',
+			},
+			{
+				label: '证书有效期范围',
+				labelColor: '#3B82F6',
+				class: 'font-mono whitespace-nowrap',
+				render: () => formatValidityPeriod(
+					detailData.value?.not_before || '',
+					detailData.value?.not_after || '',
+				),
+			},
+		])
 		/**
 		 * 递归渲染证书链节点
 		 */
 		const renderCertChainNode = (node: CertChainNode, level: number = 0, index: number = 0) => {
-			const elements = []
 
 			// 确定证书类型和样式
 			const getCertTypeInfo = (level: number, hasChildren: boolean) => {
@@ -258,50 +377,61 @@ export default defineComponent({
 					return {
 						label: '终端证书',
 						color: 'bg-green-500',
-						textColor: 'text-green-700 dark:text-green-400',
+						border: 'border-green-500',
+						lineColorHex: '#22c55e',
 					}
 				} else if (hasChildren) {
 					return {
 						label: `中间证书 #${index + 1}`,
 						color: 'bg-blue-500',
-						textColor: 'text-blue-700 dark:text-blue-400',
+						border: 'border-blue-500',
+						lineColorHex: '#3b82f6',
 					}
 				} else {
 					return {
 						label: '根证书',
 						color: 'bg-purple-500',
-						textColor: 'text-purple-700 dark:text-purple-400',
+						border: 'border-purple-500',
+						lineColorHex: '#a855f7',
 					}
 				}
 			}
 
-			const typeInfo = getCertTypeInfo(level, Boolean(node.children && node.children.length > 0))
+			const hasChildren = Boolean(node.children && node.children.length > 0)
+			const typeInfo = getCertTypeInfo(level, hasChildren)
 
-			// 渲染当前节点
-			elements.push(
-				<div
-					key={`cert-${level}-${index}`}
-					class="flex items-center space-x-3 p-2 bg-white dark:bg-gray-800 rounded-lg shadow-sm"
-					style={{ marginLeft: `${level * 1.2}rem` }}
-				>
-					<div class={`w-2.5 h-2.5 ${typeInfo.color} rounded-full flex-shrink-0 shadow-sm`}></div>
-					<div class="flex-1">
-						<span class={`text-[1.2rem] sm:text-[1.3rem] font-medium ${typeInfo.textColor}`}>{typeInfo.label}</span>
-						<div class="text-[1.1rem] sm:text-[1.2rem] text-gray-600 dark:text-gray-400 font-mono mt-1 break-words">
-							{node.common_name}
+				return (
+					<div key={`cert-wrap-${level}-${index}`} class="relative" style={{ paddingLeft: `${level * 2}rem` }}>
+					{hasChildren && (
+						<div
+							class="absolute"
+							style={{
+								top: '36px',
+								bottom: 0,
+								left: `calc(${level * 2}rem + 9px)`, // 对齐圆点中心（增大每级间距）
+								width: '2px',
+								backgroundColor: (typeInfo as any).lineColorHex ?? '#3b82f6',
+							}}
+						/>
+					)}
+
+					{/* 行内容 */}
+					<div class="flex items-center space-x-6 p-2">
+						<div class={`w-4 h-4 rounded-full flex-shrink-0 border-2 ${typeInfo.border}`}></div>
+						<div class="flex-1">
+							<span class={`text-[1.4rem] font-bold`}>{typeInfo.label}</span>
+							<div class="font-mono break-words text-color3">
+								{node.common_name}
+							</div>
 						</div>
 					</div>
-				</div>,
+
+					{/* 子节点 */}
+					{hasChildren && node.children!.map((child: CertChainNode, childIndex: number) => (
+						renderCertChainNode(child, level + 1, childIndex)
+					))}
+				</div>
 			)
-
-			// 递归渲染子节点
-			if (node.children && node.children.length > 0) {
-				node.children.forEach((child: CertChainNode, childIndex: number) => {
-					elements.push(...renderCertChainNode(child, level + 1, childIndex))
-				})
-			}
-
-			return elements
 		}
 
 		// 组件挂载时获取数据
@@ -319,7 +449,7 @@ export default defineComponent({
 								size="medium"
 								type="default"
 								onClick={goBack}
-								class="text-[1.3rem] sm:text-[1.4rem]"
+								class="text-[1.3rem] sm:text-[1.4rem] gradient-default-btn"
 								renderIcon={() => (
 									<NIcon>
 										<ArrowLeft />
@@ -329,118 +459,134 @@ export default defineComponent({
 								返回监控列表
 							</NButton>
 						</NSpace>
-						<h1 class="text-[1.8rem] sm:text-[2rem] lg:text-[2.2rem] font-semibold text-gray-800 dark:text-gray-200 break-words leading-tight">
-							{detailData.value?.name || '监控详情'} - 证书详情
-						</h1>
 					</div>
 
-					{/* 内容区域 */}
-					{detailData.value ? (
-						<div class="space-y-4 sm:space-y-5 lg:space-y-6">
-							{/* 合并的监控和证书详情模块 */}
-							<NCard
-								title="监控详情与证书信息"
-								class="[&_.n-card-header_.n-card-header__main]:text-[1.5rem] [&_.n-card-header_.n-card-header__main]:font-medium"
-								bordered
-							>
-								{{
-									'header-extra': () => (
-										<NIcon size="24" color="var(--n-primary-color)">
-											<Information />
-										</NIcon>
-									),
-									default: () => (
-										<div class="space-y-6">
-											{/* 核心状态信息 - 最重要 */}
-											<div>
-												<h4 class="font-semibold mb-4 text-primary text-[1.6rem] sm:text-[1.7rem] border-b-2 border-primary/20 pb-2">
-													核心状态
-												</h4>
-												<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-													<div class="bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/30 dark:to-blue-800/30 p-4 rounded-xl border border-blue-200 dark:border-blue-700">
-														<NText
-															depth="3"
-															class="text-[1.3rem] sm:text-[1.4rem] font-medium text-blue-700 dark:text-blue-300"
-														>
-															当前状态
-														</NText>
-														<div class="mt-2 font-bold text-[1.5rem] sm:text-[1.6rem]">
-															{detailData.value && (
-																<span style={{ color: getValidStatus(detailData.value.valid).color }}>
-																	{getValidStatus(detailData.value.valid).text}
-																</span>
-															)}
-														</div>
-													</div>
-													<div class="bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/30 dark:to-green-800/30 p-4 rounded-xl border border-green-200 dark:border-green-700">
-														<NText
-															depth="3"
-															class="text-[1.3rem] sm:text-[1.4rem] font-medium text-green-700 dark:text-green-300"
-														>
-															剩余天数
-														</NText>
-														<div class="mt-2 font-bold text-[1.5rem] sm:text-[1.6rem]">
-															{detailData.value && (
-																<span style={{ color: getDaysLeftColor(detailData.value.days_left) }}>
-																	{detailData.value.days_left} 天
-																</span>
-															)}
-														</div>
-													</div>
-													<div class="bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-900/30 dark:to-purple-800/30 p-4 rounded-xl border border-purple-200 dark:border-purple-700">
-														<NText
-															depth="3"
-															class="text-[1.3rem] sm:text-[1.4rem] font-medium text-purple-700 dark:text-purple-300"
-														>
-															错误次数
-														</NText>
-														<div class="mt-2 font-bold text-[1.5rem] sm:text-[1.6rem]">
-															<span
-																style={{
-																	color:
-																		(detailData.value?.err_count || 0) > 0
-																			? 'var(--n-error-color)'
-																			: 'var(--n-success-color)',
-																}}
-															>
-																{detailData.value?.err_count || 0} 次
-															</span>
-														</div>
-													</div>
-													<div class="bg-gradient-to-br from-orange-50 to-orange-100 dark:from-orange-900/30 dark:to-orange-800/30 p-4 rounded-xl border border-orange-200 dark:border-orange-700">
-														<NText
-															depth="3"
-															class="text-[1.3rem] sm:text-[1.4rem] font-medium text-orange-700 dark:text-orange-300"
-														>
-															协议类型
-														</NText>
-														<div class="mt-2 font-bold text-[1.5rem] sm:text-[1.6rem] uppercase">
-															{detailData.value?.monitor_type || '-'}
-														</div>
-													</div>
-												</div>
-											</div>
+          {/* 内容区域 */}
+          {detailData.value ? (
+            <div class="space-y-4 sm:space-y-5 lg:space-y-6">
+              {/* 合并的监控和证书详情模块 */}
+              <NCard
+                title={() => (
+                  <h1 class="text-[1.8rem] sm:text-[1.8rem] lg:text-[1.8rem] font-semibold break-words leading-tight">
+                    {detailData.value?.name || "监控详情"} - 证书详情
+                  </h1>
+                )}
+                class="[&_.n-card-header_.n-card-header__main]:text-[1.5rem] [&_.n-card-header_.n-card-header__main]:font-medium !bg-[var(--content-bg-base)]"
+                bordered
+              >
+                {{
+                  "header-extra": () => (
+                    <span class={styles.headerIcon}>
+                      <NIcon size="24">
+                        <Information />
+                      </NIcon>
+                    </span>
+                  ),
+                  default: () => (
+                    <div class="space-y-6">
+                      {/* 核心状态信息 - 最重要 */}
+                      <div class="pb-6">
+                        <h4 class="font-semibold mb-6 text-primary text-[1.6rem] sm:text-[1.7rem] border-b border-[var(--n-border-color)] pb-4">
+                          核心状态
+                        </h4>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                          {CoreStatusCard.value.map((card, index) => {
+                            const theme: any = card.getThemeType
+                              ? getScheme(card.getThemeType())
+                              : {
+                                  iconBgClass: (card as any).iconBgClass || "",
+                                  style: (card as any).style || {},
+                                  labelStyle: (card as any).labelStyle || {},
+                                };
+
+                            // 简化判断：只对前两个元素应用样式类
+                            const shouldApplyStyles = index < 2;
+                            const themeType = card.getThemeType?.();
+                            const isSuccess = shouldApplyStyles && themeType === "success";
+                            const isError = shouldApplyStyles && themeType === "error";
+
+                            return (
+                              <div
+                                key={index}
+                                class={`${styles.coreStatusCard} ${
+                                  isSuccess ? styles.coreStatusCardSuccess : ""
+                                } ${
+                                  isError ? styles.coreStatusCardError : ""
+                                } flex flex-row items-center gap-4 p-6 rounded-xl ${
+                                  card.class || ""
+                                }`}
+                                style={theme.style}
+                              >
+                                <span
+                                  class={`${styles.coreStatusIcon} ${
+                                    isSuccess
+                                      ? styles.coreStatusIconSuccess
+                                      : ""
+                                  } ${
+                                    isError
+                                      ? styles.coreStatusIconError
+                                      : ""
+                                  } w-[48px] h-[48px] rounded-[6px] overflow-hidden flex items-center justify-center ${
+                                    theme.iconBgClass || ""
+                                  }`}
+                                >
+                                  <NIcon size="36">{card.icon}</NIcon>
+                                </span>
+                                <div>
+                                  <div
+                                    class={`font-bold text-[1.5rem] sm:text-[1.6rem] ${
+                                      card.uppercase ? "uppercase" : ""
+                                    } ${
+                                      isError ? styles.coreStatusTextError : ""
+                                    }`}
+                                  >
+                                    {card.render()}
+                                  </div>
+                                  <span
+                                    class={`text-[1.2rem] sm:text-[1.4rem] font-medium text-color5 ${
+                                      isSuccess
+                                        ? styles.coreStatusLabelSuccess
+                                        : ""
+                                    } ${
+                                      isError
+                                        ? styles.coreStatusLabelError
+                                        : ""
+                                    }`}
+                                    style={{
+                                      ...theme.labelStyle,
+                                      ...(isDark.value && index === 2 && { color: "#FF9D00" }),
+                                      ...(isDark.value && index === 3 && { color: "#3B82F6" }),
+                                    }}
+                                  >
+                                    {card.label}
+                                  </span>
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
 
 											{/* 监控配置信息 */}
-											<div>
-												<h4 class="font-semibold mb-4 text-primary text-[1.6rem] sm:text-[1.7rem] border-b-2 border-primary/20 pb-2">
+											<div class="pb-6">
+												<h4 class="font-semibold mb-6 text-primary text-[1.6rem] sm:text-[1.7rem] border-b border-[var(--n-border-color)] pb-4">
 													监控配置
 												</h4>
 												<div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
 													<div class="space-y-4">
-														<div class="bg-gray-50 dark:bg-gray-800/50 p-4 rounded-lg">
-															<NText depth="3" class="text-[1.3rem] sm:text-[1.4rem] font-medium">
+														<div class="p-4 rounded-lg">
+															<NText depth="3" class="text-[1.4rem] font-medium">
 																监控名称
 															</NText>
-															<div class="mt-2 font-medium text-[1.4rem] sm:text-[1.5rem] break-words">
+															<div class="mt-2 font-[600] text-[1.4rem] sm:text-[1.5rem] break-words">
 																{detailData.value?.name || '-'}
 															</div>
 														</div>
-														<div class="bg-gray-50 dark:bg-gray-800/50 p-4 rounded-lg">
-															<NText depth="3" class="text-[1.3rem] sm:text-[1.4rem] font-medium">
+														<div class="p-4 rounded-lg">
+															<NText depth="3" class="text-[1.4rem] font-medium">
 																监控目标
 															</NText>
-															<div class="mt-2 font-medium text-[1.4rem] sm:text-[1.5rem]">
+															<div class="mt-2 font-[600] text-[1.4rem] sm:text-[1.5rem]">
 																<a
 																	href={`https://${detailData.value?.target}`}
 																	target="_blank"
@@ -453,19 +599,19 @@ export default defineComponent({
 														</div>
 													</div>
 													<div class="space-y-4">
-														<div class="bg-gray-50 dark:bg-gray-800/50 p-4 rounded-lg">
-															<NText depth="3" class="text-[1.3rem] sm:text-[1.4rem] font-medium">
+														<div class="p-4 rounded-lg">
+															<NText depth="3" class="text-[1.4rem] font-medium">
 																证书颁发机构
 															</NText>
-															<div class="mt-2 font-medium text-[1.4rem] sm:text-[1.5rem]">
+															<div class="mt-2 font-[600] text-[1.4rem] sm:text-[1.5rem]">
 																{detailData.value?.ca || '-'}
 															</div>
 														</div>
-														<div class="bg-gray-50 dark:bg-gray-800/50 p-4 rounded-lg">
-															<NText depth="3" class="text-[1.3rem] sm:text-[1.4rem] font-medium">
+														<div class="p-4 rounded-lg">
+															<NText depth="3" class="text-[1.4rem] font-medium">
 																上次检测时间
 															</NText>
-															<div class="mt-2 font-medium text-[1.4rem] sm:text-[1.5rem] break-words">
+															<div class="mt-2 font-[600] text-[1.4rem] sm:text-[1.5rem] break-words">
 																{formatDateTime(detailData.value?.last_time || '')}
 															</div>
 														</div>
@@ -474,7 +620,7 @@ export default defineComponent({
 																<NText depth="3" class="text-[1.3rem] sm:text-[1.4rem] font-medium">
 																	支持的TLS版本
 																</NText>
-																<div class="mt-2 font-medium text-[1.4rem] sm:text-[1.5rem]">
+																<div class="mt-2 font-[600] text-[1.4rem] sm:text-[1.5rem]">
 																	{detailData.value.tls_version}
 																</div>
 															</div>
@@ -484,30 +630,30 @@ export default defineComponent({
 											</div>
 
 											{/* 证书基本信息 */}
-											<div>
-												<h4 class="font-semibold mb-4 text-success text-[1.6rem] sm:text-[1.7rem] border-b-2 border-success/20 pb-2">
+											<div class="pb-6">
+												<h4 class="font-semibold mb-6 text-success text-[1.6rem] sm:text-[1.7rem] border-b border-[var(--n-border-color)] pb-4">
 													证书基本信息
 												</h4>
 												<div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
-													<div class="bg-green-50 dark:bg-green-900/20 p-4 rounded-xl border border-green-200 dark:border-green-800">
+													<div>
 														<NText
 															depth="3"
-															class="text-[1.3rem] sm:text-[1.4rem] font-medium text-green-700 dark:text-green-400"
+															class="text-[1.4rem] font-medium"
 														>
 															通用名称 (CN)
 														</NText>
-														<div class="mt-2 font-mono text-[1.4rem] sm:text-[1.5rem] text-green-800 dark:text-green-300 break-all leading-relaxed">
+														<div class="mt-2 font-mono font-[600] text-[1.4rem] sm:text-[1.5rem] break-all leading-relaxed">
 															{detailData.value?.common_name || '-'}
 														</div>
 													</div>
-													<div class="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-xl border border-blue-200 dark:border-blue-800">
+													<div>
 														<NText
 															depth="3"
-															class="text-[1.3rem] sm:text-[1.4rem] font-medium text-blue-700 dark:text-blue-400"
+															class="text-[1.4rem] font-medium"
 														>
 															主题备用名称 (SAN)
 														</NText>
-														<div class="mt-2 font-mono text-[1.4rem] sm:text-[1.5rem] text-blue-800 dark:text-blue-300 break-all leading-relaxed">
+														<div class="mt-2 font-mono font-[600] text-[1.4rem] sm:text-[1.5rem] break-all leading-relaxed">
 															{detailData.value?.sans || '-'}
 														</div>
 													</div>
@@ -515,69 +661,38 @@ export default defineComponent({
 											</div>
 
 											{/* 有效期详情 */}
-											<div>
-												<h4 class="font-semibold mb-4 text-success text-[1.6rem] sm:text-[1.7rem] border-b-2 border-success/20 pb-2">
+											<div class="pb-6">
+												<h4 class="font-semibold mb-6 text-success text-[1.6rem] sm:text-[1.7rem] border-b border-[var(--n-border-color)] pb-4">
 													有效期详情
 												</h4>
-												<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-													<div class="bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/30 dark:to-emerald-900/30 p-4 rounded-xl border border-green-200 dark:border-green-700">
-														<NText
-															depth="3"
-															class="text-[1.3rem] sm:text-[1.4rem] font-medium text-green-700 dark:text-green-300"
+												<div class="flex flex-wrap gap-4">
+													{ValidPeriodCard.value.map((card, index) => (
+														<div 
+															key={index} 
+															class={`border-l-[6px] pl-4 min-w-0`}
+															style={{ 
+																borderLeftColor: card.labelColor,
+																flex: index === 3 ? '1 1 auto' : '1 0 auto',
+															}}
 														>
-															生效时间
-														</NText>
-														<div class="mt-2 font-mono text-[1.4rem] sm:text-[1.5rem] text-green-600 dark:text-green-400 break-words">
-															{formatDateTime(detailData.value?.not_before || '')}
+															<div class={`font-semibold text-[1.6rem] ${card.class || ''}`}>
+																{card.render()}
+															</div>
+															<NText depth="3" class="mt-2 text-[1.2rem]">
+																{card.label}
+															</NText>
 														</div>
-													</div>
-													<div class="bg-gradient-to-br from-orange-50 to-red-50 dark:from-orange-900/30 dark:to-red-900/30 p-4 rounded-xl border border-orange-200 dark:border-orange-700">
-														<NText
-															depth="3"
-															class="text-[1.3rem] sm:text-[1.4rem] font-medium text-orange-700 dark:text-orange-300"
-														>
-															到期时间
-														</NText>
-														<div class="mt-2 font-mono text-[1.4rem] sm:text-[1.5rem] text-orange-600 dark:text-orange-400 break-words">
-															{formatDateTime(detailData.value?.not_after || '')}
-														</div>
-													</div>
-													<div class="bg-gradient-to-br from-purple-50 to-indigo-50 dark:from-purple-900/30 dark:to-indigo-900/30 p-4 rounded-xl border border-purple-200 dark:border-purple-700 md:col-span-2 lg:col-span-1">
-														<NText
-															depth="3"
-															class="text-[1.3rem] sm:text-[1.4rem] font-medium text-purple-700 dark:text-purple-300"
-														>
-															距离到期
-														</NText>
-														<div class="mt-2 font-bold text-[1.5rem] sm:text-[1.6rem]">
-															{detailData.value && (
-																<span style={{ color: getDaysLeftColor(detailData.value.days_left) }}>
-																	{detailData.value.days_left} 天
-																</span>
-															)}
-														</div>
-													</div>
-												</div>
-												<div class="mt-4 bg-gray-50 dark:bg-gray-800/50 p-4 rounded-lg">
-													<NText depth="3" class="text-[1.3rem] sm:text-[1.4rem] font-medium">
-														证书有效期范围
-													</NText>
-													<div class="mt-2 font-medium text-[1.4rem] sm:text-[1.5rem] break-words">
-														{formatValidityPeriod(
-															detailData.value?.not_before || '',
-															detailData.value?.not_after || '',
-														)}
-													</div>
+													))}
 												</div>
 											</div>
 
 											{/* 证书链路信息 - 视觉增强 */}
 											{detailData.value?.cert_chain && (
 												<div>
-													<h4 class="font-semibold mb-4 text-success text-[1.6rem] sm:text-[1.7rem] border-b-2 border-success/20 pb-2">
+													<h4 class="font-semibold mb-6 text-success text-[1.6rem] sm:text-[1.7rem] border-b border-[var(--n-border-color)] pb-4">
 														证书链路信息
 													</h4>
-													<div class="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 p-5 rounded-xl border border-blue-200 dark:border-blue-800">
+													<div class="">
 														<div class="space-y-4">{renderCertChainNode(detailData.value.cert_chain)}</div>
 													</div>
 												</div>
@@ -586,11 +701,11 @@ export default defineComponent({
 											{/* 验证错误信息 */}
 											{detailData.value?.verify_error && (
 												<div>
-													<h4 class="font-semibold mb-4 text-error text-[1.6rem] sm:text-[1.7rem] border-b-2 border-error/20 pb-2">
+													<h4 class="font-semibold mb-6 text-error text-[1.6rem] border-[var(--n-border-color)] border-b border-error/20 pb-4">
 														验证错误信息
 													</h4>
-													<div class="bg-red-50 dark:bg-red-900/20 p-4 rounded-xl border border-red-200 dark:border-red-800">
-														<div class="text-red-600 dark:text-red-300 text-[1.4rem] sm:text-[1.5rem] leading-relaxed break-words">
+													<div class="">
+														<div class="text-red-600 leading-relaxed break-words">
 															{detailData.value.verify_error}
 														</div>
 													</div>
@@ -606,7 +721,7 @@ export default defineComponent({
 						</div>
 					) : (
 						!loading.value && (
-							<NCard bordered class="text-center [&_.n-empty__description]:text-[1.4rem]">
+							<NCard bordered class="text-center [&_.n-empty__description]:text-[1.4rem] !bg-[var(--content-bg-base)]">
 								<NEmpty description="未找到监控详情数据" size="large">
 									{{
 										extra: () => (

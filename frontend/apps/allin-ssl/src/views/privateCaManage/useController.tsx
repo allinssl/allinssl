@@ -63,8 +63,8 @@ export const useController = () => {
 			width: 250,
 			render: (row: PrivateCaItem) => (
 				<div class="flex flex-col">
-					<div class="text-gray-900">{row.name}</div>
-					<div class="text-xl text-gray-500">{row.distinguishedName}</div>
+					<div>{row.name}</div>
+					<div class="text-xl text-[#969696]">{row.distinguishedName}</div>
 				</div>
 			),
 		},
@@ -83,8 +83,8 @@ export const useController = () => {
 			width: 120,
 			render: (row: PrivateCaItem) => (
 				<div class="flex flex-col">
-					<div class="text-gray-900">{row.algorithm.toUpperCase()}</div>
-					<div class="text-xl text-gray-500">{row.keySize} bit</div>
+					<div>{row.algorithm.toUpperCase()}</div>
+					<div class="text-xl text-[#969696]">{row.keySize} bit</div>
 				</div>
 			),
 		},
@@ -111,19 +111,19 @@ export const useController = () => {
 						textColor = "text-orange-500";
 					} else {
 						remainingText = `${remainingDays} 天后`;
-						textColor = "text-gray-500";
+						textColor = "text-[#969696]";
 					}
 				} else if (remainingDays === 0) {
 					remainingText = "今天到期";
 					textColor = "text-orange-500";
 				} else {
 					remainingText = `已过期 ${Math.abs(remainingDays)} 天`;
-					textColor = "text-red-500";
+					textColor = "text-[var(--n-error-primary-color)]";
 				}
 
 				return (
 					<div class="flex flex-col">
-						<div class="text-gray-900">{row.validTo}</div>
+						<div>{row.validTo}</div>
 						<div class={`text-xl ${textColor}`}>{remainingText}</div>
 					</div>
 				);
@@ -156,6 +156,7 @@ export const useController = () => {
 			render: (row: PrivateCaItem) => (
 				<NFlex justify="end">
 					<NButton
+						class="table-action-btn"
 						size="tiny"
 						strong
 						secondary
@@ -165,6 +166,7 @@ export const useController = () => {
 						下载
 					</NButton>
 					<NButton
+						class="table-action-btn-danger"
 						size="tiny"
 						strong
 						secondary

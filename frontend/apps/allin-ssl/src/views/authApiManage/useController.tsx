@@ -127,7 +127,7 @@ export const useController = (): AuthApiManageControllerExposes => {
     try {
       const { fetch, message } = testAccess({ id: row.id, type: row.type });
       message.value = true;
-      fetch();
+      await fetch();
     } catch (error) {
       handleError(error);
     }
@@ -195,7 +195,8 @@ export const useController = (): AuthApiManageControllerExposes => {
               size="tiny"
               strong
               secondary
-              type="primary"
+			  type="primary"
+			  class="table-action-btn"
               onClick={() => handleTestAccess(row)}
             >
               {$t("t_16_1746676855270")}
@@ -205,6 +206,7 @@ export const useController = (): AuthApiManageControllerExposes => {
               strong
               secondary
               type="primary"
+			  class="table-action-btn"
               onClick={() => openEditForm(row)}
             >
               {$t("t_11_1745215915429")}
@@ -214,6 +216,7 @@ export const useController = (): AuthApiManageControllerExposes => {
               strong
               secondary
               type="error"
+			  class="table-action-btn-danger"
               onClick={() => confirmDelete(row.id)}
             >
               {$t("t_12_1745215914312")}
@@ -524,7 +527,6 @@ export const useApiFormController = (
             const mapTips = {
               godaddy: $t("t_1_1747984133312"),
               spaceship: "请输入 Spaceship API Secret",
-              btdomain: "请输入 BTDomain Secret Key",
             };
             return callback(
               new Error(mapTips[param.value.type as keyof typeof mapTips])
@@ -542,7 +544,7 @@ export const useApiFormController = (
         ) => {
           if (!value) {
             const mapTips = {
-              btdomain: "请输入 BTDomain Account ID",
+              btdomain: "请输入 宝塔域名 Account ID",
             };
             return callback(
               new Error(mapTips[param.value.type as keyof typeof mapTips])
@@ -641,7 +643,7 @@ export const useApiFormController = (
               volcengine: $t("t_3_1747365600828"),
               qiniu: $t("t_3_1747984134586"),
               doge: $t("t_0_1750320239265"),
-              btdomain: "请输入 BTDomain Access Key",
+              btdomain: "请输入 宝塔域名 Access Key",
             };
             return callback(
               new Error(mapTips[param.value.type as keyof typeof mapTips])
@@ -665,7 +667,7 @@ export const useApiFormController = (
               volcengine: $t("t_4_1747365600137"),
               doge: $t("t_1_1750320241427"),
               constellix: "请输入Secret Key",
-              btdomain: "请输入 BTDomain Secret Key",
+              btdomain: "请输入 宝塔域名 Secret Key",
             };
             return callback(
               new Error(mapTips[param.value.type as keyof typeof mapTips])
@@ -1188,49 +1190,49 @@ export const useApiFormController = (
           ),
           useFormCustom(() => {
             return (
-              <div class="mt-4 p-4 bg-gray-50 rounded-md">
-                <div class="text-gray-600 space-y-4 text-lg">
+              <div class="mt-4 p-4 bg-[var(--form-log-bg)] rounded-md">
+                <div class="space-y-4 text-lg">
                   <div>
-                    <div class="font-medium text-gray-700 mb-3 text-xl">
+                    <div class="font-medium mb-3 text-xl">
                       用于部署时可用的模板变量：
                     </div>
                     <div class="space-y-2 ml-4">
                       <div>
-                        <code class="px-2 py-1 bg-gray-200 rounded text-lg font-mono">
+                        <code class="px-2 py-1 bg-[var(--form-log-code-bg)] rounded text-lg font-mono">
                           __cert__
                         </code>
-                        ：证书内容
+                        <span class="text-color5">：证书内容</span>
                       </div>
                       <div>
-                        <code class="px-2 py-1 bg-gray-200 rounded text-lg font-mono">
+                        <code class="px-2 py-1 bg-[var(--form-log-code-bg)] rounded text-lg font-mono">
                           __key__
                         </code>
-                        ：私钥内容
+                        <span class="text-color5">：私钥内容</span>
                       </div>
                     </div>
                   </div>
                   <div>
-                    <div class="font-medium text-gray-700 mb-3 text-xl">
+                    <div class="font-medium mb-3 text-xl">
                       用于申请时可用的模板变量：
                     </div>
                     <div class="space-y-2 ml-4">
                       <div>
-                        <code class="px-2 py-1 bg-gray-200 rounded text-lg font-mono">
+                        <code class="px-2 py-1 bg-[var(--form-log-code-bg)] rounded text-lg font-mono">
                           __domain__
                         </code>
-                        ：完整域名，如：_acme-challenge.allinssl.com
+                        <span class="text-color5">：完整域名，如：_acme-challenge.allinssl.com</span>
                       </div>
                       <div>
-                        <code class="px-2 py-1 bg-gray-200 rounded text-lg font-mono">
+                        <code class="px-2 py-1 bg-[var(--form-log-code-bg)] rounded text-lg font-mono">
                           __keyAuth__
                         </code>
-                        ：域名解析值
+                        <span class="text-color5">：域名解析值</span>
                       </div>
                       <div>
-                        <code class="px-2 py-1 bg-gray-200 rounded text-lg font-mono">
+                        <code class="px-2 py-1 bg-[var(--form-log-code-bg)] rounded text-lg font-mono">
                           __action__
                         </code>
-                        ：执行的操作，需要自行根据参数值判断，为present时执行写入，cleanup清理记录
+                        <span class="text-color5">：执行的操作，需要自行根据参数值判断，为present时执行写入，cleanup清理记录</span>
                       </div>
                     </div>
                   </div>

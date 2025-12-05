@@ -26,22 +26,21 @@ export default defineComponent({
 
 		return () => (
 			<div class="w-full max-w-[160rem] mx-auto p-[2rem]">
-				<div class="bg-white rounded-[0.6rem] p-[2.4rem] mb-[3rem]">
+				<div class="bg-[var(--content-bg-base)] rounded-[0.6rem] p-[2.4rem] mb-[3rem]">
 					{/* 主标签页：商业证书/免费证书 */}
 					<NTabs
-						class="rounded-[1.2rem] p-[0.6rem]"
+            			class="cert-main-tabs rounded-[1.2rem] p-[0.6rem]"
 						type="segment"
 						v-model:value={activeMainTab.value}
 						size="large"
 						justifyContent="space-evenly"
 					>
-						{mainTabOptions.value.map((tab) => (
-							<NTabPane key={tab.key} name={tab.key}>
+						{mainTabOptions.value.map((tab, index) => (
+							<NTabPane key={tab.key} name={tab.key} class={`${index === 0 ? 'main-tabs' : ''}`}>
 								{{
 									tab: () => (
 										<div class="flex items-center my-[1rem] px-[0.8rem] py-[0.4rem] rounded-[0.8rem] transition-all duration-300 hover:bg-black/5 ">
-											<NIcon size="20">{tab.key === 'commercial' ? <ShoppingCartOutlined /> : <LockOutlined />}</NIcon>
-											<span class="ml-[0.8rem]">{tab.title}</span>
+											<span class="ml-[0.8rem] font-semibold">{tab.title}</span>
 										</div>
 									),
 									default: () => (

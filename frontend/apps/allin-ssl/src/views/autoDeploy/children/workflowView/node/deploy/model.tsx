@@ -575,7 +575,7 @@ export default defineComponent({
 							trigger: () => (
 								<NButton
 									type={next.value ? 'primary' : 'default'}
-									class={styles.footerButton}
+									class={`${styles.footerButton} gradient-default-btn`}
 									disabled={!param.value.provider}
 									onClick={next.value ? nextStep : prevStep}
 								>
@@ -587,7 +587,7 @@ export default defineComponent({
 						{next.value ? $t('t_4_1745765868807') : null}
 					</NTooltip>
 					{!next.value && (
-						<NButton type="primary" onClick={submit}>
+						<NButton class="gradient-primary-btn" type="primary" onClick={submit}>
 							{$t('t_1_1745738963744')}
 						</NButton>
 					)}

@@ -31,5 +31,6 @@ declare module 'vue' {
     RouterView: typeof import('vue-router')['RouterView']
     UseController: typeof import('./../src/components/layout/useController.tsx')['default']
     UseStore: typeof import('./../src/components/layout/useStore.tsx')['default']
+    VerifySecurityQuestions: typeof import('./../src/components/global/VerifySecurityQuestions/index.tsx')['default']
   }
 }

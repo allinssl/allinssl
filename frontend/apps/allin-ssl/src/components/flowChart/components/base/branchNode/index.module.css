@@ -62,3 +62,29 @@
 .flowConditionNodeAdd {
   @apply absolute left-1/2 -translate-x-1/2 -top-[15px] flex justify-center items-center z-[2] w-[70px] h-[30px] text-[12px] text-[#1c84c6] bg-white rounded-[20px] cursor-pointer shadow-md;
 }
+
+:global(.defaultDark) {
+	.flowNodeBranchCol {
+		background-color: #161616;
+		border-color: #D6A260;
+	}
+	.rightCoverLine,
+	.leftCoverLine,
+	.flowNodeBranchCol::before {
+		background-color: #D6A260;
+	}
+	.topLeftCoverLine,
+	.topRightCoverLine,
+	.bottomLeftCoverLine,
+	.bottomRightCoverLine {
+		background-color: #161616;
+	}
+	.flowConditionNodeAdd {
+		color: #000;
+		font-weight: bold;
+		background-image: linear-gradient(45deg, #FFF4DA 0%, #FFCD72 100%);
+	}
+	.multipleColumns {
+		background-color: #161616!important;
+	}
+}

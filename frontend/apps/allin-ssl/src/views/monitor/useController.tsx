@@ -1,6 +1,7 @@
 import { computed, onMounted, onUnmounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { FormRules, NButton, NSpace, NSwitch, NText, NDivider, type DataTableColumns } from 'naive-ui'
+import { useTheme } from "@baota/naive-ui/theme";
 
 // 钩子和工具
 import {
@@ -72,6 +73,7 @@ const {
 // 错误处理
 const { handleError } = useError()
 
+const { isDark } = useTheme()
 /**
  * 验证域名（或IP）+端口格式
  * @param value - 要验证的值
@@ -130,7 +132,7 @@ export const useController = (): MonitorControllerExposes => {
 						href={`https://${row.target}`}
 						target="_blank"
 						rel="noopener noreferrer"
-						style="color: var(--primary-color); text-decoration: none;"
+						style="color: var(--form-more-color); text-decoration: var(--table-link-type);"
 					>
 						{row.target}
 					</a>
@@ -218,7 +220,7 @@ export const useController = (): MonitorControllerExposes => {
 					return <span style="color: var(--n-text-color-disabled); font-size: 12px;">-</span>
 				}
 
-				return <TypeIcon icon={reportTypes} />
+				return <TypeIcon icon={reportTypes} class={isDark.value ? 'rounded-full' : ''} />
 			},
 		},
 		{
@@ -242,18 +244,39 @@ export const useController = (): MonitorControllerExposes => {
 			align: 'right',
 			render: (row: SiteMonitorItem) => {
 				return (
-					<NSpace justify="end">
-						<NButton size="tiny" strong secondary type="info" onClick={() => openDetailPage(row)}>
-							详情
-						</NButton>
-						<NButton size="tiny" strong secondary type="primary" onClick={() => openEditForm(row)}>
-							{$t('t_11_1745215915429')}
-						</NButton>
-						<NButton size="tiny" strong secondary type="error" onClick={() => confirmDelete(row)}>
-							{$t('t_12_1745215914312')}
-						</NButton>
-					</NSpace>
-				)
+          <NSpace justify="end">
+            <NButton
+              size="tiny"
+              strong
+              secondary
+              type="info"
+              class="table-action-btn"
+              onClick={() => openDetailPage(row)}
+            >
+              详情
+            </NButton>
+            <NButton
+              size="tiny"
+              strong
+              secondary
+              type="primary"
+              class="table-action-btn"
+              onClick={() => openEditForm(row)}
+            >
+              {$t("t_11_1745215915429")}
+            </NButton>
+            <NButton
+              size="tiny"
+              strong
+              secondary
+              type="error"
+              class="table-action-btn-danger"
+              onClick={() => confirmDelete(row)}
+            >
+              {$t("t_12_1745215914312")}
+            </NButton>
+          </NSpace>
+        );
 			},
 		},
 	]
@@ -431,7 +454,11 @@ export const useMonitorFormController = (data: UpdateSiteMonitorParams | null = 
 	 * @returns 分组标题配置
 	 */
 	const createGroupTitle = (title: string) => {
-		return useFormCustom(() => <NDivider style="margin: 12px 0 8px 0; font-weight: 500;">{title}</NDivider>)
+		return useFormCustom(() => (
+      <NDivider style="margin: 12px 0 8px 0;">
+        <span class="font-[var(--form-divider-title-weight)]">{title}</span>
+      </NDivider>
+    ));
 	}
 
 	/**

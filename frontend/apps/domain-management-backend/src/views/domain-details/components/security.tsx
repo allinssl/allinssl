@@ -14,6 +14,7 @@ import { useError } from '@baota/hooks/error'
 import { useDomainDetailState } from '../useStore'
 import DnssecManagement from './DnssecMgt'
 import type { DomainInfo, PrivacyInfo } from '@/types/domain'
+import { executeApiWithSecurityVerification } from '@/public/dialog'
 
 interface SecurityProps {
 	domainId: number
@@ -70,59 +71,49 @@ export default defineComponent({
 
 		// 切换禁止转移锁
 		const handleTransferLockChange = async (value: boolean) => {
-			try {
-				transferLockLoading.value = true
-				const {
-					fetch,
-					message: apiMessage,
-					data,
-				} = setDomainSecurity({
+			const info = await executeApiWithSecurityVerification(
+				setDomainSecurity as any,
+				{
 					domain_id: props.domainId,
 					type: 'transfer',
 					status: value ? 1 : 0,
-				})
-				apiMessage.value = true
-				await fetch()
-
-				if (data.value?.status) {
-					transferLock.value = value
-					const message = useMessage()
-					message.success(value ? '禁止转移锁已开启' : '禁止转移锁已关闭')
-					props.onRefresh?.()
-				}
-			} catch (error) {
-				handleError(error)
-			} finally {
-				transferLockLoading.value = false
+				},
+				{
+					showMessage: true,
+					setLoading: (load: boolean) => {
+						transferLockLoading.value = load
+					},
+				},
+			)
+			if (info?.status) {
+				transferLock.value = value
+				const message = useMessage()
+				message.success(value ? '禁止转移锁已开启' : '禁止转移锁已关闭')
+				props.onRefresh?.()
 			}
 		}
 
 		// 切换禁止更新锁
 		const handleUpdateLockChange = async (value: boolean) => {
-			try {
-				updateLockLoading.value = true
-				const {
-					fetch,
-					message: apiMessage,
-					data,
-				} = setDomainSecurity({
+			const info = await executeApiWithSecurityVerification(
+				setDomainSecurity as any,
+				{
 					domain_id: props.domainId,
 					type: 'update',
 					status: value ? 1 : 0,
-				})
-				apiMessage.value = true
-				await fetch()
-
-				if (data.value?.status) {
-					updateLock.value = value
-					const message = useMessage()
-					message.success(value ? '禁止更新锁已开启' : '禁止更新锁已关闭')
-					props.onRefresh?.()
-				}
-			} catch (error) {
-				handleError(error)
-			} finally {
-				updateLockLoading.value = false
+				},
+				{
+					showMessage: true,
+					setLoading: (load: boolean) => {
+						updateLockLoading.value = load
+					},
+				},
+			)
+			if (info.status) {
+				updateLock.value = value
+				const message = useMessage()
+				message.success(value ? '禁止更新锁已开启' : '禁止更新锁已关闭')
+				props.onRefresh?.()
 			}
 		}
 

@@ -52,7 +52,7 @@ export const useController = () => {
 	const handleOpenApplyModal = () => {
 		useModal({
 			title: $t(`申请免费证书 - Let's Encrypt`),
-			area: '500px',
+			area: '520px',
 			component: CertificateForm,
 			footer: true,
 		})

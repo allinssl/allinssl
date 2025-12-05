@@ -140,7 +140,7 @@ export default defineComponent({
 					1.
 					根据《中华人民共和国网络安全法》第24条规定，网络运营者在为用户办理网络接入、域名注册等相关业务，必须进行实名认证，以保障合法用户的正当权益。
 				</div>
-				<div class="text-sm">2. 港澳台及海外用户认证需先提交工单，工单说明要开展什么业务、您的姓名、您所在国家。</div>
+				<div class="text-sm">2. 港澳台及海外用户认证请联系客服，说明要开展什么业务、您的姓名、您所在国家。</div>
 				<div class="text-sm">温馨提示：个人实名模板将会自动同步，企业用户模板无需处理。</div>
 			</NCard>
 		)
@@ -155,4 +155,4 @@ export default defineComponent({
 			</NCard>
 		)
 	},
-}) 
+})

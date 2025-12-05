@@ -1,13 +1,13 @@
 import { Transition, type Component as ComponentType, h } from 'vue'
 import { RouterView } from 'vue-router'
-import CustomProvider from '@baota/naive-ui/components/customProvider'
+import AllinSslThemeProvider from '@/components/AllinSslThemeProvider'
  
 
 export default defineComponent({
 	name: 'App',
 	setup() {
 		return () => (
-			<CustomProvider>
+			<AllinSslThemeProvider>
 				<RouterView>
 					{({ Component }: { Component: ComponentType }) => (
 						<Transition name="route-slide" mode="out-in">
@@ -15,7 +15,7 @@ export default defineComponent({
 						</Transition>
 					)}
 				</RouterView>
-			</CustomProvider>
+			</AllinSslThemeProvider>
 		)
 	},
 })

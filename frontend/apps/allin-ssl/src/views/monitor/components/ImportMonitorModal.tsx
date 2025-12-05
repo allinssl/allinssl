@@ -19,7 +19,6 @@ export default defineComponent({
 		// 消息提示和错误处理
 		const message = useMessage()
 		const { handleError } = useError()
-
 		// 当前激活的标签页
 		const activeTab = ref<'import' | 'template'>('import')
 
@@ -246,7 +245,7 @@ export default defineComponent({
 												{uploadStatus.value.success ? <CheckmarkCircleOutline /> : <CloudUploadOutline />}
 											</NIcon>
 											<NText class="text-lg block mb-2">{uploadTipText.value}</NText>
-											<NText depth="3" class="text-sm">
+											<NText depth="3" class="text-lg">
 												{selectedFile.value ? '点击重新选择文件或拖拽新文件到此区域' : $t('t_13_1752724148548')}
 											</NText>
 										</div>
@@ -256,10 +255,10 @@ export default defineComponent({
 								{/* 上传进度条 */}
 								{uploadStatus.value.uploading && (
 									<div class="mt-4">
-										<NText class="text-sm text-gray-500 mb-2">上传进度: {uploadStatus.value.progress}%</NText>
-										<div class="w-full bg-gray-200 rounded-full h-2">
+										<NText class="text-xl text-color5 mb-2">上传进度: {uploadStatus.value.progress}%</NText>
+										<div class="w-full bg-gray-200 rounded-full h-2 mt-2">
 											<div
-												class="bg-primary h-2 rounded-full transition-all duration-300"
+												class="monitor-upload-progress-bar bg-[var(--monitor-upload-progress-bar-bg)] h-2 rounded-full transition-all duration-300"
 												style={{ width: `${uploadStatus.value.progress}%` }}
 											></div>
 										</div>
@@ -280,6 +279,7 @@ export default defineComponent({
 									)}
 									<NButton
 										type="primary"
+										class="gradient-primary-btn"
 										size="large"
 										loading={uploadStatus.value.uploading}
 										disabled={!canUpload.value}
@@ -325,7 +325,7 @@ export default defineComponent({
 
 								<NSpace vertical size="large">
 									{supportedFormats.map((format) => (
-										<div key={format} class="flex items-center justify-between p-4 border border-gray-200 rounded-lg">
+										<div key={format} class="flex items-center justify-between p-4 border border-[var(--border-color-transparent)] bg-[var(--content-bg-secondary)] rounded-lg">
 											<div class="flex items-center">
 												<NIcon size={24} class="mr-3 text-primary">
 													<DocumentOutline />
@@ -334,7 +334,7 @@ export default defineComponent({
 													<NText strong class="block">
 														{format.toUpperCase()} 模板
 													</NText>
-													<NText depth="3" class="text-sm">
+													<NText depth="3" class="text-lg">
 														适用于 {format === 'xlsx' ? 'Excel' : format.toUpperCase()} 格式导入
 													</NText>
 												</div>
@@ -342,6 +342,7 @@ export default defineComponent({
 											<NButton
 												type="primary"
 												size="small"
+												class="gradient-primary-btn"
 												onClick={() => handleDownloadTemplate(format)}
 												v-slots={{
 													icon: () => (

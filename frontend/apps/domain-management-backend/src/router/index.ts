@@ -88,7 +88,7 @@ const routes: RouteRecordRaw[] = [
 						name: 'DomainTransfer',
 						component: DomainTransfer,
 						meta: {
-							title: '域名转入',
+							title: '域名转入转出',
 							icon: 'transfer',
 							requiresAuth: true,
 						},

@@ -1,15 +1,23 @@
-import { NCard, NButton, NList, NListItem, NTag, NSpace, NGrid, NGridItem, NSwitch } from 'naive-ui'
+import { NCard, NButton, NList, NListItem, NTag, NSpace, NGrid, NGridItem, NSwitch, NIcon } from 'naive-ui'
+import { WarningFilled, BellFilled } from "@vicons/antd";
 import { useController } from '@settings/useController'
 import { useStore } from '@settings/useStore'
 import SvgIcon from '@components/SvgIcon'
 import { $t } from '@locales/index'
+import styles from './index.module.css'
 
 /**
  * 告警通知标签页组件
  */
 export default defineComponent({
 	name: 'NotificationSettings',
-	setup() {
+	props: {
+		title: {
+			type: String,
+			default: '告警通知',
+		},
+	},
+	setup(props) {
 		const { notifyChannels, channelTypes } = useStore()
 		const {
 			openAddEmailChannelModal,
@@ -38,19 +46,19 @@ export default defineComponent({
 			// 根据类型返回对应的按钮
 			if (type === 'mail') {
 				return (
-					<NButton strong secondary type="primary" onClick={() => openAddEmailChannelModal(getConfiguredCount(type))}>
+					<NButton strong secondary type="primary" class="gradient-primary-btn" onClick={() => openAddEmailChannelModal(getConfiguredCount(type))}>
 						{$t('t_1_1746676859550')}
 					</NButton>
 				)
 			} else if (type === 'feishu') {
 				return (
-					<NButton strong secondary type="primary" onClick={() => openAddFeishuChannelModal(getConfiguredCount(type))}>
+					<NButton strong secondary type="primary" class="gradient-primary-btn" onClick={() => openAddFeishuChannelModal(getConfiguredCount(type))}>
 						{$t('t_1_1746676859550')}
 					</NButton>
 				)
 			} else if (type === 'webhook') {
 				return (
-					<NButton strong secondary type="primary" onClick={() => openAddWebhookChannelModal(getConfiguredCount(type))}>
+					<NButton strong secondary type="primary" class="gradient-primary-btn" onClick={() => openAddWebhookChannelModal(getConfiguredCount(type))}>
 						{$t('t_1_1746676859550')}
 					</NButton>
 				)
@@ -60,6 +68,7 @@ export default defineComponent({
 						strong
 						secondary
 						type="primary"
+						class="gradient-primary-btn"
 						onClick={() => openAddDingtalkChannelModal(getConfiguredCount(type))}
 					>
 						{$t('t_1_1746676859550')}
@@ -67,14 +76,14 @@ export default defineComponent({
 				)
 			} else if (type === 'workwx') {
 				return (
-					<NButton strong secondary type="primary" onClick={() => openAddWecomChannelModal(getConfiguredCount(type))}>
+					<NButton strong secondary type="primary" class="gradient-primary-btn" onClick={() => openAddWecomChannelModal(getConfiguredCount(type))}>
 						{$t('t_1_1746676859550')}
 					</NButton>
 				)
 			}
 			// 其他渠道暂未支持
 			return (
-				<NButton strong secondary disabled>
+				<NButton strong secondary disabled class="gradient-default-btn">
 					{$t('t_2_1746676856700')}
 				</NButton>
 			)
@@ -115,23 +124,29 @@ export default defineComponent({
 		]
 		return () => (
 			<div class="notification-settings">
-				<NCard title={$t('t_13_1746676856842')} class="mb-4">
+				<div class="mb-4 px-[2rem] py-[2.4rem] bg-[var(--content-bg-base)] rounded-[6px]">
+					<div class="flex items-center mb-6">
+						<NIcon size="24">
+							<WarningFilled />
+						</NIcon>
+						<h2 class="ml-2 text-[1.8rem] font-semibold">{props.title}</h2>
+					</div>
 					<NGrid cols="2 s:1 m:2" xGap={16} yGap={16}>
 						{channelConfigs.map((item) => (
 							<NGridItem key={item.type}>
-								<div class="flex justify-between items-center p-4 border border-[var(--n-border-color)] rounded-md hover:shadow-sm transition-shadow">
+								<div class="flex justify-between items-center p-8 bg-[var(--setting-input-bg)] rounded-md hover:shadow-sm transition-shadow">
 									<div class="flex items-center">
-										<SvgIcon icon={`notify-${item.type}`} size="3rem" />
+										<SvgIcon icon={`notify-${item.type}`} size="4rem" />
 										<div class="ml-4">
 											<div class="flex items-center mb-1">
-												<span class="mr-2 font-medium">{item.name}</span>
+												<span class="mr-2 font-bold">{item.name}</span>
 												{isChannelConfigured(item.type) && (
-													<NTag size="small" type="success">
+													<NTag size="small" round class={styles.gradientTag} type="success">
 														{$t('t_8_1745735765753')} {getConfiguredCount(item.type)}
 													</NTag>
 												)}
 											</div>
-											<div class="text-gray-500 text-[1.2rem]">{item.description}</div>
+											<div class="text-color5 text-[1.2rem]">{item.description}</div>
 										</div>
 									</div>
 									<div>{getChannelActionButton(item.type)}</div>
@@ -139,54 +154,62 @@ export default defineComponent({
 							</NGridItem>
 						))}
 					</NGrid>
-				</NCard>
+				</div>
 
 				{/* 已配置的通知渠道列表 */}
 				{notifyChannels.value.length > 0 && (
-					<NCard title={$t('t_14_1746676859019')} class="mb-4">
-						<NList bordered>
-							{notifyChannels.value.map((item) => (
-								<NListItem key={item.id}>
-									<div class=" items-center justify-between p-2 grid grid-cols-12">
-										<div class="flex items-center col-span-6">
-											<SvgIcon icon={`notify-${item.type}`} size="3rem" />
-											<div class="font-medium mx-[1rem]">{item.name}</div>
-											<div class="flex items-center ">
-												<NTag type="info" size="small">
-													{(channelTypes.value as Record<string, string>)[item.type] || item.id}
-												</NTag>
+					<div class="noti-settings-container px-[2rem] py-[2.4rem] bg-[var(--content-bg-base)] rounded-[6px]">
+						<div class="flex items-center mb-6">
+							<NIcon size="24">
+								<BellFilled />
+							</NIcon>
+							<h2 class="ml-2 text-[1.8rem] font-semibold">已配置的通知渠道</h2>
+						</div>
+						<NCard class={styles.notifyChannelsCard}>
+							<NList show-divider={false} class="flex flex-col gap-6">
+								{notifyChannels.value.map((item) => (
+									<NListItem key={item.id}>
+										<div class=" items-center justify-between p-2 grid grid-cols-12">
+											<div class="flex items-center col-span-6">
+												<SvgIcon icon={`notify-${item.type}`} size="3rem" />
+												<div class="font-medium mx-[1rem]">{item.name}</div>
+												<div class="flex items-center ">
+													<NTag type="info" class={styles.gradientTag} round size="small">
+														{(channelTypes.value as Record<string, string>)[item.type] || item.id}
+													</NTag>
+												</div>
+											</div>
+											<div class="flex items-center gap-4 col-span-3 justify-end">
+												<NSwitch
+													v-model:value={item.config.enabled}
+													onUpdateValue={() => handleEnableChange(item)}
+													checkedValue={'1'}
+													uncheckedValue={'0'}
+													v-slots={{
+														checked: () => <span>{$t('t_0_1745457486299')}</span>,
+														unchecked: () => <span>{$t('t_15_1746676856567')}</span>,
+													}}
+												/>
+											</div>
+											<div class="flex items-center gap-8 col-span-3 justify-end">
+												<NSpace>
+													<NButton class="table-action-btn" size="small" onClick={() => editChannelConfig(item)}>
+														{$t('t_11_1745215915429')}
+													</NButton>
+													<NButton class="table-action-btn" size="small" onClick={() => testChannelConfig(item)}>
+														{$t('t_16_1746676855270')}
+													</NButton>
+													<NButton class="table-action-btn-danger" size="small" type="error" onClick={() => confirmDeleteChannel(item)}>
+														{$t('t_12_1745215914312')}
+													</NButton>
+												</NSpace>
 											</div>
 										</div>
-										<div class="flex items-center gap-4 col-span-3 justify-end">
-											<NSwitch
-												v-model:value={item.config.enabled}
-												onUpdateValue={() => handleEnableChange(item)}
-												checkedValue={'1'}
-												uncheckedValue={'0'}
-												v-slots={{
-													checked: () => <span>{$t('t_0_1745457486299')}</span>,
-													unchecked: () => <span>{$t('t_15_1746676856567')}</span>,
-												}}
-											/>
-										</div>
-										<div class="flex items-center gap-8 col-span-3 justify-end">
-											<NSpace>
-												<NButton size="small" onClick={() => editChannelConfig(item)}>
-													{$t('t_11_1745215915429')}
-												</NButton>
-												<NButton size="small" onClick={() => testChannelConfig(item)}>
-													{$t('t_16_1746676855270')}
-												</NButton>
-												<NButton size="small" type="error" onClick={() => confirmDeleteChannel(item)}>
-													{$t('t_12_1745215914312')}
-												</NButton>
-											</NSpace>
-										</div>
-									</div>
-								</NListItem>
-							))}
-						</NList>
-					</NCard>
+									</NListItem>
+								))}
+							</NList>
+						</NCard>
+					</div>
 				)}
 			</div>
 		)

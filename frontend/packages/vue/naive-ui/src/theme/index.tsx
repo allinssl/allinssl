@@ -37,13 +37,19 @@ export const useTheme = (name?: ThemeName) => {
 
 	// 主题激活状态 Ref
 	const themeActiveOverrides = ref<ThemeTemplate | null>(null)
-
 	// 是否暗黑
 
 	// const isDark = useDark()
 
 	// 禁用自动切换暗色模式避免错误
-	const isDark = ref(false)
+	// const isDark = ref(false)
+	
+	// 是否暗黑 - 根据主题名称判断
+	const isDark = computed(() => {
+		// 根据主题名称判断是否为暗色主题
+		const currentTheme = themes[themeActive.value]
+		return currentTheme?.type === 'dark'
+	})
 
 	// 主题
 	const theme = computed(() => {
@@ -68,13 +74,18 @@ export const useTheme = (name?: ThemeName) => {
 	 */
 	const cutDarkMode = (hasAnimation: boolean = false, e?: MouseEvent) => {
 		// 检查当前主题是否存在暗黑模式
-		isDark.value = !isDark.value
-
+		// isDark.value = !isDark.value
+		
+		// 根据当前主题类型切换
+		const currentTheme = themes[themeActive.value]
+		const isCurrentlyDark = currentTheme?.type === 'dark'
+		
 		if (hasAnimation) {
 			// 如果有动画，则执行切换暗黑模式动画
 			cutDarkModeAnimation(e ? { clientX: e.clientX, clientY: e.clientY } : undefined)
 		} else {
-			themeActive.value = isDark.value ? 'defaultDark' : 'defaultLight'
+			// 切换到相反的主题
+			themeActive.value = isCurrentlyDark ? 'defaultLight' : 'defaultDark'
 		}
 		// 更新主题名称
 	}
@@ -87,11 +98,15 @@ export const useTheme = (name?: ThemeName) => {
 		// 先移除现有动画类
 		root.classList.remove('animate-to-light', 'animate-to-dark')
 
+		// 根据当前主题类型判断
+		const currentTheme = themes[themeActive.value]
+		const isCurrentlyDark = currentTheme?.type === 'dark'
+		
 		// 添加相应的动画类
-		root.classList.add(isDark.value ? 'animate-to-light' : 'animate-to-dark')
+		root.classList.add(isCurrentlyDark ? 'animate-to-light' : 'animate-to-dark')
 
 		// 切换主题
-		themeActive.value = isDark.value ? 'defaultDark' : 'defaultLight'
+		themeActive.value = isCurrentlyDark ? 'defaultLight' : 'defaultDark'
 		setTimeout(() => {
 			// 先移除现有动画类
 			root.classList.remove('animate-to-light', 'animate-to-dark')
@@ -158,13 +173,16 @@ export const useTheme = (name?: ThemeName) => {
 	scope.run(() => {
 		watch(
 			themeActive,
-			(newVal) => {
+			(newVal, oldVal) => {
 				// 移除之前的主题类名
-				if (themeActive.value) document.documentElement.classList.remove(themeActive.value)
+				if (oldVal) {
+					document.documentElement.classList.remove(oldVal)
+				}
 				// 添加新的主题类名
 				document.documentElement.classList.add(newVal)
+				
 				// 更新主题名称
-				themeActive.value = newVal
+				// themeActive.value = newVal
 				// 加载主题样式
 				loadThemeStyles(newVal)
 			},

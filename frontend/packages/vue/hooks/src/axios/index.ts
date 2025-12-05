@@ -1,8 +1,8 @@
-import { AxiosError, AxiosResponse } from 'axios'
+import { AxiosError, AxiosRequestConfig, AxiosResponse } from 'axios'
 import { ref, shallowRef, computed, watch, effectScope, onScopeDispose } from 'vue'
 import type { Ref, ShallowRef, ComputedRef } from 'vue'
 import { useLoadingMask, useDialog, useMessage } from '@baota/naive-ui/hooks'
-import { HttpClient, type Middleware } from './model'
+import { HttpClient, HttpClientConfig, type Middleware } from './model'
 import { useError } from '../error'
 import { cancelRequest, removeAllAbortController } from './model/axios-cancel'
 
@@ -83,6 +83,7 @@ const useAxios = <T = unknown, Z = Record<string, unknown>>(instance: HttpClient
 	const loadingRef = ref(false) // 是否正在加载
 	const messageRef = ref(false) // 消息提示
 	const loadingInstance = shallowRef<unknown>(null) // 加载实例
+	const config = ref<AxiosRequestConfig>({}) // 配置项
 
 	// 响应数据
 	const errorRef = shallowRef<Error | null | string>(null) // 错误
@@ -133,7 +134,10 @@ const useAxios = <T = unknown, Z = Record<string, unknown>>(instance: HttpClient
 		aborted.value = (err as Error)?.name === 'AbortError' || false // 是否被中断
 		// 检查是否为服务器错误
 		if (err.status != 200 && err.status != 404 && err?.response) {
-			const { message } = err.response?.data as { status: number; message: string }
+			const { message } = err.response?.data as {
+				status: number
+				message: string
+			}
 			return handleError(new Error(message))
 		} else {
 			handleError(err)
@@ -173,7 +177,7 @@ const useAxios = <T = unknown, Z = Record<string, unknown>>(instance: HttpClient
 			// 显示加载遮罩
 			if (loadingMaskRefs.value.status) showLoadingMask()
 			// 执行请求
-			const res = await instance.post<T>(url, params as Record<string, unknown>)
+			const res = await instance.post<T>(url, params as Record<string, unknown>, config.value)
 			// 保存响应
 			response.value = res
 			// 处理响应数据
@@ -198,6 +202,13 @@ const useAxios = <T = unknown, Z = Record<string, unknown>>(instance: HttpClient
 	const setParams = (params: Z) => {
 		paramsRef.value = params
 		return execute(urlRef.value, params)
+	}
+	/**
+	 * 	设置配置项
+	 * @param config 配置项
+	 */
+	const setConfig = (requestConfig: AxiosRequestConfig) => {
+		config.value = requestConfig
 	}
 
 	/**
@@ -276,6 +287,7 @@ const useAxios = <T = unknown, Z = Record<string, unknown>>(instance: HttpClient
 		execute,
 		setParams,
 		setUrl,
+		setConfig,
 		cancel,
 		cancelAll,
 		fetch,

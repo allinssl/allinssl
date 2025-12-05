@@ -24,11 +24,11 @@ export default defineComponent({
 					<BaseComponent
 						v-slots={{
 							headerLeft: () => (
-								<NButton type="primary" size="large" class="px-5" onClick={openAddForm}>
+								<NButton type="primary" size="large" class="gradient-primary-btn px-5" onClick={openAddForm}>
 									{$t('t_0_1745289355714')}
 								</NButton>
 							),
-							headerRight: () => <SearchComponent placeholder={$t('t_0_1745289808449')} />,
+							headerRight: () => <SearchComponent class="header-search" placeholder={$t('t_0_1745289808449')} />,
 							content: () => (
 								<div class="rounded-lg">
 									<TableComponent

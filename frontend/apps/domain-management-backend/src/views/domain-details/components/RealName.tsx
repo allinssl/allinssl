@@ -8,6 +8,7 @@ import { NCard, NGrid, NGridItem, NText, NSkeleton, NAlert, NIcon, NFlex, NButto
 import { CheckCircle, AlertTriangle, XCircle, RefreshCw } from 'lucide-vue-next'
 import { formatDate } from '@baota/utils/date'
 import { useController } from '../useController'
+import { useRealNameState } from '@/views/real-name/useStore'
 
 /**
  * 实名状态映射配置
@@ -53,12 +54,14 @@ export default defineComponent({
 	setup(props) {
 		// 显示警告提示
 		const showAlert = ref(true)
-		const { domainInfo, realNameInfo, loading, realNameInfoUpdating, openTemplateChangeModal, refreshDomainInfo } = useController(props.domainId)
+		const { domainInfo, realNameInfo, loading, realNameInfoUpdating, openTemplateChangeModal, refreshDomainInfo } =
+			useController(props.domainId)
+
+		const { getCertificateTypeText } = useRealNameState()
 
 		// 计算加载状态
 		const isRealNameUpdating = computed(() => {
-			return realNameInfoUpdating.value !== null && 
-			       typeof realNameInfoUpdating.value === 'object';
+			return realNameInfoUpdating.value !== null && typeof realNameInfoUpdating.value === 'object'
 		})
 
 		// 计算实名状态配置
@@ -125,10 +128,7 @@ export default defineComponent({
 							{renderInfoItem('域名', domainInfo.value?.full_domain)}
 							{renderInfoItem('认证名称', realNameInfo.value?.owner_name)}
 							{renderInfoItem('认证名称(英文)', realNameInfo.value?.owner_name_en)}
-							{renderInfoItem(
-								'证件类型',
-								realNameInfo.value?.type === 1 ? '身份证' : realNameInfo.value?.type === 2 ? '营业执照' : '',
-							)}
+							{renderInfoItem('证件类型', getCertificateTypeText(realNameInfo.value?.id_type))}
 							{renderInfoItem('证件号码', realNameInfo.value?.id_number)}
 						</NGridItem>
 						<NGridItem>

@@ -101,10 +101,10 @@ export const useController = () => {
 				// 如果无法计算剩余天数，显示获取失败
 				if (endDay === null) {
 					return (
-						<NTag type="error" size="small">
-							获取失败
+						<NTag round type="error" size="small">
+						获取失败
 						</NTag>
-					)
+					);
 				}
 
 				// 根据剩余天数确定显示样式和文本
@@ -118,7 +118,7 @@ export const useController = () => {
 				const [, type, text] = matchedConfig ?? ['default', 'error', '获取失败']
 
 				return (
-					<NTag type={type} size="small">
+					<NTag round type={type} size="small">
 						{text}
 					</NTag>
 				)
@@ -143,13 +143,13 @@ export const useController = () => {
 			width: 200,
 			render: (row: CertItem) => (
 				<NSpace justify="end">
-					<NButton size="tiny" strong secondary type="primary" onClick={() => openViewModal(row)}>
+					<NButton size="tiny" strong secondary type="primary" class="table-action-btn" onClick={() => openViewModal(row)}>
 						查看
 					</NButton>
-					<NButton size="tiny" strong secondary type="primary" onClick={() => downloadExistingCert(row.id.toString())}>
+					<NButton size="tiny" strong secondary type="primary" class="table-action-btn" onClick={() => downloadExistingCert(row.id.toString())}>
 						{$t('t_25_1745227838080')}
 					</NButton>
-					<NButton size="tiny" strong secondary type="error" onClick={() => handleDeleteCert(row)}>
+					<NButton size="tiny" strong secondary type="error" class="table-action-btn-danger" onClick={() => handleDeleteCert(row)}>
 						{$t('t_12_1745215914312')}
 					</NButton>
 				</NSpace>

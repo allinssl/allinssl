@@ -3,7 +3,7 @@
  * 职责：展示域名的基本信息，包括域名信息、注册信息、DNS信息和安全设置
  */
 
-import { defineComponent, PropType, ref } from 'vue'
+import { defineComponent, PropType, ref, computed } from 'vue'
 import {
 	NCard,
 	NGrid,
@@ -11,25 +11,31 @@ import {
 	NTag,
 	NSkeleton,
 	NButton,
-	NModal,
-	NForm,
-	NFormItem,
-	NInput,
 	NSwitch,
 	NDivider,
 	NSpace,
 	NIcon,
-	NButtonGroup,
+	NInput,
+	NForm,
+	NFormItem,
+	NCheckbox,
 } from 'naive-ui'
 import { formatDate } from '@baota/utils/date'
-import { useMessage, useModal } from '@baota/naive-ui/hooks'
+import { useMessage, useModal, useDialog } from '@baota/naive-ui/hooks'
 import { useError } from '@baota/hooks/error'
-import { updateDomainDnsServers, setDomainSecurity,fetchDomainAutoRenew,downloadDomainCertificate } from '@/api/domain'
+import {
+	setDomainSecurity,
+	fetchDomainAutoRenew,
+	downloadDomainCertificate,
+	updatePrivacyInfo,
+	deletePrivacyInfo,
+} from '@/api/domain'
 import { domainUtils } from '../config'
 
-import type { DomainInfo,PrivacyInfo } from '@/types/domain'
+import type { DomainInfo, PrivacyInfo } from '@/types/domain'
 import { useApp } from '@/components/layout/useStore'
 import { useDomainDetailState } from '../useStore'
+import { executeApiWithSecurityVerification } from '@/public/dialog'
 
 /**
  * 域名基本信息组件
@@ -53,6 +59,10 @@ export default defineComponent({
 			type: Function as PropType<() => void>,
 			default: () => {},
 		},
+		openDnsSettingsModal: {
+			type: Function as PropType<() => void>,
+			required: true,
+		},
 	},
 	setup(props) {
 		const message = useMessage()
@@ -61,219 +71,11 @@ export default defineComponent({
 
 		const { openPrivacyDialog } = useDomainDetailState()
 
-		// DNS服务器设置相关状态
-		const showDnsModal = ref(false)
-		const dnsForm = ref({
-			ns1: '',
-			ns2: '',
-			ns3: '',
-			ns4: '',
-			ns5: '',
-			ns6: '',
-			domain_id: 0,
-		})
-		const dnsSubmitting = ref(false)
-		const dnsMode = ref<'default' | 'custom'>('default') // DNS模式：默认/自定义
-		const visibleDnsCount = ref(2) // 当前显示的DNS字段数量，默认2个
-
 		// 安全设置相关状态
 		const dnsLockLoading = ref(false)
 		const transferLockLoading = ref(false)
 		const updateLockLoading = ref(false)
 
-		// 添加DNS字段
-		const addDnsField = () => {
-			if (visibleDnsCount.value < 6) {
-				visibleDnsCount.value++
-			}
-		}
-
-		// 删除DNS字段
-		const removeDnsField = () => {
-			if (visibleDnsCount.value > 2) {
-				// 清空最后一个字段
-				const lastKey = `ns${visibleDnsCount.value}` as keyof typeof dnsForm.value
-				;(dnsForm.value as any)[lastKey] = ''
-				visibleDnsCount.value--
-			}
-		}
-
-		// 获取当前显示的DNS字段
-		const getDnsFields = () => {
-			const fields = []
-			for (let i = 1; i <= visibleDnsCount.value; i++) {
-				const key = `ns${i}` as keyof typeof dnsForm.value
-				fields.push({
-					key,
-					label: `NS服务器${i}`,
-					value: String(dnsForm.value[key] || ''),
-					required: i <= 2, // 前两个必填
-				})
-			}
-			return fields
-		}
-
-		// 获取默认模式的DNS字段
-		const getDefaultDnsFields = () => {
-			return [
-				{
-					label: 'NS服务器1:',
-					value: props.domainInfo?.ns1 || '',
-				},
-				{
-					label: 'NS服务器2:',
-					value: props.domainInfo?.ns2 || '',
-				},
-			]
-		}
-
-		// 渲染默认模式
-		const renderDefaultDnsMode = () => (
-			<div>
-				{getDefaultDnsFields().map((field, index) => (
-					<NFormItem key={index} label={field.label}>
-						<NInput value={field.value} readonly placeholder={field.value || '暂无'} />
-					</NFormItem>
-				))}
-			</div>
-		)
-
-		// 渲染自定义模式
-		const renderCustomDnsMode = () => (
-			<div>
-				{getDnsFields().map((field) => (
-					<NFormItem key={field.key} label={field.label} required={field.required}>
-						<NInput
-							value={field.value}
-							onUpdateValue={(val) => {
-								;(dnsForm.value as any)[field.key] = val
-							}}
-							placeholder={`请输入${field.label}地址`}
-						/>
-					</NFormItem>
-				))}
-
-				{/* 添加/删除按钮 */}
-				<div class="flex gap-2">
-					{visibleDnsCount.value < 6 && (
-						<NButton size="small" quaternary type="success" onClick={addDnsField}>
-							添加DNS
-						</NButton>
-					)}
-					{visibleDnsCount.value > 2 && (
-						<NButton size="small" quaternary type="error" onClick={removeDnsField}>
-							删除最后一个
-						</NButton>
-					)}
-				</div>
-			</div>
-		)
-		// 模式切换处理
-		const switchToCustomMode = () => {
-			dnsMode.value = 'custom'
-			// 初始化自定义表单数据
-			if (props.domainInfo) {
-				dnsForm.value = {
-					ns1: props.domainInfo.ns1 || '',
-					ns2: props.domainInfo.ns2 || '',
-					ns3: props.domainInfo.ns3 || '',
-					ns4: props.domainInfo.ns4 || '',
-					ns5: props.domainInfo.ns5 || '',
-					ns6: props.domainInfo.ns6 || '',
-					domain_id: props.domainInfo.id,
-				}
-
-				// 计算当前需要显示的字段数量
-				const filledCount =
-					[
-						dnsForm.value.ns1,
-						dnsForm.value.ns2,
-						dnsForm.value.ns3,
-						dnsForm.value.ns4,
-						dnsForm.value.ns5,
-						dnsForm.value.ns6,
-					].findLastIndex((v) => v && v.trim()) + 1
-				visibleDnsCount.value = Math.max(filledCount, 2)
-			}
-		}
-
-		// 打开DNS设置弹窗
-		const openDnsModal = () => {
-			if (props.domainInfo) {
-				//如果ns数量大于2，则默认打开自定义模式
-				if (props.domainInfo?.ns3) {
-					switchToCustomMode()
-				} else {
-					dnsMode.value = 'default' // 默认打开默认模式
-				}
-				showDnsModal.value = true
-			}
-		}
-
-		// 提交DNS服务器设置
-		const submitDnsSettings = async () => {
-			// 基础校验：ns1、ns2必填
-			if (!dnsForm.value.ns1 || !dnsForm.value.ns2) {
-				message.error('NS服务器1和NS服务器2为必填项')
-				return
-			}
-
-			// 顺序校验：不能跳跃填写
-			const dnsValues = [
-				dnsForm.value.ns1,
-				dnsForm.value.ns2,
-				dnsForm.value.ns3,
-				dnsForm.value.ns4,
-				dnsForm.value.ns5,
-				dnsForm.value.ns6,
-			]
-
-			for (let i = 0; i < dnsValues.length - 1; i++) {
-				if (!dnsValues[i] && dnsValues[i + 1]) {
-					message.error(`请按顺序填写DNS服务器，NS服务器${i + 1}为空但NS服务器${i + 2}有值`)
-					return
-				}
-			}
-
-			// DNS格式校验
-			const dnsRegex = /^[a-zA-Z0-9]([a-zA-Z0-9\-]{0,61}[a-zA-Z0-9])?(\.[a-zA-Z0-9]([a-zA-Z0-9\-]{0,61}[a-zA-Z0-9])?)*$/
-			for (let i = 0; i < dnsValues.length; i++) {
-				const dns = dnsValues[i]
-				if (dns && dns.trim() && !dnsRegex.test(dns.trim())) {
-					message.error(`NS服务器${i + 1}地址格式不正确`)
-					return
-				}
-			}
-			const {
-				loading,
-				data,
-				fetch,
-				message: messageRef,
-			} = updateDomainDnsServers({
-				domain_id: dnsForm.value.domain_id,
-				dns1: dnsForm.value.ns1,
-				dns2: dnsForm.value.ns2,
-				dns3: dnsForm.value.ns3,
-				dns4: dnsForm.value.ns4,
-				dns5: dnsForm.value.ns5,
-				dns6: dnsForm.value.ns6,
-			})
-			try {
-				loading.value = true
-				messageRef.value = true
-				dnsSubmitting.value = true
-				await fetch()
-				if (data.value.status) {
-					showDnsModal.value = false
-					props.onRefresh()
-				}
-			} catch (error) {
-				handleError(error)
-			} finally {
-				dnsSubmitting.value = false
-				loading.value = false
-			}
-		}
 		const downloadCert = ref(false)
 		const handleDownloadCert = async () => {
 			downloadCert.value = true
@@ -325,6 +127,148 @@ export default defineComponent({
 			})
 		}
 
+		/**
+		 * 打开修改邮箱对话框
+		 */
+		function openModifyEmailDialog() {
+			const emailRef = ref(props.privacyInfo?.email || '')
+			const emailFormRef = ref()
+			const loading = ref(false)
+
+			// 邮箱验证规则
+			const emailRules = {
+				required: true,
+				pattern: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+				message: '请输入有效的邮箱地址',
+				trigger: ['input', 'blur'],
+			}
+
+			const handleConfirm = async () => {
+				try {
+					await emailFormRef.value?.validate()
+					loading.value = true
+
+					const { fetch, data } = updatePrivacyInfo({
+						domain_id: String(props.domainInfo?.id),
+						email: emailRef.value,
+					})
+
+					await fetch()
+
+					if (data.value?.status) {
+						message.success('邮箱修改成功')
+						props.onRefresh?.()
+						return true
+					} else {
+						message.error(data.value?.msg || '修改失败')
+						return false
+					}
+				} catch (error) {
+					message.error('邮箱格式不正确')
+					return false
+				} finally {
+					loading.value = false
+				}
+			}
+
+			useDialog({
+				type: undefined,
+				title: '修改隐私保护邮箱',
+				area: '400px',
+				content: () => (
+					<NForm
+						ref={emailFormRef}
+						model={{ email: emailRef.value }}
+						rules={{ email: emailRules }}
+						label-placement="left"
+					>
+						<NFormItem label="邮箱地址" path="email">
+							<NInput v-model:value={emailRef.value} placeholder="请输入邮箱地址" clearable />
+						</NFormItem>
+					</NForm>
+				),
+				positiveText: '确认',
+				negativeText: '取消',
+				loading: loading.value,
+				onPositiveClick: handleConfirm,
+			})
+		}
+
+		/**
+		 * 关闭隐私保护
+		 */
+		function closePrivacyProtection() {
+			const confirmChecked = ref(false)
+			const loading = ref(false)
+
+			const handleConfirm = async () => {
+				if (!confirmChecked.value) {
+					message.warning('请先阅读并确认风险提示')
+					return false
+				}
+
+				loading.value = true
+				try {
+					const { fetch, data } = deletePrivacyInfo({
+						domain_id: String(props.domainInfo?.id),
+					})
+
+					await fetch()
+
+					if (data.value?.status) {
+						message.success('隐私保护已关闭')
+						props.onRefresh?.()
+						return true
+					} else {
+						message.error(data.value?.msg || '关闭失败')
+						return false
+					}
+				} finally {
+					loading.value = false
+				}
+			}
+
+			useDialog({
+				type: 'warning',
+				title: '确认关闭隐私保护',
+				area: '36rem',
+				class: 'hide-dialog-icon',
+				content: () => (
+					<div>
+						<div class="mb-4 bg-yellow-50 border border-yellow-200 rounded-lg p-4 shadow-sm">
+							<div class="flex items-start">
+								<div class="flex-1">
+									<div class="text-yellow-800 font-semibold mb-2 text-sm">重要提示</div>
+									<div class="text-sm text-yellow-700 leading-relaxed">
+										<ul>
+											<li>用户主动删除域名或主动提前取消CNNIC域名隐私保护服务的，已缴纳服务费用不予退费；</li>
+											<li>用户主动提前取消隐私保护服务后，若需重新开启隐私保护服务，则需要重新购买。</li>
+										</ul>
+									</div>
+								</div>
+							</div>
+						</div>
+
+						{/* 风险确认勾选框 */}
+						<div class="flex items-start space-x-2 p-3 rounded-md">
+							<NCheckbox
+								checked={confirmChecked.value}
+								onUpdateChecked={(checked: boolean) => {
+									confirmChecked.value = checked
+								}}
+							>
+								我已阅读并理解上述风险提示
+							</NCheckbox>
+						</div>
+					</div>
+				),
+				positiveText: '确认关闭',
+				negativeText: '取消',
+				loading: loading.value,
+				onPositiveClick: handleConfirm,
+			})
+		}
+
 		// 切换安全设置
 		const toggleSecurity = async (type: 'dns_lock' | 'transfer_lock' | 'update_lock', currentStatus: number) => {
 			// 设置对应 loading
@@ -345,30 +289,31 @@ export default defineComponent({
 			} else if (type === 'update_lock') {
 				requestType = 'update'
 			} else {
-				throw new Error(`Unsupported lock type: ${type}`)
+				requestType = 'update' // fallback
 			}
 
 			const newStatus = currentStatus === 1 ? 0 : 1
-			const { fetch, message, data } = setDomainSecurity({
-				domain_id: props.domainInfo!.id,
-				type: requestType,
-				status: newStatus,
-			})
-			try {
-				message.value = true
-				await fetch()
-				if (data.value.status) {
-					props.onRefresh?.()
-				}
-			} catch (error) {
-				handleError(error)
-			} finally {
-				const loadingMap = {
-					dns_lock: dnsLockLoading,
-					transfer_lock: transferLockLoading,
-					update_lock: updateLockLoading,
-				} as const
-				loadingMap[type].value = false
+			const info = await executeApiWithSecurityVerification(
+				setDomainSecurity as any,
+				{
+					domain_id: props.domainInfo!.id,
+					type: requestType,
+					status: newStatus,
+				},
+				{
+					showMessage: true,
+					setLoading: (load: boolean) => {
+						const loadingMap = {
+							dns_lock: dnsLockLoading,
+							transfer_lock: transferLockLoading,
+							update_lock: updateLockLoading,
+						} as const
+						loadingMap[type].value = load
+					},
+				},
+			)
+			if (info?.status) {
+				props.onRefresh?.()
 			}
 		}
 
@@ -402,7 +347,7 @@ export default defineComponent({
 				</div>
 			)
 		}
-		const isPrivacy = computed(() => { 
+		const isPrivacy = computed(() => {
 			return !!props.domainInfo?.privacy
 		})
 		return () => (
@@ -413,7 +358,7 @@ export default defineComponent({
 						<NCard
 							title="域名信息"
 							header-style="font-size:16px;font-weight:500"
-							class={`${isMobile.value ? '' : 'h-[410px]'}`}
+							class={`${isMobile.value ? '' : 'h-[460px]'}`}
 						>
 							<div class="mb-2 flex items-center  h-10  hover:bg-gray-100">
 								<div class="text-gray-500 font-bold w-25 mr-5 ml-1">域名</div>
@@ -451,7 +396,7 @@ export default defineComponent({
 						<NCard
 							title="注册信息"
 							header-style="font-size:16px;font-weight:500"
-							class={`${isMobile.value ? '' : 'h-[410px]'}`}
+							class={`${isMobile.value ? '' : 'h-[460px]'}`}
 						>
 							{renderInfoItem('注册商', props.domainInfo?.registrar)}
 							{renderInfoItem('注册时间', formatDate(props.domainInfo?.register_time))}
@@ -459,22 +404,44 @@ export default defineComponent({
 							{renderInfoItem('创建时间', formatDate(props.domainInfo?.created_at || 0))}
 							{renderInfoItem('更新时间', formatDate(props.domainInfo?.updated_at || 0))}
 							{(props.domainInfo?.suffix === 'cn' || props.domainInfo?.suffix === '中国') && (
-								<div class="mb-2 flex items-center h-10 hover:bg-gray-100">
-									<div class="text-gray-500 font-bold w-25 mr-5 ml-1">隐私保护</div>
-									<div>
-										<NTag type={isPrivacy.value ? 'success' : 'warning'} bordered={false}>
-											{isPrivacy.value
-												? `已开启(到期:${formatDate(props.privacyInfo?.end_time, 'yyyy-MM-dd')})`
-												: '未开启'}
-										</NTag>
-										<NButton
-											type="primary"
-											size="small"
-											class="ml-2"
-											onClick={() => props.domainInfo && openCnDomainPrivacyModal(props.domainInfo)}
-										>
-											{isPrivacy.value ? '延续隐私保护' : '.CN/.中国专属域名隐私保护'}
-										</NButton>
+								<div class="mb-2 hover:bg-gray-100">
+									<div class="flex items-start">
+										<div class="text-gray-500 font-bold w-25 mr-5 ml-1 pt-1">隐私保护</div>
+										<div class="flex-1">
+											{/* 第一行：标签信息 */}
+											<div class="mb-5">
+												<NTag type={isPrivacy.value ? 'success' : 'warning'} bordered={false}>
+													{isPrivacy.value
+														? `已开启(到期:${formatDate(props.privacyInfo?.end_time, 'yyyy-MM-dd')})`
+														: '未开启'}
+												</NTag>
+											</div>
+											{/* 第二行：邮箱信息 */}
+											<div class="mb-5 text-sm text-gray-600">邮箱：{props.privacyInfo?.email || ''}</div>
+
+											{/* 第三行：操作按钮 */}
+											<div>
+												<NSpace>
+													<NButton
+														type="primary"
+														size="small"
+														onClick={() => props.domainInfo && openCnDomainPrivacyModal(props.domainInfo)}
+													>
+														{isPrivacy.value ? '续费隐私保护' : '.CN/.中国专属域名隐私保护'}
+													</NButton>
+													{isPrivacy.value && (
+														<>
+															<NButton size="small" onClick={openModifyEmailDialog}>
+																修改邮箱
+															</NButton>
+															<NButton type="error" size="small" onClick={closePrivacyProtection}>
+																关闭隐私保护
+															</NButton>
+														</>
+													)}
+												</NSpace>
+											</div>
+										</div>
 									</div>
 								</div>
 							)}
@@ -490,7 +457,7 @@ export default defineComponent({
 								type: props.domainInfo?.ns_status === 1 ? 'success' : 'warning',
 								text: props.domainInfo?.ns_status === 1 ? '正常' : '未生效',
 							})} */}
-							<NButton size="small" ghost class="mt-4" onClick={openDnsModal} disabled={props.loading}>
+							<NButton size="small" ghost class="mt-4" onClick={props.openDnsSettingsModal} disabled={props.loading}>
 								修改DNS服务器
 							</NButton>
 						</NCard>
@@ -525,45 +492,7 @@ export default defineComponent({
 				</NGrid>
 
 				{/* DNS服务器设置弹窗 */}
-				<NModal
-					show={showDnsModal.value}
-					title="修改DNS服务器"
-					preset="dialog"
-					positiveText={dnsMode.value === 'custom' ? '确认' : undefined}
-					negativeText="取消"
-					onPositiveClick={dnsMode.value === 'custom' ? submitDnsSettings : undefined}
-					onNegativeClick={() => {
-						showDnsModal.value = false
-					}}
-					onClose={() => {
-						showDnsModal.value = false
-					}}
-					loading={dnsSubmitting.value}
-					style="width: 36rem;"
-				>
-					<div class="p-4">
-						{/* 模式选择器 */}
-						<NSpace class="flex items-center mb-4">
-							<span class="mr-[46px]">类型：</span>
-							<NButtonGroup>
-								<NButton
-									type={dnsMode.value === 'default' ? 'primary' : 'default'}
-									onClick={() => (dnsMode.value = 'default')}
-								>
-									默认
-								</NButton>
-								<NButton type={dnsMode.value === 'custom' ? 'primary' : 'default'} onClick={switchToCustomMode}>
-									自定义
-								</NButton>
-							</NButtonGroup>
-						</NSpace>
-
-						<NForm class="mt-4" label-placement="left" label-width="100" label-align="left">
-							{/* 根据模式渲染不同内容 */}
-							{dnsMode.value === 'default' ? renderDefaultDnsMode() : renderCustomDnsMode()}
-						</NForm>
-					</div>
-				</NModal>
+				{/* 已移除，使用独立的DnsSettingsDialog组件 */}
 			</div>
 		)
 	},
@@ -599,4 +528,15 @@ function downloadBase64File(base64Str: any, fileName: any, mimeType: any) {
 	// 5. 模拟点击触发下载，之后释放资源
 	document.body.appendChild(a)
 	a.click()
+	document.body.removeChild(a)
+	URL.revokeObjectURL(url)
 }
+
+// CSS 样式：隐藏弹窗图标
+const style = document.createElement('style')
+style.textContent = `
+.hide-dialog-icon .n-dialog__icon {
+	display: none !important;
+}
+`
+document.head.appendChild(style)

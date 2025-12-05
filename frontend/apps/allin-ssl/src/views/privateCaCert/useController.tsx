@@ -94,8 +94,8 @@ export const useController = () => {
 
         return (
           <div class="flex flex-col">
-            <div class="text-gray-900">{row.cn}</div>
-            {sanText && <div class="text-xl text-gray-500">SAN: {sanText}</div>}
+            <div>{row.cn}</div>
+            {sanText && <div class="text-xl text-color5">SAN: {sanText}</div>}
           </div>
         );
       },
@@ -165,12 +165,12 @@ export const useController = () => {
           textColor = "text-orange-500";
         } else {
           remainingText = `已过期 ${Math.abs(remainingDays)} 天`;
-          textColor = "text-red-500";
+          textColor = "text-[var(--n-error-primary-color)]";
         }
 
         return (
           <div class="flex flex-col">
-            <div class="text-gray-900">{row.not_after}</div>
+            <div>{row.not_after}</div>
             <div class={`text-xl ${textColor}`}>{remainingText}</div>
           </div>
         );
@@ -207,6 +207,7 @@ export const useController = () => {
             strong
             secondary
             type="primary"
+            class="table-action-btn"
             onClick={() => handleDownload(row)}
           >
             下载
@@ -216,6 +217,7 @@ export const useController = () => {
             strong
             secondary
             type="error"
+            class="table-action-btn-danger"
             onClick={() => handleDelete(row)}
           >
             删除
@@ -699,7 +701,8 @@ export const useCreateLeafCertController = (list: IntermediateCa[]) => {
               style={{ width: "160px" }}
             />
             <NButton
-              type="primary"
+			  type="primary"
+			  class="gradient-primary-btn"
               onClick={addSanInput}
               disabled={!sanInputValue.value.trim()}
             >

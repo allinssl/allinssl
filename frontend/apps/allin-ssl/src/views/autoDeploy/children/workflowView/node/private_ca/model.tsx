@@ -378,6 +378,7 @@ export default defineComponent({
                   />
                   <NButton
                     type="primary"
+					class="gradient-primary-btn"
                     onClick={addSanInput}
                     disabled={!sanInputValue.value.trim()}
                   >

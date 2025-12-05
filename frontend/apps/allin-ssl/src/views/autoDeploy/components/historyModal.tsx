@@ -25,7 +25,7 @@ export default defineComponent({
 					v-slots={{
 						header: () => (
 							<div class="flex items-center justify-between mb-[1.6rem]">
-								<NButton type="default" onClick={() => fetch()}>
+								<NButton class="gradient-default-btn" type="default" onClick={() => fetch()}>
 									{$t('t_9_1746667589516')}
 								</NButton>
 							</div>

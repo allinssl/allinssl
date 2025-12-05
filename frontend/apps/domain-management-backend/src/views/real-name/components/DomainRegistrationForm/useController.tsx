@@ -5,13 +5,13 @@ import { useRealNameState } from '../../useStore'
 
 /**
  * 实名模板管理页面控制器
-*/
+ */
 export function useController(props: { refresh: () => Promise<void> }) {
 	const message = useMessage()
 	// 获取状态管理
 	const {
 		// 状态
-		openRealNameDialog
+		openRealNameDialog,
 	} = useRealNameState()
 	/**
 	 * 处理表单提交成功后的操作
@@ -26,6 +26,7 @@ export function useController(props: { refresh: () => Promise<void> }) {
 				type: formData.type,
 				id_type: formData.id_type,
 				id_number: formData.id_number,
+				business_concat_id_number: formData.business_concat_id_number,
 				is_default: formData.is_default ? 1 : 0,
 				owner_name: formData.owner_name,
 				contact_person: formData.contact_person,
@@ -45,7 +46,7 @@ export function useController(props: { refresh: () => Promise<void> }) {
 			}
 
 			// 调用创建API
-			const { message: apiMessage, fetch: fetchForm,data } = createContact(requestData)
+			const { message: apiMessage, fetch: fetchForm, data } = createContact(requestData)
 			apiMessage.value = true
 			await fetchForm()
 			props.refresh()

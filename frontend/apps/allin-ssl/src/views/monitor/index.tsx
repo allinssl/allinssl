@@ -54,10 +54,10 @@ export default defineComponent({
 								// 头部左侧区域 - 添加按钮和导入按钮
 								headerLeft: () => (
 									<NSpace>
-										<NButton type="primary" size="large" class="px-5" onClick={openAddForm}>
+										<NButton type="primary" size="large" class="gradient-primary-btn px-5" onClick={openAddForm}>
 											{$t('t_11_1745289354516')}
 										</NButton>
-										<NButton type="default" size="large" class="px-5" onClick={openImportForm}>
+										<NButton type="default" size="large" class="gradient-default-btn px-5" onClick={openImportForm}>
 											{$t('t_0_1752724141380')}
 										</NButton>
 									</NSpace>
@@ -65,7 +65,7 @@ export default defineComponent({
 								// 头部右侧区域 - 搜索框和列设置
 								headerRight: () => (
 									<NSpace align="center" size="medium">
-										<SearchComponent placeholder={$t('t_12_1745289356974')} />
+										<SearchComponent class="header-search" placeholder={$t('t_12_1745289356974')} />
 										<ColumnSettingsComponent />
 									</NSpace>
 								),

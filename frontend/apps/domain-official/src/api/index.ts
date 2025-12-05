@@ -81,20 +81,24 @@ export class ApiClient {
       ...config,
     };
     const finalCfg = this.onRequest ? this.onRequest({ ...cfg }) || cfg : cfg;
-    const url = `${this.baseURL}${finalCfg.url.startsWith("/") ? "" : "/"}${
-      finalCfg.url
-		}`;
-		const whileList = ["/v1/order/cart/list", "/v1/contact/get_user_detail"];
-		// 白名单不进行登录状态判定
-		const isSkip = whileList.includes(finalCfg.url);
+    // 允许通过请求头 X-API-BASE 动态覆盖基础路径，默认保持现有逻辑
+    const requestedBase = finalCfg.headers?.["X-API-BASE"];
+    const urlBase =
+      typeof requestedBase === "string" && requestedBase.length > 0
+        ? requestedBase
+        : this.baseURL;
+    const url = `${urlBase}${finalCfg.url.startsWith("/") ? "" : "/"}${finalCfg.url}`;
+    const whileList = ["/v1/order/cart/list", "/v1/contact/get_user_detail"];
+    // 白名单不进行登录状态判定
+    const isSkip = whileList.includes(finalCfg.url);
     return new Promise((resolve, reject) => {
       const method = (finalCfg.method || "POST").toUpperCase();
       const isGet = method === "GET";
       const payload = isGet
         ? finalCfg.data
         : finalCfg.data
-        ? JSON.stringify(finalCfg.data)
-        : undefined;
+          ? JSON.stringify(finalCfg.data)
+          : undefined;
       const contentType = isGet
         ? "application/x-www-form-urlencoded; charset=UTF-8"
         : "application/json";
@@ -117,7 +121,8 @@ export class ApiClient {
             (processedRes as any)?.msg === "身份失效";
           const ok =
             (processedRes as any)?.status === true &&
-            (processedRes as any)?.code === 0;
+            ((processedRes as any)?.code === 0 ||
+              (processedRes as any)?.code === 200);
           if (isLoginInvalid && !isSkip) {
             setTimeout(() => {
               location.href = "/login";

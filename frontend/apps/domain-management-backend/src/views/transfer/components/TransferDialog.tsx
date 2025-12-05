@@ -1,5 +1,24 @@
 import { defineComponent, computed, onUnmounted } from 'vue'
-import { NButton, NFlex, NGrid, NGridItem, NInput, NInputGroup, NSteps, NStep, NSelect, NCheckbox, NRadioButton, NRadioGroup, NTag, NQrCode, NDynamicInput, NAlert, NTooltip, NIcon } from 'naive-ui'
+import {
+	NButton,
+	NFlex,
+	NGrid,
+	NGridItem,
+	NInput,
+	NInputGroup,
+	NSteps,
+	NStep,
+	NSelect,
+	NCheckbox,
+	NRadioButton,
+	NRadioGroup,
+	NTag,
+	NQrCode,
+	NDynamicInput,
+	NAlert,
+	NTooltip,
+	NIcon,
+} from 'naive-ui'
 import { useTransferJoinState } from './JoinIn/useStore'
 import { useController } from './JoinIn/useController'
 import { queryPaymentStatus, buyByBalance } from '@/api/order'
@@ -9,7 +28,7 @@ import { RefreshFilled } from '@vicons/material'
 
 export default defineComponent({
 	name: 'TransferDialog',
-	props:{
+	props: {
 		/** 刷新数据函数 */
 		refresh: {
 			type: Function as PropType<() => Promise<void>>,
@@ -25,8 +44,12 @@ export default defineComponent({
 		const state = useTransferJoinState()
 		const { checkDomains, createOrder, handleSelectRealName, loadRealNameOptions } = useController()
 		const message = useMessage()
-		const qrLink = computed(() => state.payChannel.value === 'wechat' ? state.orderInfo.value?.wx : state.orderInfo.value?.ali)
-		const canPayByBalance = computed(() => Number(state.balanceAvailable.value || 0) >= Number(state.orderInfo.value?.total_price || 0))
+		const qrLink = computed(() =>
+			state.payChannel.value === 'wechat' ? state.orderInfo.value?.wx : state.orderInfo.value?.ali,
+		)
+		const canPayByBalance = computed(
+			() => Number(state.balanceAvailable.value || 0) >= Number(state.orderInfo.value?.total_price || 0),
+		)
 
 		// 轮询定时器
 		let pollTimer: any = null
@@ -112,8 +135,6 @@ export default defineComponent({
 			props.refresh()
 		}
 
-
-
 		// 处理提交逻辑
 		const handleCheckDomains = () => {
 			// 调用原有的检查逻辑
@@ -123,7 +144,7 @@ export default defineComponent({
 		const renderStep1 = () => (
 			<NGrid cols="1" xGap={12} yGap={16}>
 				{/* 输入区域 */}
-				<NGridItem class="flex items-start gap-4">
+				<NGridItem class="flex items-center gap-4">
 					<div class="text-gray-500 text-sm whitespace-nowrap mt-1">域名和转移码</div>
 					<NDynamicInput
 						value={state.rows.value as any}
@@ -140,39 +161,39 @@ export default defineComponent({
 					>
 						{{
 							default: ({ value, index }: { value: { domain: string; transfer_code: string }; index: number }) => (
-									<NInputGroup>
-										<div class="flex-1">
-											<NInput
-												placeholder="请输入域名，如：example.com"
-												value={value.domain}
-												status={state.rowValidation.value[index]?.domainError ? 'error' : undefined}
-												onUpdateValue={(v) => {
-													state.setRowField(index, 'domain', v)
-												}}
-												onBlur={() => state.validateRow(index, 'domain', value.domain)}
-											/>
-											{state.rowValidation.value[index]?.domainError && (
-												<div class="text-red-500 text-xs mt-1 px-1">{state.rowValidation.value[index].domainError}</div>
-											)}
-										</div>
+								<NInputGroup>
+									<div class="flex-1">
+										<NInput
+											placeholder="请输入域名，如：example.com"
+											value={value.domain}
+											status={state.rowValidation.value[index]?.domainError ? 'error' : undefined}
+											onUpdateValue={(v) => {
+												state.setRowField(index, 'domain', v)
+											}}
+											onBlur={() => state.validateRow(index, 'domain', value.domain)}
+										/>
+										{state.rowValidation.value[index]?.domainError && (
+											<div class="text-red-500 text-xs mt-1 px-1">{state.rowValidation.value[index].domainError}</div>
+										)}
+									</div>
 
-										<div class="w-40">
-											<NInput
-												placeholder="请输入转移码"
-												value={value.transfer_code}
-												status={state.rowValidation.value[index]?.transferCodeError ? 'error' : undefined}
-												onUpdateValue={(v) => {
-													state.setRowField(index, 'transfer_code', v)
-												}}
-												onBlur={() => state.validateRow(index, 'transfer_code', value.transfer_code)}
-											/>
-											{state.rowValidation.value[index]?.transferCodeError && (
-												<div class="text-red-500 text-xs mt-1 px-1">
-													{state.rowValidation.value[index].transferCodeError}
-												</div>
-											)}
-										</div>
-									</NInputGroup>
+									<div class="w-40">
+										<NInput
+											placeholder="请输入转移码"
+											value={value.transfer_code}
+											status={state.rowValidation.value[index]?.transferCodeError ? 'error' : undefined}
+											onUpdateValue={(v) => {
+												state.setRowField(index, 'transfer_code', v)
+											}}
+											onBlur={() => state.validateRow(index, 'transfer_code', value.transfer_code)}
+										/>
+										{state.rowValidation.value[index]?.transferCodeError && (
+											<div class="text-red-500 text-xs mt-1 px-1">
+												{state.rowValidation.value[index].transferCodeError}
+											</div>
+										)}
+									</div>
+								</NInputGroup>
 							),
 						}}
 					</NDynamicInput>
@@ -194,7 +215,8 @@ export default defineComponent({
 			<div class="mt-2">
 				<div class="mb-2 text-sm text-gray-700">
 					<div class="font-bold">查询结果</div>
-					可转入 {state.transferPriceList.value.length} 个域名，预计累计费用 {Number(state.transferPriceTotal.value || 0)} 元
+					可转入 {state.transferPriceList.value.length} 个域名，预计累计费用{' '}
+					{Number(state.transferPriceTotal.value || 0)} 元
 				</div>
 				<div class="border rounded max-h-[160px] overflow-y-auto">
 					<div class="grid grid-cols-2 bg-gray-50 text-gray-600 text-sm p-2">
@@ -217,11 +239,7 @@ export default defineComponent({
 						<div class="grid grid-cols-2 p-2 border-t" key={it.domain}>
 							<div>{it.domain}</div>
 							<div>
-								{it.error ? (
-									<span class="text-red-500">{it.error}</span>
-								) : (
-									<span>{Number(it.price || 0)} 元</span>
-								)}
+								{it.error ? <span class="text-red-500">{it.error}</span> : <span>{Number(it.price || 0)} 元</span>}
 							</div>
 						</div>
 					))}
@@ -293,7 +311,10 @@ export default defineComponent({
 		const renderStep3 = () => (
 			<NGrid cols="1" xGap={12} yGap={20}>
 				<NGridItem>
-					<div class="text-sm text-gray-700">订单信息：域名数量 {state.rows.value.filter(r => r.domain && r.transfer_code).length} 个，总金额：¥{Number(state.orderInfo.value?.total_price || 0).toFixed(2)}</div>
+					<div class="text-sm text-gray-700">
+						订单信息：域名数量 {state.rows.value.filter((r) => r.domain && r.transfer_code).length} 个，总金额：¥
+						{Number(state.orderInfo.value?.total_price || 0).toFixed(2)}
+					</div>
 				</NGridItem>
 				<NGridItem class="flex items-center">
 					<strong class="text-sm mr-4">选择支付方式</strong>
@@ -307,14 +328,19 @@ export default defineComponent({
 					{state.payChannel.value !== 'balance' ? (
 						<NFlex vertical align="center">
 							<NQrCode value={qrLink.value || ''} size={180} />
-							<div class="text-xs text-gray-600 mt-2">请使用{state.payChannel.value === 'wechat' ? '微信' : '支付宝'}扫码支付</div>
+							<div class="text-xs text-gray-600 mt-2">
+								请使用{state.payChannel.value === 'wechat' ? '微信' : '支付宝'}扫码支付
+							</div>
 						</NFlex>
 					) : (
 						<NFlex vertical align="center" class="py-3">
 							<NTag type={canPayByBalance.value ? 'success' : 'warning'} bordered={false}>
-								可用余额：¥{Number(state.balanceAvailable.value || 0).toFixed(2)} / 需支付：¥{Number(state.orderInfo.value?.total_price || 0).toFixed(2)}
+								可用余额：¥{Number(state.balanceAvailable.value || 0).toFixed(2)} / 需支付：¥
+								{Number(state.orderInfo.value?.total_price || 0).toFixed(2)}
 							</NTag>
-							<NButton type="primary" disabled={!canPayByBalance.value} onClick={() => handlePayByBalance()}>立即支付</NButton>
+							<NButton type="primary" disabled={!canPayByBalance.value} onClick={() => handlePayByBalance()}>
+								立即支付
+							</NButton>
 						</NFlex>
 					)}
 				</NGridItem>
@@ -342,4 +368,4 @@ export default defineComponent({
 			</div>
 		)
 	},
-}) 
+})

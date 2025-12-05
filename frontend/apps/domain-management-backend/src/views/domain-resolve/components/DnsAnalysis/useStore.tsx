@@ -28,6 +28,7 @@ import type {
 import type { DnsRecordItem } from '@/types/domain'
 import { useError } from '@baota/hooks/error'
 import { CascaderOption, PaginationProps, SelectOption } from 'naive-ui'
+import { executeApiWithSecurityVerification } from '@/public/dialog'
 
 // 错误处理
 const { handleError } = useError()
@@ -75,6 +76,7 @@ export const useDnsAnalysisStare = defineStore('dnsAnalysis', () => {
 	// 分页配置
 	const pagination = ref<PaginationProps>({
 		page: 1,
+		pageSize: 10,
 		itemCount: 0,
 		showSizePicker: true,
 		pageSizes: [10, 20, 50, 100],
@@ -112,7 +114,7 @@ export const useDnsAnalysisStare = defineStore('dnsAnalysis', () => {
 			const { fetch, data } = getDnsRecordList({
 				...recordListParams.value,
 				...(params || {}),
-				...{ 
+				...{
 					domain_id: currentDomainId.value,
 					domain_type: currentDomainType.value,
 				},
@@ -190,21 +192,19 @@ export const useDnsAnalysisStare = defineStore('dnsAnalysis', () => {
 	 * @returns 是否创建成功
 	 */
 	const createRecord = async (params: CreateDnsRecordRequest) => {
-		isLoading.value = true
-		try {
-			const { fetch, data, message } = createDnsRecord({
+		await executeApiWithSecurityVerification(
+			createDnsRecord as any,
+			{
 				...params,
 				domain_type: currentDomainType.value,
-			})
-			message.value = true
-			await fetch()
-			return data.value
-		} catch (err) {
-			handleError(err)
-			return false
-		} finally {
-			isLoading.value = false
-		}
+			},
+			{
+				showMessage: true,
+				setLoading: (loading: boolean) => {
+					isLoading.value = loading
+				},
+			},
+		)
 	}
 
 	/**
@@ -213,21 +213,19 @@ export const useDnsAnalysisStare = defineStore('dnsAnalysis', () => {
 	 * @returns 是否更新成功
 	 */
 	const updateRecord = async (params: UpdateDnsRecordRequest) => {
-		isLoading.value = true
-		try {
-			const { fetch, data, message } = updateDnsRecord({
+		return await executeApiWithSecurityVerification(
+			updateDnsRecord as any,
+			{
 				...params,
 				domain_type: currentDomainType.value,
-			})
-			message.value = true
-			await fetch()
-			return data.value
-		} catch (err) {
-			handleError(err)
-			return false
-		} finally {
-			isLoading.value = false
-		}
+			},
+			{
+				showMessage: true,
+				setLoading: (loading: boolean) => {
+					isLoading.value = loading
+				},
+			},
+		)
 	}
 
 	/**
@@ -236,21 +234,19 @@ export const useDnsAnalysisStare = defineStore('dnsAnalysis', () => {
 	 * @returns 是否删除成功
 	 */
 	const deleteRecord = async (params: DeleteDnsRecordRequest) => {
-		isLoading.value = true
-		try {
-			const { fetch, data, message } = deleteDnsRecord({
+		await executeApiWithSecurityVerification(
+			deleteDnsRecord as any,
+			{
 				...params,
 				domain_type: currentDomainType.value,
-			})
-			message.value = true
-			await fetch()
-			return data.value
-		} catch (err) {
-			handleError(err)
-			return false
-		} finally {
-			isLoading.value = false
-		}
+			},
+			{
+				showMessage: true,
+				setLoading: (loading: boolean) => {
+					isLoading.value = loading
+				},
+			},
+		)
 	}
 
 	/**

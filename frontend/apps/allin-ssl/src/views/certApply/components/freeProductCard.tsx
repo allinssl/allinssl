@@ -1,4 +1,5 @@
 import { NButton, NImage, NBadge } from 'naive-ui'
+import { useTheme } from "@baota/naive-ui/theme";
 import { $t } from '@locales/index'
 interface FreeProductCardProps {
 	product: {
@@ -32,6 +33,8 @@ export default defineComponent({
 		},
 	},
 	setup(props) {
+		// 获取主题状态
+		const { isDark } = useTheme();
 		// 判断是否为通配符证书
 		const isWildcard = computed(() => {
 			return props.product.title.toLowerCase().includes($t('t_10_1746667589575'))
@@ -54,7 +57,7 @@ export default defineComponent({
 				sectigo: '/static/icons/sectigo-ico.png',
 				positive: '/static/icons/positive-ico.png',
 				ssltrus: '/static/icons/ssltrus-ico.png',
-				"let's encrypt": '/static/icons/letsencrypt-icon.svg',
+				"let's encrypt": isDark.value ? '/static/icons/letsencrypt-icon-dark.svg' : '/static/icons/letsencrypt-icon.svg',
 			}
 			return Object.keys(brandIconMap).find((key) => brandLower.includes(key))
 				? brandIconMap[Object.keys(brandIconMap).find((key) => brandLower.includes(key)) as string]
@@ -62,14 +65,14 @@ export default defineComponent({
 		}
 
 		return () => (
-			<div class="relative border border-gray-200 rounded-[0.8rem] p-[2rem] transition-all duration-300 h-full flex flex-col bg-white shadow-sm hover:shadow-md hover:border-blue-100 hover:-translate-y-[0.2rem]">
+			<div class="bg-[var(--content-bg-secondary)] relative border border-[var(--border-color-transparent)] rounded-[0.8rem] p-[2rem] transition-all duration-300 h-full flex flex-col shadow-sm hover:shadow-md hover:-translate-y-[0.2rem]">
 				{props.product.brand === "Let's Encrypt" && (
 					<div class="absolute top-[1.2rem] right-[1.2rem] z-10">
 						<NBadge type="info" value={$t('t_12_1746667589733')} />
 					</div>
 				)}
 
-				<div class="flex flex-col items-center text-center mb-[2rem] pb-[1.6rem] border-b border-gray-100">
+				<div class="flex flex-col items-center text-center mb-[2rem] pb-[1.6rem] border-b border-[var(--n-tab-border-color)]">
 					<div class="flex-none h-[6rem] w-2/5 mb-[1.2rem] flex items-center justify-center">
 						<NImage
 							src={getBrandIcon(props.product.brand)}
@@ -78,8 +81,8 @@ export default defineComponent({
 						/>
 					</div>
 					<div class="flex-1 w-full">
-						<h3 class="font-semibold mb-[0.8rem] text-gray-800 leading-tight">{props.product.title}</h3>
-						<p class="text-[1.3rem] text-gray-500 m-0 leading-relaxed px-[0.8rem]">
+						<h3 class="font-semibold mb-[0.8rem] leading-tight">{props.product.title}</h3>
+						<p class="text-[1.3rem] text-color5 m-0 leading-relaxed px-[0.8rem]">
 							{props.product.brand + $t('t_13_1746667599218')}
 						</p>
 					</div>
@@ -88,24 +91,24 @@ export default defineComponent({
 				<div class="flex-1 flex flex-col mt-0">
 					<div class="text-[1.3rem] mb-[2.4rem] flex-1 text-left">
 						<div class="flex mb-[1rem] leading-relaxed">
-							<span class="font-medium text-gray-500 flex-none w-[9rem]">{$t('t_14_1746667590827')}</span>
-							<span class="flex-1 text-gray-700">{props.product.num + $t('t_15_1746667588493')}</span>
+							<span class="font-medium text-color5 flex-none w-[9rem]">{$t('t_14_1746667590827')}</span>
+							<span class="flex-1">{props.product.num + $t('t_15_1746667588493')}</span>
 						</div>
 						<div class="flex mb-[1rem] leading-relaxed">
-							<span class="font-medium text-gray-500 flex-none w-[9rem]">{$t('t_16_1746667591069')}</span>
-							<span class="flex-1 text-gray-700">{$t('t_17_1746667588785')}</span>
+							<span class="font-medium text-color5 flex-none w-[9rem]">{$t('t_16_1746667591069')}</span>
+							<span class="flex-1">{$t('t_17_1746667588785')}</span>
 						</div>
 						<div class="flex mb-[1rem] leading-relaxed">
-							<span class="font-medium text-gray-500 flex-none w-[9rem]">{$t('t_19_1746667589295')}</span>
-							<span class="flex-1 text-gray-700">{props.product.valid_days + $t('t_20_1746667588453')}</span>
+							<span class="font-medium text-color5 flex-none w-[9rem]">{$t('t_19_1746667589295')}</span>
+							<span class="flex-1">{props.product.valid_days + $t('t_20_1746667588453')}</span>
 						</div>
 						<div class="flex mb-[1rem] leading-relaxed">
-							<span class="font-medium text-gray-500 flex-none w-[9rem]">{$t('t_21_1746667590834')}</span>
-							<span class="flex-1 text-gray-700">{$t('t_17_1746667588785')}</span>
+							<span class="font-medium text-color5 flex-none w-[9rem]">{$t('t_21_1746667590834')}</span>
+							<span class="flex-1">{$t('t_17_1746667588785')}</span>
 						</div>
-						<div class="flex mb-[1rem] leading-relaxed whitespace-nowrap overflow-hidden text-ellipsis text-gray-500">
-							<span class="font-medium text-gray-500 flex-none w-[9rem]">{$t('t_22_1746667591024')}</span>
-							<span class="flex-1 text-gray-600 whitespace-nowrap overflow-hidden text-ellipsis">
+						<div class="flex mb-[1rem] leading-relaxed whitespace-nowrap overflow-hidden text-ellipsis">
+							<span class="font-medium text-color5 flex-none w-[9rem]">{$t('t_22_1746667591024')}</span>
+							<span class="flex-1 whitespace-nowrap overflow-hidden text-ellipsis">
 								{isWildcard.value
 									? isMultiDomain.value
 										? $t('t_23_1746667591989')
@@ -117,15 +120,15 @@ export default defineComponent({
 						</div>
 					</div>
 
-					<div class="flex justify-between items-center mt-[1.6rem] pt-[1.6rem] border-t border-gray-100">
+					<div class="flex justify-between items-center mt-[1.6rem] pt-[1.6rem] border-t border-[var(--n-tab-border-color)]">
 						<div class="flex-1 flex flex-col">
 							<div class="flex items-baseline justify-start">
-								<span class="text-[2.2rem] font-bold text-green-500 leading-tight">{$t('t_27_1746667589350')}</span>
+								<span class="gradient-primary-txt text-[2.2rem] font-bold text-green-500 leading-tight">{$t('t_27_1746667589350')}</span>
 							</div>
 						</div>
 						<NButton
 							type="primary"
-							class="flex-none transition-all duration-300 min-w-[9rem] hover:scale-105 hover:shadow-md"
+							class="gradient-primary-btn flex-none transition-all duration-300 min-w-[9rem] hover:scale-105 hover:shadow-md"
 							onClick={handleApply}
 							strong
 							round

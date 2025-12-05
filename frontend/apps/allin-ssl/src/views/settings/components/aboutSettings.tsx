@@ -3,6 +3,7 @@ import { $t } from '@locales/index'
 import { LogoGithub } from '@vicons/ionicons5'
 import { getVersion } from '@api/setting'
 import type { VersionData } from '@/types/setting'
+import styles from './index.module.css'
 /**
  * 关于我们标签页组件
  */
@@ -42,7 +43,10 @@ export default defineComponent({
 
 		return () => (
 			<div class="about-settings">
-				<NCard title={$t('t_4_1745833932780')} class="mb-4">
+				<div class="mb-4">
+					<div class="flex items-center mb-6 mt-2">
+						<h2 class={`${styles.sectionTitle} ml-2 text-[1.8rem] font-semibold`}>版本信息</h2>
+					</div>
 					<NSpace vertical size={24}>
 						<NDescriptions bordered>
 							<NDescriptionsItem label={$t('t_5_1745833933241')}>
@@ -74,22 +78,25 @@ export default defineComponent({
 							</NDescriptionsItem>
 						</NDescriptions>
 					</NSpace>
-				</NCard>
+				</div>
 
 				{/* 新版本信息卡片 */}
 				{hasUpdate.value && versionData.value && (
-					<NCard title="发现新版本" class="mb-4">
+					<div class="mb-4">
+						<div class="flex items-center mb-6 mt-2">
+							<h2 class={`${styles.sectionTitle} ml-2 text-[1.8rem] font-semibold`}>发现新版本</h2>
+						</div>
 						<NAlert type="info" title={`新版本 ${versionData.value.new_version} 已发布`} class="mb-[1.6rem]">
 							<div class="text-[1.4rem]">
 								<div class="mb-[1.2rem] text-[1.4rem]">发布日期: {versionData.value.date}</div>
 								<div class="mb-[1.2rem] text-[1.4rem]">
 									<strong>更新内容:</strong>
 								</div>
-								<div class="whitespace-pre-line text-gray-700 text-[1.3rem] leading-relaxed">
+								<div class="whitespace-pre-line text-color5 text-[1.3rem] leading-relaxed">
 									{versionData.value.log.replace(/\\r\\n/g, '\n').replace(/\\n/g, '\n')}
 								</div>
 								<div class="mt-4">
-									<NButton size="medium" type="primary" onClick={goToGitHub}>
+									<NButton class="gradient-primary-btn" size="medium" type="primary" onClick={goToGitHub}>
 										<div class="flex items-center">
 											<NIcon size="18" class="mr-2">
 												<LogoGithub />
@@ -100,16 +107,19 @@ export default defineComponent({
 								</div>
 							</div>
 						</NAlert>
-					</NCard>
+					</div>
 				)}
 
-				<NCard title={$t('t_13_1745833933630')} class="mb-4">
-					<div class="about-content">
-						<p class="text-gray-700 leading-relaxed">
-							<p class="text-[3rem] font-medium">AllinSSL</p>
+				<div class="mb-4">
+					<div class="flex items-center mb-6 mt-2">
+						<h2 class={`${styles.sectionTitle} ml-2 text-[1.8rem] font-semibold`}>关于产品</h2>
+					</div>
+					<div class="about-content bg-[var(--setting-input-bg)] px-[2rem] py-[2.4rem] rounded-[6px]">
+						<p class="leading-relaxed">
+							<p class="text-[2rem] font-semibold">AllinSSL</p>
 							<br />
-							<p class="text-[1.6rem] text-primary mb-[2rem]">{$t('t_35_1746773362992')}</p>
-							<span class="text-[1.4rem] mb-[1rem] text-gray-500">
+							<p class="text-[1.6rem] font-semibold text-primary mb-[2rem]">{$t('t_35_1746773362992')}</p>
+							<span class="text-[1.4rem] mb-[1rem] text-color5">
 								{$t(
 									'本工具可帮助用户轻松管理多个网站的SSL证书，提供自动化的证书申请、更新和部署流程，并实时监控证书状态，确保网站安全持续运行。',
 								)}
@@ -142,7 +152,7 @@ export default defineComponent({
 							</span>
 						</p>
 					</div>
-				</NCard>
+				</div>
 			</div>
 		)
 	},

@@ -22,11 +22,12 @@ export default defineComponent({
 		const BaseInfo = defineAsyncComponent(() => import('./components/BaseInfo'))
 		const RealName = defineAsyncComponent(() => import('./components/RealName'))
 		const Security = defineAsyncComponent(() => import('./components/security'))
+		const Transfer = defineAsyncComponent(() => import('./components/Transfer'))
 
 		// 获取域名ID（从路由参数中获取）
 		const domainId = route.params.id as string
 		// 获取控制器
-		const { loading, domainInfo,privacyInfo, activeTab, refreshDomainInfo, switchTab } = useController(domainId)
+		const { loading, domainInfo, privacyInfo, activeTab, refreshDomainInfo, switchTab, insideTransferStatus, outsideTransferStatus, openDnsSettingsModal } = useController(domainId)
 
 		return () => (
 			<div class="domain-detail-container">
@@ -62,6 +63,7 @@ export default defineComponent({
 								privacyInfo={privacyInfo.value}
 								loading={loading.value}
 								onRefresh={refreshDomainInfo}
+								openDnsSettingsModal={openDnsSettingsModal}
 							/>
 						</NTabPane>
 						<NTabPane name="realName" tab="实名认证">
@@ -73,6 +75,14 @@ export default defineComponent({
 								domainInfo={domainInfo.value}
 								privacyInfo={privacyInfo.value}
 								loading={loading.value}
+								onRefresh={refreshDomainInfo}
+							/>
+						</NTabPane>
+						<NTabPane name="transfer" tab="域名转移">
+							<Transfer
+								domainInfo={domainInfo.value}
+								insideTransferStatus={insideTransferStatus.value}
+								outsideTransferStatus={outsideTransferStatus.value}
 								onRefresh={refreshDomainInfo}
 							/>
 						</NTabPane>

@@ -3,12 +3,12 @@
  * 负责展示当前模板信息和提供新模板选择功能
  */
 
-import { defineComponent, ref, computed, type PropType } from 'vue';
-import { NAlert, NCard, NSelect, NButton, NFlex, NGrid, NGridItem, NSpin, NTag, NIcon } from 'naive-ui'
-import { useDomainDetailState } from '../useStore';
-import { useMessage } from '@baota/naive-ui/hooks';
-import type { DomainInfo, RealNameInfo } from '@/types/domain';
-import type { ContactTemplateItem } from '@/types/real-name';
+import { defineComponent, ref, computed, type PropType } from 'vue'
+import { NAlert, NCard, NSelect, NButton, NFlex, NGrid, NGridItem, NSpin, NTag, NIcon, NText } from 'naive-ui'
+import { useDomainDetailState } from '../useStore'
+import { useMessage } from '@baota/naive-ui/hooks'
+import type { DomainInfo, RealNameInfo } from '@/types/domain'
+import type { ContactTemplateItem } from '@/types/real-name'
 import { updateDomainRealName } from '@/api/domain'
 import { maskUtils } from '@/views/real-name/useStore'
 import { useModal } from '@baota/naive-ui/hooks'
@@ -16,27 +16,31 @@ import DomainRegistrationForm from '@/views/real-name/components/DomainRegistrat
 import { RefreshFilled } from '@vicons/material'
 
 export default defineComponent({
-  name: 'RealNameTemplateChangeDialog',
-  props: {
-    domainId: { 
-      type: Number, 
-      required: true 
-    },
-    domainInfo: { 
-      type: Object as PropType<DomainInfo | null>, 
-      default: null 
-    },
-    currentTemplate: { 
-      type: Object as PropType<RealNameInfo | null>, 
-      default: null 
-    },
-    refresh: { 
-      type: Function as PropType<() => Promise<void>>, 
-      required: true 
-    },
-  },
-  
-  setup(props) {
+	name: 'RealNameTemplateChangeDialog',
+	props: {
+		domainId: {
+			type: Number,
+			required: true,
+		},
+		domainInfo: {
+			type: Object as PropType<DomainInfo | null>,
+			default: null,
+		},
+		isNotReal: {
+			type: Boolean,
+			default: false,
+		},
+		currentTemplate: {
+			type: Object as PropType<RealNameInfo | null>,
+			default: null,
+		},
+		refresh: {
+			type: Function as PropType<() => Promise<void>>,
+			required: true,
+		},
+	},
+
+	setup(props) {
 		const { realNameTemplates, realNameTemplatesLoading, openTemplateChangeDialog, fetchRealNameTemplateList } =
 			useDomainDetailState()
 
@@ -115,8 +119,7 @@ export default defineComponent({
 
 		// 渲染模板详细信息的通用函数
 		const renderTemplateDetail = (template: RealNameInfo | ContactTemplateItem | null, title: string) => {
-			if (!template) return null
-
+			if ((props.isNotReal && title === '当前使用模板') || !template) return <NCard>（未实名）</NCard>
 			// 统一数据格式处理
 			const templateData = {
 				id: (template as ContactTemplateItem).id || (template as RealNameInfo).registrant_id || '-',
@@ -137,7 +140,6 @@ export default defineComponent({
 							? '已通过'
 							: '审核中',
 			}
-
 			return (
 				<NCard class="mb-4" size="small">
 					<div class="font-bold mb-2">{title}</div>
@@ -209,7 +211,6 @@ export default defineComponent({
 					<div class="font-bold">当前模板与选择新模板</div>
 					<div class="text-sm text-gray-600">以下是当前使用的实名模板，请选择要更换的新模板。</div>
 				</div>
-
 				{/* 当前使用模板 */}
 				{renderTemplateDetail(props.currentTemplate, '当前使用模板')}
 
@@ -246,7 +247,20 @@ export default defineComponent({
 
 				{/* 新选择的模板详细信息 */}
 				{selectedTemplateDetail.value && renderTemplateDetail(selectedTemplateDetail.value, '新选择的模板详细信息')}
-
+				{/* 帮助信息 */}
+				<div class="text-sm text-gray-600">
+					<NText>
+						需要帮助？请查看
+						<a
+							class="text-[#20a53a] hover:text-[#20a53a]-800 text-sm underline cursor-pointer ml-1"
+							href="https://docs.bt.cn/domain/user-guide/info-template"
+							target="_blank"
+							rel="noopener noreferrer"
+						>
+							域名实名认证文档
+						</a>
+					</NText>
+				</div>
 				{/* 操作按钮 */}
 				<NFlex justify="end" size="medium" class="mt-6">
 					<NButton size="large" onClick={handleCancel}>
@@ -265,4 +279,4 @@ export default defineComponent({
 			</>
 		)
 	},
-}); 
+})

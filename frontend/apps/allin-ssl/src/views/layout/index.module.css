@@ -8,6 +8,7 @@
 .sider {
 	@apply h-screen shadow-lg z-10 transition-all duration-300 ease-in-out;
 	/* 移动端默认行为通过 NLayoutSider 的 collapsed 属性和 TSX 逻辑控制 */
+	background-color: var(--n-sider-color, var(--n-body-color));
 }
 
 /* Logo容器样式 */
@@ -75,6 +76,46 @@
 .systemInfo {
 	@apply flex items-center space-x-2 sm:space-x-3 md:space-x-4 text-[1.4rem];
 	color: var(--n-text-color-secondary); /* Naive UI 次级文字颜色 */
+}
+
+/* 主题切换按钮容器 */
+.systemInfo > div {
+	@apply mr-2 sm:mr-3;
+}
+
+.themeSelector {
+	display: flex;
+	align-items: center;
+}
+
+.themeSelectorTrigger {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.6rem;
+	padding: 0.8rem 1.6rem;
+	border-radius: 999px;
+	border: none;
+	/* background-color: var(--theme-select-bg); */
+	color: var(--n-text-color-2);
+	cursor: pointer;
+	transition: color 0.2s ease, border-color 0.2s ease, background-color 0.2s ease;
+}
+
+.themeSelectorTrigger:hover {
+	color: var(--n-text-color-1);
+	background-color: var(--theme-select-bg);
+}
+
+.themeSelectorLabel {
+	font-size: 1.3rem;
+	font-weight: 600;
+	line-height: 1;
+}
+
+.themeSelectorArrow {
+	display: flex;
+	align-items: center;
+	color: inherit;
 }
 
 

@@ -3,19 +3,19 @@
  * 负责管理域名详情数据、DNS记录、操作日志等状态
  */
 
-import { fetchDomainDetail } from "@/api/domain";
-import { fetchContactUserDetail } from "@/api/real-name";
-import { useError } from "@baota/hooks/error";
+import { fetchDomainDetail } from '@/api/domain'
+import { fetchContactUserDetail } from '@/api/real-name'
+import { useError } from '@baota/hooks/error'
 
 import type { DomainInfo, RealNameInfo, PrivacyInfo } from '@/types/domain'
-import type { ContactTemplateItem } from "@/types/real-name";
+import type { ContactTemplateItem } from '@/types/real-name'
 
-const { handleError } = useError();
+const { handleError } = useError()
 
 /**
  * 域名详情页面状态Store
  */
-export const useDomainDetailStore = defineStore("domain-detail-store", () => {
+export const useDomainDetailStore = defineStore('domain-detail-store', () => {
 	// -------------------- 状态定义 --------------------
 
 	/** 页面加载状态 */
@@ -32,6 +32,8 @@ export const useDomainDetailStore = defineStore("domain-detail-store", () => {
 
 	/** 实名模板更换弹窗控制 */
 	const openTemplateChangeDialog = ref()
+	/** DNS服务器弹窗控制 */
+	const openDnsChangeDialog = ref()
 
 	/** 实名模板相关状态 */
 	const realNameTemplates = ref<ContactTemplateItem[]>([])
@@ -42,6 +44,17 @@ export const useDomainDetailStore = defineStore("domain-detail-store", () => {
 
 	/** 隐私保护信息 */
 	const privacyInfo = ref<PrivacyInfo | null>(null)
+
+	/** 内部转移状态 */
+	const insideTransferStatus = ref<{
+		domain: string
+		status: number
+		to_account: string
+		transfer_code: string
+	} | null>(null)
+
+	/** 外部转移状态 */
+	const outsideTransferStatus = ref<number | null>(null)
 
 	// -------------------- 方法定义 --------------------
 
@@ -61,6 +74,8 @@ export const useDomainDetailStore = defineStore("domain-detail-store", () => {
 				realNameInfo.value = rdata.real_name_info
 				realNameInfoUpdating.value = rdata.real_name_update_info
 				privacyInfo.value = rdata.privacy_info
+				insideTransferStatus.value = rdata.inside_transfer_status
+				outsideTransferStatus.value = rdata.outside_transfer_status
 			}
 		} catch (error) {
 			handleError(error)
@@ -95,17 +110,20 @@ export const useDomainDetailStore = defineStore("domain-detail-store", () => {
 		realNameInfo,
 		realNameInfoUpdating,
 		openTemplateChangeDialog,
+		openDnsChangeDialog,
 		realNameTemplates,
 		realNameTemplatesLoading,
 		openPrivacyDialog,
+		insideTransferStatus,
+		outsideTransferStatus,
 
 		// 方法
 		fetchDomainInfo,
 		fetchRealNameTemplateList,
 	}
-});
+})
 
 export const useDomainDetailState = () => {
-  const store = useDomainDetailStore();
-  return { ...store, ...storeToRefs(store) };
-};
+	const store = useDomainDetailStore()
+	return { ...store, ...storeToRefs(store) }
+}

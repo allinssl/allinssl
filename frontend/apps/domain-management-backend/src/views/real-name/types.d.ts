@@ -155,7 +155,7 @@ export interface DomainRegistrationFormData {
 	template_name: string
 	/** 模板类型 1-个人, 2-企业 */
 	type: number
-	/** 证件类型 1-身份证, 2-营业执照 */
+	/** 1身份证，2营业执照，3其他-统一社会信用代码，4境外机构证件,5护照,6统一社会信用代码,7社会团体法人登记证书,8民办非企业单位登记证书，9组织机构代码证，10事业单位法人证书，11律师事务所执业许可证，12军官证 */
 	id_type: number
 	/** 证件号码 */
 	id_number: string
@@ -167,6 +167,8 @@ export interface DomainRegistrationFormData {
 	business_license: string | string[]
 	/** 是否默认模板 */
 	is_default: boolean
+	/** 企业联系人证件号码 */
+	business_concat_id_number: string
 	// 中文模板信息
 	/** 中文模板信息 */
 	owner_name: string

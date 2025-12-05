@@ -5,34 +5,34 @@
 
 import { defineComponent, ref, nextTick } from 'vue'
 import {
-  NInput,
-  NInputNumber,
-  NSelect,
-  NButton,
-  NSpace,
-  NText,
-  NDataTable,
-  NTag,
-  NEllipsis,
-  NSwitch,
-  type SelectOption,
-  type DataTableColumns,
-  type DataTableRowKey,
-  NFlex,
-  NCascader,
-  CascaderOption,
-  NCard,
-  NPagination,
-  NIcon,
-  NDivider,
-} from "naive-ui";
-import { useMessage, useDialog } from "@baota/naive-ui/hooks";
+	NInput,
+	NInputNumber,
+	NSelect,
+	NButton,
+	NSpace,
+	NText,
+	NDataTable,
+	NTag,
+	NEllipsis,
+	NSwitch,
+	type SelectOption,
+	type DataTableColumns,
+	type DataTableRowKey,
+	NFlex,
+	NCascader,
+	CascaderOption,
+	NCard,
+	NPagination,
+	NIcon,
+	NDivider,
+} from 'naive-ui'
+import { useMessage, useDialog } from '@baota/naive-ui/hooks'
 import { useDnsAnalysisController } from './useController'
 import { useApp } from '@/components/layout/useStore'
 
 import type { DnsRecordItem } from '@/types/domain'
 import type { DnsRecordForm } from '../../types'
-import { CloseOutline, SearchOutline } from '@vicons/ionicons5';
+import { CloseOutline, SearchOutline } from '@vicons/ionicons5'
 
 // 顶层导出：字段帮助信息（供组件内与表单弹窗复用）
 export const getFieldHelpInfo = (field: string, type: string = 'A') => {
@@ -254,10 +254,10 @@ export default defineComponent({
 		const checkedRowKeys = ref<DataTableRowKey[]>([]) // 获取移动端状态
 
 		// 顶部操作栏（移动端）搜索表单开关
-		const showSearchForm = ref<boolean>(false);
+		const showSearchForm = ref<boolean>(false)
 		const toggleSearchForm = () => {
-			showSearchForm.value = !showSearchForm.value;
-		};
+			showSearchForm.value = !showSearchForm.value
+		}
 
 		/**
 		 * 渲染状态切换开关
@@ -439,7 +439,7 @@ export default defineComponent({
 				uid: 0,
 			} as any)
 			expandedRowKeys.value = ['_adding_']
-			
+
 			// 自动设置悬浮到主机记录字段
 			setDefaultHover('_adding_')
 		}
@@ -467,7 +467,7 @@ export default defineComponent({
 				viewId: row.viewID,
 			})
 			expandedRowKeys.value = [row.record_id]
-			
+
 			// 自动设置悬浮到主机记录字段
 			setDefaultHover(row.record_id)
 		}
@@ -490,7 +490,7 @@ export default defineComponent({
 				viewId: 0,
 			})
 			expandedRowKeys.value = []
-			
+
 			// 清除悬浮状态
 			hoveredField.value = null
 			hoveredRowId.value = null
@@ -511,7 +511,7 @@ export default defineComponent({
 				setTimeout(() => {
 					hoveredField.value = 'record'
 					hoveredRowId.value = String(rowId)
-					
+
 					// 自动激活主机记录输入框
 					const recordInput = document.querySelector('[data-field="record"] input') as HTMLInputElement
 					if (recordInput) {
@@ -586,7 +586,7 @@ export default defineComponent({
 			// 检查鼠标是否移动到了其他字段
 			const activeElement = document.activeElement
 			const isInEditableField = activeElement && activeElement.closest('.editable-cell')
-			
+
 			if (isInEditableField) {
 				// 如果鼠标移动到了其他可编辑字段，不清除悬浮内容
 				return
@@ -597,6 +597,33 @@ export default defineComponent({
 				hoveredField.value = null
 				hoverClearTimer = null
 			}, 150)
+		}
+
+		/**
+		 * 处理点击帮助示例选项，自动填充到对应输入框
+		 * @param field 字段名
+		 * @param value 要填充的值
+		 */
+		const handleExampleClick = (field: string, value: string) => {
+			// 只在编辑模式下允许填充
+			if (!isEditing.value && !isAdding.value) {
+				return
+			}
+
+			// 填充到对应字段
+			if (field === 'record') {
+				;(newRecord as any)[field] = value
+
+				// 自动聚焦到输入框
+				nextTick(() => {
+					const recordInput = document.querySelector('[data-field="record"] input') as HTMLInputElement
+					if (recordInput) {
+						recordInput.focus()
+						// 将光标移到末尾
+						recordInput.setSelectionRange(value.length, value.length)
+					}
+				})
+			}
 		}
 
 		/**
@@ -879,7 +906,8 @@ export default defineComponent({
 											{hoveredHelpInfo.examples.map((example: any, index: number) => (
 												<div
 													key={index}
-													class="flex items-center gap-2 px-2 py-1 bg-gray-50 rounded mb-1 text-[11px] overflow-x-auto cursor-pointer"
+													class="flex items-center gap-2 px-2 py-1 bg-gray-50 rounded mb-1 text-[11px] overflow-x-auto cursor-pointer hover:bg-blue-50 transition-colors duration-200"
+													onClick={() => handleExampleClick(hoveredField.value!, example.value)}
 												>
 													{/* 移除每行示例图标 */}
 													<code class="bg-gray-200 px-1 py-0.5 rounded font-mono text-slate-800 whitespace-pre-wrap break-all">
@@ -901,7 +929,9 @@ export default defineComponent({
 									)}
 								</div>
 							</div>
-						) : ''}
+						) : (
+							''
+						)}
 					</div>
 				</div>
 			)
@@ -1042,7 +1072,9 @@ export default defineComponent({
 								<NFlex vertical size="small">
 									<NFlex align="center" justify="space-between">
 										<NFlex align="center" size="small">
-											<NTag type="info" bordered={false} size="small">{row.type}</NTag>
+											<NTag type="info" bordered={false} size="small">
+												{row.type}
+											</NTag>
 											<NText code>{row.record}</NText>
 										</NFlex>
 										<NTag size="small" type={row.state === 0 ? 'success' : 'warning'} bordered={false}>
@@ -1067,9 +1099,18 @@ export default defineComponent({
 										{row.remark && <div class="text-xs text-gray-500">备注：{row.remark}</div>}
 									</NFlex>
 									<NFlex justify="end" size="small">
-										<NButton size="small" ghost onClick={() => handleEdit(row)}>编辑</NButton>
-										<NButton size="small" type="error" ghost onClick={() => eventDeleteRecord(row.record_id)}>删除</NButton>
-										<NButton size="small" type={row.state === 0 ? 'warning' : 'success'} ghost onClick={() => handleToggleStatus(row)}>
+										<NButton size="small" ghost onClick={() => handleEdit(row)}>
+											编辑
+										</NButton>
+										<NButton size="small" type="error" ghost onClick={() => eventDeleteRecord(row.record_id)}>
+											删除
+										</NButton>
+										<NButton
+											size="small"
+											type={row.state === 0 ? 'warning' : 'success'}
+											ghost
+											onClick={() => handleToggleStatus(row)}
+										>
 											{row.state === 0 ? '暂停' : '启用'}
 										</NButton>
 									</NFlex>
@@ -1078,7 +1119,7 @@ export default defineComponent({
 						))}
 					</div>
 				)
-			}
+			},
 		})
 
 		// 返回渲染函数
@@ -1089,16 +1130,22 @@ export default defineComponent({
 					{isMobile.value ? (
 						<NFlex vertical class="w-full" size="medium">
 							<NFlex justify="space-between" align="center">
-								<NButton type="primary" onClick={handleAdd}>添加记录</NButton>
+								<NButton type="primary" onClick={handleAdd}>
+									添加记录
+								</NButton>
 								<NButton onClick={toggleSearchForm} class="search-toggle-btn">
 									{showSearchForm.value ? (
 										<>
-											<NIcon size="18"><CloseOutline /></NIcon>
+											<NIcon size="18">
+												<CloseOutline />
+											</NIcon>
 											<span>关闭</span>
 										</>
 									) : (
 										<>
-											<NIcon size="18"><SearchOutline /></NIcon>
+											<NIcon size="18">
+												<SearchOutline />
+											</NIcon>
 											<span>搜索</span>
 										</>
 									)}
@@ -1133,37 +1180,54 @@ export default defineComponent({
 						<DnsRecordCardList data={dnsRecords.value as any} loading={isLoading.value} />
 						<NFlex justify="center" class="mt-4">
 							<NPagination
-								page={(pagination.value as any)?.page}
-								page-size={(pagination.value as any)?.pageSize}
-								item-count={(recordCount?.value as any) || 0}
+								page={recordListParams.value.p}
+								page-size={recordListParams.value.row}
+								item-count={(pagination.value as any)?.itemCount || 0}
+								show-size-picker
+								page-sizes={[10, 20, 50, 100]}
+								show-quick-jumper
+								prefix={() => `共 ${(pagination.value as any)?.itemCount || 0} 条`}
 								onUpdate:page={(page: number) => {
-									recordListParams.value.p = page;
-									fetchRecords();
+									recordListParams.value.p = page
+									fetchRecords()
 								}}
 								onUpdate:pageSize={(size: number) => {
-									recordListParams.value.row = size;
-									fetchRecords();
+									recordListParams.value.row = size
+									recordListParams.value.p = 1 // 重置到第一页
+									fetchRecords()
 								}}
 							/>
 						</NFlex>
 					</>
 				) : (
-					<NDataTable
-						loading={isLoading.value}
-						columns={columns}
-						expandedRowKeys={expandedRowKeys.value}
-						data={dnsRecords.value}
-						pagination={pagination.value as any}
-						rowKey={(row) => row.record_id} 
-						onUpdate:page={(page: number) => {
-							recordListParams.value.p = page
-							fetchRecords()
-						}}
-						onUpdate:pageSize={(size: number) => {
-							recordListParams.value.row = size
-							fetchRecords()
-						}}
-					/>
+					<>
+						<NDataTable
+							loading={isLoading.value}
+							columns={columns}
+							expandedRowKeys={expandedRowKeys.value}
+							data={dnsRecords.value}
+							rowKey={(row) => row.record_id}
+						/>
+						<NFlex justify="end" class="mt-4">
+							<NPagination
+								page={recordListParams.value.p}
+								page-size={recordListParams.value.row}
+								item-count={(pagination.value as any)?.itemCount || 0}
+								show-size-picker
+								page-sizes={[10, 20, 50, 100]}
+								prefix={() => `共 ${(pagination.value as any)?.itemCount || 0} 条`}
+								onUpdate:page={(page: number) => {
+									recordListParams.value.p = page
+									fetchRecords()
+								}}
+								onUpdate:pageSize={(size: number) => {
+									recordListParams.value.row = size
+									recordListParams.value.p = 1 // 重置到第一页
+									fetchRecords()
+								}}
+							/>
+						</NFlex>
+					</>
 				)}
 			</div>
 		)

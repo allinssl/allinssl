@@ -9,24 +9,30 @@ import { NButton, NTooltip, NTag, NSpace, NCard, NFlex } from 'naive-ui'
 import { formatDate } from '@baota/utils/date'
 import { useDomainState } from './useStore'
 import { useTable, useForm, useFormHooks } from '@baota/naive-ui/hooks'
-import { queryDomainPrice } from '@/api/domain'
+import { queryDomainPrice, getWhoisInfo } from '@/api/domain'
 import { useApp } from '@/components/layout/useStore'
 
 import type { DomainListRequest, DomainItem } from '@/types/domain'
 import { TableColumns } from 'naive-ui/es/data-table/src/interface'
-import { refreshDomainStatus } from '@api/domain'
+import { refreshDomainStatus, deleteDomain } from '@api/domain'
 import { renewOrder, queryPaymentStatus, buyByBalance } from '@/api/order'
 import type { RenewRequest, RenewData } from '@/types/order'
 import { useRechargeState } from '@/views/recharge/useStore'
 import { useRechargeController } from '@/views/recharge/useController'
 import { useModal, useMessage } from '@baota/naive-ui/hooks'
 import RenewDialog from './components/RenewDialog'
+// 导入域名详情页面的实名模板更换功能
+import { useDomainDetailState } from '../domain-details/useStore'
 
 // 定义标签类型
 type TagType = 'default' | 'success' | 'warning' | 'error' | 'info'
 
 let renewPollTimer: any
 const openRenewModalRef = ref<{ close: () => void } | undefined>()
+
+// WHOIS 查询加载状态管理
+const whoisLoadingMap = ref<Record<string, boolean>>({})
+
 /**
  * 域名管理页面控制器
  */
@@ -42,6 +48,8 @@ export function useController() {
 	const { useFormInput, useFormSelect } = useFormHooks()
 	// 获取移动端状态
 	const { isMobile } = useApp()
+	// 获取域名详情状态管理，用于实名模板更换功能
+	const { fetchRealNameTemplateList, openTemplateChangeDialog, domainInfo, realNameInfo } = useDomainDetailState()
 
 	const uMessage = useMessage()
 
@@ -169,24 +177,92 @@ export function useController() {
 			render: (row: DomainItem) => formatDate(row?.expire_time || 0, 'yyyy-MM-dd'),
 		},
 		{
+			title: '注册局状态',
+			key: 'whois_status',
+			width: 140,
+			render: (row: DomainItem) => {
+				const isLoading = whoisLoadingMap.value[row.full_domain] || false
+				return (
+					<div class="flex flex-wrap items-center gap-1">
+						{row.whois_status
+							? row.whois_status
+									.split(' ')
+									.filter(Boolean)
+									.map((statusPart, index) => (
+										<NTag
+											key={`${row.full_domain}-${index}`}
+											type={getWhoisStatusType(statusPart)}
+											bordered={false}
+											size="small"
+										>
+											{statusPart}
+										</NTag>
+									))
+							: ''}
+						<NButton
+							quaternary
+							size="tiny"
+							type="primary"
+							loading={isLoading}
+							disabled={isLoading}
+							onClick={(e) => {
+								e.stopPropagation()
+								handleQueryWhois(row.full_domain)
+							}}
+						>
+							{isLoading ? '查询中...' : row.whois_status ? '刷新' : '查询状态'}
+						</NButton>
+					</div>
+				)
+			},
+		},
+		{
 			title: '操作',
 			key: 'actions',
 			width: 200,
 			align: 'right',
 			fixed: 'right',
-			render: (row: DomainItem) => (
-				<NSpace justify="end">
-					<NButton size="small" type="primary" ghost onClick={() => handleManage(row)}>
-						管理
-					</NButton>
-					<NButton size="small" ghost onClick={() => handleRenew(row)}>
-						续费
-					</NButton>
-					<NButton size="small" ghost onClick={() => handleDns(row)}>
-						解析
-					</NButton>
-				</NSpace>
-			),
+			render: (row: DomainItem) => {
+				// 当real_name_status为0时，仅显示立即实名按钮
+				if (row.real_name_status === 0) {
+					return (
+						<NSpace justify="end">
+							<NButton size="small" type="error" ghost onClick={() => openTemplateChangeModal(row.id)}>
+								立即实名
+							</NButton>
+						</NSpace>
+					)
+				} else if (row.real_name_status === 4) {
+					// 更换中
+					return (
+						<NSpace justify="end">
+							<NButton size="small" type="warning" ghost disabled>
+								更换中
+							</NButton>
+						</NSpace>
+					)
+				}
+
+				// 其他情况保持原有逻辑
+				return (
+					<NSpace justify="end">
+						<NButton size="small" type="primary" ghost onClick={() => handleManage(row)}>
+							管理
+						</NButton>
+						<NButton size="small" ghost onClick={() => handleRenew(row)}>
+							续费
+						</NButton>
+						<NButton size="small" ghost onClick={() => handleDns(row)}>
+							解析
+						</NButton>
+						{row.status === 5 && (
+							<NButton size="small" type="error" ghost onClick={() => handleDeleteDomain(row.id)}>
+								删除
+							</NButton>
+						)}
+					</NSpace>
+				)
+			},
 		},
 	] as TableColumns<DomainItem>
 
@@ -268,6 +344,11 @@ export function useController() {
 									<NButton size="small" ghost onClick={() => handleDns(item)}>
 										解析
 									</NButton>
+									{item.status === 5 && (
+										<NButton size="small" type="error" ghost onClick={() => handleDeleteDomain(item.id)}>
+											删除
+										</NButton>
+									)}
 								</NFlex>
 							</NFlex>
 						</NCard>
@@ -325,6 +406,21 @@ export function useController() {
 		return DOMAIN_STATUS_CONFIG[key]?.type || 'default'
 	}
 
+	/**
+	 * 获取whois状态类型
+	 */
+	const getWhoisStatusType = (whoisStatus: string | undefined): TagType => {
+		if (!whoisStatus) return 'error'
+
+		if (whoisStatus === '正常') {
+			return 'success'
+		} else if (whoisStatus === '转移中') {
+			return 'warning'
+		} else {
+			return 'error'
+		}
+	}
+
 	// -------------------- 事件处理 --------------------
 
 	/**
@@ -358,6 +454,32 @@ export function useController() {
 	function handleDns(row: DomainItem) {
 		// router.push(`/domain/detail/${row.id}?tabs=analysis`)
 		router.push(`/domain-resolve/detail/${row.id}?domain_name=${row.full_domain}`)
+	}
+
+	/**
+	 * 打开实名模板更换弹窗
+	 */
+	const openTemplateChangeModal = async (domainId: string | number) => {
+		// 先加载实名模板列表
+		await fetchRealNameTemplateList()
+
+		// 遵循 real-name 模式，将 useModal 结果赋值给 store 中的 ref
+		openTemplateChangeDialog.value = useModal({
+			title: '更换实名模板',
+			area: '650px',
+			component: () => import('../domain-details/components/RealNameTemplateChangeDialog'),
+			componentProps: {
+				domainId: Number(domainId),
+				domainInfo: domainInfo.value,
+				isNotReal: true,
+				currentTemplate: realNameInfo.value,
+				refresh: async () => {
+					// 刷新域名列表
+					await fetchDomainListData()
+				},
+			},
+			footer: false,
+		})
 	}
 
 	// 续费入口
@@ -530,6 +652,36 @@ export function useController() {
 	}
 
 	/**
+	 * 查询域名 whois 信息
+	 * @param domainName 完整域名
+	 */
+	async function handleQueryWhois(domainName: string) {
+		// 防止重复点击
+		if (whoisLoadingMap.value[domainName]) {
+			return
+		}
+
+		try {
+			// 设置加载状态
+			whoisLoadingMap.value[domainName] = true
+
+			// 调用 whois 查询 API
+			const { fetch: whoisFetch, message } = getWhoisInfo({
+				full_domain: domainName,
+			})
+			message.value = true
+			await whoisFetch()
+			// 查询成功后刷新域名列表
+			await fetchDomain()
+		} catch (error) {
+			console.error('查询 whois 信息失败:', error)
+		} finally {
+			// 清除加载状态
+			whoisLoadingMap.value[domainName] = false
+		}
+	}
+
+	/**
 	 * 刷新域名注册状态
 	 * @param domainId 域名id
 	 */
@@ -544,6 +696,24 @@ export function useController() {
 			await fetchDomain()
 		} catch (error) {
 			console.error('刷新域名状态失败:', error)
+		}
+	}
+
+	/**
+	 * 删除域名
+	 * @param domainId 域名id
+	 */
+	async function handleDeleteDomain(domainId: number) {
+		try {
+			// 调用删除域名 API
+			const { fetch: deleteFetch, message } = deleteDomain({
+				id: domainId,
+			})
+			message.value = true
+			await deleteFetch()
+			await fetchDomain()
+		} catch (error) {
+			console.error('删除域名失败:', error)
 		}
 	}
 
@@ -585,5 +755,8 @@ export function useController() {
 		payRenewByBalance,
 		doRenew,
 		closeRenewModal,
+		handleDeleteDomain,
+		handleQueryWhois,
+		openTemplateChangeModal,
 	}
 }

@@ -3,12 +3,13 @@
  * 负责处理业务逻辑、事件响应和生命周期管理
  */
 
-import { ref, onMounted } from "vue";
-import { useRoute } from "vue-router";
-import { useModal } from "@baota/naive-ui/hooks";
-import { useDomainDetailState } from "./useStore";
-import { domainUtils } from "./config";
-import type { DomainDetailTabKey } from "./types.d";
+import { ref, onMounted } from 'vue'
+import { useRoute } from 'vue-router'
+import { useModal } from '@baota/naive-ui/hooks'
+import { useDomainDetailState } from './useStore'
+import { domainUtils } from './config'
+import type { DomainDetailTabKey } from './types.d'
+import DnsSettingsDialog from './components/DnsSettingsDialog'
 // 动态导入组件以避免循环依赖问题
 // import RealNameTemplateChangeDialog from "./components/RealNameTemplateChangeDialog";
 
@@ -26,8 +27,11 @@ export function useController(domainId: string | number) {
 		realNameInfo,
 		realNameInfoUpdating,
 		openTemplateChangeDialog,
+		openDnsChangeDialog,
 		openPrivacyDialog,
 		fetchRealNameTemplateList,
+		insideTransferStatus,
+		outsideTransferStatus,
 	} = useDomainDetailState()
 	const route = useRoute()
 
@@ -69,7 +73,28 @@ export function useController(domainId: string | number) {
 			componentProps: {
 				domainId: Number(domainId),
 				domainInfo: domainInfo.value,
+				isNotReal: false,
 				currentTemplate: realNameInfo.value,
+				refresh: async () => {
+					// 刷新域名信息
+					await fetchDomainInfo(domainId)
+				},
+			},
+			footer: false,
+		})
+	}
+
+	/**
+	 * 打开DNS服务器设置弹窗
+	 */
+	const openDnsSettingsModal = () => {
+		openDnsChangeDialog.value = useModal({
+			title: '修改DNS服务器',
+			area: '500px',
+			component: DnsSettingsDialog,
+			componentProps: {
+				domainId: Number(domainId),
+				domainInfo: domainInfo.value,
 				refresh: async () => {
 					// 刷新域名信息
 					await fetchDomainInfo(domainId)
@@ -94,9 +119,12 @@ export function useController(domainId: string | number) {
 		realNameInfoUpdating,
 		activeTab,
 		switchTab,
+		insideTransferStatus,
+		outsideTransferStatus,
 		// 方法
 		refreshDomainInfo,
 		openTemplateChangeModal,
+		openDnsSettingsModal,
 		// 工具
 		domainUtils,
 	}

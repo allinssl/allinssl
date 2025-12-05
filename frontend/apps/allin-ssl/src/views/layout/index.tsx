@@ -10,14 +10,26 @@ import {
 	watch,
 	onUnmounted,
 } from 'vue' // 添加 watch, onUnmounted
-import { NBadge, NIcon, NLayout, NLayoutContent, NLayoutHeader, NLayoutSider, NMenu, NTooltip } from 'naive-ui'
+import {
+  NBadge,
+  NDropdown,
+  NIcon,
+  NLayout,
+  NLayoutContent,
+  NLayoutHeader,
+  NLayoutSider,
+  NMenu,
+  NTooltip,
+  type DropdownOption,
+} from "naive-ui";
 import { RouterView } from 'vue-router'
 import { MenuFoldOutlined, MenuUnfoldOutlined } from '@vicons/antd'
+import { ChevronDown, MoonOutline, SunnyOutline } from "@vicons/ionicons5";
 import { useMediaQuery } from '@vueuse/core' // 引入 useMediaQuery
 
 // 内部模块导入 - Hooks/Composables
-import { useThemeCssVar } from '@baota/naive-ui/theme'
-import { useController } from './useController'
+import { useThemeCssVar, useTheme } from "@baota/naive-ui/theme";
+import { useController } from "./useController";
 // 内部模块导入 - 工具函数
 import { $t } from '@locales/index'
 // 内部模块导入 - 样式
@@ -38,6 +50,7 @@ export default defineComponent({
 	setup() {
 		const { menuItems, menuActive, isCollapsed, toggleCollapse, handleExpand, handleCollapse, updateMenuActive } =
 			useController()
+		const { themeActive } = useTheme();
 		// 确保所有需要的颜色变量都已在 useThemeCssVar 中声明，或直接在 CSS Module 中使用 var(--n-...)
 		const cssVars = useThemeCssVar([
 			'bodyColor', // --n-color 通常是 bodyColor
@@ -46,6 +59,7 @@ export default defineComponent({
 			'textColorBase',
 			'textColor1',
 			'textColor2',
+			'textColor3',
 			'textColorSecondary',
 			'actionColor',
 			'layoutContentBackgroundColor',
@@ -57,7 +71,7 @@ export default defineComponent({
 		const hasUpdate = ref(false)
 		const versionData = ref<VersionData | null>(null)
 		const showUpdateModal = ref(false)
-		const checkTimer = ref<NodeJS.Timeout | null>(null)
+		const checkTimer = ref<number | null>(null)
 
 		// 版本检查API
 		const versionApi = getVersion()
@@ -156,117 +170,220 @@ export default defineComponent({
 		// NMenu 的折叠状态 (此处的 menuCollapsedState 变量名可以替换为 nMenuCollapsedProp)
 		// const menuCollapsedState = computed(() => { ... }) // 旧的，将被 nMenuCollapsedProp 替代
 
-		return () => (
-			<NLayout class={styles.layoutContainer} hasSider style={cssVars.value}>
-				<NLayoutSider
-					width={siderWidth.value} // 在移动端，宽度始终是展开时的宽度
-					collapsed={nLayoutSiderCollapsedProp.value} // 使用新的计算属性
-					showTrigger={false}
-					collapseMode="width"
-					collapsedWidth={siderCollapsedWidth.value} // 桌面端折叠宽度及 NMenu 折叠宽度参考
-					onCollapse={handleCollapse}
-					onExpand={handleExpand}
-					class={[styles.sider, siderDynamicClass.value].join(' ')}
-					bordered
-				>
-					<div
-						class={`${styles.logoContainer} ${
-							// Logo 容器的 'active' 状态 (仅在桌面端且折叠时应用)
-							// 在移动端，由于 NLayoutSider 自身宽度不变，不应用 active 样式来改变 Logo 区域布局
-							(isMobile.value ? false : isCollapsed.value) ? styles.logoContainerActive : ''
-						}`}
-					>
-						{/* Logo 显示逻辑 */}
-						{(isMobile.value ? false : isCollapsed.value) ? (
-							// 折叠时的 Logo (仅桌面端)
-							<div class="flex items-center justify-center w-full h-full">
-								<img src="/static/images/logo.png" alt="logo" class="h-8 w-8" />
-							</div>
-						) : (
-							// 展开时的 Logo (桌面端展开时，或移动端侧边栏可见时)
-							<div class={styles.logoContainerText}>
-								<img src="/static/images/logo.png" alt="logo" class="h-8 w-8 mr-2 sm:mr-3" />
-								<span class={`${styles.logoText} ml-0 font-bold`}>{$t('t_1_1744164835667')}</span>
-							</div>
-						)}
-						{/* 桌面端展开状态下的内部折叠按钮 */}
-						{!isCollapsed.value && !isMobile.value && (
-							<NTooltip placement="right" trigger="hover">
-								{{
-									trigger: () => (
-										<div class={styles.menuToggleButton} onClick={() => toggleCollapse()}>
-											<NIcon size={20}>
-												<MenuFoldOutlined />
-											</NIcon>{' '}
-											{/* 图标大小调整为 20 */}
-										</div>
-									),
-									default: () => <span>{$t('t_4_1744098802046')}</span>,
-								}}
-							</NTooltip>
-						)}
-					</div>
-					<NMenu
-						value={menuActive.value}
-						onUpdateValue={(key: string, item: any) => {
-							updateMenuActive(key as any) // 保留原有的菜单激活逻辑
-							// 如果是移动端并且菜单当前是展开状态，则关闭菜单
-							if (isMobile.value && !isCollapsed.value) {
-								isCollapsed.value = true // 直接设置 isCollapsed 为 true 来关闭菜单
-							}
-						}}
-						options={menuItems.value}
-						class="border-none"
-						collapsed={nMenuCollapsedProp.value} // NMenu 的折叠状态
-						collapsedWidth={siderCollapsedWidth.value}
-						collapsedIconSize={22}
-					/>
-				</NLayoutSider>
+		const themeLabelMap: Record<string, string> = {
+      defaultLight: "Default",
+      defaultDark: "Gold",
+    };
 
-				<NLayout>
-					<NLayoutHeader class={styles.header}>
-						{/* 移动端或桌面端侧边栏折叠时，在头部左侧显示展开/收起按钮 */}
-						{(isMobile.value || (!isMobile.value && isCollapsed.value)) && (
-							<div class="mr-auto">
-								<NTooltip placement="right" trigger="hover">
-									{{
-										trigger: () => (
-											<div class={styles.headerMenuToggleButton} onClick={() => toggleCollapse()}>
-												<NIcon size={20}>{isCollapsed.value ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}</NIcon>
-											</div>
-										),
-										default: () => <span>展开主菜单</span>,
-									}}
-								</NTooltip>
-							</div>
-						)}
-						<div class={styles.systemInfo}>
-							<NBadge value={1} show={hasUpdate.value} dot>
-								<span
-									class="px-[.8rem] sm:px-[.5rem] py-[.4rem] cursor-pointer hover:text-primary transition-colors text-[1.4rem] font-medium"
-									onClick={handleVersionClick}
-								>
-									{versionData.value && versionData.value.version}
-								</span>
-							</NBadge>
-						</div>
-					</NLayoutHeader>
-					<NLayoutContent class={styles.content}>
-						<RouterView>
-							{({ Component }: { Component: ComponentType }) => (
-								<Transition name="fade" mode="out-in">
-									{Component && h(Component)}
-								</Transition>
-							)}
-						</RouterView>
-					</NLayoutContent>
-				</NLayout>
-				{/* 移动端菜单展开时的背景遮罩 */}
-				{showBackdrop.value && <div class={styles.mobileMenuBackdrop} onClick={() => toggleCollapse()}></div>}
+    const themeDropdownOptions: DropdownOption[] = [
+      {
+        label: "Default",
+        key: "defaultLight",
+        icon: () => (
+          <NIcon size={16}>
+            <SunnyOutline />
+          </NIcon>
+        ),
+      },
+      {
+        label: "Gold",
+        key: "defaultDark",
+        icon: () => (
+          <NIcon size={16}>
+            <MoonOutline />
+          </NIcon>
+        ),
+      },
+    ];
 
-				{/* 更新日志弹窗 */}
-				<UpdateLogModal v-model:show={showUpdateModal.value} versionData={versionData.value} />
-			</NLayout>
-		)
+    const handleThemeSelect = (key: string | number) => {
+      if (typeof key !== "string") return;
+      if (themeActive.value === key) return;
+      themeActive.value = key;
+    };
+
+    return () => {
+      const isGoldTheme = themeActive.value === "defaultDark";
+      const ThemeIcon = isGoldTheme ? MoonOutline : SunnyOutline;
+      const currentLabel = themeLabelMap[themeActive.value] || "Default";
+
+      return (
+        <NLayout class={styles.layoutContainer} hasSider style={cssVars.value}>
+          <svg width="0" height="0" style="position: absolute">
+            <defs>
+              <linearGradient
+                id="menu-active-icon-gradient"
+                x1="0%"
+                y1="0%"
+                x2="100%"
+                y2="100%"
+              >
+                <stop offset="0%" stop-color="#9C6240" />
+                <stop offset="100%" stop-color="#FFCF76" />
+              </linearGradient>
+            </defs>
+          </svg>
+          <NLayoutSider
+            width={siderWidth.value} // 在移动端，宽度始终是展开时的宽度
+            collapsed={nLayoutSiderCollapsedProp.value} // 使用新的计算属性
+            showTrigger={false}
+            collapseMode="width"
+            collapsedWidth={siderCollapsedWidth.value} // 桌面端折叠宽度及 NMenu 折叠宽度参考
+            onCollapse={handleCollapse}
+            onExpand={handleExpand}
+            class={[styles.sider, siderDynamicClass.value].join(" ")}
+            bordered
+          >
+            <div
+              class={`${styles.logoContainer} ${
+                // Logo 容器的 'active' 状态 (仅在桌面端且折叠时应用)
+                // 在移动端，由于 NLayoutSider 自身宽度不变，不应用 active 样式来改变 Logo 区域布局
+                (isMobile.value ? false : isCollapsed.value)
+                  ? styles.logoContainerActive
+                  : ""
+              }`}
+            >
+              {/* Logo 显示逻辑 */}
+              {(isMobile.value ? false : isCollapsed.value) ? (
+                // 折叠时的 Logo (仅桌面端)
+                <div class="flex items-center justify-center w-full h-full">
+                  <img
+                    src={`/static/images/logo${isGoldTheme ? '-dark' : ''}.png`}
+                    alt="logo"
+                    class="h-8 w-8"
+                  />
+                </div>
+              ) : (
+                // 展开时的 Logo (桌面端展开时，或移动端侧边栏可见时)
+                <div class={styles.logoContainerText}>
+                  <img
+                    src={`/static/images/logo${isGoldTheme ? '-dark' : ''}.png`}
+                    alt="logo"
+                    class="h-8 w-8 mr-2 sm:mr-3"
+                  />
+                  <span class={`${styles.logoText} ml-0 font-bold`}>
+                    {$t("t_1_1744164835667")}
+                  </span>
+                </div>
+              )}
+              {/* 桌面端展开状态下的内部折叠按钮 */}
+              {!isCollapsed.value && !isMobile.value && (
+                <NTooltip placement="right" trigger="hover">
+                  {{
+                    trigger: () => (
+                      <div
+                        class={styles.menuToggleButton}
+                        onClick={() => toggleCollapse()}
+                      >
+                        <NIcon size={20}>
+                          <MenuFoldOutlined />
+                        </NIcon>{" "}
+                        {/* 图标大小调整为 20 */}
+                      </div>
+                    ),
+                    default: () => <span>{$t("t_4_1744098802046")}</span>,
+                  }}
+                </NTooltip>
+              )}
+            </div>
+            <NMenu
+              value={menuActive.value}
+              onUpdateValue={(key: string, item: any) => {
+                updateMenuActive(key as any); // 保留原有的菜单激活逻辑
+                // 如果是移动端并且菜单当前是展开状态，则关闭菜单
+                if (isMobile.value && !isCollapsed.value) {
+                  isCollapsed.value = true; // 直接设置 isCollapsed 为 true 来关闭菜单
+                }
+              }}
+              options={menuItems.value}
+              class="border-none"
+              collapsed={nMenuCollapsedProp.value} // NMenu 的折叠状态
+              collapsedWidth={siderCollapsedWidth.value}
+              collapsedIconSize={22}
+            />
+          </NLayoutSider>
+
+          <NLayout>
+            <NLayoutHeader class={styles.header}>
+              {/* 移动端或桌面端侧边栏折叠时，在头部左侧显示展开/收起按钮 */}
+              {(isMobile.value || (!isMobile.value && isCollapsed.value)) && (
+                <div class="mr-auto">
+                  <NTooltip placement="right" trigger="hover">
+                    {{
+                      trigger: () => (
+                        <div
+                          class={styles.headerMenuToggleButton}
+                          onClick={() => toggleCollapse()}
+                        >
+                          <NIcon size={20}>
+                            {isCollapsed.value ? (
+                              <MenuUnfoldOutlined />
+                            ) : (
+                              <MenuFoldOutlined />
+                            )}
+                          </NIcon>
+                        </div>
+                      ),
+                      default: () => <span>展开主菜单</span>,
+                    }}
+                  </NTooltip>
+                </div>
+              )}
+              <div class={styles.systemInfo}>
+                <div class={styles.themeSelector}>
+                  <NDropdown
+                    trigger="click"
+                    options={themeDropdownOptions}
+                    onSelect={handleThemeSelect}
+                  >
+                    <div class={styles.themeSelectorTrigger}>
+                      <NIcon size={isGoldTheme ? 16 : 18}>
+                        <ThemeIcon />
+                      </NIcon>
+                      <span class={styles.themeSelectorLabel}>
+                        {currentLabel}
+                      </span>
+                      <NIcon size={18} class={styles.themeSelectorArrow}>
+                        <ChevronDown />
+                      </NIcon>
+                    </div>
+                  </NDropdown>
+                </div>
+                <NBadge value={1} show={hasUpdate.value} dot>
+                  <span
+                    class="px-[.8rem] sm:px-[.5rem] py-[.4rem] cursor-pointer hover:text-primary transition-colors text-[1.4rem] font-medium"
+                    onClick={handleVersionClick}
+                  >
+                    {versionData.value && versionData.value.version}
+                  </span>
+                </NBadge>
+              </div>
+            </NLayoutHeader>
+            <NLayoutContent class={styles.content}>
+              <RouterView>
+                {({ Component }: { Component: ComponentType }) => (
+                  <Transition name="fade" mode="out-in">
+                    {Component && h(Component)}
+                  </Transition>
+                )}
+              </RouterView>
+            </NLayoutContent>
+          </NLayout>
+          {/* 移动端菜单展开时的背景遮罩 */}
+          {showBackdrop.value && (
+            <div
+              class={styles.mobileMenuBackdrop}
+              onClick={() => toggleCollapse()}
+            ></div>
+          )}
+
+          {/* 更新日志弹窗 */}
+          <UpdateLogModal
+            v-model:show={showUpdateModal.value}
+            versionData={versionData.value}
+          />
+        </NLayout>
+      );
+    };
 	},
 })

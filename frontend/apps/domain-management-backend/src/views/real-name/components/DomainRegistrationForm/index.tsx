@@ -3,7 +3,7 @@
  *
  * 功能特性：
  * - 完整的表单验证规则
- * - 动态字段显示（企业类型显示营业执照上传）
+ * - 动态字段显示（企业类型显示证件图片上传）
  * - 文件上传支持
  * - 级联选择器（省市区）
  * - 表单数据预览
@@ -118,6 +118,7 @@ export default defineComponent({
 			id_image_back: [],
 			business_license: [],
 			is_default: false,
+			business_concat_id_number: '',
 			// 中文模板信息
 			owner_name: '',
 			contact_person: '',
@@ -155,6 +156,7 @@ export default defineComponent({
 					// 个人：身份证，企业：营业执照
 					formData.id_type = newType === 1 ? 1 : 2
 					formData.id_number = ''
+					formData.business_concat_id_number = ''
 
 					// 清空文件列表
 					formData.id_image_front = []
@@ -168,10 +170,6 @@ export default defineComponent({
 					uploadStates.frontImagePath = ''
 					uploadStates.backImagePath = ''
 					uploadStates.businessLicensePath = ''
-
-					console.log(
-						`模板类型切换为: ${newType === 1 ? '个人' : '企业'}，证件类型: ${newType === 1 ? '身份证' : '营业执照'}`,
-					)
 				}
 			},
 		)
@@ -239,10 +237,30 @@ export default defineComponent({
 								return new Error('请输入正确的身份证号码')
 							}
 						} else {
-							// 营业执照号码验证（统一社会信用代码）
-							const businessLicenseReg = /^[0-9A-HJ-NPQRTUWXY]{2}\d{6}[0-9A-HJ-NPQRTUWXY]{10}$/
-							if (!businessLicenseReg.test(value)) {
-								return new Error('请输入正确的营业执照号码')
+							// （企业）证件号码长度判断 长度0-30字符，且不能为空
+							if (value.length === 0 || value.length > 30) {
+								return new Error('请输入长度在0-30字符之间的证件号码')
+							}
+						}
+						return true
+					},
+					trigger: ['input', 'blur'],
+				},
+			],
+			business_concat_id_number: [
+				{
+					required: true,
+					message: '请输入企业联系人证件号码',
+					trigger: ['input', 'blur'],
+				},
+				{
+					validator(rule, value) {
+						if (!value) return true // 已有必填验证，此处不重复提示
+						if (formData.type === 2) {
+							// 企业联系人证件号码验证
+							const idCardReg = /^[1-9]\d{5}(18|19|20)\d{2}((0[1-9])|(1[0-2]))(([0-2][1-9])|10|20|30|31)\d{3}[0-9Xx]$/
+							if (!idCardReg.test(value)) {
+								return new Error('请输入正确的企业联系人证件号码')
 							}
 						}
 						return true
@@ -373,8 +391,18 @@ export default defineComponent({
 				// 个人：只显示身份证
 				return [{ label: '身份证', value: 1 }]
 			} else {
-				// 企业：只显示营业执照
-				return [{ label: '营业执照', value: 2 }]
+				// 企业：2营业执照，3其他-统一社会信用代码，4境外机构证件,6统一社会信用代码,7社会团体法人登记证书,8民办非企业单位登记证书，9组织机构代码证，10事业单位法人证书，11律师事务所执业许可证
+				return [
+					{ label: '营业执照', value: 2 },
+					{ label: '统一社会信用代码', value: 6 },
+					{ label: '社会团体法人登记证书', value: 7 },
+					{ label: '民办非企业单位登记证书', value: 8 },
+					{ label: '组织机构代码证', value: 9 },
+					{ label: '事业单位法人证书', value: 10 },
+					{ label: '律师事务所执业许可证', value: 11 },
+					{ label: '其他-统一社会信用代码', value: 3 },
+					{ label: '境外机构证件', value: 4 },
+				]
 			}
 		})
 
@@ -854,7 +882,7 @@ export default defineComponent({
 							<NFormItem label="模板类型" path="type">
 								<NRadioGroup v-model:value={formData.type} name="type">
 									<NRadioButton value={1} label="个人" />
-									<NRadioButton value={2} label="企业" />
+									<NRadioButton value={2} label="企业/组织" />
 								</NRadioGroup>
 							</NFormItem>
 
@@ -863,7 +891,7 @@ export default defineComponent({
 									v-model:value={formData.id_type}
 									options={idTypeOptions.value}
 									placeholder="请选择证件类型"
-									disabled={true} // 根据模板类型自动确定，不允许手动选择
+									disabled={formData.type === 1}
 								/>
 							</NFormItem>
 
@@ -871,7 +899,7 @@ export default defineComponent({
 							{formData.type === 1 && idCardRender()}
 
 							{formData.type === 2 && (
-								<NFormItem label="营业执照" path="business_license" required>
+								<NFormItem label="证件图片" path="business_license" required>
 									<div class={styles['id-upload-container']}>
 										<div class={styles['upload-item']}>
 											<NUpload
@@ -900,7 +928,7 @@ export default defineComponent({
 														<img
 															src={uploadStates.businessLicenseBase64}
 															class={styles['preview-image']}
-															alt="营业执照"
+															alt="证件图片"
 														/>
 														{uploadStates.licenseLoading && (
 															<div class={styles['loading-overlay']}>
@@ -943,7 +971,7 @@ export default defineComponent({
 																		fontWeight: '500',
 																	}}
 																>
-																	营业执照
+																	证件图片
 																</NText>
 																<NP
 																	depth={3}
@@ -966,7 +994,7 @@ export default defineComponent({
 											</NUpload>
 											<div class={styles['upload-tips-container']}>
 												<NText type="warning" style={{ fontSize: '12px' }}>
-													请上传清晰完整的营业执照照片，确保公司名称、统一社会信用代码等信息清晰可见，无反光、遮挡或裁剪
+													请上传清晰完整的证件图片照片，确保名称、统一社会信用代码等信息清晰可见，无反光、遮挡或裁剪
 												</NText>
 											</div>
 										</div>
@@ -974,10 +1002,10 @@ export default defineComponent({
 								</NFormItem>
 							)}
 
-							<NFormItem label={formData.type === 1 ? '证件号码' : '统一社会信用代码'} path="id_number">
+							<NFormItem label="证件号码" path="id_number">
 								<NInput
 									v-model:value={formData.id_number}
-									placeholder={formData.type === 1 ? '请输入身份证号码' : '请输入统一社会信用代码'}
+									placeholder={formData.type === 1 ? '请输入身份证号码' : '请输入证件号码'}
 									clearable
 								/>
 							</NFormItem>
@@ -990,6 +1018,16 @@ export default defineComponent({
 									如果有多个模板，设置后会覆盖之前的默认模板
 								</NCheckbox>
 							</NFormItem>
+							{/* 企业模式下，身份证号*/}
+							{formData.type === 2 && (
+								<NFormItem label="身份证号" path="business_concat_id_number">
+									<NInput
+										v-model:value={formData.business_concat_id_number}
+										placeholder="请输入企业联系人证件号码"
+										clearable
+									/>
+								</NFormItem>
+							)}
 						</div>
 
 						{/* 右列 - 中文模板信息和英文模板信息 */}

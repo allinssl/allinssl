@@ -22,61 +22,76 @@ import { router } from '@router/index'
 import { CACertificateAuthorization } from '@config/data'
 import SvgIcon from '@components/SvgIcon'
 import { isEmail } from '@baota/utils/business'
+import { useTheme } from "@baota/naive-ui/theme";
 
-import type { WorkflowItem, WorkflowListParams, WorkflowHistoryParams, WorkflowHistoryItem } from '@/types/workflow'
-import type { DataTableColumn } from 'naive-ui'
-import type { TableColumn } from 'naive-ui/es/data-table/src/interface'
-import type { EabItem, EabListParams } from '@/types/access'
+import type {
+  WorkflowItem,
+  WorkflowListParams,
+  WorkflowHistoryParams,
+  WorkflowHistoryItem,
+} from "@/types/workflow";
+import type { DataTableColumn } from "naive-ui";
+import type { TableColumn } from "naive-ui/es/data-table/src/interface";
+import type { EabItem, EabListParams } from "@/types/access";
 
 const {
-	refreshTable,
-	fetchWorkflowList,
-	fetchWorkflowHistory,
-	workflowFormData,
-	deleteExistingWorkflow,
-	executeExistingWorkflow,
-	stopExistingWorkflow,
-	setWorkflowActive,
-	setWorkflowExecType,
-	caFormData,
-	fetchEabList,
-	addNewEab,
-	updateExistingEab,
-	deleteExistingEab,
-	resetCaForm,
-	copyExistingWorkflow,
-} = useStore()
-const { isEdit, workDefalutNodeData, resetWorkflowData, workflowData, detectionRefresh } = useWorkflowViewStore()
-const { handleError } = useError()
-const { useFormSlot } = useFormHooks()
+  refreshTable,
+  fetchWorkflowList,
+  fetchWorkflowHistory,
+  workflowFormData,
+  deleteExistingWorkflow,
+  executeExistingWorkflow,
+  stopExistingWorkflow,
+  setWorkflowActive,
+  setWorkflowExecType,
+  caFormData,
+  fetchEabList,
+  addNewEab,
+  updateExistingEab,
+  deleteExistingEab,
+  resetCaForm,
+  copyExistingWorkflow,
+} = useStore();
+const {
+  isEdit,
+  workDefalutNodeData,
+  resetWorkflowData,
+  workflowData,
+  detectionRefresh,
+} = useWorkflowViewStore();
+const { handleError } = useError();
+const { useFormSlot } = useFormHooks();
 
 /**
  * @description 状态列
  * @param {string} key - 状态列的key
  * @returns {DataTableColumn<WorkflowHistoryItem>[]} 返回状态列配置数组
  */
-const statusCol = <T extends Record<string, any>>(key: string, title: string): TableColumn<T> => ({
-	title,
-	key,
-	width: 100,
-	render: (row: T) => {
-		const statusMap: Record<string, { type: string; text: string }> = {
-			success: { type: 'success', text: $t('t_0_1747895713179') },
-			fail: { type: 'error', text: $t('t_4_1746773348957') },
-			running: { type: 'warning', text: $t('t_1_1747895712756') },
-		}
-		const status = statusMap[row[key] as string] || {
-			type: 'default',
-			text: $t('t_1_1746773348701'),
-		}
-		if (row[key] === 'running') refreshTable.value = true
-		return (
-			<NTag type={status.type as any} size="small">
-				{status.text}
-			</NTag>
-		)
-	},
-})
+const statusCol = <T extends Record<string, any>>(
+  key: string,
+  title: string
+): TableColumn<T> => ({
+  title,
+  key,
+  width: 100,
+  render: (row: T) => {
+    const statusMap: Record<string, { type: string; text: string }> = {
+      success: { type: "success", text: $t("t_0_1747895713179") },
+      fail: { type: "error", text: $t("t_4_1746773348957") },
+      running: { type: "warning", text: $t("t_1_1747895712756") },
+    };
+    const status = statusMap[row[key] as string] || {
+      type: "default",
+      text: $t("t_1_1746773348701"),
+    };
+    if (row[key] === "running") refreshTable.value = true;
+    return (
+      <NTag round type={status.type as any} size="small" class={status.type as any}>
+        {status.text}
+      </NTag>
+    );
+  },
+});
 
 /**
  * @description 工作流业务逻辑控制器
@@ -87,6 +102,8 @@ export const useController = () => {
   const route = useRoute();
   // 获取路由实例
   const router = useRouter();
+  // 获取主题状态
+  const { isDark } = useTheme();
 
   // 判断是否为子路由
   const hasChildRoutes = computed(() => route.path !== "/auto-deploy");
@@ -212,6 +229,7 @@ export const useController = () => {
             strong
             secondary
             type="primary"
+            class="table-action-btn"
             onClick={() => handleViewHistory(row)}
           >
             {$t("t_9_1745215914666")}
@@ -221,6 +239,7 @@ export const useController = () => {
             strong
             secondary
             type="primary"
+            class="table-action-btn"
             onClick={() => handleExecuteWorkflow(row)}
           >
             {$t("t_10_1745215914342")}
@@ -230,6 +249,7 @@ export const useController = () => {
             strong
             secondary
             type="primary"
+            class="table-action-btn"
             onClick={() => handleCopyWorkflow(row)}
           >
             复制
@@ -239,6 +259,7 @@ export const useController = () => {
             strong
             secondary
             type="primary"
+            class="table-action-btn"
             onClick={() => handleEditWorkflow(row)}
           >
             {$t("t_11_1745215915429")}
@@ -248,6 +269,7 @@ export const useController = () => {
             strong
             secondary
             type="error"
+            class="table-action-btn-danger"
             onClick={() => handleDeleteWorkflow(row)}
           >
             {$t("t_12_1745215914312")}
@@ -319,7 +341,7 @@ export const useController = () => {
         ? `【${workflow.name}】 - ${$t("t_9_1745215914666")}`
         : $t("t_9_1745215914666"),
       component: HistoryModal,
-      area: 850,
+      area: 870,
       componentProps: { id: workflow.id.toString() },
     });
   };
@@ -494,36 +516,36 @@ export const useController = () => {
     loading,
     param,
   };
-}
+};
 
 /**
  * @description 添加工作流业务逻辑控制器
  * @returns {Object} 返回添加工作流业务逻辑控制器实例
  */
 export const useAddWorkflowController = () => {
-	const { confirm } = useModalHooks()
-	// 表单配置
-	const config = computed(() => [useFormSlot('template')])
+  const { confirm } = useModalHooks();
+  // 表单配置
+  const config = computed(() => [useFormSlot("template")]);
 
-	// 表单实例
-	const { component: AddWorkflowForm, data } = useForm({
-		config,
-		rules: {},
-		defaultValue: workflowFormData,
-	})
+  // 表单实例
+  const { component: AddWorkflowForm, data } = useForm({
+    config,
+    rules: {},
+    defaultValue: workflowFormData,
+  });
 
-	// 确认添加工作流
-	confirm(async (close) => {
-		try {
-			close()
-			resetWorkflowData()
-			router.push(`/auto-deploy/workflow-view?type=${data.value.templateType}`)
-		} catch (error) {
-			handleError(error)
-		}
-	})
-	return { AddWorkflowForm }
-}
+  // 确认添加工作流
+  confirm(async (close) => {
+    try {
+      close();
+      resetWorkflowData();
+      router.push(`/auto-deploy/workflow-view?type=${data.value.templateType}`);
+    } catch (error) {
+      handleError(error);
+    }
+  });
+  return { AddWorkflowForm };
+};
 
 /**
  * @description 工作流历史记录业务逻辑控制器
@@ -531,114 +553,131 @@ export const useAddWorkflowController = () => {
  * @returns {Object} 返回工作流历史记录业务逻辑控制器实例
  */
 export const useHistoryController = (id: string) => {
-	/**
-	 * @description 工作流历史详情
-	 * @param {number} workflowId - 工作流ID
-	 */
-	const handleViewHistoryDetail = async (workflowId: string) => {
-		useModal({
-			title: $t('t_0_1746579648713'),
-			component: HistoryLogsModal,
-			area: 730,
-			componentProps: { id: workflowId },
-		})
-	}
+  /**
+   * @description 工作流历史详情
+   * @param {number} workflowId - 工作流ID
+   */
+  const handleViewHistoryDetail = async (workflowId: string) => {
+    useModal({
+      title: $t("t_0_1746579648713"),
+      component: HistoryLogsModal,
+      area: 730,
+      componentProps: { id: workflowId },
+    });
+  };
 
-	/**
-	 * @description 停止工作流执行
-	 * @param {WorkflowHistoryItem} historyItem - 工作流历史记录项
-	 */
-	const handleStopWorkflow = async (historyItem: WorkflowHistoryItem) => {
-		useDialog({
-			title: $t('t_0_1749204565782'),
-			content: $t('t_1_1749204570473'),
-			onPositiveClick: async () => {
-				await stopExistingWorkflow(historyItem.id)
-				await fetch() // 刷新历史记录表格
-				// 触发外部主表格刷新
-				refreshTable.value = true
-			},
-		})
-	}
+  /**
+   * @description 停止工作流执行
+   * @param {WorkflowHistoryItem} historyItem - 工作流历史记录项
+   */
+  const handleStopWorkflow = async (historyItem: WorkflowHistoryItem) => {
+    useDialog({
+      title: $t("t_0_1749204565782"),
+      content: $t("t_1_1749204570473"),
+      onPositiveClick: async () => {
+        await stopExistingWorkflow(historyItem.id);
+        await fetch(); // 刷新历史记录表格
+        // 触发外部主表格刷新
+        refreshTable.value = true;
+      },
+    });
+  };
 
-	/**
-	 * @description 创建历史记录表格列配置
-	 * @returns {DataTableColumn<WorkflowHistoryItem>[]} 返回表格列配置数组
-	 */
-	const createColumns = (): DataTableColumn<WorkflowHistoryItem>[] => [
-		{
-			title: $t('t_4_1745227838558'),
-			key: 'create_time',
-			width: 200,
-			render: (row: WorkflowHistoryItem) => {
-				// 处理数字类型的时间戳
-				return row.create_time ? row.create_time : '-'
-			},
-		},
-		{
-			title: $t('t_5_1745227839906'),
-			key: 'end_time',
-			width: 200,
-			render: (row: WorkflowHistoryItem) => {
-				// 处理数字类型的时间戳
-				return row.end_time ? row.end_time : '-'
-			},
-		},
-		{
-			title: $t('t_6_1745227838798'),
-			key: 'exec_type',
-			width: 120,
-			render: (row: WorkflowHistoryItem) => (
-				<NTag type={row.exec_type === 'auto' ? 'info' : 'default'} size="small" bordered={false}>
-					{row.exec_type === 'auto' ? $t('t_2_1745215915397') : $t('t_3_1745215914237')}
-				</NTag>
-			),
-		},
-		statusCol<WorkflowHistoryItem>('status', $t('t_7_1745227838093')),
-		{
-			title: $t('t_8_1745215914610'),
-			key: 'actions',
-			fixed: 'right',
-			align: 'right',
-			width: 180,
-			render: (row: WorkflowHistoryItem) => (
-				<NSpace justify="end" size="small">
-					{row.status === 'running' && (
-						<NButton size="tiny" strong secondary type="error" onClick={() => handleStopWorkflow(row)}>
-							{$t('t_0_1749204565782')}
-						</NButton>
-					)}
-					<NButton
-						size="tiny"
-						strong
-						secondary
-						type="primary"
-						onClick={() => handleViewHistoryDetail(row.id.toString())}
-					>
-						{$t('t_12_1745227838814')}
-					</NButton>
-				</NSpace>
-			),
-		},
-	]
+  /**
+   * @description 创建历史记录表格列配置
+   * @returns {DataTableColumn<WorkflowHistoryItem>[]} 返回表格列配置数组
+   */
+  const createColumns = (): DataTableColumn<WorkflowHistoryItem>[] => [
+    {
+      title: $t("t_4_1745227838558"),
+      key: "create_time",
+      width: 200,
+      render: (row: WorkflowHistoryItem) => {
+        // 处理数字类型的时间戳
+        return row.create_time ? row.create_time : "-";
+      },
+    },
+    {
+      title: $t("t_5_1745227839906"),
+      key: "end_time",
+      width: 200,
+      render: (row: WorkflowHistoryItem) => {
+        // 处理数字类型的时间戳
+        return row.end_time ? row.end_time : "-";
+      },
+    },
+    {
+      title: $t("t_6_1745227838798"),
+      key: "exec_type",
+      width: 120,
+      render: (row: WorkflowHistoryItem) => (
+        <NTag
+          type={row.exec_type === "auto" ? "info" : "default"}
+          size="small"
+          bordered={false}
+          class={row.exec_type === "auto" ? "tag-info" : "tag-default"}
+        >
+          {row.exec_type === "auto"
+            ? $t("t_2_1745215915397")
+            : $t("t_3_1745215914237")}
+        </NTag>
+      ),
+    },
+    statusCol<WorkflowHistoryItem>("status", $t("t_7_1745227838093")),
+    {
+      title: $t("t_8_1745215914610"),
+      key: "actions",
+      fixed: "right",
+      align: "right",
+      width: 180,
+      render: (row: WorkflowHistoryItem) => (
+        <NSpace justify="end" size="small">
+          {row.status === "running" && (
+            <NButton
+              size="tiny"
+              strong
+              secondary
+              type="error"
+              onClick={() => handleStopWorkflow(row)}
+            >
+              {$t("t_0_1749204565782")}
+            </NButton>
+          )}
+          <NButton
+            size="tiny"
+            strong
+            secondary
+            type="primary"
+            class="table-action-btn"
+            onClick={() => handleViewHistoryDetail(row.id.toString())}
+          >
+            {$t("t_12_1745227838814")}
+          </NButton>
+        </NSpace>
+      ),
+    },
+  ];
 
-	// 表格实例
-	const { TableComponent, PageComponent, loading, fetch } = useTable<WorkflowHistoryItem, WorkflowHistoryParams>({
-		config: createColumns(),
-		request: fetchWorkflowHistory,
-		defaultValue: { id, p: 1, limit: 10 },
-		alias: { page: 'p', pageSize: 'limit' },
-		watchValue: ['p', 'limit'],
-		storage: 'autoDeployHistoryPageSize',
-	})
+  // 表格实例
+  const { TableComponent, PageComponent, loading, fetch } = useTable<
+    WorkflowHistoryItem,
+    WorkflowHistoryParams
+  >({
+    config: createColumns(),
+    request: fetchWorkflowHistory,
+    defaultValue: { id, p: 1, limit: 10 },
+    alias: { page: "p", pageSize: "limit" },
+    watchValue: ["p", "limit"],
+    storage: "autoDeployHistoryPageSize",
+  });
 
-	return {
-		TableComponent,
-		PageComponent,
-		loading,
-		fetch,
-	}
-}
+  return {
+    TableComponent,
+    PageComponent,
+    loading,
+    fetch,
+  };
+};
 
 /**
  * @description 处理CA授权类型
@@ -699,10 +738,10 @@ export const useCAManageController = (props: { type: string }) => {
 			fixed: 'right' as const,
 			render: (row: EabItem) => (
 				<NSpace justify="end">
-					<NButton size="tiny" strong secondary type="primary" onClick={() => handleEdit(row)}>
+					<NButton class="table-action-btn" size="tiny" strong secondary type="primary" onClick={() => handleEdit(row)}>
 						{$t('t_11_1745215915429')}
 					</NButton>
-					<NButton size="tiny" strong secondary type="error" onClick={() => confirmDelete(row.id.toString())}>
+					<NButton class="table-action-btn-danger" size="tiny" strong secondary type="error" onClick={() => confirmDelete(row.id.toString())}>
 						{$t('t_12_1745215914312')}
 					</NButton>
 				</NSpace>

@@ -70,7 +70,7 @@ export default defineComponent({
 					header: () => props.title,
 					'header-extra': () => (
 						<NSpace>
-							<NButton onClick={refreshLogs} size="small" type="primary" disabled={isLoading.value}>
+							<NButton onClick={refreshLogs} class="gradient-primary-btn" size="small" type="primary" disabled={isLoading.value}>
 								{{
 									icon: () => (
 										<NIcon>
@@ -81,7 +81,7 @@ export default defineComponent({
 								}}
 							</NButton>
 							{props.enableDownload && (
-								<NButton onClick={downloadLogs} size="small" disabled={isLoading.value || !logContent.value.length}>
+								<NButton class="gradient-default-btn" onClick={downloadLogs} size="small" disabled={isLoading.value || !logContent.value.length}>
 									{{
 										icon: () => (
 											<NIcon>

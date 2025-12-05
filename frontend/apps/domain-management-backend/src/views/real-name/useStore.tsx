@@ -25,17 +25,27 @@ const { handleError } = useError()
  */
 const TEMPLATE_TYPE_MAP = {
 	1: { text: '个人', color: '#1890ff' },
-	2: { text: '企业', color: '#722ed1' },
+	2: { text: '企业/组织', color: '#722ed1' },
 	unknown: { text: '未知类型', color: '#666666' },
 } as const
 
 /**
  * 证件类型映射配置
+ * 1身份证，2营业执照，3其他-统一社会信用代码，4境外机构证件,5护照,6统一社会信用代码,7社会团体法人登记证书,8民办非企业单位登记证书，9组织机构代码证，10事业单位法人证书，11律师事务所执业许可证，12军官证
  */
 const CERTIFICATE_TYPE_MAP = {
 	1: { text: '身份证', color: '#1890ff' },
 	2: { text: '营业执照', color: '#52c41a' },
-	3: { text: '护照', color: '#faad14' },
+	3: { text: '其他-统一社会信用代码', color: '#faad14' },
+	4: { text: '境外机构证件', color: '#faad14' },
+	5: { text: '护照', color: '#faad14' },
+	6: { text: '统一社会信用代码', color: '#faad14' },
+	7: { text: '社会团体法人登记证书', color: '#faad14' },
+	8: { text: '民办非企业单位登记证书', color: '#faad14' },
+	9: { text: '组织机构代码证', color: '#faad14' },
+	10: { text: '事业单位法人证书', color: '#faad14' },
+	11: { text: '律师事务所执业许可证', color: '#faad14' },
+	12: { text: '军官证', color: '#faad14' },
 	unknown: { text: '未知证件', color: '#666666' },
 } as const
 
@@ -249,7 +259,7 @@ export const useRealNameStore = defineStore('real-name-store', () => {
 		templateTableParams.p = 1 // 重置到第一页
 		await fetchTemplateList()
 	}
-	
+
 	const openRealNameDialog = ref()
 
 	// 返回状态和方法

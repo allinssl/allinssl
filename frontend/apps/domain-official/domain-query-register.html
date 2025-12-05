@@ -43,15 +43,15 @@
 
 						<!-- 域名注册搜索面板 -->
 						<div id="normal-search-panel" class="search-panel">
-						<div class="flex w-full mb-2">
-							<!-- 搜索框和按钮 -->
-							<div id="search-section" class="flex flex-col sm:flex-row gap-3 w-full">
-								<div class="input-container">
-									<input type="text" value="" placeholder="输入您想注册的域名（如：yourbrand）" class="search-input"
-										id="domain-query-input" />
-									<i class="fa fa-times-circle clear-input-button visible" id="clear-input-button" title="清空输入"></i>
-								</div>
-								<button class="primary-action-button text-lg">重新查询</button>
+							<div class="flex w-full mb-2">
+								<!-- 搜索框和按钮 -->
+								<div id="search-section" class="flex flex-col sm:flex-row gap-3 w-full">
+									<div class="input-container">
+										<input type="text" value="" placeholder="输入您想注册的域名（如：yourbrand）" class="search-input"
+											id="domain-query-input" />
+										<i class="fa fa-times-circle clear-input-button visible" id="clear-input-button" title="清空输入"></i>
+									</div>
+									<button class="primary-action-button text-lg">重新查询</button>
 								</div>
 							</div>
 						</div>
@@ -65,37 +65,25 @@
 									<div class="ai-search-inner">
 										<form autocomplete="off">
 											<div id="ai-search-section" class="flex flex-col lg:flex-row gap-3 w-full">
-											<!-- 品牌名称输入框 -->
-											<div class="ai-input-group flex-1">
-												<i class="ai-input-icon fa fa-building"></i>
-																							<input 
-												type="text" 
-												id="brand-name-input" 
-												class="ai-search-input"
-												placeholder="请输入品牌/公司/个人/产品名称"
-												autocomplete="off"
-												spellcheck="false"
-											>
-											</div>
-											
-											<!-- 行业信息输入框 -->
-											<div class="ai-input-group flex-1">
-												<i class="ai-input-icon fa fa-industry"></i>
-																							<input 
-												type="text" 
-												id="industry-input" 
-												class="ai-search-input"
-												placeholder="请输入行业信息"
-												autocomplete="off"
-												spellcheck="false"
-											>
-											</div>
-											
-											<!-- AI推荐按钮 -->
-											<button type="button" id="ai-recommend-btn" class="ai-transparent-button">
-												<i class="ai-button-icon fa fa-search"></i>
-												<span class="ai-button-text">AI推荐</span>
-											</button>
+												<!-- 品牌名称输入框 -->
+												<div class="ai-input-group flex-1">
+													<i class="ai-input-icon fa fa-building"></i>
+													<input type="text" id="brand-name-input" class="ai-search-input"
+														placeholder="请输入品牌/公司/个人/产品名称" autocomplete="off" spellcheck="false">
+												</div>
+
+												<!-- 行业信息输入框 -->
+												<div class="ai-input-group flex-1">
+													<i class="ai-input-icon fa fa-industry"></i>
+													<input type="text" id="industry-input" class="ai-search-input" placeholder="请输入行业信息"
+														autocomplete="off" spellcheck="false">
+												</div>
+
+												<!-- AI推荐按钮 -->
+												<button type="button" id="ai-recommend-btn" class="ai-transparent-button">
+													<i class="ai-button-icon fa fa-search"></i>
+													<span class="ai-button-text">AI推荐</span>
+												</button>
 											</div>
 										</form>
 									</div>
@@ -266,6 +254,12 @@
 							{{#if item.hasNew}}
 							<div class="status-badge status-badge-new">新人特惠</div>
 							{{#end if}}
+							{{#if item.isCnSuffix}}
+							<div class="status-badge status-badge-cn">可购买隐私保护</div>
+							{{#end if}}
+							{{#if item.isTopSuffix}}
+							<div class="status-badge status-badge-top">自带隐私保护</div>
+							{{#end if}}
 								</div>
 								{{#if item.hasAiMeaning}}
 								<!-- AI推荐域名意义解释 -->
@@ -317,7 +311,7 @@
         								<td class="py-2 px-3 text-center">{{item.renewPrice}}</td>
         								<td class="py-2 px-3 text-center border-r border-b border-gray-200">{{item.renewPrice3Years}}</td>
         								<td class="py-2 px-3 text-center border-r border-b border-gray-200">{{item.renewPrice5Years}}</td>
-        								<td class="py-2 px-3 text-center">{{item.renewPrice10Years}}</td>
+        								<td class="py-2 px-3 text-center">-</td>
         							</tr>
         						</tbody>
         					</table>
@@ -621,64 +615,6 @@
       </div>
     </script>
 
-		<!-- 支付方式选择模板 -->
-		<script type="text/template" id="payment-method-selector-template">
-      <div class="payment-method-section mb-6">
-        <div class="payment-methods-grid">
-          <!-- 微信支付 -->
-          <div class="payment-method-item {{#if isWechatSelected}}selected{{#end if}}" data-method="wechat">
-            <div class="payment-method-icon">
-              <i class="fa fa-wechat text-green-500 text-2xl"></i>
-            </div>
-            <div class="payment-method-info">
-              <div class="payment-method-name">微信支付</div>
-              <div class="payment-method-desc">使用微信扫码支付</div>
-            </div>
-            <div class="payment-method-radio">
-              <div class="custom-radio {{#if isWechatSelected}}checked{{#end if}}">
-                <div class="radio-inner"></div>
-              </div>
-            </div>
-          </div>
-
-          <!-- 支付宝支付 -->
-          <div class="payment-method-item {{#if isAlipaySelected}}selected{{#end if}}" data-method="alipay">
-            <div class="payment-method-icon">
-              <i class="fa fa-alipay text-primary-500 text-2xl"></i>
-            </div>
-            <div class="payment-method-info">
-              <div class="payment-method-name">支付宝</div>
-              <div class="payment-method-desc">使用支付宝扫码支付</div>
-            </div>
-            <div class="payment-method-radio">
-              <div class="custom-radio {{#if isAlipaySelected}}checked{{#end if}}">
-                <div class="radio-inner"></div>
-              </div>
-            </div>
-          </div>
-
-          <!-- 账号余额 -->
-          <div class="payment-method-item {{#if isBalanceSelected}}selected{{#end if}}" data-method="balance">
-            <div class="payment-method-icon">
-              <i class="fa fa-credit-card text-orange-500 text-2xl"></i>
-            </div>
-            <div class="payment-method-info">
-              <div class="payment-method-name">账号余额</div>
-              <div class="payment-method-desc">当前余额：¥{{accountBalance}}</div>
-              {{#if insufficientBalance}}
-              <div class="text-red-500 text-xs mt-1">余额不足，请选择其他支付方式</div>
-              {{#end if}}
-            </div>
-            <div class="payment-method-radio">
-              <div class="custom-radio {{#if isBalanceSelected}}checked{{#end if}} {{#if insufficientBalance}}disabled{{#end if}}">
-                <div class="radio-inner"></div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </script>
-
 		<!-- 支付弹窗右侧支付区域模板 -->
 		<script type="text/template" id="payment-modal-payment-section-template">
       <div class="payment-section">
@@ -823,21 +759,16 @@
                   <svg t="1754466895972" class="icon payment-icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="4734" width="32" height="32" xmlns:xlink="http://www.w3.org/1999/xlink"><path d="M1023.795 853.64v6.348a163.807 163.807 0 0 1-163.807 163.807h-696.18A163.807 163.807 0 0 1 0 859.988v-696.18A163.807 163.807 0 0 1 163.807 0h696.181a163.807 163.807 0 0 1 163.807 163.807V853.64z" fill="#009FE9" p-id="4735"></path><path d="M844.836 648.267c-40.952-14.333-95.623-34.809-156.846-57.128a949.058 949.058 0 0 0 90.094-222.573H573.325V307.14h245.711v-43.41l-245.71 2.458V143.33H472.173c-18.223 0-21.704 20.476-21.704 20.476v102.38H204.759v40.952h245.71v61.427H245.712v40.952h409.518a805.522 805.522 0 0 1-64.909 148.246c-128.384-42.795-266.186-77.604-354.233-55.08a213.564 213.564 0 0 0-112.003 63.27c-95.418 116.917-26.21 294.034 175.274 294.034 119.989 0 236.087-67.366 325.771-177.73 134.322 65.932 398.666 176.297 398.666 176.297V701.3s-32.352-4.095-178.96-53.033z m-563.702 144.97c-158.893 0-204.759-124.699-126.336-194.112a191.86 191.86 0 0 1 90.913-46.276c93.575-10.238 189.811 35.629 293.624 86.614-74.941 94.598-166.674 153.774-258.2 153.774z" fill="#FFFFFF" p-id="4736"></path></svg>
                   <span>支付宝</span>
                 </div>
-                <!-- <div class="segmented-option {{#if isBalanceSelected}}active{{#end if}} {{#if insufficientBalance}}disabled{{#end if}}" data-method="balance">
-                  <img src="src/icons/credit-card.svg" alt="余额支付" class="payment-icon">
-
-                  {{#if insufficientBalance}}
-                  <span class="text-xs text-red-500 ml-1">(余额不足)</span>
-                  {{#else}}
+                <div class="segmented-option {{#if isBalanceSelected}}active{{#end if}}" data-method="balance">
+                  <svg t="1758616942241" class="icon payment-icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="12039" width="32" height="32"><path d="M412.8 320h185.6c57.6 0 102.4-124.8 102.4-124.8 0-38.4-3.2-64-67.2-67.2s-80 44.8-124.8 44.8c-48 0-70.4-35.2-128-44.8-57.6-6.4-67.2 32-67.2 67.2 0 0 44.8 124.8 99.2 124.8z m195.2 38.4h-195.2c-217.6 0-268.8 425.6-268.8 425.6 0 54.4 44.8 112 102.4 112h531.2c54.4 0 102.4-57.6 102.4-112 0 0-54.4-425.6-272-425.6z m22.4 326.4c12.8 0 22.4 9.6 22.4 22.4s-9.6 22.4-22.4 22.4h-96v60.8c0 12.8-9.6 22.4-22.4 22.4-12.8 0-22.4-9.6-22.4-22.4v-60.8h-96c-12.8 0-22.4-9.6-22.4-22.4s9.6-22.4 22.4-22.4h96v-28.8h-96c-12.8 0-22.4-9.6-22.4-22.4s9.6-22.4 22.4-22.4h64l-67.2-118.4c-6.4-12.8-3.2-25.6 9.6-32 12.8-6.4 25.6-3.2 32 9.6L512 608h3.2l80-140.8c6.4-12.8 22.4-16 32-9.6 12.8 6.4 16 22.4 9.6 32L569.6 608h60.8c12.8 0 22.4 9.6 22.4 22.4 0 12.8-9.6 22.4-22.4 22.4h-96v28.8h96z" fill="#F8904C" p-id="12040"></path></svg>
                   <span>余额支付</span>
-                  {{#end if}}
-                </div> -->
+                </div>
                 <div class="segmented-slider"></div>
               </div>
             </div>
 
             <!-- 二维码显示区域 -->
-            <div class="qr-code-section mt-4 hidden" id="qr-code-section">
+            <div id="qr-code-section" class="qr-code-section mt-4 !hidden">
               <div class="qr-code-container">
                 <div class="qr-code-header">
                   <h4 class="text-base font-medium mb-2" id="qr-code-title">请使用微信扫码支付</h4>
@@ -858,13 +789,14 @@
                   <div class="text-gray-500 text-sm text-center mt-4">
                     <i class="fa fa-info-circle mr-1"></i>
                     <span id="qr-code-tip">请在手机上打开微信，扫描上方二维码完成支付</span>
+										<p style="font-size: 11px;margin-top: 10px;">【一个实名信息仅限购买一个域名，购买多个域名将按原价支付】</p>
                   </div>
                 </div>
               </div>
             </div>
 
             <!-- 余额支付确认区域 -->
-            <div class="balance-payment-section mt-4 hidden flex-1" id="balance-payment-section">
+            <div class="balance-payment-section mt-4 !hidden flex-1" id="balance-payment-section">
               <div class="balance-payment-container bg-gray-50 rounded-lg  h-full p-4">
                 <div class="balance-payment-header mb-4">
                   <h4 class="text-base font-medium mb-2 flex items-center">
@@ -894,21 +826,17 @@
                     <span class="text-gray-600">本次消费：</span>
                     <span class="font-bold text-orange-500">{{formattedPayableTotal}}</span>
                   </div>
-                  <div class="flex justify-between items-center mb-4 p-3 bg-primary-5 rounded border border-primary-20">
-                    <span class="text-gray-800 font-medium">支付后余额：</span>
-                    <span class="font-bold text-primary">{{remainingBalance}}</span>
-                  </div>
                 </div>
 
 
                 <div class="balance-payment-actions">
-                  <button id="confirm-balance-payment-btn" class="w-full bg-primary hover:bg-primary-90 text-white text-lg font-bold py-3 px-6 rounded transition-all duration-200 disabled:bg-gray-400 disabled:cursor-not-allowed shadow-lg hover:shadow-xl" {{#if insufficientBalance}}disabled{{#end if}}>
+                  <button id="confirm-balance-payment-btn" class="w-full bg-primary hover:bg-primary-90 text-white text-lg font-bold py-3 px-6 rounded transition-all duration-200 disabled:bg-gray-400 disabled:cursor-not-allowed shadow-lg hover:shadow-xl cursor-pointer" {{#if insufficientBalance}}disabled{{#end if}}>
                     {{#if insufficientBalance}}余额不足{{#else}}确认支付{{#end if}}
                   </button>
                   {{#if insufficientBalance}}
-                  <button id="recharge-btn" class="w-full bg-orange-500 hover:bg-orange-600 text-white text-base font-medium py-2 px-6 rounded transition-all duration-200 mb-3">
-                    <i class="fa fa-plus mr-2"></i>立即充值
-                  </button>
+                  <div class="text-center" style="margin-top:10px">
+										<a class="text-primary hover:text-primary" style="text-decoration: none;" href="/domain/recharge">立即充值</a>
+                  </div>
                   {{#end if}}
                 </div>
               </div>

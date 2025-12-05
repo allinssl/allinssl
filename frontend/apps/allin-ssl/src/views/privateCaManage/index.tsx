@@ -62,7 +62,7 @@ export default defineComponent({
 									show-arrow={false}
 									width={100}
 								>
-									<NButton type="primary" size="large" class="px-5">	
+									<NButton type="primary" size="large" class="gradient-primary-btn px-5">	
 										创建CA
 										<NIcon size="20" class="ml-2">
 											<ChevronDown />
@@ -70,7 +70,7 @@ export default defineComponent({
 									</NButton>
 								</NDropdown>
 							),
-							headerRight: () => <SearchComponent placeholder="请输入名称搜索" />,
+							headerRight: () => <SearchComponent class="header-search" placeholder="请输入名称搜索" />,
 							content: () => (
 								<div class="rounded-lg">
 									<TableComponent

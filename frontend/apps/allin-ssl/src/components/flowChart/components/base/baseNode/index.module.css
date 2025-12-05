@@ -180,3 +180,111 @@
 .nodeMoveIcon {
   @apply w-[3.5rem] h-[3.5rem] cursor-pointer;
 } 
+
+.endNode {
+	@apply w-[1.5rem] h-[1.5rem] rounded-[1rem] bg-[#cacaca]
+}
+
+.endNodeTxt {
+	@apply text-[#5a5e66] mb-[10rem] pt-2
+}
+
+:global(.defaultDark) {
+	.nodeBody {
+		background-color: #171717;
+		:global(.n-tag) {
+			position: relative;
+			cursor: pointer;
+			z-index: 0;
+			background-color: #282218;
+			border-radius: 30px;
+			:global(.n-tag__border) {
+				display: none !important;
+			}
+			
+			/* 渐变边框 */
+			&::before {
+				content: '';
+				position: absolute;
+				inset: 0;
+				border-radius: inherit;
+				padding: 1px;
+				background: var(--menu-active-gradient);
+				-webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+				mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+				mask-composite: exclude;
+				pointer-events: none;
+				z-index: 0;
+			}
+			
+			:global(.n-tag__content) {
+				background: var(--menu-active-gradient) !important;
+				-webkit-background-clip: text !important;
+				background-clip: text !important;
+				-webkit-text-fill-color: transparent !important;
+				color: transparent !important;
+				
+				span,
+				* {
+					background: var(--menu-active-gradient) !important;
+					-webkit-background-clip: text !important;
+					background-clip: text !important;
+					-webkit-text-fill-color: transparent !important;
+					color: transparent !important;
+				}
+			}
+		}
+	}
+	.nodeHeader {
+		font-weight: 600;
+		background-color: transparent!important;
+		input{
+			color: #000!important;
+		}
+	}
+	.nodeContent {
+		border-radius: 6px;
+		padding: 1px;
+		background-color: transparent;
+		background: var(--menu-active-gradient);
+	}
+	.nodeArrows::before {
+		display: none;
+	}
+	.endNode {
+		background-image: linear-gradient(45deg, #FFF4DA 0%, #FFCD72 100%)!important;
+	}
+	.endNodeTxt {
+		background-image: linear-gradient(45deg, #FFF4DA 0%, #FFCD72 100%);
+		-webkit-background-clip: text;
+		background-clip: text;
+		-webkit-text-fill-color: transparent;
+		color: transparent;
+	}
+	.nodeConditionHeader {
+		background-color: transparent!important;
+	}
+	.nodeConditionHeader input:focus {
+		background-color: transparent!important;
+	}
+	
+	/* 执行结果分支 - 成功状态的边框 */
+	[data-branch-type="success"] .nodeExecuteResultBranch {
+		border: 1px solid var(--n-success-status-color) !important;
+		input {
+			color: var(--n-success-status-color) !important;
+		}
+	}
+
+	/* 执行结果分支 - 失败状态的边框 */
+	[data-branch-type="fail"] .nodeExecuteResultBranch {
+		border: 1px solid var(--n-error-primary-color) !important;
+		input {
+			color: var(--n-error-primary-color) !important;
+		}
+	}
+	.nodeExecuteResultBranch {
+		background-image: none!important;
+		background-color: #161616!important;
+	}
+}

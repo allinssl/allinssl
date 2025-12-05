@@ -30,13 +30,13 @@ export default defineComponent({
 												}}
 											>
 												<NCard
-													class={`rounded-lg border-1 ${workflowFormData.value.templateType === item.value ? 'border-primary-500' : ''}`}
+													class={`workflow-template-card rounded-lg border-1 ${workflowFormData.value.templateType === item.value ? 'border-primary-500 selected' : ''}`}
 													hoverable
 												>
 													<NSpace align="center" justify="space-between">
 														<div>
-															<div class="font-medium text-[14px]">{item.label}</div>
-															<div class="text-gray-500 text-[12px] mt-1">{item.description}</div>
+															<div class="font-bold text-[14px]">{item.label}</div>
+															<div class="text-color5 text-[12px] mt-1">{item.description}</div>
 														</div>
 														<NRadio checked={workflowFormData.value.templateType === item.value} />
 													</NSpace>
