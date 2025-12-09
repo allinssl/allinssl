@@ -156,6 +156,7 @@ func init() {
 
 	InsertIfNotExists(db, "access_type", map[string]any{"name": "cloudflare", "type": "host"}, []string{"name", "type"}, []any{"cloudflare", "host"})
 	InsertIfNotExists(db, "access_type", map[string]any{"name": "rainyun", "type": "dns"}, []string{"name", "type"}, []any{"rainyun", "dns"})
+	InsertIfNotExists(db, "access_type", map[string]any{"name": "rainyun", "type": "host"}, []string{"name", "type"}, []any{"rainyun", "host"})
 	InsertIfNotExists(db, "access_type", map[string]any{"name": "cloudflare", "type": "dns"}, []string{"name", "type"}, []any{"cloudflare", "dns"})
 	InsertIfNotExists(db, "access_type", map[string]any{"name": "huaweicloud", "type": "host"}, []string{"name", "type"}, []any{"huaweicloud", "host"})
 	InsertIfNotExists(db, "access_type", map[string]any{"name": "huaweicloud", "type": "dns"}, []string{"name", "type"}, []any{"huaweicloud", "dns"})

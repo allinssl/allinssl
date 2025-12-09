@@ -6,8 +6,9 @@ import (
 	"ALLinSSL/backend/internal/cert/deploy"
 	"ALLinSSL/backend/internal/cert/deploy/plugin"
 	"ALLinSSL/backend/public"
-	"github.com/gin-gonic/gin"
 	"strings"
+
+	"github.com/gin-gonic/gin"
 )
 
 func GetAccessList(c *gin.Context) {
@@ -323,6 +324,8 @@ func TestAccess(c *gin.Context) {
 		result = deploy.TencentCloudAPITest(form.ID)
 	case "aliyun":
 		result = deploy.AliyunCdnAPITest(form.ID)
+	case "rainyun":
+		result = deploy.RainyunApiTest(form.ID)
 	case "qiniu":
 		result = deploy.QiniuAPITest(form.ID)
 	case "baidu":
