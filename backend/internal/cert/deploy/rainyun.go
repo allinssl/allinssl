@@ -90,7 +90,7 @@ func DeployRainyunSSLCenter(cfg map[string]any) error {
 
 	// 更新证书中心
 	reqPath := fmt.Sprintf("/product/sslcenter/%s", certId)
-	resp, err := requestRainyunApi(reqPath, apiKey, http.MethodPost, cert)
+	resp, err := requestRainyunApi(reqPath, apiKey, http.MethodPut, cert)
 	if err != nil {
 		return err
 	}

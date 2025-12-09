@@ -111,7 +111,7 @@ func Deploy(cfg map[string]any, logger *public.Logger) error {
 		logger.Debug("通过Webhook推送证书...")
 		return webhook.Deploy(cfg)
 	case "rainyun-sslcenter":
-		logger.Debug("通过Webhook推送证书...")
+		logger.Debug("部署到雨云证书中...")
 		return DeployRainyunSSLCenter(cfg)
 	default:
 		return fmt.Errorf("不支持的部署: %s", providerName)

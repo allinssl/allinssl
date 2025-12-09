@@ -143,6 +143,10 @@ export function createNodeFormConfig() {
 			return [this.input($t('t_0_1747296173751'), 'siteName', { placeholder: $t('t_0_1748589752275') })]
 		},
 
+		rainyunSSLCenterDeploy(){
+			return [this.input("证书ID", 'cert_id', { placeholder:"雨云证书中心中显示的ID"})]
+		},
+
 		/**
 		 * 创建1Panel站点相关字段
 		 * @param valueRef 值引用
