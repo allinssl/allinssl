@@ -62,8 +62,8 @@ import { testAccess, getPlugins } from "@/api/access";
 // import { useLocalStorage } from '@vueuse/core'
 
 import ApiManageForm from "./components/ApiManageModel";
-import SvgIcon from "@components/SvgIcon";
-import TypeIcon from "@components/TypeIcon";
+import SvgIcon from "@/components/svgIcon";
+import TypeIcon from "@/components/typeIcon";
 import { noSideSpace } from "@lib/utils";
 import { JSX } from "vue/jsx-runtime";
 
@@ -1267,6 +1267,15 @@ export const useApiFormController = (
           useFormInput("Account ID", "config.account_id", {
             allowInput: noSideSpace,
           })
+        );
+        break;
+      case "rainyun":
+        items.push(
+          useFormInput("API Key", "config.api_key", {
+            type: "password",
+            showPasswordOn: "click",
+            allowInput: noSideSpace,
+          }),
         );
         break;
       case "plugin":

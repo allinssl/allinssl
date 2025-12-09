@@ -278,6 +278,12 @@ export const ApiProjectConfig: Record<string, ApiProjectType> = {
     hostRelated: { default: { name: "BTDomain" } },
     sort: 33,
   },
+  rainyun: {
+    name: "雨云",
+    icon: "rainyun",
+    type: ["dns"],
+    sort: 33,
+  },
   plugin: {
     name: "插件",
     icon: "plugin",
