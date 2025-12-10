@@ -2,7 +2,7 @@ import { NButton, NCard, NStep, NSteps, NText, NTooltip, NTabs, NTabPane, NInput
 import { useForm, useModalClose, useModalOptions, useMessage } from '@baota/naive-ui/hooks'
 import { useThemeCssVar } from '@baota/naive-ui/theme'
 import { useError } from '@baota/hooks/error'
-import { useStore } from '@components/FlowChart/useStore'
+import { useStore } from '@/components/flowChart/useStore'
 import { getSites, getPlugins } from '@api/access'
 
 import { $t } from '@locales/index'
@@ -18,12 +18,12 @@ import {
 	filterDeployTypeOptions,
 } from '@workflowView/lib/DeployUtils'
 
-import SvgIcon from '@components/SvgIcon'
-import DnsProviderSelect from '@components/DnsProviderSelect'
+import SvgIcon from '@/components/svgIcon'
+import DnsProviderSelect from '@/components/dnsProviderSelect'
 import SearchOutlined from '@vicons/antd/es/SearchOutlined'
 
-import type { DeployNodeConfig, DeployNodeInputsConfig } from '@components/FlowChart/types'
-import type { DnsProviderType } from '@components/DnsProviderSelect/types'
+import type { DeployNodeConfig, DeployNodeInputsConfig } from '@/components/flowChart/types'
+import type { DnsProviderType } from '@/components/dnsProviderSelect/types'
 import type { VNode } from 'vue'
 
 import styles from './index.module.css'
@@ -233,6 +233,9 @@ export default defineComponent({
 					break
 				case 'lecdn':
 					config.push(...formConfig.leCdnDeploy())
+					break
+				case 'rainyun-sslcenter':
+					config.push(...formConfig.rainyunSSLCenterDeploy())
 					break
 				case 'plugin':
 					// 插件部署配置

@@ -5,14 +5,21 @@ import (
 	"ALLinSSL/backend/public/sqlite_migrate"
 	"database/sql"
 	"fmt"
-	_ "modernc.org/sqlite"
 	"os"
 	"path/filepath"
+	"strings"
+
+	_ "modernc.org/sqlite"
 )
 
 func init() {
 	// 指定运行目录为当前目录
 	exePath, err := os.Executable()
+
+	// 如果为开发环境则使用工作目录
+	if strings.Contains(exePath, "go-build") {
+		exePath, _ = os.Getwd()
+	}
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "获取可执行文件路径失败: %v\n", err)
 		os.Exit(1)
@@ -148,6 +155,8 @@ func init() {
 	INSERT INTO access_type (name, type) VALUES ('1panel', 'host');`)
 
 	InsertIfNotExists(db, "access_type", map[string]any{"name": "cloudflare", "type": "host"}, []string{"name", "type"}, []any{"cloudflare", "host"})
+	InsertIfNotExists(db, "access_type", map[string]any{"name": "rainyun", "type": "dns"}, []string{"name", "type"}, []any{"rainyun", "dns"})
+	InsertIfNotExists(db, "access_type", map[string]any{"name": "rainyun", "type": "host"}, []string{"name", "type"}, []any{"rainyun", "host"})
 	InsertIfNotExists(db, "access_type", map[string]any{"name": "cloudflare", "type": "dns"}, []string{"name", "type"}, []any{"cloudflare", "dns"})
 	InsertIfNotExists(db, "access_type", map[string]any{"name": "huaweicloud", "type": "host"}, []string{"name", "type"}, []any{"huaweicloud", "host"})
 	InsertIfNotExists(db, "access_type", map[string]any{"name": "huaweicloud", "type": "dns"}, []string{"name", "type"}, []any{"huaweicloud", "dns"})

@@ -10,6 +10,13 @@ import (
 	"crypto/tls"
 	"encoding/json"
 	"fmt"
+	"net/http"
+	"net/url"
+	"os"
+	"strconv"
+	"strings"
+	"time"
+
 	azcorecloud "github.com/Azure/azure-sdk-for-go/sdk/azcore/cloud"
 	"github.com/go-acme/lego/v4/certcrypto"
 	"github.com/go-acme/lego/v4/certificate"
@@ -31,18 +38,13 @@ import (
 	"github.com/go-acme/lego/v4/providers/dns/namedotcom"
 	"github.com/go-acme/lego/v4/providers/dns/namesilo"
 	"github.com/go-acme/lego/v4/providers/dns/ns1"
+	"github.com/go-acme/lego/v4/providers/dns/rainyun"
 	"github.com/go-acme/lego/v4/providers/dns/route53"
 	"github.com/go-acme/lego/v4/providers/dns/spaceship"
 	"github.com/go-acme/lego/v4/providers/dns/tencentcloud"
 	"github.com/go-acme/lego/v4/providers/dns/volcengine"
 	"github.com/go-acme/lego/v4/providers/dns/westcn"
 	"github.com/go-acme/lego/v4/registration"
-	"net/http"
-	"net/url"
-	"os"
-	"strconv"
-	"strings"
-	"time"
 )
 
 var AlgorithmMap = map[string]certcrypto.KeyType{
@@ -217,6 +219,11 @@ func GetDNSProvider(providerName string, creds map[string]string, httpClient *ht
 		config.APISecret = creds["api_secret"]
 		config.PropagationTimeout = maxWait
 		return spaceship.NewDNSProviderConfig(config)
+	case "rainyun":
+		config := rainyun.NewDefaultConfig()
+		config.APIKey = creds["api_key"]
+		config.PropagationTimeout = maxWait
+		return rainyun.NewDNSProviderConfig(config)
 	case "btdomain":
 		config := bt.NewDefaultConfig()
 		config.AccountID = creds["account_id"]
