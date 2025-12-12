@@ -3,6 +3,7 @@ import { $t } from '@locales/index'
 import { Ref } from 'vue'
 import { useFormHooks } from '@baota/naive-ui/hooks'
 import { noSideSpace } from '@lib/utils'
+import type { RadioOptionItem } from 'naive-ui/es/radio/src/interface'
 
 export interface FormOption extends SelectOption {
 	category?: string
@@ -14,7 +15,7 @@ export interface FormOption extends SelectOption {
  * 用于生成各种节点类型的表单配置项
  */
 export function createNodeFormConfig() {
-	const { useFormInput, useFormTextarea, useFormSelect } = useFormHooks()
+	const { useFormInput, useFormTextarea, useFormSelect, useFormRadioButton } = useFormHooks()
 
 	return {
 		/**
@@ -119,6 +120,24 @@ export function createNodeFormConfig() {
 		},
 
 		/**
+		 * 创建单选按钮组
+		 * @param label 标签
+		 * @param path 字段路径
+		 * @param options 选项数组
+		 * @param radioProps 单选按钮属性
+		 * @param formItemProps 表单项属性
+		 */
+		radioButton(
+			label: string,
+			path: string,
+			options: RadioOptionItem[],
+			radioProps: Record<string, any> = {},
+			formItemProps: Record<string, any> = {},
+		) {
+			return useFormRadioButton(label, path, options, radioProps = {}, formItemProps)
+		},
+
+		/**
 		 * 部署相关的表单配置
 		 */
 
@@ -141,10 +160,6 @@ export function createNodeFormConfig() {
 		 */
 		siteDeploy() {
 			return [this.input($t('t_0_1747296173751'), 'siteName', { placeholder: $t('t_0_1748589752275') })]
-		},
-
-		rainyunSSLCenterDeploy(){
-			return [this.input("证书ID", 'cert_id', { placeholder:"雨云证书中心中显示的ID"})]
 		},
 
 		/**

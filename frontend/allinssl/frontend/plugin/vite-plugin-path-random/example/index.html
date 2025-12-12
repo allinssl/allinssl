@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Random Cache Plugin 示例</title>
+    <link rel="stylesheet" href="./styles/main.css?v=1755687106028&v=1755687106028">
+    <link rel="stylesheet" href="./styles/theme.css?version=1.0&v=1755687106028&v=1755687106028">
+    <link rel="preload" href="./fonts/font.woff2" as="font" type="font/woff2" crossorigin>
+</head>
+<body>
+    <header class="header">
+        <h1>Random Cache Plugin 示例页面</h1>
+        <p>这个页面演示了插件如何为各种资源添加随机数参数</p>
+    </header>
+    
+    <main class="main">
+        <section class="demo-section">
+            <h2>功能演示</h2>
+            <ul>
+                <li>CSS 文件引用（带随机数参数）</li>
+                <li>JavaScript 文件引用（带随机数参数）</li>
+                <li>字体文件预加载（带随机数参数）</li>
+                <li>已有查询参数的文件（追加随机数参数）</li>
+            </ul>
+        </section>
+        
+        <section class="demo-section">
+            <h2>处理前后对比</h2>
+            <div class="comparison">
+                <div class="before">
+                    <h3>处理前</h3>
+                    <code>
+                        &lt;link rel="stylesheet" href="./styles/main.css"&gt;<br>
+                        &lt;script src="./js/app.js"&gt;&lt;/script&gt;
+                    </code>
+                </div>
+                <div class="after">
+                    <h3>处理后</h3>
+                    <code>
+                        &lt;link rel="stylesheet" href="./styles/main.css?v=1703123456789_abc123"&gt;<br>
+                        &lt;script src="./js/app.js?v=1703123456789_def456"&gt;&lt;/script&gt;
+                    </code>
+                </div>
+            </div>
+        </section>
+    </main>
+    
+    <footer class="footer">
+        <p>&copy; 2024 Random Cache Plugin Example</p>
+    </footer>
+    
+    <!-- 这些脚本引用也会被处理 -->
+    <script src="./js/utils.js?v=1755687106028&v=1755687106028"></script>
+    <script src="./js/app.js?v=1755687106028&v=1755687106028"></script>
+    
+    <!-- 外部CDN链接默认不会被处理 -->
+    <script src="https://cdn.jsdelivr.net/npm/vue@3/dist/vue.global.js"></script>
+</body>
+</html>

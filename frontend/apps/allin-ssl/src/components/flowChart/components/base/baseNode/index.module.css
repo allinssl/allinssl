@@ -191,47 +191,20 @@
 
 :global(.defaultDark) {
 	.nodeBody {
-		background-color: #171717;
+		background-color: #0f0f0f;
+		> div {
+			div {
+				color: #f4d1b4!important;
+			}
+		}
 		:global(.n-tag) {
 			position: relative;
 			cursor: pointer;
 			z-index: 0;
-			background-color: #282218;
+			background-color: transparent;
 			border-radius: 30px;
 			:global(.n-tag__border) {
-				display: none !important;
-			}
-			
-			/* 渐变边框 */
-			&::before {
-				content: '';
-				position: absolute;
-				inset: 0;
-				border-radius: inherit;
-				padding: 1px;
-				background: var(--menu-active-gradient);
-				-webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-				mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-				mask-composite: exclude;
-				pointer-events: none;
-				z-index: 0;
-			}
-			
-			:global(.n-tag__content) {
-				background: var(--menu-active-gradient) !important;
-				-webkit-background-clip: text !important;
-				background-clip: text !important;
-				-webkit-text-fill-color: transparent !important;
-				color: transparent !important;
-				
-				span,
-				* {
-					background: var(--menu-active-gradient) !important;
-					-webkit-background-clip: text !important;
-					background-clip: text !important;
-					-webkit-text-fill-color: transparent !important;
-					color: transparent !important;
-				}
+				border-color: #f4d1b4 !important;
 			}
 		}
 	}
@@ -239,27 +212,22 @@
 		font-weight: 600;
 		background-color: transparent!important;
 		input{
-			color: #000!important;
+			color: #0f0f0f!important;
 		}
 	}
 	.nodeContent {
 		border-radius: 6px;
 		padding: 1px;
-		background-color: transparent;
-		background: var(--menu-active-gradient);
+		background-color: #f4d1b4;
 	}
 	.nodeArrows::before {
 		display: none;
 	}
 	.endNode {
-		background-image: linear-gradient(45deg, #FFF4DA 0%, #FFCD72 100%)!important;
+		background-color: #f4d1b4!important;
 	}
 	.endNodeTxt {
-		background-image: linear-gradient(45deg, #FFF4DA 0%, #FFCD72 100%);
-		-webkit-background-clip: text;
-		background-clip: text;
-		-webkit-text-fill-color: transparent;
-		color: transparent;
+		color: #f4d1b4;
 	}
 	.nodeConditionHeader {
 		background-color: transparent!important;
@@ -270,9 +238,14 @@
 	
 	/* 执行结果分支 - 成功状态的边框 */
 	[data-branch-type="success"] .nodeExecuteResultBranch {
-		border: 1px solid var(--n-success-status-color) !important;
+		border: 1px solid #20a53a !important;
 		input {
-			color: var(--n-success-status-color) !important;
+			color: #20a53a !important;
+		}
+		:global(.nodeClose ) {
+			svg {
+				color: #20a53a !important;
+			}
 		}
 	}
 
@@ -285,6 +258,6 @@
 	}
 	.nodeExecuteResultBranch {
 		background-image: none!important;
-		background-color: #161616!important;
+		background-color: #0f0f0f!important;
 	}
 }

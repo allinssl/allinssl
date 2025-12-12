@@ -14,16 +14,16 @@
 	--n-text-color5: #4B5563;
 
 	--n-error-bg-color-light: rgba(248, 113, 113, 0.08);
-	--n-error-primary-color: #FF4314;
+	--n-error-primary-color: #db2828;
 	--n-error-text-color: #E74E4E;
 	--n-error-border-color: #F56767;
 	--n-success-bg-color-light: #F6FFF8;
-	--n-success-status-color: #16D13B;
-	--n-success-primary-color: #006A14;
+	--n-success-status-color: #F4D1B4;
+	--n-success-primary-color: #F4D1B4;
 	--n-success-text-color: #2D8900;
 	--n-success-border-color: #25A63D;
 	--n-warning-bg-color-light: rgba(255, 251, 229, 0.42);
-	--n-warning-primary-color: #FF9D00;
+	--n-warning-primary-color: #f2711c;
 
 	/* Home View Custom Colors */
 	--color-workflow-bg: rgba(16, 185, 129, 0.08);
@@ -50,7 +50,12 @@
 	--table-link-type: none;
 
 	--setting-input-bg: #fafafa;
+	--setting-input-bg2: #fafafa;
+	--setting-title-primary: #333639;
 	--theme-select-bg: #FAFAFA;
+
+	--color-text-primary-success: #18A058;
+	--color-card-title: #333639;
 }
 
 /* 自定义文本颜色工具类 */
@@ -65,13 +70,15 @@
 .text-color5 {
 	color: var(--n-text-color5);
 }
+.setting-title {
+	color: var(--setting-title-primary);
+}
 /* 暗色主题 */
 :root.dark,
 :root.defaultDark {
-	--n-layout-content-background-color: #161616; /* 内容区背景颜色 */
-	--n-header-color: #000;
+	--n-layout-content-background-color: #0F0F0F; /* 内容区背景颜色 */
+	--n-header-color: #0f0f0f;
 	--n-color: #000;
-	--n-sider-color: #000; /* 侧边栏背景色 */
 
 	/* 自定义文本颜色 - 暗色主题 */
 	--n-success-bg-color-light: transparent;
@@ -99,10 +106,10 @@
 
 	--border-radius-base: 6px;
 
-	--content-bg-base: #000000;
+	--content-bg-base: #1c1c1c;
 
 	--bt-card-bg-color-active: #000000;
-	--content-bg-secondary: #171717;
+	--content-bg-secondary: #0f0f0f;
 
 	--border-color-transparent: transparent;
 	--form-more-color: #ffffff;
@@ -113,5 +120,11 @@
 	--workflow-header-input-bg: #2f2f2f;
 
 	--setting-input-bg: #1c1c1c;
+	--setting-input-bg2: #0f0f0f;
+	--setting-title-primary: #fff;
 	--theme-select-bg: #171717;
+
+	--n-success-border-color: #f4d1b4;
+	--color-text-primary-success: #f4d1b4;
+	--color-card-title: #f4d1b4;
 }

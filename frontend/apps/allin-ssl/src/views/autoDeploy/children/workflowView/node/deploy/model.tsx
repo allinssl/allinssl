@@ -2,7 +2,7 @@ import { NButton, NCard, NStep, NSteps, NText, NTooltip, NTabs, NTabPane, NInput
 import { useForm, useModalClose, useModalOptions, useMessage } from '@baota/naive-ui/hooks'
 import { useThemeCssVar } from '@baota/naive-ui/theme'
 import { useError } from '@baota/hooks/error'
-import { useStore } from '@/components/flowChart/useStore'
+import { useStore } from '@components/FlowChart/useStore'
 import { getSites, getPlugins } from '@api/access'
 
 import { $t } from '@locales/index'
@@ -18,17 +18,35 @@ import {
 	filterDeployTypeOptions,
 } from '@workflowView/lib/DeployUtils'
 
-import SvgIcon from '@/components/svgIcon'
-import DnsProviderSelect from '@/components/dnsProviderSelect'
+import SvgIcon from '@components/SvgIcon'
+import DnsProviderSelect from '@components/DnsProviderSelect'
 import SearchOutlined from '@vicons/antd/es/SearchOutlined'
 
-import type { DeployNodeConfig, DeployNodeInputsConfig } from '@/components/flowChart/types'
-import type { DnsProviderType } from '@/components/dnsProviderSelect/types'
+import type { DeployNodeConfig, DeployNodeInputsConfig } from '@components/FlowChart/types'
+import type { DnsProviderType } from '@components/DnsProviderSelect/types'
 import type { VNode } from 'vue'
 
 import styles from './index.module.css'
 
 type StepStatus = 'process' | 'wait' | 'finish' | 'error'
+
+// 参数配置接口
+interface ParamConfig {
+	name: string
+	type: string
+	description?: string
+	required?: boolean
+	default?: any
+	options?: any[]
+	rows?: number
+}
+
+// 插件方法选项接口
+interface PluginActionOption {
+	value: string
+	label: string
+	params?: ParamConfig[]
+}
 
 // 需要异步加载网站选择器的提供商类型
 const SITE_SELECTOR_PROVIDERS = ['btpanel-site', '1panel-site']
@@ -103,9 +121,17 @@ export default defineComponent({
 
 		// 插件方法提示
 		const pluginActionTips = ref('')
+		// 当前动态参数配置
+		const currentDynamicParams = ref<any[]>([])
+		// 配置模式 (default: 默认模式显示动态表单+自定义参数, custom: 自定义模式只显示自定义参数)
+		const configMode = ref<'default' | 'custom'>('default')
 
 		// 表单参数
 		const param = ref(deepClone(props.node.config))
+		// 确保param对象中包含configMode属性，如果已有值则保留，否则设置为默认值
+		if (!param.value.configMode) {
+			param.value.configMode = 'default'
+		}
 		// 本地提供商
 		const localProvider = ref(getLocalProviderOptions())
 		// 提供商描述
@@ -234,27 +260,148 @@ export default defineComponent({
 				case 'lecdn':
 					config.push(...formConfig.leCdnDeploy())
 					break
-				case 'rainyun-sslcenter':
-					config.push(...formConfig.rainyunSSLCenterDeploy())
-					break
 				case 'plugin':
 					// 插件部署配置
 					config.push(
-						// ...formConfig.pluginDeploy(param, pluginActionOptions, pluginActionOptionsLoading, pluginActionTips.value),
-						...[
-							formConfig.select('插件方法', 'action', pluginActionOptions.value, {
-								placeholder: '请选择插件方法',
-								filterable: true,
-								clearable: true,
-								loading: pluginActionOptionsLoading.value,
-								onUpdateValue: (value: string, option: FormOption) => {
-									param.value.action = value
-									pluginActionTips.value = renderPluginActionTips(option?.params || {})
-								},
-							}),
-							{
+						formConfig.select('插件方法', 'action', pluginActionOptions.value, {
+							placeholder: '请选择插件方法',
+							filterable: true,
+							clearable: true,
+							loading: pluginActionOptionsLoading.value,
+							onUpdateValue: (value: string, option: FormOption) => {
+								param.value.action = value
+								// 清空之前的参数
+								param.value.params = {}
+								// 重置配置模式为默认（仅在新增模式下）
+								if (!props.node.config.configMode) {
+									configMode.value = 'default'
+								}
+								// 更新当前动态参数配置
+							const selectedAction = pluginActionOptions.value.find(item => item.value === value) as PluginActionOption
+							if (selectedAction?.params) {
+								currentDynamicParams.value = selectedAction.params
+								pluginActionTips.value = renderPluginActionTips(selectedAction.params)
+								
+								// 动态更新验证规则 - 参考 authApiManage 的实现方式
+								if (configMode.value === 'default') {
+									// 清空之前的动态规则
+									if (verifyRules.params) {
+										Object.keys(verifyRules.params).forEach(key => {
+											delete verifyRules.params[key]
+										})
+									}
+									
+									// 为新的动态参数添加验证规则
+									if (!verifyRules.params) {
+										verifyRules.params = {}
+									}
+									
+									selectedAction.params.forEach((paramItem: any) => {
+										if (paramItem.required) {
+											verifyRules.params[paramItem.name] = {
+												required: true,
+												message: `请输入${paramItem.description || paramItem.name}`,
+												trigger: ['input', 'change']
+											}
+										}
+									})
+								}
+							} else {
+								currentDynamicParams.value = []
+								// 清空动态验证规则
+								if (verifyRules.params) {
+									Object.keys(verifyRules.params).forEach(key => {
+										delete verifyRules.params[key]
+									})
+								}
+							}
+							},
+						})
+					)
+
+					// 当action?.params为空数组时，只显示自定义参数文本框
+					if (currentDynamicParams.value && currentDynamicParams.value.length === 0) {
+						// 只显示自定义参数文本框
+						config.push({
+							type: 'custom' as const,
+							render: () => {
+								// 确保params是字符串类型并过滤格式
+								if (typeof param.value.params !== 'string') {
+									param.value.params = JSON.stringify(param.value.params || {}, null, 0)
+								} 
+								param.value.params = param.value.params
+									.replace(/\r\n/g, '') // 去除Windows换行
+									.replace(/\s+/g, ' ') // 将多个空格合并为单个空格
+									.trim()   
+								return (
+									<NFormItem
+										label="自定义参数"
+										path="params"
+										v-slots={{
+											label: () => (
+												<div>
+													<NText>自定义参数</NText>
+													<NTooltip
+														v-slots={{
+															trigger: () => (
+																<span class="inline-flex ml-2 -mt-1 cursor-pointer text-base rounded-full w-[14px] h-[14px] justify-center items-center  text-orange-600 border border-orange-600">
+																	?
+															</span>
+														),
+													}}
+												>
+													{pluginActionTips.value}
+												</NTooltip>
+												</div>
+											),
+										}}
+									>
+										<NInput
+											type="textarea"
+											v-model:value={param.value['params']}
+											placeholder={pluginActionTips.value}
+											rows={4}
+										/>
+									</NFormItem>
+								)
+							},
+						})
+					} else {
+						// 当action?.params有参数时，显示配置模式选择器和动态表单
+						// 添加配置模式选择器
+						config.push(
+							formConfig.radioButton(
+								'配置模式',
+								'configMode',
+								[
+									{ label: '默认', value: 'default' },
+									{ label: '自定义', value: 'custom' }
+								],
+								{ showRequireMark: false }
+							)
+						)
+						configMode.value = param.value.configMode || 'default'
+						
+						// 根据配置模式显示不同的表单
+						if (configMode.value === 'default') {
+							// 默认模式：只显示动态表单（如果有参数）
+							if (currentDynamicParams.value && currentDynamicParams.value.length > 0) {
+								const dynamicFields = renderDynamicParamForm(currentDynamicParams.value, formConfig, param)
+								config.push(...dynamicFields)
+							}
+						} else {
+							// 自定义模式：只显示自定义参数文本框
+							config.push({
 								type: 'custom' as const,
 								render: () => {
+									// 确保params是字符串类型并过滤格式
+									if (typeof param.value.params !== 'string') {
+										param.value.params = JSON.stringify(param.value.params || {}, null, 0)
+									}
+									param.value.params = param.value.params
+										.replace(/\r\n/g, '') // 去除Windows换行
+										.replace(/\s+/g, ' ') // 将多个空格合并为单个空格
+										.trim()    
 									return (
 										<NFormItem
 											label="自定义参数"
@@ -268,12 +415,12 @@ export default defineComponent({
 																trigger: () => (
 																	<span class="inline-flex ml-2 -mt-1 cursor-pointer text-base rounded-full w-[14px] h-[14px] justify-center items-center  text-orange-600 border border-orange-600">
 																		?
-																	</span>
-																),
-															}}
-														>
-															{pluginActionTips.value}
-														</NTooltip>
+																</span>
+															),
+														}}
+													>
+														{pluginActionTips.value}
+													</NTooltip>
 													</div>
 												),
 											}}
@@ -287,9 +434,9 @@ export default defineComponent({
 										</NFormItem>
 									)
 								},
-							},
-						],
-					)
+							})
+						}
+					}
 					break
 			}
 
@@ -302,9 +449,45 @@ export default defineComponent({
 			() => param.value.provider_id,
 			(newId, oldId) => {
 				handleSiteSearch('')
-				// 如果是插件类型且provider_id发生变化，加载插件方法
+				// 如果是插件类型且provider_id发生变化，重置配置模式并加载插件方法
 				if (param.value.provider === 'plugin' && newId && newId !== oldId) {
+					// 重置配置模式为默认（仅在新增模式下）
+					if (!props.node.config.configMode) {
+						configMode.value = 'default'
+					}
+					param.value.action = ''
+					param.value.params = {}
+					pluginActionOptions.value = []
+					pluginActionOptionsLoading.value = true
 					loadPluginActions()
+				}
+			},
+		)
+
+		// 监听配置模式变化，处理params数据格式转换
+		watch(
+			() => configMode.value,
+			(newMode, oldMode) => {
+				if (param.value.provider === 'plugin' && newMode !== oldMode) {
+					if (newMode === 'default') {
+						// 从自定义模式切换到默认模式：尝试解析JSON字符串为对象
+						if (typeof param.value.params === 'string') {
+							try {
+								const parsedParams = JSON.parse(param.value.params || '{}')
+								param.value.params = typeof parsedParams === 'object' && parsedParams !== null ? parsedParams : {}
+							} catch (e) {
+								// 解析失败，初始化为空对象
+								param.value.params = {}
+							}
+						}
+					} else if (newMode === 'custom') {
+						// 从默认模式切换到自定义模式：将对象转换为JSON字符串
+						if (typeof param.value.params === 'object' && param.value.params !== null) {
+							param.value.params = JSON.stringify(param.value.params, null, 2)
+						} else if (typeof param.value.params !== 'string') {
+							param.value.params = '{}'
+						}
+					}
 				}
 			},
 		)
@@ -346,6 +529,111 @@ export default defineComponent({
 		}
 
 		/**
+		 * 初始化参数字段值
+		 */
+		const initializeParamValue = (paramRef: Ref<any>, paramItem: ParamConfig): void => {
+			// 如果params是字符串（从自定义模式切换过来），尝试解析为对象
+			if (typeof paramRef.value.params === 'string') {
+				try {
+					const parsedParams = JSON.parse(paramRef.value.params || '{}')
+					paramRef.value.params = typeof parsedParams === 'object' && parsedParams !== null ? parsedParams : {}
+				} catch (e) {
+					// 解析失败，初始化为空对象
+					paramRef.value.params = {}
+				}
+			} else if (!paramRef.value.params || typeof paramRef.value.params !== 'object') {
+				paramRef.value.params = {}
+			}
+			if (paramRef.value.params[paramItem.name] === undefined) {
+				paramRef.value.params[paramItem.name] = paramItem.default || ''
+			}
+		}
+
+		/**
+		 * 获取表单字段通用配置
+		 */
+		const getFieldConfig = (paramItem: ParamConfig, inputType: 'input' | 'select' = 'input') => {
+			const isRequired = paramItem.required || false
+			const placeholder = paramItem.description || (inputType === 'select' ? `请选择${paramItem.name}` : `请输入${paramItem.name}`)
+			
+			return [{
+				placeholder,
+				required: isRequired,
+			}, {
+				showRequireMark: isRequired,
+			}]
+		}
+
+		/**
+		 * 渲染动态参数字段
+		 * 根据插件方法返回的params参数结构动态生成表单控件
+		 * 支持的参数类型：string, boolean, select, textarea
+		 * @param params 参数字段配置
+		 * @param formConfig 表单配置工厂
+		 * @param paramRef 参数引用
+		 */
+		const renderDynamicParamForm = (params: any[] = [], formConfig: any, paramRef: Ref<any>) => {
+			if (!params || params.length === 0) {
+				return []
+			}
+
+			return params.map((paramItem: ParamConfig) => {
+				const fieldPath = `params.${paramItem.name}`
+				
+				// 初始化默认值
+				initializeParamValue(paramRef, paramItem)
+
+				switch (paramItem.type) {
+					case 'string':
+						return formConfig.input(
+							paramItem.description || paramItem.name,
+							fieldPath,
+							...getFieldConfig(paramItem, 'input')
+						)
+					case 'boolean':
+						return formConfig.switch(
+							paramItem.description || paramItem.name,
+							fieldPath,
+							paramRef,
+							{
+								checkedText: '是',
+								uncheckedText: '否',
+								description: paramItem.description || '',
+							}
+						)
+					case 'select':
+						const options = paramItem.options?.map((opt: any) => ({
+							label: typeof opt === 'string' ? opt : opt.label,
+							value: typeof opt === 'string' ? opt : opt.value,
+						})) || []
+						return formConfig.select(
+							paramItem.description || paramItem.name,
+							fieldPath,
+							options,
+							...getFieldConfig(paramItem, 'select')
+						)
+					case 'textarea':
+						const [fieldConfig, requireConfig] = getFieldConfig(paramItem, 'input')
+						return formConfig.textarea(
+							paramItem.description || paramItem.name,
+							fieldPath,
+							{
+								...fieldConfig,
+								rows: paramItem.rows || 3,
+							},
+							requireConfig
+						)
+					default:
+						return formConfig.input(
+							paramItem.description || paramItem.name,
+							fieldPath,
+							...getFieldConfig(paramItem, 'input')
+						)
+				}
+			})
+		}
+
+		/**
 		 * 加载插件方法
 		 */
 		const loadPluginActions = async (): Promise<void> => {
@@ -380,12 +668,33 @@ export default defineComponent({
 						const selectedAction = actions.find((action: any) => action.name === param.value.action)
 						if (selectedAction) {
 							pluginActionTips.value = renderPluginActionTips(selectedAction.params || {})
+							currentDynamicParams.value = selectedAction.params || []
 						}
 					} else if (actions.length > 0) {
 						// 如果没有选择方法，默认选择第一个
 						const action = actions[0]
 						param.value.action = action?.name
 						pluginActionTips.value = renderPluginActionTips(action?.params || {})
+						currentDynamicParams.value = action?.params || []
+					}
+
+					// 动态添加验证规则 - 参考 authApiManage 的实现方式
+					if (configMode.value === 'default' && currentDynamicParams.value && currentDynamicParams.value.length > 0) {
+						// 确保 rules.params 存在
+						if (!verifyRules.params) {
+							verifyRules.params = {}
+						}
+						
+						// 为每个动态参数添加验证规则
+						currentDynamicParams.value.forEach((paramItem: any) => {
+							if (paramItem.required) {
+								verifyRules.params[paramItem.name] = {
+									required: true,
+									message: `请输入${paramItem.description || paramItem.name}`,
+									trigger: ['input', 'change']
+								}
+							}
+						})
 					}
 
 					// // 只在创建模式下删除 provider_data
@@ -453,7 +762,13 @@ export default defineComponent({
 		 */
 		const submit = async (): Promise<void> => {
 			try {
-				await example.value?.validate()
+				if (param.value.provider === 'plugin' && configMode.value === 'custom' && typeof param.value.params === 'string') {
+					param.value.params = param.value.params.replace(/[\r\n\s]+/g, '').replace(/'/g, '"')
+				}
+				// 表单验证
+				if (configMode.value === 'default') {
+					await example.value?.validate()
+				} 
 				const tempData = deepClone(param.value)
 
 				// 处理siteName字段的提交转换：将数组合并为字符串
@@ -464,6 +779,7 @@ export default defineComponent({
 				) {
 					tempData.siteName = tempData.siteName.join(',')
 				}
+
 
 				const inputs = tempData.inputs
 				// 将输入值直接传递给updateNodeConfig
@@ -578,7 +894,7 @@ export default defineComponent({
 							trigger: () => (
 								<NButton
 									type={next.value ? 'primary' : 'default'}
-									class={`${styles.footerButton} gradient-default-btn`}
+									class={`${styles.footerButton} ${next.value ? 'gradient-primary-btn' : 'gradient-default-btn'}`}
 									disabled={!param.value.provider}
 									onClick={next.value ? nextStep : prevStep}
 								>

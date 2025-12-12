@@ -1,0 +1,56 @@
+{
+  "code": 0,
+  "status": true,
+  "msg": "查询成功",
+  "data": {
+    "address": [
+      "3th Floor, BangNing Technology Park, 2 YuHua Avenue",
+      "Yuhuatai District",
+      "Nanjing Jiangsu",
+      "China",
+      "3th Floor, BangNing Technology Park, 2 YuHua Avenue",
+      "Yuhuatai District",
+      "Nanjing Jiangsu",
+      "China",
+      "3th Floor, BangNing Technology Park, 2 YuHua Avenue",
+      "Yuhuatai District",
+      "Nanjing Jiangsu",
+      "China"
+    ],
+    "city": "",
+    "country": "CN",
+    "creation_date": "2014-07-24 17:30:20",
+    "dnssec": "signed",
+    "domain_name": "top",
+    "emails": ["support@nic.top", "tech@nic.top"],
+    "expiration_date": "",
+    "name": "Sven Chen",
+    "name_servers": [
+      "A.ZDNSCLOUD.CN 203.99.24.1",
+      "B.ZDNSCLOUD.CN 203.99.25.1",
+      "C.ZDNSCLOUD.COM 203.99.26.1",
+      "D.ZDNSCLOUD.COM 203.99.27.1",
+      "F.ZDNSCLOUD.CN 116.169.54.111",
+      "G.ZDNSCLOUD.COM 223.72.199.37",
+      "I.ZDNSCLOUD.CN 2401:8d00:1:0:0:0:0:1",
+      "J.ZDNSCLOUD.COM 2401:8d00:2:0:0:0:0:1"
+    ],
+    "org": "Jiangsu Bangning Science & technology Co.,Ltd.",
+    "phone": [
+      "+86 18936016161",
+      "Fax: +86 2586883476",
+      "+86 15895978960",
+      "Fax: +86 02586883476"
+    ],
+    "referral_url": "whois.nic.top",
+    "registrant_postal_code": "",
+    "registrar": "",
+    "registrar_url": "",
+    "reseller": null,
+    "state": "",
+    "status": "ACTIVE",
+    "updated_date": "2025-07-29 17:30:20",
+    "whois_server": "whois.nic.top",
+    "rawData": "% IANA WHOIS server\n% for more information on IANA, visit http://www.iana.org\n% This query returned 1 object\n\nrefer:        whois.nic.top\n\ndomain:       TOP\n\norganisation: .TOP Registry\naddress:      3th Floor, BangNing Technology Park, 2 YuHua Avenue\naddress:      Yuhuatai District\naddress:      Nanjing Jiangsu\naddress:      China\n\ncontact:      administrative\nname:         Sven Chen\norganisation: Jiangsu Bangning Science & technology Co.,Ltd.\naddress:      3th Floor, BangNing Technology Park, 2 YuHua Avenue\naddress:      Yuhuatai District\naddress:      Nanjing Jiangsu\naddress:      China\nphone:        +86 18936016161\nfax-no:       +86 2586883476\ne-mail:       support@nic.top\n\ncontact:      technical\nname:         YiFeng Shen\norganisation: Jiangsu Bangning Science & technology Co.,Ltd.\naddress:      3th Floor, BangNing Technology Park, 2 YuHua Avenue\naddress:      Yuhuatai District\naddress:      Nanjing Jiangsu\naddress:      China\nphone:        +86 15895978960\nfax-no:       +86 02586883476\ne-mail:       tech@nic.top\n\nnserver:      A.ZDNSCLOUD.CN 203.99.24.1\nnserver:      B.ZDNSCLOUD.CN 203.99.25.1\nnserver:      C.ZDNSCLOUD.COM 203.99.26.1\nnserver:      D.ZDNSCLOUD.COM 203.99.27.1\nnserver:      F.ZDNSCLOUD.CN 116.169.54.111\nnserver:      G.ZDNSCLOUD.COM 223.72.199.37\nnserver:      I.ZDNSCLOUD.CN 2401:8d00:1:0:0:0:0:1\nnserver:      J.ZDNSCLOUD.COM 2401:8d00:2:0:0:0:0:1\nds-rdata:     26780 8 2 5d6e7869ee8e3b536a617de89482ddd1dcb9db9dbb1ac33d6ed351e2ca095b1b\n\nwhois:        whois.nic.top\n\nstatus:       ACTIVE\nremarks:      Registration information: http://www.nic.top\n\ncreated:      2014-07-24\nchanged:      2025-07-29\nsource:       IANA"
+  }
+}

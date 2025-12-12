@@ -125,7 +125,7 @@ export default defineComponent({
 		return () => (
 			<div class="notification-settings">
 				<div class="mb-4 px-[2rem] py-[2.4rem] bg-[var(--content-bg-base)] rounded-[6px]">
-					<div class="flex items-center mb-6">
+					<div class="flex items-center mb-6 setting-title">
 						<NIcon size="24">
 							<WarningFilled />
 						</NIcon>
@@ -134,12 +134,12 @@ export default defineComponent({
 					<NGrid cols="2 s:1 m:2" xGap={16} yGap={16}>
 						{channelConfigs.map((item) => (
 							<NGridItem key={item.type}>
-								<div class="flex justify-between items-center p-8 bg-[var(--setting-input-bg)] rounded-md hover:shadow-sm transition-shadow">
+								<div class="flex justify-between items-center p-8 bg-[var(--setting-input-bg2)] rounded-md hover:shadow-sm transition-shadow">
 									<div class="flex items-center">
 										<SvgIcon icon={`notify-${item.type}`} size="4rem" />
 										<div class="ml-4">
 											<div class="flex items-center mb-1">
-												<span class="mr-2 font-bold">{item.name}</span>
+												<span class="mr-2 font-bold setting-title">{item.name}</span>
 												{isChannelConfigured(item.type) && (
 													<NTag size="small" round class={styles.gradientTag} type="success">
 														{$t('t_8_1745735765753')} {getConfiguredCount(item.type)}
@@ -159,7 +159,7 @@ export default defineComponent({
 				{/* 已配置的通知渠道列表 */}
 				{notifyChannels.value.length > 0 && (
 					<div class="noti-settings-container px-[2rem] py-[2.4rem] bg-[var(--content-bg-base)] rounded-[6px]">
-						<div class="flex items-center mb-6">
+						<div class="flex items-center mb-6 setting-title">
 							<NIcon size="24">
 								<BellFilled />
 							</NIcon>
@@ -193,10 +193,10 @@ export default defineComponent({
 											</div>
 											<div class="flex items-center gap-8 col-span-3 justify-end">
 												<NSpace>
-													<NButton class="table-action-btn" size="small" onClick={() => editChannelConfig(item)}>
+													<NButton class="table-action-btn" secondary size="small" onClick={() => editChannelConfig(item)}>
 														{$t('t_11_1745215915429')}
 													</NButton>
-													<NButton class="table-action-btn" size="small" onClick={() => testChannelConfig(item)}>
+													<NButton class="table-action-btn" secondary size="small" onClick={() => testChannelConfig(item)}>
 														{$t('t_16_1746676855270')}
 													</NButton>
 													<NButton class="table-action-btn-danger" size="small" type="error" onClick={() => confirmDeleteChannel(item)}>

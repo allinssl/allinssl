@@ -1,0 +1,44 @@
+{
+	"extends": "@baota/typescript/vue.json",
+	"compilerOptions": {
+		"jsx": "preserve",
+		"paths": {
+			"@layout/*": ["./src/views/layout/*"],
+			"@login/*": ["./src/views/login/*"],
+			"@404/*": ["./src/views/404/*"],
+			"@autoDeploy/*": ["./src/views/autoDeploy/*"],
+			"@workflowView/*": ["./src/views/autoDeploy/children/workflowView/*"],
+			"@autoApiManage/*": ["./src/views/autoApiManage/*"],
+			"@certManage/*": ["./src/views/certManage/*"],
+			"@certApply/*": ["./src/views/certApply/*"],
+			"@home/*": ["./src/views/home/*"],
+			"@monitor/*": ["./src/views/monitor/*"],
+			"@settings/*": ["./src/views/settings/*"],
+			"@api/*": ["./src/api/*"],
+			"@assets/*": ["./src/assets/*"],
+			"@config/*": ["./src/config/*"],
+			"@components/*": ["./src/components/*"],
+			"@lib/*": ["./src/lib/*"],
+			"@router/*": ["./src/router/*"],
+			"@locales/*": ["./src/locales/*"],
+			"@styles/*": ["./src/styles/*"],
+			"@types/*": ["./src/types/*"],
+			"@views/*": ["./src/views/*"],
+			"@/*": ["./src/*"]
+		},
+		"plugins": [{ "name": "typescript-plugin-css-modules" }],
+		"types": ["vite/client"]
+	},
+	"include": [
+		"types/*.d.ts",
+		"src/*.tsx",
+		"src/*.ts",
+		"src/components/**/*.ts",
+		"src/components/**/*.tsx",
+		"src/**/*.tsx",
+		"src/**/*.vue",
+		"src/**/*.js",
+		"src/**/*.jsx",
+		"src/**/*.d.ts"
+	]
+}

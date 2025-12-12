@@ -229,7 +229,6 @@ export const useController = () => {
             strong
             secondary
             type="primary"
-            class="table-action-btn"
             onClick={() => handleViewHistory(row)}
           >
             {$t("t_9_1745215914666")}
@@ -239,7 +238,6 @@ export const useController = () => {
             strong
             secondary
             type="primary"
-            class="table-action-btn"
             onClick={() => handleExecuteWorkflow(row)}
           >
             {$t("t_10_1745215914342")}
@@ -249,7 +247,6 @@ export const useController = () => {
             strong
             secondary
             type="primary"
-            class="table-action-btn"
             onClick={() => handleCopyWorkflow(row)}
           >
             复制
@@ -259,7 +256,6 @@ export const useController = () => {
             strong
             secondary
             type="primary"
-            class="table-action-btn"
             onClick={() => handleEditWorkflow(row)}
           >
             {$t("t_11_1745215915429")}
@@ -269,7 +265,6 @@ export const useController = () => {
             strong
             secondary
             type="error"
-            class="table-action-btn-danger"
             onClick={() => handleDeleteWorkflow(row)}
           >
             {$t("t_12_1745215914312")}

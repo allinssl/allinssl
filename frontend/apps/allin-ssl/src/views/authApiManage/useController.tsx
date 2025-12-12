@@ -15,6 +15,7 @@ import {
 	NTag,
 	NText,
 	NTooltip,
+  NEmpty,
 	type DataTableColumns,
 } from 'naive-ui'
 import {
@@ -62,8 +63,8 @@ import { testAccess, getPlugins } from "@/api/access";
 // import { useLocalStorage } from '@vueuse/core'
 
 import ApiManageForm from "./components/ApiManageModel";
-import SvgIcon from "@/components/svgIcon";
-import TypeIcon from "@/components/typeIcon";
+import SvgIcon from "@components/SvgIcon";
+import TypeIcon from "@components/TypeIcon";
 import { noSideSpace } from "@lib/utils";
 import { JSX } from "vue/jsx-runtime";
 
@@ -96,7 +97,7 @@ interface ApiFormControllerExposes {
   ApiManageForm: (
     props: FormProps,
     context: Record<string, unknown>
-  ) => JSX.Element;
+  ) => any;
 }
 
 // 获取Store中的状态和方法
@@ -150,7 +151,7 @@ export const useController = (): AuthApiManageControllerExposes => {
       title: $t("t_1_1746754499371"),
       key: "type",
       width: 140,
-      render: (row) => <TypeIcon icon={row.type} type="success" />,
+      render: (row) => <TypeIcon round  class="!py-[4px] !px-[10px]" icon={row.type} type="success" />,
     },
     {
       title: $t("t_2_1746754500270"),
@@ -164,6 +165,7 @@ export const useController = (): AuthApiManageControllerExposes => {
                 key={type}
                 type={type === "dns" ? "success" : "info"}
                 size="small"
+                round
               >
                 {accessTypeMap[type as keyof typeof accessTypeMap]}
               </NTag>
@@ -329,8 +331,17 @@ interface PluginOption {
   value: string;
   description?: string;
   pluginName?: string;
-  config?: Record<string, any>;
+  config?: ConfigItem[];
   params?: string;
+}
+
+interface ConfigItem {
+  name: string;
+  type: 'string' | 'boolean' | 'enum';
+  description: string;
+  required: boolean;
+  options?: Array<string | { label: string; value: string }>;
+  config?: any
 }
 
 /**
@@ -353,6 +364,7 @@ export const useApiFormController = (
     useFormTextarea,
     useFormCustom,
     useFormSelect,
+    useFormHelp,
   } = useFormHooks();
   const param = (
     props.data?.id
@@ -363,9 +375,60 @@ export const useApiFormController = (
 
   // 插件列表
   const pluginList = ref<Array<PluginOption>>([]);
+  
+  // 生成插件配置表单控件的辅助函数
+  const generatePluginFormControl = (configItem: ConfigItem, fieldPath: string, noSideSpace: any) => {
+    const itemAttrs = {
+        required: configItem.required || false,
+        showRequireMark: configItem.required || false,
+        trigger: configItem.required ? 'input' : undefined
+      };
+    
+    // 根据配置项类型渲染不同的表单控件
+    switch (configItem.type) {
+      case 'string':
+        return useFormInput(
+          configItem.description,
+          fieldPath,
+          { allowInput: noSideSpace },
+          itemAttrs
+        );
+      case 'boolean':
+        return useFormSwitch(
+          configItem.description,
+          fieldPath,
+          { 
+            checkedValue: true, 
+            uncheckedValue: false 
+          },
+          itemAttrs
+        );
+      case 'enum':
+        // 确保options存在且是数组
+        const options = configItem.options || [];
+        return useFormSelect(
+          configItem.description,
+          fieldPath,
+          options.map((opt: any) => ({
+            label: typeof opt === 'string' ? opt : opt.label || opt,
+            value: typeof opt === 'string' ? opt : opt.value || opt
+          })),
+          {},
+          itemAttrs
+        );
+      default:
+        // 默认使用字符串输入框
+        return useFormInput(
+          configItem.description,
+          fieldPath,
+          { allowInput: noSideSpace },
+          itemAttrs
+        );
+    }
+  };
 
   // 表单规则
-  const rules = {
+  const rules: Record<string, any> = {
     name: {
       required: true,
       message: $t("t_27_1745289355721"),
@@ -754,7 +817,7 @@ export const useApiFormController = (
           </NFormItem>
         );
       }),
-    ];
+    ] as any;
 
     // 根据不同类型渲染不同的表单项
     switch (param.value.type) {
@@ -1269,18 +1332,10 @@ export const useApiFormController = (
           })
         );
         break;
-      case "rainyun":
-        items.push(
-          useFormInput("API Key", "config.api_key", {
-            type: "password",
-            showPasswordOn: "click",
-            allowInput: noSideSpace,
-          }),
-        );
-        break;
       case "plugin":
+        // 插件名称选择器
         items.push(
-          useFormCustom(() => {
+          useFormCustom(function() {
             return (
               <NFormItem
                 label={$t("t_1_1750144122230")}
@@ -1294,71 +1349,177 @@ export const useApiFormController = (
                   filterable
                   renderLabel={renderPluginLabel}
                   renderTag={renderPluginTag}
-                  v-model:value={
-                    (param.value.config as PluginAccessConfig).name
-                  }
-                  onUpdateValue={(value: string, option: PluginOption) => {
-                    (param.value.config as PluginAccessConfig).name = value;
-                    pluginActionTips.value = renderPluginTips(
-                      option.config || {}
-                    );
+                  v-model:value={param.value.config.name}
+                  onUpdateValue={(value, option) => {
+                      param.value.config.name = value;
+                      pluginActionTips.value = renderPluginTips(option.config || {});
+                      if (!param.value.config.config || typeof param.value.config.config === 'string') {
+                        param.value.config.config = {};
+                      }
                   }}
                   v-slots={{
-                    empty: () => {
-                      return (
-                        <span class="text-[1.4rem]">
-                          {$t("t_0_1750210698345")}
-                        </span>
-                      );
-                    },
+                    empty: function() { return <span class="text-[1.4rem]">{$t("t_0_1750210698345")}</span>; }
                   }}
-                />
-              </NFormItem>
-            );
-          }),
-          useFormCustom(() => {
-            const pluginConfig = param.value.config as PluginAccessConfig;
-            const getConfigValue = () => {
-              return typeof pluginConfig.config === "string"
-                ? pluginConfig.config
-                : JSON.stringify(pluginConfig.config, null, 2);
-            };
-            const handleConfigUpdate = (value: string) => {
-              (param.value.config as PluginAccessConfig).config = value;
-            };
-            return (
-              <NFormItem
-                path="config.params"
-                v-slots={{
-                  label: () => (
-                    <div>
-                      <NText>自定义参数</NText>
-                      <NTooltip
-                        v-slots={{
-                          trigger: () => (
-                            <span class="inline-flex ml-2 -mt-1 cursor-pointer text-base rounded-full w-[14px] h-[14px] justify-center items-center  text-orange-600 border border-orange-600">
-                              ?
-                            </span>
-                          ),
-                        }}
-                      >
-                        {pluginActionTips.value}
-                      </NTooltip>
-                    </div>
-                  ),
-                }}
-              >
-                <NInput
-                  type="textarea"
-                  value={getConfigValue()}
-                  onUpdateValue={handleConfigUpdate}
-                  placeholder={pluginActionTips.value}
-                  rows={4}
                 />
               </NFormItem>
             );
           })
         );
+        
+        // 配置模式选择器
+        items.push(
+          useFormRadioButton(
+            "配置模式",
+            "config.mode",
+            [
+              { label: "默认", value: "default" },
+              { label: "自定义", value: "custom" }
+            ],
+            {},
+            { showRequireMark: false }
+          )
+        );
+        
+        // 获取插件配置
+        var pluginConfig = param.value.config as PluginAccessConfig;
+        pluginConfig.mode = pluginConfig.mode || "default";
+        var selectedPlugin = pluginList.value.find(function(item) {
+          return item.value === pluginConfig.name;
+        });
+        
+        // 根据配置模式初始化不同类型的config
+        if (pluginConfig.mode === "default") {
+          // 默认模式下确保config是对象类型
+          if (!pluginConfig.config || typeof pluginConfig.config !== 'object') {
+            // 如果是字符串，尝试解析为JSON对象
+            if (typeof pluginConfig.config === 'string' && pluginConfig.config.trim()) {
+              try {
+                pluginConfig.config = JSON.parse(pluginConfig.config.trim());
+              } catch {
+                pluginConfig.config = {};
+              }
+            } else {
+              pluginConfig.config = {};
+            }
+          }
+        } else {
+          // 自定义模式下确保config是字符串类型
+          if (pluginConfig.config === undefined || pluginConfig.config === null) {
+            pluginConfig.config = '';
+          } else if (typeof pluginConfig.config === 'object') {
+            // 空对象直接设为空字符串，否则尝试JSON序列化（过滤回车和空格）
+            if (Object.keys(pluginConfig.config).length === 0) {
+              pluginConfig.config = '';
+            } else {
+              try {
+                // 不使用缩进，生成紧凑的JSON字符串
+                pluginConfig.config = JSON.stringify(pluginConfig.config);
+              } catch {
+                pluginConfig.config = '';
+              }
+            }
+          }
+        }
+        
+        // 未选择插件时显示提示
+        if (!selectedPlugin) {
+          items.push(
+            useFormCustom(function() {
+              return (
+                <NFormItem path="config.placeholder" showRequireMark={false}>
+                  <NEmpty description="请选择插件以查看配置项" />
+                </NFormItem>
+              );
+            })
+          );
+        } else if (pluginConfig.mode === "default") {
+          // 默认模式 - 动态表单
+          if (!selectedPlugin.config || selectedPlugin.config.length === 0) {
+            items.push(
+              useFormCustom(function() {
+                return (
+                  <NFormItem path="config.placeholder" showRequireMark={false}>
+                    <NEmpty description="该插件暂无配置项" />
+                  </NFormItem>
+                );
+              })
+            );
+          } else {
+            selectedPlugin.config.forEach(function(configItem) {
+              console.log('configItem', configItem)
+              var fieldPath = 'config.config.' + configItem.name;
+              // 为动态字段添加验证规则
+              if (!rules.config.config) rules.config.config = {};
+              rules.config.config[configItem.name] = {
+                required: configItem.required,
+                trigger: 'input',
+                message: '请输入' + (configItem.description || configItem.name)
+              };
+              items.push(generatePluginFormControl(configItem, fieldPath, noSideSpace));
+            });
+          }
+        } else {
+          // 自定义模式 - JSON文本框
+          items.push(
+            useFormCustom(function() {
+              const getConfigValue = () => {
+                // 确保当config为undefined、null或空对象时返回空字符串
+                if (pluginConfig.config === undefined || pluginConfig.config === null) {
+                  return '';
+                }
+                // 如果是对象且为空对象，也返回空字符串
+                if (typeof pluginConfig.config === 'object' && Object.keys(pluginConfig.config).length === 0) {
+                  return '';
+                }
+                return typeof pluginConfig.config === "string"
+                  ? pluginConfig.config
+                  : JSON.stringify(pluginConfig.config, null, 2);
+              };
+              
+              return (
+                <NFormItem
+                  path="config.config"
+                  v-slots={{
+                    label: function() {
+                      return (
+                        <div>
+                          <NText>自定义参数</NText>
+                          <NTooltip
+                            v-slots={{
+                              trigger: function() {
+                                return (
+                                  <span class="inline-flex ml-2 -mt-1 cursor-pointer text-base rounded-full w-[14px] h-[14px] justify-center items-center text-orange-600 border border-orange-600">
+                                    ?
+                                  </span>
+                                );
+                              }
+                            }}
+                          >
+                            {pluginActionTips.value}
+                          </NTooltip>
+                        </div>
+                      );
+                    }
+                  }}
+                >
+                  <NInput
+                    type="textarea"
+                    value={getConfigValue()}
+                    onUpdateValue={(value) => {
+                      pluginConfig.config = value;
+                    }}
+                    placeholder={pluginActionTips.value}
+                    rows={4}
+                  />
+                </NFormItem>
+              );
+            }),
+            useFormHelp([{
+              content: '<span class="text-[1.4rem] text-[#FF4314]">未来版本将取消自定义参数填写。</span>',
+              isHtml: true,
+            }])
+          );
+        }
         break;
       default:
         break;
@@ -1537,7 +1698,8 @@ export const useApiFormController = (
         case "plugin":
           param.value.config = {
             name: pluginList.value[0]?.value || "",
-            config: "",
+            mode: "default",
+            config: {},
           } as PluginAccessConfig;
           break;
       }
@@ -1555,6 +1717,8 @@ export const useApiFormController = (
           (plugin: {
             name: string;
             actions: { name: string; description: string }[];
+            params?: string;
+            config?: any;
           }) => {
             // 如果没有 actions，直接使用插件名称
             pluginOptions.push({
@@ -1647,14 +1811,18 @@ export const useApiFormController = (
   const renderPluginLabel = (option: PluginOption): VNode => {
     return (
       <NFlex justify="space-between" class="w-[38rem]">
-        <NFlex align="center" size="small">
-          <SvgIcon icon={`resources-${option.value}`} size="1.6rem" />
-          <NText>{option.label}</NText>
-          {option.description && (
-            <div class="text-[1.2rem] text-gray-500 mt-[0.2rem]">
-              {option.description}
-            </div>
-          )}
+        <NFlex size="small" vertical={true} class="py-[8px]">
+          <div class="flex items-center gap-2">
+            <SvgIcon icon={`resources-${option.value}`} size="1.6rem" />
+            <NText class="text-[var(--color-card-title)]">{option.label}</NText>
+          </div>
+          <div title={option.description}>
+            {option.description && (
+              <div class="text-[1.2rem] text-color5 mt-[0.2rem]">
+                {option.description}
+              </div>
+            )}
+          </div>
         </NFlex>
       </NFlex>
     );
@@ -1692,9 +1860,26 @@ export const useApiFormController = (
     param: UpdateAccessParams | AddAccessParams
   ): Promise<void> => {
     try {
+      // 调整config格式，移除mode字段，保持与原始格式一致
+      let finalConfig;
+      
+      if (typeof param.config.config === 'string') {
+        // 自定义模式：直接使用字符串形式的config，避免双重序列化
+        finalConfig = {
+          name: param.config.name,
+          config: JSON.parse(param.config.config) // 先解析字符串为对象
+        };
+      } else {
+        // 默认模式：正常处理对象形式的config
+        finalConfig = {
+          name: param.config.name,
+          config: param.config.config
+        };
+      }
+      
       const data = {
         ...param,
-        config: JSON.stringify(param.config),
+        config: JSON.stringify(finalConfig),
       } as UpdateAccessParams<string>;
       if ("id" in param) {
         const { id, name, config } = data; // 解构出 id, name, config
@@ -1721,16 +1906,18 @@ export const useApiFormController = (
   };
 
   // 使用表单hooks
-  const { component: ApiManageForm, fetch } = useForm({
+  const { component: ApiManageForm, fetch, validate } = useForm({
     config,
     defaultValue: param,
     request: submitApiManageForm,
-    rules: rules as FormRules,
+    rules: rules as any,
   });
 
   // 关联确认按钮
   confirm(async (close) => {
     try {
+      // 先进行表单校验
+      await validate();
       openLoad();
       await fetch();
       resetApiForm();

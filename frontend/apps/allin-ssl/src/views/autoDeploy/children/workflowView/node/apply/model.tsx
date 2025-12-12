@@ -386,7 +386,7 @@ export default defineComponent({
                         padding: "8px 12px",
                         cursor: "pointer",
                       },
-                      class: "hover:bg-gray-50",
+                      class: "hover:bg-[var(--setting-input-bg)]",
                     })}
                   >
                     <NInput

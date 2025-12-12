@@ -1,0 +1,60 @@
+{
+	"name": "@baota/router",
+	"version": "1.0.0",
+	"type": "module",
+	"files": [
+		"dist/**",
+		"dist"
+	],
+	"exports": {
+		".": {
+			"development": {
+				"import": "./src/index.ts",
+				"require": "./src/index.ts"
+			},
+			"default": {
+				"import": "./dist/index.mjs",
+				"require": "./dist/index.cjs",
+				"types": "./dist/index.d.ts"
+			}
+		},
+		"./import": {
+			"development": {
+				"import": "./src/import.ts",
+				"require": "./src/import.ts"
+			},
+			"default": {
+				"import": "./dist/import.mjs",
+				"require": "./dist/import.cjs",
+				"types": "./dist/import.d.ts"
+			}
+		},
+		"./each": {
+			"development": {
+				"import": "./src/each.ts",
+				"require": "./src/each.ts"
+			},
+			"default": {
+				"import": "./dist/each.mjs",
+				"require": "./dist/each.cjs",
+				"types": "./dist/each.d.ts"
+			}
+		}
+	},
+	"scripts": {
+		"dev": "vite",
+		"build": "vite build",
+		"preview": "vite preview"
+	},
+	"dependencies": {
+		"@baota/utils": "workspace:*",
+		"vue-router": "^4.0.0"
+	},
+	"devDependencies": {
+		"vite": "^5.0.0",
+		"vite-plugin-dts": "^3.0.0",
+		"@baota/eslint": "workspace:*",
+		"@baota/prettier": "workspace:*",
+		"@baota/typescript": "workspace:*"
+	}
+}

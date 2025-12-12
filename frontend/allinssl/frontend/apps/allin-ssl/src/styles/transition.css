@@ -1,0 +1,91 @@
+.fade-enter-active,
+.fade-leave-active {
+	transition: opacity 0.3s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+	opacity: 0;
+}
+
+/* 从右侧滑入 */
+.slide-right-enter-active,
+.slide-right-leave-active {
+	transition: all 0.3s ease-out;
+}
+
+.slide-right-enter-from {
+	opacity: 0;
+	transform: translateX(-20px);
+}
+
+.slide-right-leave-to {
+	opacity: 0;
+	transform: translateX(20px);
+}
+
+/* 从左侧滑入 */
+.slide-left-enter-active,
+.slide-left-leave-active {
+	transition: all 0.3s ease-out;
+}
+
+.slide-left-enter-from {
+	opacity: 0;
+	transform: translateX(20px);
+}
+
+.slide-left-leave-to {
+	opacity: 0;
+	transform: translateX(-20px);
+}
+
+/* 从底部滑入 */
+.slide-up-enter-active,
+.slide-up-leave-active {
+	transition: all 0.3s ease-out;
+}
+
+.slide-up-enter-from {
+	opacity: 0;
+	transform: translateY(20px);
+}
+
+.slide-up-leave-to {
+	opacity: 0;
+	transform: translateY(-20px);
+}
+
+/* 缩放过渡 */
+.scale-enter-active,
+.scale-leave-active {
+	transition: all 0.3s ease;
+}
+
+.scale-enter-from,
+.scale-leave-to {
+	opacity: 0;
+	transform: scale(0.9);
+}
+
+/* 从左到右的渐显动画 */
+
+.route-slide-enter-active,
+.route-slide-leave-active {
+	transition:
+		opacity 0.35s ease-out,
+		transform 0.5s ease;
+}
+
+.route-slide-enter-from {
+	opacity: 0;
+	transform: translateX(-40px);
+}
+
+.route-slide-leave-to {
+	opacity: 0;
+	transition:
+		opacity 0.2s ease-in,
+		transform 0.35s ease-in;
+	transform: translateX(40px);
+}

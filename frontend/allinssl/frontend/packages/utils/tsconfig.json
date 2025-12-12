@@ -1,0 +1,14 @@
+{
+	"extends": "@baota/typescript/base.json",
+	"compilerOptions": {
+		"outDir": "dist", // 输出目录
+		"rootDir": "src",
+		"baseUrl": "./",
+		"sourceMap": true,
+		"module": "ESNext",
+		"moduleResolution": "Node",
+		"target": "ESNext"
+	},
+	"include": ["src/*.ts", "src/*.tsx", "src/*.d.ts", "*.d.ts"],
+	"exclude": ["node_modules", "dist"]
+}

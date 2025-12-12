@@ -1,0 +1,88 @@
+/* Deploy Node Drawer Styles */
+
+/* 整体布局容器 */
+.configContainer {
+	@apply flex mt-[2.4rem] gap-4 ;
+}
+
+/* 表单容器 */
+.formContainer {
+	@apply mt-[2.4rem];
+}
+
+/* 左侧面板样式 */
+.leftPanel {
+	@apply border-r border-solid;
+	border-color: var(--n-border-color);
+}
+
+
+/* 右侧面板样式 */
+.rightPanel {
+	@apply flex-1 flex flex-col;
+}
+
+/* 搜索栏样式 */
+.searchBar {
+	@apply w-full;
+}
+
+/* Card container styles */
+.cardContainer {
+	@apply grid grid-cols-3 gap-4 mt-[0.5rem] overflow-y-auto h-[38rem];
+	grid-auto-rows: min-content;
+}
+
+/* Option card styles */
+.optionCard {
+	@apply flex items-center justify-center rounded-[0.4rem] transition-all border-[1px] border-transparent h-[7rem];
+	border-color: var(--n-border-color);
+}
+
+.optionCardSelected {
+	@apply border-[1px] relative overflow-hidden;
+	border-color: var(--n-primary-color);
+}
+
+/* Add checkmark for selected item */
+.optionCardSelected::after {
+	content: '';
+	@apply absolute bottom-[.1rem] right-[.1rem] w-[1rem] h-[1rem] rounded-full z-10;
+	@apply bg-[length:14px_14px] bg-center bg-no-repeat;
+	background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='white'%3E%3Cpath d='M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z'/%3E%3C/svg%3E");
+}
+
+/* Add triangle in bottom-right corner for selected item */
+.optionCardSelected::before {
+	content: '';
+	@apply absolute -bottom-[.1rem] -right-[.1rem] w-0 h-0 z-10 text-white text-[1.2rem] flex items-center justify-center;
+	border-style: solid;
+	border-width: 0 0 20px 20px;
+	border-color: transparent transparent var(--n-primary-color) transparent;
+	line-height: 0;
+	padding-left: 2px;
+	padding-bottom: 2px;
+}
+
+/* Card content styles */
+.cardContent {
+	@apply flex flex-col items-center justify-center p-[4px] cursor-pointer pt-[1rem] text-[1.3rem];
+}
+
+/* Icon styles */
+.icon {
+	@apply mb-[0.4rem];
+}
+
+.iconSelected {
+	color: var(--n-primary-color);
+}
+/* 
+Footer styles */
+.footer {
+	@apply flex justify-end w-full mt-[1rem];
+}
+
+.footerButton {
+	@apply mr-[0.8rem];
+}

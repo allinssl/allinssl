@@ -6,9 +6,8 @@
 
 /* 侧边栏样式 */
 .sider {
-	@apply h-screen shadow-lg z-10 transition-all duration-300 ease-in-out;
+	@apply h-screen z-10 transition-all duration-300 ease-in-out;
 	/* 移动端默认行为通过 NLayoutSider 的 collapsed 属性和 TSX 逻辑控制 */
-	background-color: var(--n-sider-color, var(--n-body-color));
 }
 
 /* Logo容器样式 */

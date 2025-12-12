@@ -130,23 +130,23 @@
 
 :global(.defaultDark) {
 	.add::before {
-		background-color: #D6A260;
+		background-color: #f4d1b4;
 	}
 	.addBtn {
 		background-color: transparent;
-		background-image: linear-gradient(45deg, #FFF4DA 0%, #FFCD72 100%)!important;
+    background-color: #f4d1b4;
 		margin-top: -1.2rem;
 	}
 	.addSelectBox {
-		background-color: #48484E;
+		background-color: #1c1c1c;
 		.addSelectItem{
 			color: #fff;
 			&:hover {
-				background-color: #1a1a1a !important;
+				background-color: #0f0f0f !important;
 			}
 		}
 		&::before {
-			border-color: transparent #48484E transparent transparent;
+			border-color: transparent #1c1c1c transparent transparent;
 		}
 	}
 }

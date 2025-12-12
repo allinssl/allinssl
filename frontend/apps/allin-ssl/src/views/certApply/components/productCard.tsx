@@ -101,7 +101,7 @@ export default defineComponent({
             />
           </div>
           <div class="flex-1 w-full">
-            <h3 class="font-semibold mb-[0.8rem] leading-tight">
+            <h3 class="font-semibold mb-[0.8rem] leading-tight text-[var(--color-card-title)]">
               {props.product.title}
             </h3>
             <p class="text-[1.3rem] text-gray-500 m-0 leading-relaxed px-[0.8rem] text-color5">

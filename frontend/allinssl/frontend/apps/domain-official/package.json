@@ -1,0 +1,20 @@
+{
+  "name": "domain-official",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "format": "prettier --write \"**/*.{js,jsx,ts,tsx,vue,html,css,scss,less,json,md,yaml,yml}\"",
+    "format:check": "prettier --check \"**/*.{js,jsx,ts,tsx,vue,html,css,scss,less,json,md,yaml,yml}\""
+  },
+  "devDependencies": {
+    "@types/node": "^24.2.1",
+    "@unocss/vite": "^66.4.2",
+    "unocss": "^66.4.2",
+    "vite": "^7.1.1",
+    "vite-plugin-html": "^3.2.2"
+  }
+}

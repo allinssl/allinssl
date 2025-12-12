@@ -1,0 +1,75 @@
+{
+  "name": "@baota/vite-plugin-turborepo-deploy",
+  "version": "3.1.0",
+  "description": "Vite plugin for automated Turborepo workspace build deployment, local file sync, and Git management.",
+  "main": "dist/index.cjs",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
+  "type": "module",
+  "scripts": {
+    "dev": "vite build --watch",
+    "build": "vite build",
+    "test": "vitest",
+    "lint": "eslint src --ext .ts",
+    "format": "prettier --write \"src/**/*.ts\" \"tests/**/*.ts\""
+  },
+  "exports": {
+    ".": {
+      "development": {
+        "import": "./src/index.ts",
+        "require": "./src/index.ts"
+      },
+      "default": {
+        "import": "./dist/index.mjs",
+        "require": "./dist/index.cjs",
+        "types": "./dist/index.d.ts"
+      }
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "keywords": [
+    "vite",
+    "vite-plugin",
+    "turborepo",
+    "deploy",
+    "git",
+    "sync"
+  ],
+  "author": "",
+  "license": "MIT",
+  "engines": {
+    "node": ">=16"
+  },
+  "dependencies": {
+    "archiver": "^7.0.1",
+    "chalk": "^5.3.0",
+    "fs-extra": "^11.2.0",
+    "ora": "^8.0.1",
+    "picomatch": "^3.0.1",
+    "simple-git": "^3.22.0",
+    "yauzl": "^3.2.0",
+    "zod": "^3.22.4"
+  },
+  "devDependencies": {
+    "@types/archiver": "^6.0.3",
+    "@types/fs-extra": "^11.0.4",
+    "@types/node": "^20.11.24",
+    "@types/picomatch": "^2.3.3",
+    "@types/yauzl": "^2.10.3",
+    "@typescript-eslint/eslint-plugin": "^7.1.0",
+    "@typescript-eslint/parser": "^7.1.0",
+    "eslint": "^8.57.0",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-prettier": "^5.1.3",
+    "prettier": "^3.2.5",
+    "typescript": "^5.3.3",
+    "vite": "^5.1.4",
+    "vite-plugin-dts": "^3.7.3",
+    "vitest": "^1.3.1"
+  },
+  "peerDependencies": {
+    "vite": ">=3.0.0"
+  }
+}

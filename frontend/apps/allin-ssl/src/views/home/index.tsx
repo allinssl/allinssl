@@ -279,7 +279,7 @@ export default defineComponent({
                   text
                   type="primary"
                   onClick={() => pushToWorkflow()}
-                  class={`font-bold gradient-primary-txt`}
+                  class={`font-bold`}
                 >
                   {$t("t_9_1746773348221")}
                 </NButton>

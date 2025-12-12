@@ -56,15 +56,15 @@ export default defineComponent({
 							v-slots={{
 								headerLeft: () => (
 									<NSpace>
-										<NButton type="primary" size="large" class="px-5 gradient-primary-btn" onClick={handleAddWorkflow}>
+										<NButton type="primary" size="large" class="px-5" onClick={handleAddWorkflow}>
 											{$t('t_0_1747047213730')}
 										</NButton>
-										<NButton type="default" size="large" class="px-5 gradient-default-btn" onClick={handleOpenCAManage}>
+										<NButton type="default" size="large" class="px-5" onClick={handleOpenCAManage}>
 											<span class="px-2">{$t('t_0_1747903670020')}</span>
 										</NButton>
 									</NSpace>
 								),
-								headerRight: () => <SearchComponent class="header-search" placeholder={$t('t_1_1745227838776')} />,
+								headerRight: () => <SearchComponent placeholder={$t('t_1_1745227838776')} />,
 								content: () => (
 									<div class="rounded-lg ">
 										<TableComponent

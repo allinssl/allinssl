@@ -1,0 +1,49 @@
+/* 私有CA管理页面样式 */
+
+/* 行状态样式 */
+.bg-red-500\/10 {
+	background-color: rgba(239, 68, 68, 0.1) !important;
+}
+
+.bg-red-500\/10:hover {
+	background-color: rgba(239, 68, 68, 0.15) !important;
+}
+
+.bg-orange-500\/10 {
+	background-color: rgba(249, 115, 22, 0.1) !important;
+}
+
+.bg-orange-500\/10:hover {
+	background-color: rgba(249, 115, 22, 0.15) !important;
+}
+
+/* 表格样式优化 */
+:global(.n-data-table .n-data-table-td) {
+	padding: 12px 16px;
+}
+
+:global(.n-data-table .n-data-table-th) {
+	padding: 12px 16px;
+	font-weight: 600;
+}
+
+/* 标签样式 */
+:global(.n-tag) {
+	border-radius: 12px;
+	font-size: 12px;
+	padding: 2px 8px;
+}
+
+/* 按钮样式 */
+:global(.n-button--tiny) {
+	height: 24px;
+	padding: 0 8px;
+	font-size: 12px;
+}
+
+/* 图标样式 */
+:global(.n-icon) {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}

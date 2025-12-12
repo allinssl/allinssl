@@ -1,0 +1,18 @@
+# 工具配置
+config:
+  parallel_build: false  # 是否并行编译
+  dry_run: false  # 是否干运行
+
+# 工作区配置
+workspaces:
+  # 示例工作区配置
+  # app-name:
+  #   sync_mappings:
+  #     - source:
+  #         git_url: "https://github.com/user/repo.git"  # Git 仓库地址
+  #         branch: "main"  # 分支名称
+  #         alias: "repo-name"  # 仓库别名（可选）
+  #       target:
+  #         sync_dir: "dist"  # 要同步的目录
+  #         git_dir: "dist"   # Git 仓库中的目标目录
+

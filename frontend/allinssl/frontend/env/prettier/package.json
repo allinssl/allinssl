@@ -1,0 +1,17 @@
+{
+	"name": "@baota/prettier",
+	"version": "1.0.0",
+	"type": "module",
+	"description": "",
+	"exports": {
+		".": "./index.js"
+	},
+	"dependencies": {},
+	"devDependencies": {
+		"@baota/typescript": "workspace:*",
+		"prettier": "^3.5.3"
+	},
+	"keywords": [],
+	"author": "",
+	"license": "ISC"
+}

@@ -65,26 +65,26 @@
 
 :global(.defaultDark) {
 	.flowNodeBranchCol {
-		background-color: #161616;
-		border-color: #D6A260;
+		background-color: #0f0f0f;
+		border-color: #f4d1b4;
 	}
 	.rightCoverLine,
 	.leftCoverLine,
 	.flowNodeBranchCol::before {
-		background-color: #D6A260;
+		background-color: #f4d1b4;
 	}
 	.topLeftCoverLine,
 	.topRightCoverLine,
 	.bottomLeftCoverLine,
 	.bottomRightCoverLine {
-		background-color: #161616;
+		background-color: #0f0f0f;
 	}
 	.flowConditionNodeAdd {
-		color: #000;
+		color: #0f0f0f;
 		font-weight: bold;
-		background-image: linear-gradient(45deg, #FFF4DA 0%, #FFCD72 100%);
+		background-color: #f4d1b4;
 	}
 	.multipleColumns {
-		background-color: #161616!important;
+		background-color: #0f0f0f!important;
 	}
 }

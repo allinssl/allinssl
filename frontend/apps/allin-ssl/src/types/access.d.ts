@@ -69,7 +69,7 @@ export interface AddAccessParams<
 > {
   name: string;
   type: string;
-  config: T;
+  config: T | any;
 }
 
 /** 修改授权请求参数 */
@@ -290,6 +290,7 @@ export interface DogeAccessConfig {
  */
 export interface PluginAccessConfig {
   name: string;
+  mode?: "default" | "custom";
   config: Record<string, any> | string;
 }
 

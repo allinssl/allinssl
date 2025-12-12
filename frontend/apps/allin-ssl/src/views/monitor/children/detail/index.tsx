@@ -319,7 +319,7 @@ export default defineComponent({
 			},
 			{
 				label: '错误次数',
-				iconBgClass: 'bg-[#fff4e2] text-[#FF9D00]',
+				iconBgClass: 'bg-[#fff4e2] text-[#f2711c]',
 				icon: <CloseCircleOutlined />,
 				render: () => `${detailData.value?.err_count || 0} 次`
 			},
@@ -342,7 +342,7 @@ export default defineComponent({
 			},
 			{
 				label: '到期时间',
-				labelColor: '#FF9D00',
+				labelColor: '#f2711c',
 				render: () => formatDateTime(detailData.value?.not_after || ''),
 				class: 'font-mono',
 			},
@@ -554,7 +554,7 @@ export default defineComponent({
                                     }`}
                                     style={{
                                       ...theme.labelStyle,
-                                      ...(isDark.value && index === 2 && { color: "#FF9D00" }),
+                                      ...(isDark.value && index === 2 && { color: "#f2711c" }),
                                       ...(isDark.value && index === 3 && { color: "#3B82F6" }),
                                     }}
                                   >

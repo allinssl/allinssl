@@ -86,3 +86,18 @@ Footer styles */
 .footerButton {
 	@apply mr-[0.8rem];
 }
+
+:global(.defaultDark) {
+	.optionCardSelected {
+		border-color: #f4d1b4;
+		&::before {
+			border-color: transparent transparent #f4d1b4 transparent;
+		}
+		:global(.iconSelected) {
+			color: #0f0f0f;
+		}
+		:global(.n-text) {
+			color: #f4d1b4;
+		}
+	}
+}

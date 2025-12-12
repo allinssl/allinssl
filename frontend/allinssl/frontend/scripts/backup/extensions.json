@@ -1,0 +1,16 @@
+{
+  "extensions": [
+    "akamud.vscode-theme-onedark",
+    "atommaterial.a-file-icon-vscode",
+    "dbaeumer.vscode-eslint",
+    "donjayamanne.githistory",
+    "eamodio.gitlens",
+    "esbenp.prettier-vscode",
+    "lokalise.i18n-ally",
+    "maggie.eslint-rules-zh-plugin",
+    "ms-ceintl.vscode-language-pack-zh-hans",
+    "ms-vscode-remote.remote-containers",
+    "rvest.vs-code-prettier-eslint",
+    "vue.volar"
+  ]
+}

@@ -1,0 +1,9 @@
+{
+	"extends": "@baota/typescript/vue.json",
+	"include": ["**/*.{ts,tsx,vue}", "eslint.config.js", "types.d.ts"],
+	"compilerOptions": {
+		"outDir": "dist", // 输出目录
+		"baseUrl": "./",
+		"sourceMap": true
+	}
+}

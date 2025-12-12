@@ -325,7 +325,7 @@ export default defineComponent({
 
 								<NSpace vertical size="large">
 									{supportedFormats.map((format) => (
-										<div key={format} class="flex items-center justify-between p-4 border border-[var(--border-color-transparent)] bg-[var(--content-bg-secondary)] rounded-lg">
+										<div key={format} class="flex items-center justify-between p-4 border border-[var(--border-color-transparent)] bg-[var(--content-bg-base)] rounded-lg">
 											<div class="flex items-center">
 												<NIcon size={24} class="mr-3 text-primary">
 													<DocumentOutline />

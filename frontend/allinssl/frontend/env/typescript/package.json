@@ -1,0 +1,15 @@
+{
+  "name": "@baota/typescript",
+  "version": "1.0.0",
+  "type": "module",
+  "license": "MIT",
+  "exports": {
+    "./*": "./*"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "devDependencies": {
+    "typescript": "^5.8.2"
+  }
+}

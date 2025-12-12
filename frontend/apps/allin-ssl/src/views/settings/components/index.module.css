@@ -26,20 +26,6 @@
 }
 
 
-.gradientTag::before {
-	content: "";
-	position: absolute;
-	inset: 0;
-	border-radius: inherit;
-	padding: 1px;
-	background: var(--menu-active-gradient);
-	-webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-	-webkit-mask-composite: xor;
-	mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-	mask-composite: exclude;
-	pointer-events: none;
-}
-
 .formGrid {
 	display: flex;
 	flex-wrap: wrap;
@@ -57,7 +43,7 @@
 	:global(.n-input),
 	:global(.n-input-number),
 	:global(.n-textarea) {
-		background-color: var(--setting-input-bg) !important;
+		background-color: #fafafa !important;
 		border: none !important;
 		border-radius: 8px !important;
 	}
@@ -77,7 +63,7 @@
 		border-radius: 6px;
 		padding-left: 2rem;
 		padding-right: 2rem;
-		background-color: var(--setting-input-bg);
+		background-color: var(--setting-input-bg2);
 	}
 	:global(.table-action-btn-danger .n-button__border),
 	:global(.table-action-btn-danger .n-button__state-border),
@@ -95,34 +81,25 @@
 
 :global(.defaultDark) {
 	.gradientTag :global(.n-tag__border) {
-		display: none;
+		border-color: #f4d1b4;
 	}
 
 	.gradientTag {
-		color: transparent;
-		background-color: transparent;
+		color: #f4d1b4;
 	}
 
 	.gradientTag :global(.n-tag__content) {
-		background: var(--menu-active-gradient);
-		background-clip: text;
-		-webkit-background-clip: text;
-		color: transparent;
-		-webkit-text-fill-color: transparent;
+		color: #f4d1b4;
 	} 
 	:global(.n-alert-body__title) {
 		display: inline-flex;
 		width: auto !important;
 		font-weight: bold!important;
 		margin-top: 6px;
-		background: var(--menu-active-gradient) !important;
-		background-clip: text !important;
-		-webkit-background-clip: text !important;
-		color: transparent !important;
-		-webkit-text-fill-color: transparent !important;
+		color: #f4d1b4!important;
 	}
 	:global(.n-alert) {
-		background-color: #171717;
+		background-color: #0f0f0f;
 		padding-bottom: 1rem;
 		:global(.n-alert__icon) {
 			margin-top: 17px;
@@ -130,5 +107,18 @@
 	}
 	:global(.n-alert__border) {
 		display: none!important;
+	}
+	.generalSettingsCard :global(.n-form-item) {
+		:global(.n-input__border) {
+			display: block;
+		}
+		:global(.n-input),
+		:global(.n-input-number),
+		:global(.n-textarea) {
+			background-color: #2f2f2f !important;
+		}
+	}
+	:global(.n-card) {
+		border: 0!important;
 	}
 }

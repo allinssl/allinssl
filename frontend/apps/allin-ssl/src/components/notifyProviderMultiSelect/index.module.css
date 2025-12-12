@@ -124,3 +124,8 @@
 }
 
 /* 保持按钮原始样式，不做额外修改 */
+:global(.defaultDark) {
+	.selectContainer :global(.n-base-selection-input-tag input) {
+		caret-color: #fff!important;
+	}
+}

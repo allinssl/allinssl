@@ -38,6 +38,10 @@ export default defineComponent({
 					...baseOverrides.Layout,
 					...projectOverrides.Layout,
 				},
+				Button: {
+					...baseOverrides.Button,
+					...projectOverrides.Button,
+				},
 			}
 		})
 

@@ -149,7 +149,7 @@
 
 :global(.defaultDark) {
 	.quickEntryImageWrapper {
-		background-color: var(--n-body-color);
+		background-color: #1c1c1c;
 		padding: 4px;
 		img {
 			border-top-left-radius: 1rem;
@@ -157,15 +157,15 @@
 		}
 	}
 	.gradientNumber {
-		background-image: linear-gradient(90deg, #9C6240, #FFCF76);
-		-webkit-background-clip: text;
-		background-clip: text;
-		color: transparent;
+    color: #f4d1b4;
 	}
 	.tableSubtitle {
-		color: #856C5F;
+		color: #796051;
 	}
 	.borderColor {
-		border-color: #454545;
+		border-color: #2d2d2d;
 	}
+  .quickEntryCardContent {
+		background-color: #1c1c1c;
+  }
 }

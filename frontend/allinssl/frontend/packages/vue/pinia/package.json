@@ -1,0 +1,51 @@
+{
+	"name": "@baota/pinia",
+	"version": "1.0.0",
+	"description": "Pinia",
+	"type": "module",
+	"files": [
+		"dist/**",
+		"dist"
+	],
+	"scripts": {
+		"build": "vite build",
+		"dev": "vite build --watch"
+	},
+	"exports": {
+		".": {
+			"development": {
+				"types": "./src/index.ts",
+				"import": "./src/index.ts",
+				"require": "./src/index.ts"
+			},
+			"default": {
+				"types": "./dist/index.d.ts",
+				"import": "./dist/index.mjs",
+				"require": "./dist/index.cjs"
+			}
+		},
+		"./utils": {
+			"development": {
+				"types": "./src/utils.ts",
+				"import": "./src/utils.ts",
+				"require": "./src/utils.ts"
+			},
+			"default": {
+				"types": "./dist/utils.d.ts",
+				"import": "./dist/utils.mjs",
+				"require": "./dist/utils.cjs"
+			}
+		}
+	},
+	"dependencies": {
+		"pinia": "^3.0.3",
+		"pinia-plugin-persistedstate": "^4.5.0"
+	},
+	"devDependencies": {
+		"@baota/eslint": "workspace:*",
+		"@baota/typescript": "workspace:*",
+		"@baota/prettier": "workspace:*",
+		"vite": "^5.0.0",
+		"vite-plugin-dts": "^3.0.0"
+	}
+}

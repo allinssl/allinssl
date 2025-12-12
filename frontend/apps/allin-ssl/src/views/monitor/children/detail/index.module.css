@@ -10,21 +10,8 @@
 	
 	.coreStatusCardSuccess {
 		position: relative;
-		border: none !important;
 		background-color: transparent;
-		&::before {
-			content: '';
-			position: absolute;
-			inset: 0;
-			border-radius: 0.75rem;
-			padding: 1px;
-			background: var(--menu-active-gradient);
-			-webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-			mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-			mask-composite: exclude;
-			pointer-events: none;
-			z-index: 0;
-		}
+		border: 2px solid #f4d1b4;
 	}
 	.coreStatusIconSuccess {
 		position: relative;
@@ -32,17 +19,13 @@
 		:global(.n-icon) {
 			svg,
 			svg path {
-				fill: url(#menu-active-icon-gradient) !important;
+				fill: #f4d1b4;
 			}
 		}
 	}
 	
 	.coreStatusLabelSuccess {
-		background: var(--menu-active-gradient) !important;
-		-webkit-background-clip: text !important;
-		background-clip: text !important;
-		-webkit-text-fill-color: transparent !important;
-		color: transparent !important;
+		color: #f4d1b4 !important;
 	}
 	
 	.coreStatusCardError {
@@ -55,7 +38,7 @@
 			position: absolute;
 			inset: 0;
 			border-radius: 0.75rem;
-			padding: 1px;
+			padding: 2px;
 			background: var(--n-error-primary-color);
 			-webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
 			mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
@@ -75,7 +58,7 @@
 	}
 	
 	.coreStatusTextError {
-		color: #fff !important;
+		color: #e1e1e1 !important;
 	}
 
 	.coreStatusLabelError {
@@ -85,7 +68,7 @@
 	.headerIcon {
 		svg,
 		svg path {
-			fill: url(#menu-active-icon-gradient) !important;
+			fill: #f4d1b4;
 		}
 	}
 }

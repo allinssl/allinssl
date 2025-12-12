@@ -64,6 +64,8 @@ export default defineComponent({
 			'actionColor',
 			'layoutContentBackgroundColor',
 			'siderLoginHeight', // 确保这个变量在 Naive UI 主题中存在或已自定义
+			'siderColor', // 侧边栏背景色
+      'siderBorderColor',
 			'contentPadding',
 		])
 
@@ -351,7 +353,7 @@ export default defineComponent({
                 </div>
                 <NBadge value={1} show={hasUpdate.value} dot>
                   <span
-                    class="px-[.8rem] sm:px-[.5rem] py-[.4rem] cursor-pointer hover:text-primary transition-colors text-[1.4rem] font-medium"
+                    class="px-[.8rem] sm:px-[.5rem] py-[.4rem] text-[var(--n-text-color-1)] cursor-pointer hover:text-primary transition-colors text-[1.4rem] font-medium"
                     onClick={handleVersionClick}
                   >
                     {versionData.value && versionData.value.version}

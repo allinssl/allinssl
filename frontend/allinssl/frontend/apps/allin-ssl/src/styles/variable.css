@@ -1,0 +1,117 @@
+:root {
+	--n-sider-width: 22rem; /* 侧边栏宽度,已经弃用，naive sider props width 替代 */
+	--n-sider-login-height: var(--n-header-height); /* 侧边栏登录栏高度 */
+	--n-header-height: 5rem; /* 顶部栏高度 */
+	--n-footer-height: 4rem; /* 底部栏高度 */
+	--n-main-diff-height: calc(var(--n-header-height)); /* 顶部栏和底部栏高度之和 */
+	--n-content-margin: 1.2rem; /* 内容区内边距 */
+	--n-content-padding: 1.2rem; /* 内容区内边距 */
+	--n-dialog-title-padding: 0; /* 对话框标题内边距 */
+	--n-layout-content-background-color: #f8fafc; /* 内容区背景颜色 */
+
+	/* 自定义文本颜色 */
+	--n-text-color4: #1F2937; /* 亮色主题下的文本颜色 */
+	--n-text-color5: #4B5563;
+
+	--n-error-bg-color-light: rgba(248, 113, 113, 0.08);
+	--n-error-primary-color: #FF4314;
+	--n-error-text-color: #E74E4E;
+	--n-error-border-color: #F56767;
+	--n-success-bg-color-light: #F6FFF8;
+	--n-success-status-color: #16D13B;
+	--n-success-primary-color: #006A14;
+	--n-success-text-color: #2D8900;
+	--n-success-border-color: #25A63D;
+	--n-warning-bg-color-light: rgba(255, 251, 229, 0.42);
+	--n-warning-primary-color: #FF9D00;
+
+	/* Home View Custom Colors */
+	--color-workflow-bg: rgba(16, 185, 129, 0.08);
+	--color-workflow-icon-wrapper-bg: rgba(16, 185, 129, 0.15);
+
+	--color-cert-bg: rgba(245, 158, 11, 0.08);
+	--color-cert-icon-wrapper-bg: rgba(245, 158, 11, 0.15);
+
+	--color-monitor-bg: rgba(139, 92, 246, 0.08);
+	--color-monitor-icon-wrapper-bg: rgba(139, 92, 246, 0.15);
+	--color-monitor-text: #8B5CF6; /* 紫色，用于图标和标题 */
+
+	--color-decorative-element-bg: #f0f9ff; /* 用于替换 Tailwind bg-blue-50 */
+
+	--content-bg-base: #ffffff;
+	--content-bg-secondary: #ffffff;
+
+	--border-color-transparent: #e5e7eb;
+	--form-more-color: #18a058;
+	--form-log-bg: #f9fafb;
+	--form-log-code-bg: #e5e7eb;
+	--form-divider-title-weight: 500;
+	--monitor-upload-progress-bar-bg: #18A058;
+	--table-link-type: none;
+
+	--setting-input-bg: #fafafa;
+	--theme-select-bg: #FAFAFA;
+}
+
+/* 自定义文本颜色工具类 */
+.text-color4 {
+	color: var(--n-text-color4);
+}
+
+.text-color3 {
+	color: var(--n-text-color-3);
+}
+
+.text-color5 {
+	color: var(--n-text-color5);
+}
+/* 暗色主题 */
+:root.dark,
+:root.defaultDark {
+	--n-layout-content-background-color: #161616; /* 内容区背景颜色 */
+	--n-header-color: #000;
+	--n-color: #000;
+	--n-sider-color: #000; /* 侧边栏背景色 */
+
+	/* 自定义文本颜色 - 暗色主题 */
+	--n-success-bg-color-light: transparent;
+	--n-success-primary-color: #fff;
+	--n-text-color4: var(--n-text-color); /* 暗色主题下的浅灰色文本，与 #1F2937 形成对比 */
+	--n-text-color5: #969696; /* 暗色主题下的浅灰色文本，与 #1F2937 形成对比 */
+
+	/* 菜单激活项渐变颜色 */
+	--menu-active-gradient-start: #9C6240;
+	--menu-active-gradient-end: #FFCF76;
+	--menu-active-gradient: linear-gradient(135deg, var(--menu-active-gradient-start) 0%, var(--menu-active-gradient-end) 100%);
+
+	/* Home View Custom Colors - Dark Theme */
+	--color-workflow-bg: rgba(var(--n-success-color-rgb), 0.12); /* 使用 Naive UI 暗色主题成功色的 RGB 值，并调整透明度 */
+	--color-workflow-icon-wrapper-bg: rgba(var(--n-success-color-rgb), 0.22);
+
+	--color-cert-bg: rgba(var(--n-warning-color-rgb), 0.12); /* 使用 Naive UI 暗色主题警告色的 RGB 值，并调整透明度 */
+	--color-cert-icon-wrapper-bg: rgba(var(--n-warning-color-rgb), 0.22);
+
+	--color-monitor-bg: rgba(167, 139, 250, 0.12); /* 调整为较亮的紫色，并设置透明度 */
+	--color-monitor-icon-wrapper-bg: rgba(167, 139, 250, 0.22);
+	--color-monitor-text: #A78BFA; /* 较亮的紫色，用于暗色主题 */
+
+	--color-decorative-element-bg: rgba(30, 41, 59, 0.7); /* 暗色主题下的装饰背景色 */
+
+	--border-radius-base: 6px;
+
+	--content-bg-base: #000000;
+
+	--bt-card-bg-color-active: #000000;
+	--content-bg-secondary: #171717;
+
+	--border-color-transparent: transparent;
+	--form-more-color: #ffffff;
+	--form-log-bg: #2f2f2f;
+	--form-log-code-bg: #000;
+	--form-divider-title-weight: 600;
+	--table-link-type: underline;
+	--workflow-header-input-bg: #2f2f2f;
+
+	--setting-input-bg: #1c1c1c;
+	--theme-select-bg: #171717;
+}

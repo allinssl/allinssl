@@ -132,7 +132,7 @@ export const useController = (): MonitorControllerExposes => {
 						href={`https://${row.target}`}
 						target="_blank"
 						rel="noopener noreferrer"
-						style="color: var(--form-more-color); text-decoration: var(--table-link-type);"
+						style="color: var(--color-text-primary-success); text-decoration: var(--table-link-type);"
 					>
 						{row.target}
 					</a>

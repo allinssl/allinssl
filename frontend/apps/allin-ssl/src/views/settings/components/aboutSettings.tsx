@@ -114,7 +114,7 @@ export default defineComponent({
 					<div class="flex items-center mb-6 mt-2">
 						<h2 class={`${styles.sectionTitle} ml-2 text-[1.8rem] font-semibold`}>关于产品</h2>
 					</div>
-					<div class="about-content bg-[var(--setting-input-bg)] px-[2rem] py-[2.4rem] rounded-[6px]">
+					<div class="about-content bg-[var(--setting-input-bg2)] px-[2rem] py-[2.4rem] rounded-[6px]">
 						<p class="leading-relaxed">
 							<p class="text-[2rem] font-semibold">AllinSSL</p>
 							<br />

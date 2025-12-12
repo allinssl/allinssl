@@ -2,37 +2,37 @@ import { $t } from '@locales/index'
 
 // 消息推送类型
 export interface MessagePushType {
-  name: string
-  type: string
+	name: string
+	type: string
 }
 
 // 定义ApiProject接口，包含可选的notApi属性
 export interface ApiProjectType {
-  name: string
-  icon: string
-  type?: string[]
-  notApi?: boolean
-  hostRelated?: Record<string, any>
-  sort?: number
+	name: string
+	icon: string
+	type?: string[]
+	notApi?: boolean
+	hostRelated?: Record<string, any>
+	sort?: number
 }
 
 // $t('t_0_1747886301644')
 export const MessagePushConfig = {
-  mail: { name: $t('t_68_1745289354676'), type: 'mail' },
-  workwx: { name: $t('t_33_1746773350932'), type: 'workwx' },
-  dingtalk: { name: $t('t_32_1746773348993'), type: 'dingtalk' },
-  feishu: { name: $t('t_34_1746773350153'), type: 'feishu' },
-  webhook: { name: 'WebHook', type: 'webhook' },
+	mail: { name: $t('t_68_1745289354676'), type: 'mail' },
+	workwx: { name: $t('t_33_1746773350932'), type: 'workwx' },
+	dingtalk: { name: $t('t_32_1746773348993'), type: 'dingtalk' },
+	feishu: { name: $t('t_34_1746773350153'), type: 'feishu' },
+	webhook: { name: 'WebHook', type: 'webhook' },
 }
 
 // CA证书授权
 export const CACertificateAuthorization = {
-  zerossl: { name: 'ZeroSSL', type: 'zerossl' },
-  google: { name: 'Google', type: 'google' },
-  sslcom: { name: 'SSL.COM', type: 'sslcom' },
-  buypass: { name: 'Buypass', type: 'buypass' },
-  letsencrypt: { name: "Let's Encrypt", type: 'letsencrypt' },
-  custom: { name: '自定义', type: 'custom' },
+	zerossl: { name: 'ZeroSSL', type: 'zerossl' },
+	google: { name: 'Google', type: 'google' },
+	sslcom: { name: 'SSL.COM', type: 'sslcom' },
+	buypass: { name: 'Buypass', type: 'buypass' },
+	letsencrypt: { name: "Let's Encrypt", type: 'letsencrypt' },
+	custom: { name: '自定义', type: 'custom' },
 }
 
 // 授权API管理
@@ -276,15 +276,6 @@ export const ApiProjectConfig: Record<string, ApiProjectType> = {
     icon: "btdomain",
     type: ["dns"],
     hostRelated: { default: { name: "BTDomain" } },
-    sort: 33,
-  },
-  rainyun: {
-    name: "雨云",
-    icon: "rainyun",
-    type: ["dns"],
-    hostRelated: {
-      sslcenter: { name: "证书中心" }
-    },
     sort: 33,
   },
   plugin: {

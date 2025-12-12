@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "extends": "./base.json",
+  "compilerOptions": {
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "strict": true,
+    "allowJs": true,
+    "importHelpers": true,
+    "jsx": "preserve",
+    "jsxImportSource": "vue",
+		"noEmit": true,
+		"emitDeclarationOnly": false,
+    "types": ["vue"],
+    "lib": ["esnext", "dom", "dom.iterable", "scripthost", "ES2015", "DOM"]
+  }
+}

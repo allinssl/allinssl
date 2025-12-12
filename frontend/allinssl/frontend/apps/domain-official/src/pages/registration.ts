@@ -1,0 +1,3078 @@
+/**
+ * 域名注册页：搜索 + 购物车 + 下单（函数式实现）
+ *
+ * 设计要点（WHY）：
+ * - 统一全局 Store 管理领域状态，最小化 DOM 读写与"谁在改数据"的心智负担
+ * - 渲染统一走模板引擎（见 domain-registration.html 中的 script 模板），降低耦合
+ * - API 统一来自 @api/landing，保证接口与类型对齐
+ * - 仅做"必要的交互"：查询、加入/移除购物车、清空、创建订单（支付简化为下单成功提示）
+ */
+import "virtual:uno.css";
+import "../styles/index.css";
+
+import {
+  createStore,
+  renderTemplate,
+  renderTemplateList,
+  formatPrice,
+  formatPriceInteger,
+  getUrlParam,
+  updateUrlParam,
+  ModalManager,
+  NotificationManager,
+  OverlayManager,
+  calculateDropdownPosition,
+  bindContactServicePopupClick,
+} from "@utils";
+import {
+  TPL_SEARCH_RESULT_ITEM,
+  TPL_EMPTY_STATE,
+  TPL_CART_ITEM,
+  TPL_TEMPLATE_SELECT_OPTION,
+  TPL_VIEW_MORE_BUTTON,
+  // 结算弹窗相关模板
+  TPL_PAYMENT_CART_ITEM,
+  TPL_PAYMENT_MODAL_CART_ITEMS,
+  TPL_PAYMENT_MODAL_PAYMENT_SECTION,
+  TPL_PAYMENT_MODAL_CONTENT,
+  TPL_PAYMENT_MODAL_WARNING,
+  // 支付界面/订单模板
+  TPL_PAYMENT_INTERFACE,
+  TPL_ORDER_ITEM,
+  // 域名注册协议
+  TPL_DOMAIN_AGREEMENT_MODAL,
+} from "../templates";
+import {
+  domainQueryCheck,
+  aiDomainQueryCheck,
+  getOrderCartList,
+  addToCart as apiAddToCart,
+  updateCart as apiUpdateCart,
+  removeFromCart as apiRemoveFromCart,
+  clearCart as apiClearCart,
+  createOrder as apiCreateOrder,
+  queryPaymentStatus as apiQueryPaymentStatus,
+  getContactUserDetail,
+  getOrderDetail as apiGetOrderDetail,
+  getAccountBalance,
+  payWithBalance,
+} from "@api/landing";
+
+import type {
+  DomainQueryCheckRequest,
+  DomainQueryCheckResponseData,
+} from "../types/api-types/domain-query-check";
+import { Item } from "../types/api-types/order-cart-list";
+import { Datum } from "../types/api-types/contact-get-user-detail";
+import type { OrderCreateResponseData } from "../types/api-types/order-create";
+import type { OrderDetailResponseData } from "../types/api-types/order-detail";
+
+// ----------------------------
+// 全局 Store（函数式）
+// ----------------------------
+/** 查询接口中单条域名项的结构（由 quicktype 生成） */
+type DomainItem = DomainQueryCheckResponseData["data"][number];
+/**
+ * 轻量全局 Store 类型定义
+ * - DomainStore: 维护查询入参与查询结果
+ * - CartStore: 维护购物车条目与价格汇总（原价/应付）
+ * - RealNameStore: 维护实名模板列表与当前选中模板
+ */
+type DomainStore = {
+  input: string;
+  param: DomainQueryCheckRequest;
+  // 新增AI推荐相关字段
+  aiParam: { brandName: string; industry: string };
+  searchMode: "normal" | "ai"; // 当前搜索模式
+
+  // 🔥 分别存储两种搜索模式的数据
+  normalSearch: {
+    list: DomainItem[];
+    page: number;
+    hasMore: boolean;
+    hasSearched: boolean; // 🎯 关键：是否执行过搜索
+  };
+  aiSearch: {
+    list: DomainItem[];
+    page: number;
+    hasMore: boolean;
+    hasSearched: boolean; // 🎯 关键：是否执行过搜索
+  };
+
+  // 当前展示的数据（保持向后兼容）
+  list: DomainItem[];
+  page: number;
+  hasMore: boolean;
+};
+type CartStore = { list: Item[]; originalTotal: number; payableTotal: number };
+type RealNameStore = { list: Datum[]; current: Datum | null };
+
+const isDev = (): boolean => process.env.NODE_ENV === "development";
+// 动态获取登录状态的函数
+function getLoginStatus(): boolean {
+  return localStorage.getItem("isLogin") === "true" || isDev();
+}
+
+// 定义全局状态-域名
+// WHY: 使用 subscribe 监听 `param` 变化以触发查询，保持数据-视图解耦
+const { state: domainState, subscribe: domainSubscribe } =
+  createStore<DomainStore>({
+    input: "",
+    param: { domain: "", p: 1, rows: 20, recommend_type: -1 },
+    // 新增AI推荐默认状态
+    aiParam: { brandName: "", industry: "" },
+    searchMode: "normal",
+
+    // 🔥 初始化两种搜索模式的数据
+    normalSearch: {
+      list: [],
+      page: 1,
+      hasMore: false,
+      hasSearched: false,
+    },
+    aiSearch: {
+      list: [],
+      page: 1,
+      hasMore: false,
+      hasSearched: false,
+    },
+
+    // 当前展示的数据
+    list: [],
+    page: 1,
+    hasMore: false,
+  });
+
+// 定义全局状态-购物车
+// WHY: 购物车列表通常在页面初始化拉取一次，后续交互再增量更新
+const { state: cartState, subscribe: cartSubscribe } = createStore<CartStore>({
+  list: [],
+  originalTotal: 0,
+  payableTotal: 0,
+});
+
+// 定义全局状态-实名认证
+// WHY: 实名模板在"域名列表成功返回后"再拉取，避免无效请求
+const { state: realNameState, subscribe: realNameSubscribe } =
+  createStore<RealNameStore>({
+    list: [],
+    current: null,
+  });
+
+// ----------------------------
+// 支付相关临时状态（模块级）
+// ----------------------------
+let currentOrderData: OrderCreateResponseData | null = null;
+let currentOrderNo: string | null = null;
+let paymentPollTimer: any = null;
+let selectedPaymentMethod: "wechat" | "alipay" | "balance" = "wechat";
+let successRedirectTimer: any = null;
+let successRedirectCountdown = 5;
+
+// 协议确认状态
+let agreementAccepted = false;
+
+// WHOIS模态窗口相关变量
+let whoisModalInstance: any = null;
+
+// 查询触发标志位（防止双重查询）
+let isManualTriggering = false;
+
+// 🔥 实名模板全局加载状态管理
+let isRealNameListLoaded = false;
+
+// ----------------------------
+// 渲染与请求编排（subscribe）
+// ----------------------------
+
+function safe$() {
+  return (window as any).$ as any;
+}
+
+/**
+ * 切换到普通搜索模式
+ */
+function switchToNormalMode() {
+  domainState.searchMode = "normal";
+  if (domainState.normalSearch.hasSearched) {
+    // 展示上次搜索结果
+    domainState.list = domainState.normalSearch.list;
+    domainState.page = domainState.normalSearch.page;
+    domainState.hasMore = domainState.normalSearch.hasMore;
+  } else {
+    // 展示空列表
+    domainState.list = [];
+    showEmptyState();
+  }
+}
+
+/**
+ * 切换到AI推荐模式
+ */
+function switchToAiMode() {
+  domainState.searchMode = "ai";
+  if (domainState.aiSearch.hasSearched) {
+    // 展示上次AI推荐结果
+    domainState.list = domainState.aiSearch.list;
+    domainState.page = domainState.aiSearch.page;
+    domainState.hasMore = domainState.aiSearch.hasMore;
+  } else {
+    // 展示空列表
+    domainState.list = [];
+    showEmptyState();
+  }
+}
+
+/**
+ * 显示空状态
+ */
+function showEmptyState() {
+  const $ = safe$();
+  if ($) {
+    $("#empty-state-container").removeClass("hidden");
+    $("#search-results").html(`
+      <div id="empty-state-container" class="text-center py-8">
+        <div class="text-gray-400 mb-2">
+          <i class="fa fa-search fa-3x"></i>
+        </div>
+        <div class="text-gray-500">
+          ${
+            domainState.searchMode === "ai"
+              ? "使用AI推荐功能，为您推荐合适的域名！"
+              : "赶快搜索你的专属域名吧！"
+          }
+        </div>
+      </div>
+    `);
+  }
+}
+
+function setHTML(selector: string, html: string) {
+  const $ = safe$();
+  if ($ && $(selector).length) {
+    $(selector).html(html);
+  }
+}
+
+function text(selector: string, value: string) {
+  const $ = safe$();
+  if ($ && $(selector).length) {
+    $(selector).text(value);
+  }
+}
+
+/**
+ * 渲染域名列表
+ * WHY: 对后端返回字段做展示层映射（价格/状态/格式化），与模板 `search-result-item-template` 对齐
+ */
+function renderDomainList(list: DomainItem[]) {
+  const $ = safe$();
+
+  // 如果列表为空，显示空状态容器
+  if (!list || list.length === 0) {
+    if ($) $("#empty-state-container").removeClass("hidden");
+    return;
+  }
+
+  // 隐藏空状态容器
+  if ($) {
+    $("#empty-state-container").addClass("hidden");
+  }
+
+  // 根据购物车内容标记搜索结果中的已选中（已加入购物车）项
+  const inCartDomainSet = new Set(
+    (cartState.list || []).map((it: any) =>
+      String(it.full_domain || it.domain_name || ""),
+    ),
+  );
+  console.log(list, "--");
+  const mapped = list.map((it, index) => {
+    const price =
+      (it as any)?.price_info?.first_year_discount_price ??
+      (it as any)?.price_info?.first_year_price;
+    const originalPrice = (it as any)?.price_info?.first_year_price;
+    const renewPrice = (it as any)?.price_info?.renew_price;
+    const renewPriceDiscount = (it as any)?.price_info?.renewal_discount_price;
+    const isRegistered =
+      it.status === "registered" ||
+      (it as any).status_desc === "已注册" ||
+      it.available === false;
+    const fullDomain = it.domain;
+    const type = (it as any)?.price_info?.recommend_type;
+    const hasOriginalPrice = Number(originalPrice) > Number(price);
+    const canShowTags = !isRegistered;
+    const hasRecommended = canShowTags && type === 1;
+    const hasPopular = canShowTags && type === 2;
+    const hasDiscount = canShowTags && type === 3;
+    const hasNew = canShowTags && type === 4;
+    const discountPercent =
+      canShowTags && hasOriginalPrice
+        ? Math.round(
+            ((Number(originalPrice) - Number(price)) / Number(originalPrice)) *
+              100,
+          )
+        : 0;
+    const isCnSuffix = canShowTags && it.suffix === "cn";
+    const isTopSuffix = canShowTags && it.suffix === "top";
+    return {
+      domain: fullDomain,
+      suffix: it.suffix,
+      price,
+      originalPrice,
+      renewPrice: formatPrice(renewPrice),
+      formattedPrice: formatPrice(price),
+      formattedOriginalPrice: formatPrice(originalPrice),
+      // SearchResultItem 需要的字段
+      statusText: isRegistered
+        ? String((it as any).status_desc || "已注册")
+        : "",
+      isRegistered,
+      isLast: index === list.length - 1,
+      // 选中（加入购物车）状态
+      isInCart: inCartDomainSet.has(String(fullDomain)),
+      // 便捷链接
+      whoisUrl: `https://www.kenpai.com/whois/${fullDomain}`,
+      hasRecommended,
+      hasPopular,
+      hasDiscount,
+      hasOriginalPrice,
+      discountPercent,
+      hasNew,
+      // 🔥 AI推荐相关字段（只在AI模式下显示）
+      meaning: (it as any)?.meaning || "", // AI推荐的域名意义解释
+      hasAiMeaning:
+        domainState.searchMode === "ai" && Boolean((it as any)?.meaning), // 是否显示AI解释
+      // 多年价格（首年按优惠价，续费按续费价）
+      price3Years: formatPriceInteger(
+        Number(price) + Number(renewPriceDiscount) * 2,
+      ),
+      price5Years: formatPriceInteger(
+        Number(price) + Number(renewPriceDiscount) * 4,
+      ),
+      price10Years: formatPriceInteger(
+        Number(price) + Number(renewPriceDiscount) * 9,
+      ),
+      renewPrice3Years: formatPriceInteger(Number(renewPriceDiscount) * 3),
+      renewPrice5Years: formatPriceInteger(Number(renewPriceDiscount) * 5),
+      renewPrice10Years: formatPriceInteger(Number(renewPriceDiscount) * 10),
+      isCnSuffix,
+      isTopSuffix,
+    };
+  });
+
+  const html = renderTemplate(TPL_SEARCH_RESULT_ITEM, { list: mapped });
+  setHTML("#search-results", html);
+  appendViewMore();
+}
+
+/**
+ * 追加域名列表（查看更多）
+ */
+function appendDomainList(list: DomainItem[]) {
+  const $ = safe$();
+  if (!$) return;
+  const inCartDomainSet = new Set(
+    (cartState.list || []).map((it: any) =>
+      String(it.full_domain || it.domain_name || ""),
+    ),
+  );
+  const mapped = list.map((it, index) => {
+    const price =
+      (it as any)?.price_info?.first_year_discount_price ??
+      (it as any)?.price_info?.first_year_price;
+    const originalPrice = (it as any)?.price_info?.first_year_price;
+    const renewPrice = (it as any)?.price_info?.renewal_price;
+    const renewPriceDiscount = (it as any)?.price_info?.renewal_discount_price;
+    const isRegistered =
+      it.status === "registered" ||
+      (it as any).status_desc === "已注册" ||
+      it.available === false;
+    const fullDomain = it.domain;
+    const type = (it as any)?.price_info?.recommend_type;
+    const hasOriginalPrice = Number(originalPrice) > Number(price);
+    const canShowTags = !isRegistered;
+    const hasRecommended = canShowTags && type === 1;
+    const hasPopular = canShowTags && type === 2;
+    const hasDiscount = canShowTags && (type === 3 || hasOriginalPrice);
+    const hasNew = canShowTags && type === 4;
+    const discountPercent =
+      canShowTags && hasOriginalPrice
+        ? Math.round(
+            ((Number(originalPrice) - Number(price)) / Number(originalPrice)) *
+              100,
+          )
+        : 0;
+    return {
+      domain: fullDomain,
+      suffix: it.suffix,
+      price,
+      originalPrice,
+      renewPrice,
+      formattedPrice: formatPrice(price),
+      formattedOriginalPrice: formatPrice(originalPrice),
+      statusText: isRegistered
+        ? String((it as any).status_desc || "已注册")
+        : "",
+      isRegistered,
+      isLast: index === list.length - 1,
+      isInCart: inCartDomainSet.has(String(fullDomain)),
+      whoisUrl: `https://www.kenpai.com/whois/${fullDomain}`,
+      hasRecommended,
+      hasPopular,
+      hasDiscount,
+      hasOriginalPrice,
+      discountPercent,
+      hasNew,
+      // 🔥 AI推荐相关字段（只在AI模式下显示）
+      meaning: (it as any)?.meaning || "", // AI推荐的域名意义解释
+      hasAiMeaning:
+        domainState.searchMode === "ai" && Boolean((it as any)?.meaning), // 是否显示AI解释
+      price3Years: formatPriceInteger(
+        Number(price) + Number(renewPriceDiscount) * 2,
+      ),
+      price5Years: formatPriceInteger(
+        Number(price) + Number(renewPriceDiscount) * 4,
+      ),
+      price10Years: formatPriceInteger(
+        Number(price) + Number(renewPriceDiscount) * 9,
+      ),
+      renewPrice3Years: formatPriceInteger(Number(renewPriceDiscount) * 3),
+      renewPrice5Years: formatPriceInteger(Number(renewPriceDiscount) * 5),
+      renewPrice10Years: formatPriceInteger(Number(renewPriceDiscount) * 10),
+    };
+  });
+  const html = renderTemplate(TPL_SEARCH_RESULT_ITEM, { list: mapped });
+  $("#search-results").append(html);
+  appendViewMore();
+}
+
+function appendViewMore() {
+  const $ = safe$();
+  if (!$) return;
+  // 移除旧的查看更多
+  $("#show-more-button").closest("div").remove();
+  if (domainState.hasMore) {
+    const btn = renderTemplate(TPL_VIEW_MORE_BUTTON, {});
+    // 需求：按钮追加到 #search-results 元素后面（作为其后一个兄弟元素）
+    $("#search-results").after(btn);
+  }
+}
+
+/**
+ * 渲染购物车
+ * WHY: 兼容不同字段（price/original_price 与 domain_service_price/full_domain），统一展示逻辑
+ */
+function renderCart(cart: CartStore) {
+  const items = (cart.list || []) as any[];
+  const $ = safe$();
+  const $empty = $ && $("#empty-cart");
+  const $filled = $ && $("#filled-cart");
+  const $clearBtn = $ && $("#clear-cart-button");
+  const $counter = $ && $(".cart-counter");
+
+  if ($counter) $counter.text(String(items.length || 0));
+  if (items.length === 0) {
+    // 空态：显示空购物车区域，隐藏已填充区域与清空按钮
+    if ($empty) $empty.removeClass("hidden");
+    if ($filled) $filled.addClass("hidden");
+    if ($clearBtn) $clearBtn.addClass("hidden");
+    // 价格归零
+    text("#cart-original-total", formatPrice(0));
+    text("#cart-discount", `-${formatPrice(0)}`);
+    text("#cart-payable", formatPrice(0));
+    // 同步移动端购物车
+    updateMobileCartBar({ list: [], originalTotal: 0, payableTotal: 0 });
+    return;
+  }
+
+  const mapped = items.map((item, index) => {
+    // 后端已按年限计算过汇总，这里价格用于单项展示，不乘年限
+    const price = Number(
+      item.total_price ?? item.price ?? item.domain_service_price ?? 0,
+    );
+    const original = Number(item.original_price ?? price);
+    return {
+      ...item,
+      index,
+      domain: item.full_domain || item.domain_name,
+      price,
+      originalPrice: original,
+      formattedPrice: formatPrice(price),
+      formattedOriginalPrice: formatPrice(original),
+    };
+  });
+
+  // 非空：显示已填充区域，隐藏空态，显示清空按钮
+  if ($empty) $empty.addClass("hidden");
+  if ($filled) $filled.removeClass("hidden");
+  if ($clearBtn) $clearBtn.removeClass("hidden");
+
+  setHTML("#cart-items", renderTemplateList(TPL_CART_ITEM, mapped));
+  const originalTotal = (cart as any).originalTotal ?? 0;
+  const payableTotal = (cart as any).payableTotal ?? 0;
+  const discount = originalTotal - payableTotal;
+  text("#cart-original-total", formatPrice(originalTotal));
+  text("#cart-discount", `-${discount.toFixed(2)}`);
+  text("#cart-payable", formatPrice(payableTotal));
+
+  // 同步移动端购物车
+  updateMobileCartBar(cart);
+}
+
+/**
+ * 渲染实名模板下拉
+ * WHY: 做脱敏/状态翻译/默认项标记，复用 `template-select-option-template`
+ */
+function renderRealNameTemplates(list: Datum[]) {
+  const templates = (list || []).map((t) => {
+    const displayName =
+      t.template_name || t.owner_name || t.contact_person || "未知模板";
+    const idMasked =
+      t.id_number && t.id_number.length > 10
+        ? t.id_number.replace(/(\d{6})\d{8}(\d{3}[0-9Xx])/, "$1****$2")
+        : t.id_number;
+    const status = (t as any).template_status || "";
+    const statusMap: Record<string, { text: string; class: string }> = {
+      draft: { text: "草稿", class: "text-gray-500" },
+      pending: { text: "审核中", class: "text-yellow-600" },
+      approved: { text: "已认证", class: "text-green-600" },
+      rejected: { text: "认证失败", class: "text-red-600" },
+      verified: { text: "已认证", class: "text-green-600" },
+    };
+    const statusView = statusMap[status] || {
+      text: "",
+      class: "text-gray-500",
+    };
+    return {
+      ...(t as any),
+      displayName,
+      description: idMasked ? `证件：${idMasked}` : "",
+      statusText: statusView.text,
+      statusClass: statusView.class,
+      isDefault: (t as any).is_default === 1,
+    };
+  });
+
+  const html = renderTemplateList(TPL_TEMPLATE_SELECT_OPTION, templates);
+  setHTML("#template-select", html);
+}
+
+/**
+ * 拉取域名列表
+ * NOTE: 使用 OverlayManager 显示局部加载；成功后写入 store 触发渲染与后续实名模板加载
+ */
+async function fetchDomainList(param: DomainQueryCheckRequest) {
+  // 🔥 记录请求发起时的目标模式
+  const requestTargetMode = "normal";
+
+  try {
+    OverlayManager.showView?.("#search-results", { content: "正在搜索..." });
+    const res = await domainQueryCheck(param);
+    const data = res.data as any;
+    const list: DomainItem[] = data?.data || [];
+    const page = Number(data?.page || param.p || 1);
+    const rows = Number(data?.row || param.rows || 20);
+    // 简单判断是否还有更多：当次返回数量 >= rows 即认为可能还有下一页
+    const hasMore = Array.isArray(list) && list.length >= rows;
+
+    // 🔥 无论如何都更新普通搜索模式的专用数据（缓存用途）
+    domainState.normalSearch = { list, page, hasMore, hasSearched: true };
+
+    // 🔥 关键检查：只有当前仍处于普通搜索模式时才更新全局显示数据
+    if (domainState.searchMode === requestTargetMode) {
+      domainState.page = page;
+      domainState.hasMore = hasMore;
+      domainState.list = list;
+    }
+  } catch (err: any) {
+    console.error("域名查询失败", err);
+    const { message } = err;
+
+    // 🔥 错误显示也要检查模式
+    if (domainState.searchMode === requestTargetMode) {
+      setHTML(
+        "#search-results",
+        `<div class="text-center py-8 text-red-500">${message}</div>`,
+      );
+    }
+  } finally {
+    // 🔥 只有当前仍处于普通搜索模式时才隐藏加载状态
+    if (domainState.searchMode === requestTargetMode) {
+      OverlayManager.hideView?.("#search-results");
+    }
+  }
+}
+
+/**
+ * AI推荐域名列表
+ * NOTE: 使用新的aiDomainQueryCheck接口，支持品牌名称和行业信息
+ */
+async function fetchAiDomainList(params: {
+  brandName: string;
+  industry: string;
+  p?: number;
+  rows?: number;
+  recommend_type?: number;
+}) {
+  // 🔥 记录请求发起时的目标模式
+  const requestTargetMode = "ai";
+
+  try {
+    OverlayManager.showView?.("#search-results", { content: "AI推荐中..." });
+
+    // 使用AI推荐接口
+    const res = await aiDomainQueryCheck({
+      brand: params.brandName,
+      industry: params.industry,
+      // 注意：AI接口可能不支持分页和推荐类型，根据实际API调整
+      // p: params.p || 1,
+      // rows: params.rows || 20,
+      // recommend_type: params.recommend_type || -1
+    });
+
+    const data = res.data as any;
+    const list: DomainItem[] = data || [];
+    const page = Number(1);
+    const rows = Number(20);
+    const hasMore = Array.isArray(list) && list.length >= rows;
+
+    // 🔥 无论如何都更新AI模式的专用数据（缓存用途）
+    domainState.aiSearch = { list, page, hasMore, hasSearched: true };
+
+    // 🔥 关键检查：只有当前仍处于AI模式时才更新全局显示数据
+    if (domainState.searchMode === requestTargetMode) {
+      domainState.page = page;
+      domainState.hasMore = hasMore;
+      domainState.list = list;
+    }
+  } catch (err: any) {
+    console.error("AI域名推荐失败", err);
+    const { message } = err;
+
+    // 🔥 错误显示也要检查模式
+    if (domainState.searchMode === requestTargetMode) {
+      setHTML(
+        "#search-results",
+        `<div class="text-center py-8 text-red-500">AI推荐失败：当前使用用户过多，请重新查询！</div>`,
+      );
+    }
+  } finally {
+    // 🔥 只有当前仍处于AI模式时才隐藏加载状态
+    if (domainState.searchMode === requestTargetMode) {
+      OverlayManager.hideView?.("#search-results");
+    }
+  }
+}
+
+/**
+ * 拉取购物车列表
+ * WHY: 初始化阶段拉取一次，订阅负责后续渲染
+ */
+async function fetchCartList() {
+  try {
+    const res = await getOrderCartList({} as any);
+    const data: any = res.data;
+    cartState.list = data?.items || [];
+    cartState.originalTotal = data?.original_price ?? 0;
+    cartState.payableTotal = data?.total_price ?? 0;
+  } catch (err) {
+    console.error("获取购物车失败", err);
+  }
+}
+
+/**
+ * 计算选中购物车条目的总价信息
+ */
+function calculateSelectedTotals(items: any[]) {
+  const safeItems = Array.isArray(items) ? items : [];
+  // 注意：后端已按年限计算过条目价格（或提供 total_price），这里不再乘以 years
+  const originalTotal = safeItems.reduce((sum, it: any) => {
+    if (!it) return sum;
+    const original = Number(
+      it.original_price ??
+        it.originalPrice ??
+        it.price ??
+        it.domain_service_price ??
+        0,
+    );
+    return sum + Math.max(0, original);
+  }, 0);
+  const payableTotal = safeItems.reduce((sum, it: any) => {
+    if (!it) return sum;
+    const value =
+      it.total_price != null
+        ? Number(it.total_price)
+        : Number(it.price ?? it.domain_service_price ?? 0);
+    return sum + Math.max(0, value);
+  }, 0);
+  const discount = Math.max(0, originalTotal - payableTotal);
+  return {
+    originalTotal: Math.round(originalTotal * 100) / 100,
+    payableTotal: Math.round(payableTotal * 100) / 100,
+    discount: Math.round(discount * 100) / 100,
+  };
+}
+
+/**
+ * 构建结算弹窗内容（参考旧版 search-cart.js 的显示方式）
+ */
+async function buildPaymentModalContent(init: boolean = true) {
+  // 🔥 确保实名模板数据可用（使用全局加载策略）
+  await ensureRealNameListLoaded();
+  const template =
+    (realNameState.current as any) ||
+    (realNameState.list || [])[0] ||
+    ({} as any);
+  const templateName =
+    template?.displayName ||
+    template?.template_name ||
+    template?.owner_name ||
+    template?.contact_person ||
+    "请选择实名模板";
+  const idMasked = template?.id_number
+    ? String(template.id_number).replace(
+        /(\d{6})\d{8}(\d{3}[0-9Xx])/,
+        "$1****$2",
+      )
+    : template?.id_number_masked || "";
+  const selectedTemplateName = idMasked
+    ? `${templateName} - ${idMasked}`
+    : templateName;
+
+  // 组装购物车条目（用于支付弹窗）
+  const items = (cartState.list || []) as any[];
+  const itemsWithFormatted = items.map((it: any, index: number) => {
+    const years = Number(it.years || 1);
+    const unitPrice = Number(it.price ?? it.domain_service_price ?? 0);
+    const original = Number(it.original_price ?? unitPrice);
+
+    return {
+      index,
+      selected: (it.selected ?? 1) !== 0,
+      domain: String(it.full_domain || it.domain_name || ""),
+      years,
+      formattedTotalPrice: formatPrice(original),
+      formattedUnitPrice: formatPrice(unitPrice),
+    };
+  });
+
+  const cartItemsHtml = renderTemplate(TPL_PAYMENT_MODAL_CART_ITEMS, {
+    totalItems: itemsWithFormatted.length,
+    cartItemsHtml: renderTemplateList(
+      TPL_PAYMENT_CART_ITEM,
+      itemsWithFormatted,
+    ),
+  });
+
+  const totals = {
+    // 直接使用后端已计算好的汇总
+    originalTotal: Number(cartState.originalTotal ?? 0),
+    payableTotal: Number(cartState.payableTotal ?? 0),
+    discount: Math.max(
+      0,
+      Number(cartState.originalTotal ?? 0) -
+        Number(cartState.payableTotal ?? 0),
+    ),
+  };
+
+  const warningHtml = renderTemplate(TPL_PAYMENT_MODAL_WARNING, {});
+  const paymentSectionHtml = renderTemplate(TPL_PAYMENT_MODAL_PAYMENT_SECTION, {
+    selectedTemplateId: template?.id,
+    selectedTemplateName,
+    formattedOriginalTotal: formatPrice(totals.originalTotal),
+    formattedDiscount: `¥${totals.discount.toFixed(2)}`,
+    formattedPayableTotal: formatPrice(totals.payableTotal),
+  });
+
+  const content = renderTemplate(TPL_PAYMENT_MODAL_CONTENT, {
+    warningHtml,
+    cartItemsHtml,
+    paymentSectionHtml,
+  });
+  return content;
+}
+
+/**
+ * 打开购物车结算弹窗
+ */
+async function showPaymentModal() {
+  const content = await buildPaymentModalContent(true);
+  ModalManager.show?.({
+    id: "cart-payment-modal",
+    title: "购物车结算",
+    content,
+    size: "4xl",
+    zIndex: 9999,
+    className: "cart-payment-modal",
+    closable: true,
+    buttons: [],
+    onShow: () => {
+      const $ = safe$();
+      if (!$) return;
+      const $body = $("body");
+      const prevOverflow = $body.css("overflow");
+      const prevTouchAction = $body.css("touch-action");
+      const prevOverscroll = $body.css("overscroll-behavior");
+      $body.data("cartPaymentModalOverflow", prevOverflow);
+      $body.data("cartPaymentModalTouchAction", prevTouchAction);
+      $body.data("cartPaymentModalOverscroll", prevOverscroll);
+      $body.css("overflow", "hidden");
+      $body.css("touch-action", "none");
+      $body.css("overscroll-behavior", "contain");
+    },
+    onHide: () => {
+      const $ = safe$();
+      if (!$) return;
+      const $body = $("body");
+      const prevOverflow = $body.data("cartPaymentModalOverflow");
+      const prevTouchAction = $body.data("cartPaymentModalTouchAction");
+      const prevOverscroll = $body.data("cartPaymentModalOverscroll");
+      $body.css("overflow", prevOverflow || "");
+      $body.css("touch-action", prevTouchAction || "");
+      $body.css("overscroll-behavior", prevOverscroll || "");
+      $body.removeData(
+        "cartPaymentModalOverflow cartPaymentModalTouchAction cartPaymentModalOverscroll",
+      );
+    },
+  });
+  bindPaymentModalEvents();
+  // 初始化"全选"为选中态
+  const $ = safe$();
+  if ($) {
+    const $selectAll = $("#select-all-items");
+    $selectAll.addClass("checked").data("selected", true);
+    $(".item-checkbox").each(function (this: any) {
+      const $item = $(this);
+      $item.addClass("checked").data("selected", true);
+    });
+  }
+}
+
+/**
+ * 构建订单项 HTML（用于支付界面左侧）
+ */
+function buildOrderItemsHtml(items: any[]) {
+  const mapped = (items || []).map((it: any) => {
+    const years = Math.max(1, Number(it.years || 1));
+    // 注意：后端已给出总价（total_price 或等效字段），避免再次乘以 years
+    const total = Number(it.price);
+    const domain = String(it.full_domain || it.domain_name || "");
+    const template = (realNameState.current as any) || {};
+    const templateName =
+      template?.displayName ||
+      template?.template_name ||
+      template?.owner_name ||
+      template?.contact_person ||
+      "请选择实名模板";
+    return {
+      domain,
+      years,
+      templateName,
+      formattedTotalPrice: formatPrice(total),
+    };
+  });
+  return renderTemplateList(TPL_ORDER_ITEM, mapped);
+}
+
+/**
+ * 显示支付界面（不跳转外部支付页）
+ */
+async function showPaymentInterface() {
+  const $ = safe$();
+  const selectedItems = (cartState.list || []).filter(
+    (it: any) => (it.selected ?? 1) !== 0,
+  );
+  if (selectedItems.length === 0) {
+    NotificationManager.show?.({
+      type: "warning",
+      message: "请选择要购买的商品",
+    });
+    return;
+  }
+
+  const { originalTotal, payableTotal, discount } =
+    calculateSelectedTotals(selectedItems);
+  const hasDiscount = discount > 0;
+
+  // 基础用户信息
+  const template = (realNameState.current as any) || {};
+  const phone =
+    template?.phone ||
+    template?.owner_phone ||
+    template?.contact_phone ||
+    template?.contact_mobile ||
+    "***";
+  const userName = template?.owner_name || template?.contact_person || "用户";
+  const userInitial = String(userName).trim().slice(0, 1) || "用";
+
+  // 获取账户余额
+  let accountBalance = 0;
+  let insufficientBalance = false;
+  try {
+    const balanceRes = await getAccountBalance();
+    if (balanceRes?.data?.balance !== undefined) {
+      accountBalance = balanceRes.data.balance / 100;
+      insufficientBalance = accountBalance < payableTotal;
+    }
+  } catch (err) {
+    console.error("获取账户余额失败", err);
+    // 余额获取失败时，默认为余额不足
+    insufficientBalance = true;
+  }
+
+  const content = renderTemplate(TPL_PAYMENT_INTERFACE, {
+    orderItemsHtml: buildOrderItemsHtml(selectedItems),
+    formattedOriginalTotal: formatPrice(originalTotal),
+    formattedDiscount: formatPrice(discount),
+    formattedPayableTotal: formatPrice(payableTotal),
+    hasDiscount,
+    accountBalance: formatPrice(accountBalance),
+    userPhone: phone,
+    userInitial,
+    insufficientBalance,
+    isWechatSelected: selectedPaymentMethod === "wechat",
+    isAlipaySelected: selectedPaymentMethod === "alipay",
+    isBalanceSelected: selectedPaymentMethod === "balance",
+  });
+
+  // 关闭结算弹窗，显示支付界面
+  try {
+    ModalManager.hide?.("cart-payment-modal");
+  } catch {}
+
+  ModalManager.show?.({
+    id: "payment-interface-modal",
+    title: "支付订单",
+    content,
+    size: "4xl",
+    zIndex: 9999,
+    className: "payment-interface-modal",
+    closable: true,
+    buttons: [],
+    onShow: () => bindPaymentInterfaceEvents(),
+    onHide: () => {
+      // 关闭支付订单界面后，刷新购物车并清理轮询
+      try {
+        if (paymentPollTimer) clearInterval(paymentPollTimer);
+        paymentPollTimer = null;
+      } catch {}
+      fetchCartList();
+    },
+  });
+
+  // 初始显示二维码区域（微信）
+  if ($) {
+    if (selectedPaymentMethod === "balance") {
+      $("#qr-code-section").addClass("!hidden");
+      $("#balance-payment-section").removeClass("!hidden");
+    } else if (selectedPaymentMethod === "alipay") {
+      $("#balance-payment-section").addClass("!hidden");
+      $("#qr-code-section").removeClass("!hidden");
+      $("#qr-code-title").text("请使用支付宝扫码支付");
+      $("#qr-code-tip").text("请在手机上打开支付宝，扫描上方二维码完成支付");
+      generateQRCodeForSelectedMethod();
+    } else {
+      $("#balance-payment-section").addClass("!hidden");
+      $("#qr-code-section").removeClass("!hidden");
+      $("#qr-code-title").text("请使用微信扫码支付");
+      $("#qr-code-tip").text("请在手机上打开微信，扫描上方二维码完成支付");
+      generateQRCodeForSelectedMethod();
+    }
+    updateSegmentedSlider();
+  }
+}
+
+/**
+ * 绑定支付界面事件（方式切换等）
+ */
+function bindPaymentInterfaceEvents() {
+  const $ = safe$();
+  if (!$) return;
+
+  $(document)
+    .off("click", ".segmented-option")
+    .on("click", ".segmented-option", function (this: any) {
+      const $this = $(this);
+      if ($this.hasClass("disabled")) return;
+      const method = String($this.data("method") || "") as
+        | "wechat"
+        | "alipay"
+        | "balance";
+      // 切换 active 样式
+      $this
+        .closest(".segmented-control")
+        .find(".segmented-option")
+        .removeClass("active");
+      $this.addClass("active");
+      selectedPaymentMethod = method;
+
+      if (method === "balance") {
+        // 切换到余额支付：隐藏二维码，停止轮询
+        $("#qr-code-section").addClass("!hidden");
+        $("#balance-payment-section").removeClass("!hidden");
+        if (paymentPollTimer) {
+          clearInterval(paymentPollTimer);
+          paymentPollTimer = null;
+        }
+      } else if (method === "wechat") {
+        // 切换到微信支付：显示二维码，启动轮询
+        $("#balance-payment-section").addClass("!hidden");
+        $("#qr-code-section").removeClass("!hidden");
+        $("#qr-code-title").text("请使用微信扫码支付");
+        $("#qr-code-tip").text("请在手机上打开微信，扫描上方二维码完成支付");
+        generateQRCodeForSelectedMethod();
+        startPaymentPolling();
+      } else if (method === "alipay") {
+        // 切换到支付宝支付：显示二维码，启动轮询
+        $("#balance-payment-section").addClass("!hidden");
+        $("#qr-code-section").removeClass("!hidden");
+        $("#qr-code-title").text("请使用支付宝扫码支付");
+        $("#qr-code-tip").text("请在手机上打开支付宝，扫描上方二维码完成支付");
+        generateQRCodeForSelectedMethod();
+        startPaymentPolling();
+      }
+      updateSegmentedSlider();
+    });
+
+  // 余额确认支付
+  $(document)
+    .off("click", "#confirm-balance-payment-btn")
+    .on("click", "#confirm-balance-payment-btn", async function () {
+      if (selectedPaymentMethod !== "balance") return;
+      if (!currentOrderNo && currentOrderData?.order_no)
+        currentOrderNo = currentOrderData.order_no;
+      if (!currentOrderNo) {
+        NotificationManager.show?.({
+          type: "error",
+          message: "订单信息不存在，请返回重试",
+        });
+        return;
+      }
+
+      const $btn = $(this);
+      const originalText = $btn.text();
+
+      try {
+        // 禁用按钮并显示加载状态
+        $btn.prop("disabled", true).text("支付中...");
+
+        // 调用余额支付接口
+        const res = await payWithBalance({
+          order_no: currentOrderNo,
+        });
+        if (res?.code === 0) {
+          // 支付成功，直接处理成功逻辑
+          handlePaymentSuccess();
+        } else {
+          // 支付失败，显示错误信息
+          NotificationManager.show?.({
+            type: "error",
+            message: res?.msg || "余额支付失败，请重试",
+          });
+        }
+      } catch (err: any) {
+        console.error("余额支付失败", err);
+        NotificationManager.show?.({
+          type: "error",
+          message: err?.message || "余额支付失败，请重试",
+        });
+      } finally {
+        // 恢复按钮状态
+        $btn.prop("disabled", false).text(originalText);
+      }
+    });
+}
+
+/**
+ * 同步选中状态到状态树，并更新支付汇总
+ */
+function updateCartItemsSelectionFromDOM() {
+  const $ = safe$();
+  if (!$) return;
+  const newList = (cartState.list || []).map((it: any, idx: number) => {
+    const $checkbox = $(`.item-checkbox[data-index="${idx}"]`);
+    const isSelected =
+      $checkbox.data("selected") === "true" ||
+      $checkbox.data("selected") === true ||
+      $checkbox.hasClass("checked");
+    return { ...it, selected: isSelected ? 1 : 0 };
+  });
+  cartState.list = newList as any;
+  const hasSelected = newList.some((it: any) => (it.selected ?? 1) !== 0);
+  $("#delete-selected-link").toggleClass("hidden", !hasSelected);
+  updatePaymentSummary();
+}
+
+/**
+ * 更新支付汇总信息（基于选中项）
+ */
+function updatePaymentSummary() {
+  const $ = safe$();
+  if (!$) return;
+  const selected = (cartState.list || []).filter(
+    (it: any) => (it.selected ?? 1) !== 0,
+  );
+  const { originalTotal, payableTotal, discount } =
+    calculateSelectedTotals(selected);
+
+  $("#cart-payment-modal .payment-section .line-through").text(
+    formatPrice(originalTotal),
+  );
+  $("#cart-payment-modal .payment-section .text-green-600").text(
+    `-${formatPrice(discount)}`,
+  );
+  $("#cart-payment-modal .payment-section .text-orange-500.font-bold").text(
+    formatPrice(payableTotal),
+  );
+
+  $("#delete-selected-link").toggleClass("hidden", !selected.length);
+  const $paymentBtn = $("#confirm-payment-btn");
+  if (payableTotal > 0 && selected.length > 0) {
+    $paymentBtn.prop("disabled", false).text("立即支付");
+  } else {
+    $paymentBtn.prop("disabled", true).text("请选择商品");
+  }
+  $(".checkbox-label").text(`全选 (${selected.length} 件商品)`);
+
+  // 同步"全选"复选框状态（根据当前弹窗内条目选中情况）
+  const total = $("#cart-payment-modal .item-checkbox").length;
+  const checked = $("#cart-payment-modal .item-checkbox.checked").length;
+  const $all = $("#select-all-items");
+  if (total > 0 && checked === total) {
+    $all
+      .addClass("checked")
+      .removeClass("indeterminate")
+      .data("selected", true);
+  } else if (checked === 0) {
+    $all.removeClass("checked indeterminate").data("selected", false);
+  } else if (total > 0) {
+    $all
+      .removeClass("checked")
+      .addClass("indeterminate")
+      .data("selected", false);
+  }
+}
+
+/**
+ * 绑定结算弹窗内事件
+ */
+function bindPaymentModalEvents() {
+  const $ = safe$();
+  if (!$) return;
+
+  // 全选/取消全选
+  $(document)
+    .off("click", "#select-all-items")
+    .on("click", "#select-all-items", function (this: any) {
+      const $this = $(this);
+      const isSelected =
+        $this.data("selected") === "true" || $this.data("selected") === true;
+      const newState = !isSelected;
+      $this.data("selected", newState);
+      if (newState) $this.addClass("checked");
+      else $this.removeClass("checked");
+      $(".item-checkbox").each(function (this: any) {
+        const $item = $(this);
+        $item.data("selected", newState);
+        if (newState) $item.addClass("checked");
+        else $item.removeClass("checked");
+      });
+      updateCartItemsSelectionFromDOM();
+    });
+
+  // 单个商品选择
+  $(document)
+    .off("click", ".item-checkbox")
+    .on("click", ".item-checkbox", function (this: any) {
+      const $this = $(this);
+      const isSelected =
+        $this.data("selected") === "true" || $this.data("selected") === true;
+      const newState = !isSelected;
+      $this.data("selected", newState);
+      if (newState) $this.addClass("checked");
+      else $this.removeClass("checked");
+      // 同步"全选"态
+      const total = $(".item-checkbox").length;
+      const checked = $(".item-checkbox.checked").length;
+      const $all = $("#select-all-items");
+      if (checked === total) {
+        $all
+          .addClass("checked")
+          .removeClass("indeterminate")
+          .data("selected", true);
+      } else if (checked === 0) {
+        $all.removeClass("checked indeterminate").data("selected", false);
+      } else {
+        $all
+          .removeClass("checked")
+          .addClass("indeterminate")
+          .data("selected", false);
+      }
+      updateCartItemsSelectionFromDOM();
+    });
+
+  // 删除单个条目（弹窗内）
+  $(document)
+    .off("click", ".delete-item-btn")
+    .on("click", ".delete-item-btn", async function (this: any) {
+      const $btn = $(this);
+      const index = Number($btn.data("index"));
+      const item = (cartState.list || [])[index] as any;
+      if (!item) return;
+      try {
+        $btn.prop("disabled", true);
+        OverlayManager.showGlobal?.({ content: "移除中..." });
+        await apiRemoveFromCart({ cart_id: Number(item.id) });
+        await fetchCartList();
+        // 重建弹窗内容
+        const html = await buildPaymentModalContent(false);
+        $("#cart-payment-modal .modal-body-content").html(html);
+        updatePaymentSummary();
+      } catch (err) {
+        console.error("移除失败", err);
+        NotificationManager.show?.({
+          type: "error",
+          message: "移除失败，请重试",
+        });
+      } finally {
+        $btn.prop("disabled", false);
+        OverlayManager.hideGlobal?.();
+      }
+    });
+
+  // 确认支付 -> 创建订单并跳转支付
+  $(document)
+    .off("click", "#confirm-payment-btn")
+    .on("click", "#confirm-payment-btn", async function () {
+      const selectedItems = (cartState.list || []).filter(
+        (it: any) => (it.selected ?? 1) !== 0,
+      );
+
+      if (selectedItems.length === 0) {
+        NotificationManager.show?.({
+          type: "warning",
+          message: "请选择要购买的商品",
+          zIndex: 9999,
+        });
+        return;
+      }
+
+      const template = realNameState.current as any;
+      if (!template || !template.id) {
+        NotificationManager.show?.({
+          type: "warning",
+          message: "请先选择实名模板",
+          zIndex: 9999,
+        });
+        return;
+      }
+
+      if (!agreementAccepted) {
+        NotificationManager.show?.({
+          type: "warning",
+          message: "请先勾选并同意域名注册协议",
+          zIndex: 9999,
+        });
+        return;
+      }
+
+      // 对接创建订单接口，保留订单号与支付链接
+      try {
+        OverlayManager.showGlobal?.({ content: "创建订单中..." });
+        const cartIds = selectedItems.map((it: any) => Number(it.id));
+        const res = await apiCreateOrder({
+          real_name_template_id: Number(template.id),
+          order_type: 0,
+          cart_ids: cartIds,
+        });
+        const data = (res?.data || {}) as OrderCreateResponseData;
+        currentOrderData = data;
+        currentOrderNo = data?.order_no || null;
+      } catch (err) {
+        NotificationManager.show?.({
+          type: "error",
+          message: (err as any)?.message,
+          zIndex: 9999,
+        });
+        return;
+      } finally {
+        OverlayManager.hideGlobal?.();
+      }
+
+      // 展示站内支付界面
+      await showPaymentInterface();
+    });
+
+  // 年限选择（弹窗内）
+  $(document)
+    .off("click", ".cart-payment-modal .year-selector .select-display")
+    .on(
+      "click",
+      ".cart-payment-modal .year-selector .select-display",
+      function (this: any, e: any) {
+        e?.stopPropagation?.();
+        const $selector = $(this).closest(".year-selector");
+        // 移除之前遗留的菜单，避免重复创建与内存泄漏
+        $("body .year-select-menu").remove();
+
+        let $menu = $selector.find(".select-menu");
+        if (!$menu.length) {
+          $menu = $('<div class="select-menu"></div>');
+          const options = [1, 2, 3, 5, 10];
+          const html = options
+            .map(
+              (y) =>
+                `<div class="select-option" data-value="${y}">${y}年</div>`,
+            )
+            .join("");
+          $menu.html(html);
+          $("body").append($menu);
+        }
+
+        // 高亮当前选中年限
+        const index = Number($selector.data("index"));
+        const item = (cartState.list || [])[index] as any;
+        const currentYears = Number(
+          item?.years || $selector.data("value") || 1,
+        );
+        $menu
+          .find(`.select-option[data-value="${currentYears}"]`)
+          .addClass("active bg-primary-10 text-primary");
+
+        const pos = calculateDropdownPosition($selector, $menu);
+        $menu.css({
+          position: "fixed",
+          top: pos.top,
+          left: pos.left,
+          maxHeight: pos.maxHeight,
+          overflow: "auto",
+          zIndex: 9999,
+          background: "#fff",
+          border: "1px solid #eee",
+          borderRadius: "6px",
+          padding: "6px 0",
+          minWidth: Math.max(80, $selector.outerWidth?.() || 80),
+        });
+        $menu.show();
+
+        const onDoc = (evt: any) => {
+          if (!$(evt.target).closest(".select-menu, .year-selector").length) {
+            $(document).off("click", onDoc);
+            $menu.remove();
+          }
+        };
+        setTimeout(() => $(document).on("click", onDoc), 0);
+
+        $menu
+          .off("click", ".select-option")
+          .on("click", ".select-option", async function (this: any) {
+            const years = Number($(this).data("value"));
+            const index = Number($selector.data("index"));
+            const item = (cartState.list || [])[index] as any;
+            if (!item) return;
+            try {
+              await apiUpdateCart({
+                cart_id: Number(item.id),
+                years,
+                is_selected: Number(item.selected ?? 1),
+              });
+              await fetchCartList();
+              const html = await buildPaymentModalContent(false);
+              $("#cart-payment-modal .modal-body-content").html(html);
+              updatePaymentSummary();
+            } catch (err) {
+              console.error("年限更新失败", err);
+              NotificationManager.show?.({
+                type: "error",
+                message: "年限更新失败，请重试",
+                zIndex: 9999,
+              });
+            } finally {
+              $menu.hide();
+            }
+          });
+      },
+    );
+
+  // 实名模板选择（弹窗内）
+  $(document)
+    .off(
+      "click",
+      ".cart-payment-modal .real-name-template-selector .select-display",
+    )
+    .on(
+      "click",
+      ".cart-payment-modal .real-name-template-selector .select-display",
+      function (this: any, e: any) {
+        e?.stopPropagation?.();
+        // 移除之前遗留的菜单，避免重复创建与内存泄漏
+        $("body .real-name-menu").remove();
+
+        const $selector = $(this).closest(".real-name-template-selector");
+        let $menu = $('<div class="select-menu real-name-menu"></div>');
+        const templates = (realNameState.list || []) as any[];
+        const html = templates
+          .map((t) => {
+            const id = t.id;
+            const name =
+              t.template_name || t.owner_name || t.contact_person || "未知模板";
+            const desc =
+              t.id_number_masked ||
+              t.id_number.replace(/(\d{6})\d{8}(\d{3}[0-9Xx])/, "$1****$2") ||
+              "";
+
+            return `<div class=\"select-option\" data-id=\"${id}\">${name}${
+              desc ? " - " + desc : ""
+            }</div>`;
+          })
+          .join("");
+        const createItem = `
+					<div class=\"select-divider\" style=\"margin:6px 0;border-top:1px solid #eee;\"></div>
+					<div class=\"select-option select-create\" data-action=\"create\">+ 创建实名模板</div>
+				`;
+        $menu.html(html + createItem);
+        $("body").append($menu);
+
+        const pos = calculateDropdownPosition($selector, $menu);
+        $menu.css({
+          position: "fixed",
+          top: pos.top,
+          left: pos.left,
+          maxHeight: pos.maxHeight,
+          overflow: "auto",
+          zIndex: 9999,
+          background: "#fff",
+          border: "1px solid #eee",
+          borderRadius: "6px",
+          padding: "6px 0",
+          minWidth: Math.max(160, $selector.outerWidth?.() || 160),
+        });
+        $menu.show();
+        // 高亮当前选中的模板
+        const currentTemplate = realNameState.current as any;
+        if (currentTemplate) {
+          $menu
+            .find(`.select-option[data-id="${currentTemplate.id}"]`)
+            .addClass("active bg-primary-10 text-primary");
+        }
+
+        try {
+          const anchorRect = ($selector[0] as any)?.getBoundingClientRect?.();
+          const menuRect = ($menu[0] as any)?.getBoundingClientRect?.();
+          if (anchorRect && menuRect) {
+            const isAbove = menuRect.top < anchorRect.top;
+            if (isAbove) {
+              const newTop = Math.max(0, anchorRect.top - menuRect.height - 10);
+              $menu.css({ top: newTop });
+            }
+          }
+        } catch {}
+
+        const onDoc = (evt: any) => {
+          if (
+            !$(evt.target).closest(".select-menu, .real-name-template-selector")
+              .length
+          ) {
+            $menu.remove();
+            $(document).off("click", onDoc);
+          }
+        };
+        setTimeout(() => $(document).on("click", onDoc), 0);
+
+        $menu
+          .off("click", ".select-option")
+          .on("click", ".select-option", function (this: any, evt: any) {
+            const $opt = $(this);
+            const action = String($opt.data("action") || "");
+            if (action === "create") {
+              evt?.preventDefault?.();
+              window.open("https://www.bt.cn/domain/real-name", "_blank");
+              $menu.hide();
+              return;
+            }
+            const id = Number($opt.data("id"));
+            const templates = (realNameState.list || []) as any[];
+            const found = templates.find((t) => Number(t.id) === id) || null;
+            if (found) {
+              realNameState.current = found as any;
+              const name =
+                found.template_name ||
+                found.owner_name ||
+                found.contact_person ||
+                "请选择实名模板";
+              const desc =
+                found.id_number_masked ||
+                found.id_number.replace(
+                  /(\d{6})\d{8}(\d{3}[0-9Xx])/,
+                  "$1****$2",
+                ) ||
+                "";
+              $selector
+                .find(".select-text")
+                .text(desc ? `${name} - ${desc}` : name);
+            }
+            $menu.remove();
+          });
+      },
+    );
+
+  // 批量删除选中（弹窗内）
+  $(document)
+    .off("click", "#delete-selected-link")
+    .on("click", "#delete-selected-link", async function (e: any) {
+      e.preventDefault();
+      const selectedItems = (cartState.list || []).filter(
+        (it: any) => (it.selected ?? 1) !== 0,
+      );
+      if (selectedItems.length === 0) {
+        NotificationManager.show?.({
+          type: "warning",
+          message: "请先选择要删除的商品",
+        });
+        return;
+      }
+      try {
+        OverlayManager.showGlobal?.({ content: "正在删除选中商品..." });
+        for (const it of selectedItems) {
+          if (it && it.id != null) {
+            await apiRemoveFromCart({ cart_id: Number(it.id) });
+          }
+        }
+        await fetchCartList();
+        const html = await buildPaymentModalContent(false);
+        $("#cart-payment-modal .modal-body-content").html(html);
+        updatePaymentSummary();
+        NotificationManager.show?.({
+          type: "success",
+          message: `已删除 ${selectedItems.length} 件商品`,
+          zIndex: 9999,
+        });
+      } catch (err) {
+        console.error("批量删除失败", err);
+        NotificationManager.show?.({
+          type: "error",
+          message: "删除失败，请重试",
+          zIndex: 9999,
+        });
+      } finally {
+        OverlayManager.hideGlobal?.();
+      }
+    });
+
+  // 协议确认复选框点击事件
+  $(document)
+    .off("click", "#agreement-checkbox")
+    .on("click", "#agreement-checkbox", function (this: any) {
+      const $this = $(this);
+      const $icon = $this.find(".custom-checkbox .checkbox-icon");
+      const isChecked = $this.find(".custom-checkbox").hasClass("checked");
+
+      if (isChecked) {
+        // 取消勾选
+        $this.find(".custom-checkbox").removeClass("checked");
+        $icon.hide();
+        agreementAccepted = false;
+        updatePaymentButtonState();
+      } else {
+        // 勾选并显示协议模态窗口
+        showDomainAgreementModal();
+      }
+    });
+
+  // 协议链接点击事件
+  $(document)
+    .off("click", "#agreement-link")
+    .on("click", "#agreement-link", function (e: any) {
+      e.preventDefault();
+      e.stopPropagation();
+      showDomainAgreementModal();
+    });
+
+  // 根据当前订单数据生成二维码（若有）
+  // 初始化 slider 位置
+  updateSegmentedSlider();
+}
+
+/**
+ * 基于 currentOrderData 和所选支付方式，生成或更新二维码
+ */
+function generateQRCodeForSelectedMethod() {
+  const $ = safe$();
+  if (!$) return;
+  if (!currentOrderData) return;
+
+  const method = selectedPaymentMethod;
+  const $qrPlaceholder = $("#qr-code-placeholder");
+  const $qrImage = $("#qr-code-image");
+
+  try {
+    let qrText = "";
+    if (method === "wechat")
+      qrText = currentOrderData.wx || currentOrderData.payment_url || "";
+    if (method === "alipay")
+      qrText = currentOrderData.ali || currentOrderData.payment_url || "";
+    if (!qrText) return;
+
+    $qrImage.empty();
+    const $qr = $("<div>").css({ width: 180, height: 180, margin: "0 auto" });
+    // 需要 jquery.qrcode 插件；若无则使用简单降级
+    if (typeof ($qr as any).qrcode === "function") {
+      ($qr as any).qrcode({ text: qrText, width: 180, height: 180 });
+    } else {
+      $qr.append(
+        `<div class="w-180 h-180 flex items-center justify-center text-xs text-gray-500">二维码插件缺失，显示链接：${qrText}</div>`,
+      );
+    }
+    $qrImage.append($qr);
+    $qrPlaceholder.hide();
+    $qrImage.show();
+    // 开始轮询支付状态
+    startPaymentPolling();
+  } catch (err) {
+    console.error("生成二维码失败", err);
+  }
+}
+
+/** 开始轮询支付状态 */
+function startPaymentPolling() {
+  if (paymentPollTimer) clearInterval(paymentPollTimer);
+  const orderNo = currentOrderNo || currentOrderData?.order_no;
+  if (!orderNo) return;
+  let count = 0;
+  const maxCount = 60;
+  paymentPollTimer = setInterval(async () => {
+    count++;
+    try {
+      const res = await apiQueryPaymentStatus({
+        order_no: String(orderNo),
+      } as any);
+      const status = (res?.data as any)?.status;
+      if (status === 1) {
+        clearInterval(paymentPollTimer);
+        paymentPollTimer = null;
+        handlePaymentSuccess();
+      }
+      if (count >= maxCount) {
+        clearInterval(paymentPollTimer);
+        paymentPollTimer = null;
+      }
+    } catch (err) {
+      if (count >= maxCount) {
+        clearInterval(paymentPollTimer);
+        paymentPollTimer = null;
+      }
+    }
+  }, 5000);
+}
+
+function handlePaymentSuccess() {
+  const $ = safe$();
+  if (!$) return;
+  try {
+    ModalManager.hide?.("payment-interface-modal");
+  } catch {}
+  showPaymentSuccess();
+}
+
+/** 显示支付完成界面 */
+async function showPaymentSuccess() {
+  const orderNo = currentOrderNo || currentOrderData?.order_no;
+  let detail: OrderDetailResponseData | null = null;
+  try {
+    if (orderNo) {
+      const res = await apiGetOrderDetail({ order_no: String(orderNo) } as any);
+      detail = (res?.data || null) as any;
+    }
+  } catch {}
+
+  const items = detail?.items || [];
+  const domains = items.map((it) => ({
+    domain: it.full_domain || `${it.domain_name}.${it.suffix || ""}`,
+    years: it.years || 1,
+    templateName: realNameState.current?.template_name,
+    formattedPrice: formatPrice(
+      Number(it.total_amount || it.discount_price || it.one_price || 0),
+    ),
+  }));
+
+  const formattedOriginalTotal = detail?.original_price
+    ? String(detail.original_price)
+    : formatPrice(0);
+  const formattedPayableTotal = detail?.total_amount
+    ? String(detail.total_amount)
+    : formatPrice(0);
+  const discountNumber = Math.max(
+    0,
+    Number(formattedOriginalTotal) - Number(formattedPayableTotal),
+  );
+
+  const successHtml = renderTemplate("order-success-template", {
+    orderNumber: orderNo || "",
+    domains,
+    formattedOriginalTotal,
+    hasDiscount: discountNumber > 0,
+    formattedDiscount: `¥${discountNumber.toFixed(2)}`,
+    formattedPayableTotal,
+    paymentMethod:
+      selectedPaymentMethod === "balance"
+        ? "余额支付"
+        : selectedPaymentMethod === "alipay"
+          ? "支付宝"
+          : "微信",
+    paymentTime: new Date().toLocaleString(),
+    transactionId: (currentOrderData as any)?.order_no || "",
+  });
+
+  ModalManager.show?.({
+    id: "order-success-modal",
+    title: "支付成功",
+    content: successHtml,
+    size: "2xl",
+    zIndex: 9999,
+    className: "order-success-modal",
+    closable: true,
+    buttons: [],
+    onShow: () => {
+      const $ = safe$();
+      if (!$) return;
+      // 初始化倒计时
+      try {
+        successRedirectCountdown = 5;
+        const $count = $("#success-countdown");
+        $count.text(String(successRedirectCountdown));
+        if (successRedirectTimer) clearInterval(successRedirectTimer);
+        successRedirectTimer = setInterval(() => {
+          successRedirectCountdown = Math.max(0, successRedirectCountdown - 1);
+          $count.text(String(successRedirectCountdown));
+          if (successRedirectCountdown <= 0) {
+            clearInterval(successRedirectTimer);
+            successRedirectTimer = null;
+            const a = document.createElement("a");
+            a.href = "https://www.bt.cn/domain/dashboard";
+            a.target = "_blank";
+            a.click();
+          }
+        }, 1000);
+      } catch {}
+
+      // 立即跳转
+      $(document)
+        .off("click", "#success-jump-now")
+        .on("click", "#success-jump-now", function (e: any) {
+          e?.preventDefault?.();
+          try {
+            if (successRedirectTimer) clearInterval(successRedirectTimer);
+            successRedirectTimer = null;
+          } catch {}
+          window.open("https://www.bt.cn/domain/dashboard", "_blank");
+        });
+    },
+    onHide: () => {
+      try {
+        if (successRedirectTimer) clearInterval(successRedirectTimer);
+        successRedirectTimer = null;
+      } catch {}
+    },
+  });
+}
+
+/** 更新分段 slider 位置 */
+function updateSegmentedSlider() {
+  const $ = safe$();
+  if (!$) return;
+  const $control = $(".segmented-control");
+  const $active = $control.find(".segmented-option.active");
+  const $slider = $control.find(".segmented-slider");
+  if (!$active.length || !$slider.length) return;
+  const offsetLeft = ($active as any).position()?.left || 0;
+  const width = ($active as any).outerWidth?.() || 0;
+  $slider.css({
+    width: `${width}px`,
+    transform: `translateX(${offsetLeft}px)`,
+  });
+}
+
+/**
+ * 🔥 确保实名模板列表已加载（全局单次加载策略）
+ * WHY: 避免重复请求，提升性能和用户体验
+ */
+async function ensureRealNameListLoaded() {
+  if (!isRealNameListLoaded) {
+    await fetchRealNameList();
+    isRealNameListLoaded = true;
+  }
+}
+
+/**
+ * 拉取实名模板列表
+ * WHY: 仅在域名列表更新后触发，默认选择"已认证/默认模板"
+ */
+async function fetchRealNameList() {
+  try {
+    const res = await getContactUserDetail({ p: 1, rows: 100, status: 2 });
+    realNameState.list = (res.data as any)?.data || [];
+    const first =
+      realNameState.list.find(
+        (t) =>
+          (t as any).template_status === "approved" || (t as any).status === 1,
+      ) || null;
+    realNameState.current = first || realNameState.list[0] || null;
+
+    // 🔥 标记为已加载（支持手动刷新等场景）
+    isRealNameListLoaded = true;
+  } catch (err) {
+    console.error("获取实名模板失败", err);
+    // 🔥 加载失败时不设置标志，允许重试
+  }
+}
+
+/**
+ * 更新支付按钮状态
+ * WHY: 根据协议确认状态控制支付按钮的可用性
+ */
+function updatePaymentButtonState() {
+  const $ = safe$();
+  if (!$) return;
+
+  const $paymentBtn = $("#confirm-payment-btn");
+
+  if (agreementAccepted) {
+    $paymentBtn
+      .removeClass("opacity-50 cursor-not-allowed")
+      .prop("disabled", false);
+  } else {
+    $paymentBtn
+      .addClass("opacity-50 cursor-not-allowed")
+      .prop("disabled", true);
+  }
+}
+
+/**
+ * 显示域名注册协议模态窗口
+ * WHY: 当用户点击协议链接时显示详细的注册注意事项
+ */
+function showDomainAgreementModal() {
+  const content = renderTemplate(TPL_DOMAIN_AGREEMENT_MODAL, {});
+  ModalManager.show?.({
+    id: "domain-agreement-modal",
+    title: "",
+    content,
+    size: "2xl",
+    zIndex: 10000,
+    className: "domain-agreement-modal",
+    closable: true,
+    buttons: [],
+    onShow: () => {
+      const $ = safe$();
+      if (!$) return;
+
+      // 绑定模态窗口内的按钮事件
+      $("#agreement-modal-close")
+        .off("click")
+        .on("click", () => {
+          ModalManager.hide?.("domain-agreement-modal");
+        });
+
+      $("#agreement-modal-confirm")
+        .off("click")
+        .on("click", () => {
+          // 用户点击"同意并继续"时，自动勾选协议复选框
+          agreementAccepted = true;
+          const $checkbox = $("#agreement-checkbox");
+          const $icon = $checkbox.find(" .custom-checkbox .checkbox-icon");
+          if ($checkbox.length) {
+            $checkbox.find(".custom-checkbox").addClass("checked");
+            $icon.show();
+          }
+          updatePaymentButtonState();
+          ModalManager.hide?.("domain-agreement-modal");
+
+          // 显示成功提示
+          NotificationManager.show?.({
+            type: "success",
+            message: "已确认同意域名注册协议",
+            duration: 2000,
+          });
+        });
+    },
+  });
+}
+
+// 订阅流（核心）：
+// 1) 域名参数变化（param.*）→ 请求域名列表
+// 2) 域名列表变化（list）→ 渲染域名列表 → 触发实名模板请求
+// 3) 购物车变化（list/total）→ 渲染购物车
+// 4) 实名模板变化（list）→ 渲染模板下拉
+domainSubscribe((path: string, _value: any, s: DomainStore) => {
+  console.log(path, _value);
+  if (path.startsWith("param.") && !isManualTriggering) {
+    const { domain, p, rows, recommend_type } = s.param;
+    const keyword = (domain || "").trim();
+    if (keyword.length > 0) {
+      // 复用首页的域名校验规则
+      const hasChinese = /[\u4e00-\u9fa5]/.test(keyword);
+      const hasInvalidChar = /[^a-zA-Z0-9\-.]/.test(keyword);
+      const startsWithHyphen = /^-/.test(keyword);
+      const stripped = keyword.replace(/\./g, "");
+      const onlyHyphens = /^-+$/.test(stripped);
+
+      if (hasChinese) {
+        NotificationManager.show?.({
+          type: "error",
+          message: "不支持中文，请使用英文和数字",
+        });
+        return;
+      }
+      if (hasInvalidChar) {
+        NotificationManager.show?.({
+          type: "error",
+          message: "仅支持字母、数字、连接符(-)和点(.)",
+        });
+        return;
+      }
+      if (startsWithHyphen) {
+        NotificationManager.show?.({
+          type: "error",
+          message: "不能以连接符(-)开头",
+        });
+        return;
+      }
+      if (onlyHyphens) {
+        NotificationManager.show?.({
+          type: "error",
+          message: "不能仅由连接符(-)组成",
+        });
+        return;
+      }
+      fetchDomainList({
+        domain: keyword,
+        p,
+        rows,
+        recommend_type,
+      });
+    } else {
+      domainState.list = [];
+    }
+  }
+  if (path === "list") {
+    renderDomainList(s.list);
+    // 🔥 移除自动调用，采用全局单次加载策略
+    // fetchRealNameList();
+  }
+  // 统一管理输入与清空按钮显隐
+  if (path === "input") {
+    const $ = safe$();
+    const hasValue = (s.input || "").trim().length > 0;
+    if ($) {
+      if (hasValue) $("#clear-input-button").removeClass("hidden");
+      else $("#clear-input-button").addClass("hidden");
+      if ($("#domain-query-input").length) {
+        $("#domain-query-input").val(s.input);
+      }
+      // 当输入框为空时显示空状态提示
+      if (!hasValue) {
+        $("#empty-state-container").removeClass("hidden");
+      } else {
+        $("#empty-state-container").addClass("hidden");
+      }
+    }
+  }
+});
+
+// 订阅：购物车变化 -> 渲染
+cartSubscribe((path: string, _value: any, s: CartStore) => {
+  if (path === "list" || path === "originalTotal" || path === "payableTotal") {
+    renderCart(s);
+    // 同步更新搜索结果的"加入购物车"按钮选中/禁用状态
+    if (Array.isArray(domainState.list) && domainState.list.length > 0) {
+      renderDomainList(domainState.list);
+    }
+  }
+});
+
+// 订阅：实名模板变化 -> 渲染模板选择
+realNameSubscribe((path: string, _value: any, s: RealNameStore) => {
+  if (path === "list") {
+    renderRealNameTemplates(s.list);
+  }
+});
+
+// ----------------------------
+// 初始化阶段：从 URL 读取参数并触发订阅
+// WHY: 通过写入 store.param 统一触发查询与渲染，无需显式调用渲染函数
+// 支持域名注册和AI推荐两种模式的URL参数
+// ----------------------------
+(async function init() {
+  // 读取通用参数
+  const p = Number(getUrlParam("p") || "1") || 1;
+  const rows = Number(getUrlParam("rows") || "20") || 20;
+  const recommendTypeVal = getUrlParam("recommend_type");
+  const recommend_type =
+    recommendTypeVal != null ? Number(recommendTypeVal) : -1;
+
+  // 读取模式参数
+  const mode = getUrlParam("mode");
+  const brandName = (getUrlParam("brand_name") || "").trim();
+  const industry = (getUrlParam("industry") || "").trim();
+  const search = (getUrlParam("search") || getUrlParam("domain") || "").trim();
+
+  // 判断当前应该使用哪种模式
+  // 1. 明确指定 mode=ai
+  // 2. 或者存在 brand_name 参数（industry可选）
+  const isAiMode = mode === "ai" || brandName;
+
+  const $ = safe$();
+
+  // 设置搜索模式和对应的参数
+  if (isAiMode) {
+    domainState.searchMode = "ai";
+    domainState.aiParam = { brandName, industry };
+    domainState.input = ""; // AI模式下清空普通搜索输入
+
+    // 切换到AI推荐标签页
+    if ($) {
+      $("#tab-ai").addClass("active");
+      $("#tab-normal").removeClass("active");
+      $("#normal-search-panel").addClass("hidden");
+      $("#ai-search-panel").removeClass("hidden");
+
+      // 填充AI推荐的输入框
+      $("#brand-name-input").val(brandName);
+      $("#industry-input").val(industry);
+
+      $("#clear-input-button").addClass("hidden");
+      $("#empty-state-container").addClass("hidden");
+    }
+  } else {
+    domainState.searchMode = "normal";
+    domainState.input = search;
+    domainState.aiParam = { brandName: "", industry: "" };
+
+    // 保持在域名注册标签页（默认状态）
+    if ($) {
+      const hasValue = (domainState.input || "").trim().length > 0;
+      if (hasValue) {
+        $("#clear-input-button").removeClass("hidden");
+        $("#empty-state-container").addClass("hidden");
+      } else {
+        $("#clear-input-button").addClass("hidden");
+        $("#empty-state-container").removeClass("hidden");
+      }
+    }
+  }
+
+  // 先设置非触发字段，再优先拉取购物车，最后根据模式触发相应的查询
+  domainState.param.p = p;
+  domainState.param.rows = rows;
+  domainState.param.recommend_type = recommend_type;
+  await fetchCartList();
+
+  // 🔥 根据URL参数判断是否曾经搜索过，并相应触发搜索
+  if (isAiMode && brandName) {
+    // AI模式：只要有品牌名称就触发查询，行业信息可选
+    domainState.aiSearch.hasSearched = true;
+    await fetchAiDomainList({
+      brandName,
+      industry: industry || "", // 确保industry不为undefined
+      p,
+      rows,
+      recommend_type,
+    });
+  } else if (!isAiMode && search) {
+    // 普通模式：标记为已搜索并触发域名搜索
+    domainState.normalSearch.hasSearched = true;
+    domainState.param.domain = search;
+  } else {
+    // 🔥 没有搜索参数时，显示对应模式的空状态
+    if (isAiMode) {
+      switchToAiMode();
+    } else {
+      switchToNormalMode();
+    }
+  }
+
+  // 🔥 应用启动时全局加载实名模板列表（单次加载策略）
+  await ensureRealNameListLoaded();
+})();
+
+// ----------------------------
+// AI推荐相关事件绑定
+// ----------------------------
+function bindAiSearchEvents() {
+  const $ = safe$();
+  if (!$) return;
+
+  // Tab切换事件
+  $(".tab-btn")
+    .off("click")
+    .on("click", function (this: any) {
+      const $btn = $(this);
+      const isAiTab = $btn.attr("id") === "tab-ai";
+
+      // 切换Tab样式
+      $(".tab-btn").removeClass("active");
+      $btn.addClass("active");
+
+      // 切换面板显示和更新状态
+      if (isAiTab) {
+        $("#normal-search-panel").addClass("hidden");
+        $("#ai-search-panel").removeClass("hidden");
+
+        // 🔥 切换到AI推荐模式，智能展示数据
+        switchToAiMode();
+
+        // 更新URL参数以保持状态
+        updateUrlParam("mode", "ai");
+        // 清除普通搜索相关参数
+        updateUrlParam("search");
+        updateUrlParam("domain");
+      } else {
+        $("#ai-search-panel").addClass("hidden");
+        $("#normal-search-panel").removeClass("hidden");
+
+        // 🔥 切换到普通搜索模式，智能展示数据
+        switchToNormalMode();
+
+        // 更新URL参数
+        updateUrlParam("mode");
+        // 清除AI推荐相关参数
+        updateUrlParam("brand_name");
+        updateUrlParam("industry");
+      }
+    });
+
+  // AI推荐按钮点击事件
+  $("#ai-recommend-btn")
+    .off("click")
+    .on("click", async function (e: any) {
+      e.preventDefault(); // 阻止表单提交
+      e.stopPropagation(); // 阻止事件冒泡
+
+      const brandName = String($("#brand-name-input").val() || "").trim();
+      const industry = String($("#industry-input").val() || "").trim();
+
+      if (!brandName) {
+        NotificationManager.show?.({
+          type: "warning",
+          message: "请输入品牌/公司/个人/产品名称",
+        });
+        $("#brand-name-input").focus();
+        return;
+      }
+
+      // 更新状态
+      domainState.aiParam = { brandName, industry };
+
+      // 更新URL参数以支持刷新和分享
+      updateUrlParam("mode", "ai");
+      updateUrlParam("brand_name", brandName);
+      updateUrlParam("industry", industry);
+      updateUrlParam("p", "1"); // 重置到第一页
+
+      // 执行AI推荐搜索
+      await fetchAiDomainList({
+        brandName,
+        industry,
+        p: 1,
+        rows: domainState.param.rows,
+        recommend_type: domainState.param.recommend_type,
+      });
+    });
+
+  // AI推荐输入框回车事件
+  $("#brand-name-input, #industry-input")
+    .off("keydown")
+    .on("keydown", function (e: any) {
+      if (e.key === "Enter" || e.keyCode === 13) {
+        e.preventDefault();
+        $("#ai-recommend-btn").trigger("click");
+      }
+    });
+
+  // AI推荐输入框输入时清空结果（可选）
+  $("#brand-name-input, #industry-input")
+    .off("input")
+    .on("input", function () {
+      // 可选：输入时清空之前的搜索结果
+      // domainState.list = [];
+    });
+
+  // 阻止AI搜索容器内的form表单提交
+  $(".ai-search-container form")
+    .off("submit")
+    .on("submit", function (e: any) {
+      e.preventDefault();
+      return false;
+    });
+}
+
+// ----------------------------
+// 事件绑定
+// ----------------------------
+function bindEvents() {
+  const $ = safe$();
+  if (!$) return;
+
+  // 移除旧的 hover 样式，启用点击展示
+  $("#contact-service-popup-style").remove();
+  bindContactServicePopupClick();
+
+  // 绑定AI推荐相关事件
+  bindAiSearchEvents();
+
+  // 初始化移动端底部购物车并绑定事件
+  ensureMobileCartBar();
+  $(document)
+    .off("click", "#mobile-checkout-button")
+    .on("click", "#mobile-checkout-button", async function () {
+      const hasItems =
+        Array.isArray(cartState.list) && cartState.list.length > 0;
+      if (!hasItems) {
+        NotificationManager.show?.({
+          type: "warning",
+          message: "购物车为空，请先添加域名",
+        });
+        return;
+      }
+      await showPaymentModal();
+    });
+
+  // 下拉展开/收起
+  $(document)
+    .off("click.mobileCart", "#mobile-cart-toggle")
+    .on("click.mobileCart", "#mobile-cart-toggle", function (this: any) {
+      const $toggle = $(this);
+      if ($("#mobile-cart-bar").hasClass("empty")) return; // 空态不展开
+      const expanded = $toggle.attr("aria-expanded") === "true";
+      const $dropdown = $("#mobile-cart-dropdown");
+      if (expanded) {
+        $dropdown.removeClass("open").attr("aria-hidden", "true");
+        $toggle.attr("aria-expanded", "false").removeClass("expanded");
+      } else {
+        $dropdown.addClass("open").attr("aria-hidden", "false");
+        $toggle.attr("aria-expanded", "true").addClass("expanded");
+      }
+    });
+
+  // 点击空白关闭
+  $(document)
+    .off("click.mobileCartOutside")
+    .on("click.mobileCartOutside", function (e: any) {
+      const target = $(e.target);
+      if (
+        !target.closest(
+          "#mobile-cart-dropdown, #mobile-cart-toggle, #mobile-cart-bar",
+        ).length &&
+        $("#mobile-cart-dropdown").hasClass("open")
+      ) {
+        $("#mobile-cart-dropdown")
+          .removeClass("open")
+          .attr("aria-hidden", "true");
+        $("#mobile-cart-toggle")
+          .attr("aria-expanded", "false")
+          .find("i")
+          .removeClass("fa-caret-down")
+          .addClass("fa-caret-up");
+      }
+    });
+
+  // 屏幕尺寸变化时关闭下拉
+  $(window)
+    .off("resize.mobileCart")
+    .on("resize.mobileCart", function () {
+      if (window.innerWidth >= 740) {
+        $("#mobile-cart-dropdown")
+          .removeClass("open")
+          .attr("aria-hidden", "true");
+        $("#mobile-cart-toggle")
+          .attr("aria-expanded", "false")
+          .find("i")
+          .removeClass("fa-caret-down")
+          .addClass("fa-caret-up");
+      }
+    });
+
+  // 移动端下拉：移除条目
+  $(document)
+    .off("click.mobileCart", ".mobile-cart-list .remove-from-cart")
+    .on(
+      "click.mobileCart",
+      ".mobile-cart-list .remove-from-cart",
+      async function (this: any) {
+        const $btn = $(this);
+        const index = Number($btn.data("index"));
+        const item = (cartState.list || [])[index] as any;
+        if (!item) return;
+        try {
+          $btn.prop("disabled", true);
+          OverlayManager.showGlobal?.({ content: "移除中..." });
+          await apiRemoveFromCart({ cart_id: Number(item.id) });
+          await fetchCartList();
+          NotificationManager.show?.({ type: "success", message: "已移除" });
+        } catch (err) {
+          console.error("移除失败", err);
+          NotificationManager.show?.({
+            type: "error",
+            message: "移除失败，请重试",
+          });
+        } finally {
+          $btn.prop("disabled", false);
+          OverlayManager.hideGlobal?.();
+        }
+      },
+    );
+
+  // 移动端下拉：年限选择
+  $(document).on(
+    "click",
+    ".mobile-cart-list .year-selector .select-display",
+    function (this: any) {
+      const $selector = $(this).closest(".year-selector");
+      // 清理遗留菜单
+      $("body .year-select-menu").remove();
+
+      // 动态构建下拉菜单
+      let $menu = $('<div class="select-menu year-select-menu"></div>');
+      const options = [1, 2, 3, 5, 10];
+      const html = options
+        .map((y) => `<div class="select-option" data-value="${y}">${y}年</div>`)
+        .join("");
+      $menu.html(html);
+      $("body").append($menu);
+      // 先显示以获得正确尺寸，再定位；保持不可见避免闪烁
+      $menu.css({ display: "block", visibility: "hidden" });
+
+      const updatePosition = () => {
+        const pos = calculateDropdownPosition($selector, $menu);
+        $menu.css({
+          position: "fixed",
+          top: pos.top,
+          left: pos.left + 80,
+          maxHeight: pos.maxHeight,
+          overflow: "auto",
+          zIndex: 9998,
+          background: "#fff",
+          border: "1px solid #eee",
+          borderRadius: "6px",
+          padding: "6px 0",
+          minWidth: Math.max(80, $selector.outerWidth?.() || 80),
+        });
+      };
+      updatePosition();
+      $menu.css({ visibility: "visible" });
+
+      const index = Number($selector.data("index"));
+      const item = (cartState.list || [])[index] as any;
+      const currentYears = Number(item?.years || $selector.data("value") || 1);
+      $menu
+        .find(`.select-option[data-value="${currentYears}"]`)
+        .addClass("active bg-primary-10 text-primary");
+
+      let ticking = false;
+      const onWin = () => {
+        if (ticking) return;
+        ticking = true;
+        requestAnimationFrame(() => {
+          updatePosition();
+          ticking = false;
+        });
+      };
+      $(document).on("scroll.yearSelect resize.yearSelect", onWin);
+
+      const onDoc = (e: any) => {
+        if (!$(e.target).closest(".year-select-menu, .year-selector").length) {
+          $(document).off("click", onDoc);
+          $(document).off("scroll.yearSelect resize.yearSelect", onWin);
+          $menu.remove();
+        }
+      };
+      setTimeout(() => $(document).on("click", onDoc), 0);
+
+      $menu
+        .off("click", ".select-option")
+        .on("click", ".select-option", async function (this: any) {
+          const years = Number($(this).data("value"));
+          const idx = Number($selector.data("index"));
+          const it = (cartState.list || [])[idx] as any;
+          if (!it) return;
+          try {
+            await apiUpdateCart({
+              cart_id: Number(it.id),
+              years,
+              is_selected: Number(it.selected ?? 1),
+            });
+            await fetchCartList();
+          } catch (err) {
+            console.error("更新年限失败", err);
+            NotificationManager.show?.({
+              type: "error",
+              message: "年限更新失败，请重试",
+            });
+          } finally {
+            $(document).off("click", onDoc);
+            $(window).off("scroll.yearSelect resize.yearSelect", onWin);
+            $menu.remove();
+          }
+        });
+    },
+  );
+
+  const triggerSearch = () => {
+    const val = (domainState.input || "").trim();
+
+    // 🚩 设置标志位，防止订阅机制重复触发
+    isManualTriggering = true;
+
+    domainState.param.domain = val;
+    domainState.param.p = 1;
+    updateUrlParam("search", val || undefined);
+    updateUrlParam("p", "1");
+
+    // 重置标志位（使用 setTimeout 确保状态更新完成后再重置）
+    setTimeout(() => {
+      isManualTriggering = false;
+    }, 0);
+
+    // 🔥 直接触发查询，避免依赖订阅机制的双重调用
+    if (val.length > 0) {
+      // 复用首页的域名校验规则
+      const hasChinese = /[\u4e00-\u9fa5]/.test(val);
+      const hasInvalidChar = /[^a-zA-Z0-9\-.]/.test(val);
+      const startsWithHyphen = /^-/.test(val);
+      const stripped = val.replace(/\./g, "");
+      const onlyHyphens = /^-+$/.test(stripped);
+
+      if (hasChinese) {
+        NotificationManager.show?.({
+          type: "error",
+          message: "不支持中文，请使用英文和数字",
+        });
+        return;
+      }
+      if (hasInvalidChar) {
+        NotificationManager.show?.({
+          type: "error",
+          message: "仅支持字母、数字、连接符(-)和点(.)",
+        });
+        return;
+      }
+      if (startsWithHyphen) {
+        NotificationManager.show?.({
+          type: "error",
+          message: "不能以连接符(-)开头",
+        });
+        return;
+      }
+      if (onlyHyphens) {
+        NotificationManager.show?.({
+          type: "error",
+          message: "不能仅由连接符(-)组成",
+        });
+        return;
+      }
+
+      // 直接调用查询，确保重复查询也会生效
+      fetchDomainList({
+        domain: val,
+        p: 1,
+        rows: domainState.param.rows,
+        recommend_type: domainState.param.recommend_type,
+      });
+    } else {
+      // 清空搜索结果
+      domainState.list = [];
+    }
+  };
+
+  // 1) 输入框回车：重新搜索
+  $("#domain-query-input").on("keydown", function (e: any) {
+    if (e.key === "Enter" || e.keyCode === 13) {
+      e.preventDefault();
+      triggerSearch();
+    }
+  });
+  // 输入时切换清空按钮可见性
+  $("#domain-query-input").on("input", function (this: HTMLElement) {
+    domainState.input = String(($(this as any).val() as any) || "");
+  });
+
+  // 2) 清空输入按钮：清空当前域名信息
+  $("#clear-input-button").on("click", function () {
+    domainState.input = "";
+    domainState.param.domain = "";
+    updateUrlParam("search");
+    $("#clear-input-button").addClass("hidden");
+    $("#domain-query-input").trigger("focus");
+  });
+
+  // 3) 重新查询按钮：重新搜索（含底部按钮，排除AI推荐按钮）
+  $(".primary-action-button:not(#ai-recommend-btn), #requery-bottom").on(
+    "click",
+    function () {
+      triggerSearch();
+      try {
+        const $ = safe$();
+        if ($) {
+          $("html, body").animate({ scrollTop: 0 }, 400);
+          const $input = $("#domain-query-input");
+          $input.addClass("input-highlight").trigger("focus");
+          setTimeout(() => $input.removeClass("input-highlight"), 1500);
+        }
+      } catch {}
+    },
+  );
+
+  // 4) 筛选按钮：切换 recommend_type 并触发请求
+  $(".filter-btn").on("click", function (this: any) {
+    const $btn = $(this);
+    $(".filter-btn").removeClass("active");
+    $btn.addClass("active");
+    const filter = String($btn.data("filter") || "all");
+    let recommend = -1;
+    switch (filter) {
+      case "recommended":
+        recommend = 1;
+        break;
+      case "popular":
+        recommend = 2;
+        break;
+      case "discount":
+        recommend = 3;
+        break;
+      case "cheap":
+        recommend = 4;
+        break;
+      case "all":
+      default:
+        recommend = -1;
+        break;
+    }
+    domainState.param.recommend_type = recommend;
+    updateUrlParam(
+      "recommend_type",
+      recommend === -1 ? undefined : String(recommend),
+    );
+    // 不修改 domain，交由订阅在 param 变化时重新拉取
+  });
+
+  // 5) 加入购物车：事件代理
+  $("#search-results").on("click", ".add-to-cart", async function (this: any) {
+    const $btn = $(this);
+    if ($btn.prop("disabled")) return;
+    if (!getLoginStatus()) {
+      NotificationManager.show?.({
+        type: "warning",
+        message: "未登录,正在跳转至登录...",
+      });
+      setTimeout(() => {
+        location.href = `/login.html?ReturnUrl=${location.href}`;
+      }, 2000);
+      return;
+    }
+    const fullDomain = String($btn.data("domain") || "");
+    if (!fullDomain) return;
+
+    // 从当前查询结果中查找后缀；若找不到则回退解析
+    const item = (domainState.list || []).find(
+      (it: any) => String((it as any).domain) === fullDomain,
+    ) as any;
+    let suffix: string = (item && (item as any).suffix) || "";
+    if (!suffix) {
+      const parts = fullDomain.split(".");
+      if (parts.length >= 2) suffix = parts.slice(1).join(".");
+    }
+
+    const normalizedSuffix = suffix || "";
+    const domainName: string =
+      normalizedSuffix && fullDomain.endsWith(normalizedSuffix)
+        ? fullDomain
+            .slice(0, fullDomain.length - normalizedSuffix.length)
+            .replace(/\./g, "")
+        : (fullDomain.split(".")[0] ?? "").replace(/\./g, "");
+
+    try {
+      // 点击动画（按钮 + 底部购物车轻微弹跳）
+      $btn.addClass("btn-pulse");
+      setTimeout(() => $btn.removeClass("btn-pulse"), 400);
+      $("#mobile-cart-bar").addClass("bump");
+      setTimeout(() => $("#mobile-cart-bar").removeClass("bump"), 400);
+
+      $btn.prop("disabled", true);
+      OverlayManager.showGlobal?.({
+        content: "加入中...",
+      });
+      await apiAddToCart({ domain_name: domainName, suffix: normalizedSuffix });
+      setTimeout(
+        () =>
+          NotificationManager.show?.({
+            type: "success",
+            message: "已加入购物车",
+          }),
+        1000,
+      );
+
+      // 立即更新按钮文案与状态（无等待）
+      $btn.prop("disabled", true);
+      $btn.attr("title", "已加入购物车");
+      const $span = $btn.find("span");
+      if ($span && $span.length) $span.text("已加入购物车");
+      await fetchCartList();
+    } catch (err: any) {
+      console.error("加入购物车失败", err);
+      NotificationManager.show?.({
+        type: "error",
+        message: err?.message || "加入购物车失败，请重试",
+      });
+      $btn.prop("disabled", false);
+    } finally {
+      OverlayManager.hideGlobal();
+    }
+  });
+
+  // 6) 查看更多域名：底部追加下一页（支持AI推荐模式）
+  $(document).on("click", "#show-more-button", async function (this: any) {
+    const $btn = $(this);
+    const nextPage = Math.max(1, Number(domainState.page || 1)) + 1;
+
+    // 🔥 记录请求发起时的模式
+    const requestMode = domainState.searchMode;
+
+    try {
+      $btn.prop("disabled", true);
+      OverlayManager.showView?.("#search-results", { content: "加载更多..." });
+
+      let res;
+      let list: DomainItem[] = [];
+
+      if (requestMode === "ai") {
+        // AI推荐模式
+        const { brandName, industry } = domainState.aiParam;
+        if (!brandName || !industry) {
+          console.warn("AI推荐模式缺少必要参数");
+          return;
+        }
+
+        // 使用AI推荐接口（注意：AI接口可能不支持分页）
+        res = await aiDomainQueryCheck({
+          brand: brandName,
+          industry: industry,
+          // AI接口可能不支持分页参数，需要根据实际API调整
+          // p: nextPage,
+          // rows: domainState.param?.rows || 20,
+          // recommend_type: domainState.param?.recommend_type,
+        });
+      } else {
+        // 普通搜索模式
+        const keyword = (domainState.param?.domain || "").trim();
+        if (!keyword) return;
+
+        res = await domainQueryCheck({
+          domain: keyword,
+          p: nextPage,
+          rows: domainState.param?.rows || 20,
+          recommend_type: domainState.param?.recommend_type,
+        });
+      }
+
+      const data = (res.data as any) || {};
+      list = data?.data || [];
+      const rows = Number(data?.row || domainState.param?.rows || 20);
+      const hasMore = Array.isArray(list) && list.length >= rows;
+
+      // 🔥 根据请求发起时的模式更新对应的数据存储（无论如何都要缓存）
+      if (requestMode === "ai") {
+        // 更新AI搜索模式数据（追加新数据）
+        const currentList = domainState.aiSearch.list;
+        domainState.aiSearch = {
+          list: [...currentList, ...list],
+          page: nextPage,
+          hasMore,
+          hasSearched: true,
+        };
+      } else {
+        // 更新普通搜索模式数据（追加新数据）
+        const currentList = domainState.normalSearch.list;
+        domainState.normalSearch = {
+          list: [...currentList, ...list],
+          page: nextPage,
+          hasMore,
+          hasSearched: true,
+        };
+      }
+
+      // 🔥 只有当前模式仍与请求发起时一致才更新全局显示数据
+      if (domainState.searchMode === requestMode) {
+        domainState.page = nextPage;
+        domainState.hasMore = hasMore;
+
+        // 更新URL参数中的页码
+        updateUrlParam("p", String(nextPage));
+
+        appendDomainList(list);
+      }
+    } catch (err) {
+      console.error("加载更多失败", err);
+      NotificationManager.show?.({
+        type: "error",
+        message: "加载更多失败，请重试",
+      });
+    } finally {
+      // 🔥 只有当前模式仍与请求发起时一致才隐藏加载状态
+      if (domainState.searchMode === requestMode) {
+        OverlayManager.hideView?.("#search-results");
+      }
+      $btn.prop("disabled", false);
+    }
+  });
+
+  // 6) 价格提示：移入显示、移出隐藏
+  $("#search-results")
+    .on("mouseenter", ".price-tooltip-container", function (this: any) {
+      const $tip = $(this).find(".price-tooltip");
+      $tip.removeClass("opacity-0 invisible").addClass("opacity-100 visible");
+    })
+    .on("mouseleave", ".price-tooltip-container", function (this: any) {
+      const $tip = $(this).find(".price-tooltip");
+      $tip.addClass("opacity-0 invisible").removeClass("opacity-100 visible");
+    });
+
+  // 购物车相关事件代理
+  const cartRoot = $("#filled-cart");
+
+  // a) 从购物车移除
+  cartRoot.on("click", ".remove-from-cart", async function (this: any) {
+    const $btn = $(this);
+    const index = Number($btn.data("index"));
+    const item = (cartState.list || [])[index] as any;
+    if (!item) return;
+    try {
+      $btn.prop("disabled", true);
+      OverlayManager.showGlobal?.({ content: "移除中..." });
+      await apiRemoveFromCart({ cart_id: Number(item.id) });
+      await fetchCartList();
+      NotificationManager.show?.({ type: "success", message: "已移除" });
+    } catch (err) {
+      console.error("移除失败", err);
+      NotificationManager.show?.({
+        type: "error",
+        message: "移除失败，请重试",
+      });
+    } finally {
+      $btn.prop("disabled", false);
+      OverlayManager.hideGlobal?.();
+    }
+  });
+
+  // b) 清空购物车
+  $("#clear-cart-button").on("click", async function (this: any) {
+    const $btn = $(this);
+    try {
+      $btn.prop("disabled", true);
+      OverlayManager.showGlobal?.({ content: "清空中..." });
+      await apiClearCart({} as any);
+      await fetchCartList();
+      NotificationManager.show?.({ type: "success", message: "购物车已清空" });
+    } catch (err) {
+      console.error("清空购物车失败", err);
+      NotificationManager.show?.({
+        type: "error",
+        message: "清空失败，请重试",
+      });
+    } finally {
+      $btn.prop("disabled", false);
+      OverlayManager.hideGlobal?.();
+    }
+  });
+
+  // c) 年限下拉（自定义选择器）展开与选择
+  cartRoot.on("click", ".year-selector .select-display", function (this: any) {
+    const $selector = $(this).closest(".year-selector");
+    // 移除之前遗留的菜单，避免重复创建与内存泄漏
+    $("body .year-select-menu").remove();
+
+    // 动态构建下拉菜单
+    let $menu = $('<div class="select-menu year-select-menu"></div>');
+    const options = [1, 2, 3, 5, 10];
+    const html = options
+      .map((y) => `<div class="select-option" data-value="${y}">${y}年</div>`)
+      .join("");
+    $menu.html(html);
+    $("body").append($menu);
+
+    // 计算并设置位置（使用 fixed，减少滚动错位）
+    const updatePosition = () => {
+      const pos = calculateDropdownPosition($selector, $menu);
+      $menu.css({
+        position: "fixed",
+        top: pos.top,
+        left: pos.left,
+        maxHeight: pos.maxHeight,
+        overflow: "auto",
+        zIndex: 9999,
+        background: "#fff",
+        border: "1px solid #eee",
+        borderRadius: "6px",
+        padding: "6px 0",
+        minWidth: Math.max(80, $selector.outerWidth?.() || 80),
+      });
+    };
+    updatePosition();
+    $menu.show();
+
+    // 高亮当前选中年限
+    const index = Number($selector.data("index"));
+    const item = (cartState.list || [])[index] as any;
+    const currentYears = Number(item?.years || $selector.data("value") || 1);
+    $menu
+      .find(`.select-option[data-value="${currentYears}"]`)
+      .addClass("active bg-primary-10 text-primary");
+
+    // 窗口滚动/缩放时，使用 rAF 节流保持定位同步
+    let ticking = false;
+    const onWin = () => {
+      if (ticking) return;
+      ticking = true;
+      requestAnimationFrame(() => {
+        updatePosition();
+        ticking = false;
+      });
+    };
+    $(document).on("scroll.yearSelect resize.yearSelect", onWin);
+
+    // 点击空白关闭并清理
+    const onDoc = (e: any) => {
+      if (!$(e.target).closest(".year-select-menu, .year-selector").length) {
+        $(document).off("click", onDoc);
+        $(document).off("scroll.yearSelect resize.yearSelect", onWin);
+        $menu.remove();
+      }
+    };
+    setTimeout(() => $(document).on("click", onDoc), 0);
+
+    // 选项点击
+    $menu
+      .off("click", ".select-option")
+      .on("click", ".select-option", async function (this: any) {
+        const years = Number($(this).data("value"));
+        const idx = Number($selector.data("index"));
+        const it = (cartState.list || [])[idx] as any;
+        if (!it) return;
+        try {
+          await apiUpdateCart({
+            cart_id: Number(it.id),
+            years,
+            is_selected: Number(it.selected ?? 1),
+          });
+          await fetchCartList();
+        } catch (err) {
+          console.error("更新年限失败", err);
+          NotificationManager.show?.({
+            type: "error",
+            message: "年限更新失败，请重试",
+          });
+        } finally {
+          $(document).off("click", onDoc);
+          $(window).off("scroll.yearSelect resize.yearSelect", onWin);
+          $menu.remove();
+        }
+      });
+  });
+
+  // d) 立即购买 -> 打开购物车结算弹窗
+  $("#checkout-button").on("click", async function () {
+    const hasItems = Array.isArray(cartState.list) && cartState.list.length > 0;
+    if (!getLoginStatus()) {
+      NotificationManager.show?.({
+        type: "warning",
+        message: "当前未登录宝塔账号，正在跳转登录页",
+        zIndex: 9999,
+      });
+      setTimeout(() => {
+        window.location.href =
+          "https://www.bt.cn/login.html?ReturnUrl=" + window.location.href;
+      }, 1500);
+      return;
+    }
+    if (!hasItems) {
+      NotificationManager.show?.({
+        type: "warning",
+        message: "购物车为空，请先添加域名",
+      });
+      return;
+    }
+    await showPaymentModal();
+  });
+  $(document).on("mouseenter", ".price-trigger", function (this: any) {
+    const $wrap = $(this).closest(".flex.items-center.justify-end");
+    const $tip = $wrap.find(".price-tooltip");
+    $tip
+      .removeClass("invisible opacity-0 translate-y-1")
+      .addClass("opacity-100 translate-y-0");
+  });
+
+  $(document).on("mouseleave", ".price-trigger", function (this: any) {
+    const $wrap = $(this).closest(".flex.items-center.justify-end");
+    const $tip = $wrap.find(".price-tooltip");
+    $tip.addClass("opacity-0 translate-y-1").removeClass("opacity-100");
+    setTimeout(() => {
+      $tip.addClass("invisible");
+    }, 200);
+  });
+
+  // 刷新实名模板列表按钮
+  $(document)
+    .off("click", "#refresh-real-name-templates")
+    .on("click", "#refresh-real-name-templates", async function (this: any) {
+      const $btn = $(this);
+      const $svg = $btn.find("svg");
+
+      // 添加旋转动画
+      $svg.addClass("animate-spin");
+      $btn.prop("disabled", true);
+
+      try {
+        // 🔥 手动刷新时重置全局标志，强制重新加载
+        isRealNameListLoaded = false;
+        await ensureRealNameListLoaded();
+
+        NotificationManager.show?.({
+          type: "success",
+          message: "实名模板列表已刷新",
+        });
+      } catch (err) {
+        console.error("刷新实名模板列表失败", err);
+        NotificationManager.show?.({
+          type: "error",
+          message: "刷新失败，请重试",
+        });
+      } finally {
+        // 移除旋转动画
+        $svg.removeClass("animate-spin");
+        $btn.prop("disabled", false);
+      }
+    });
+
+  // WHOIS查询按钮点击事件 - 跳转到独立页面
+  $(document)
+    .off("click", ".whois-query-btn")
+    .on("click", ".whois-query-btn", async function (this: any) {
+      const $btn = $(this);
+      const domain = $btn.data("domain");
+
+      if (!domain) {
+        console.error("未找到域名信息");
+        return;
+      }
+
+      // 跳转到独立的WHOIS查询页面
+      window.open(
+        `https://www.bt.cn/new/domain-whois.html?domain=${encodeURIComponent(
+          domain,
+        )}`,
+        "_blank",
+      );
+    });
+}
+
+bindEvents();
+
+// ----------------------------
+// 移动端底部购物车（辅助函数）
+// ----------------------------
+function ensureMobileCartBar() {
+  const $ = safe$();
+  if (!$) return;
+  if ($("#mobile-cart-bar").length) return;
+  const html = `
+  <div id="mobile-cart-bar" class="mobile-cart-bar bg-gray-50">
+    <div class="mobile-cart-left">
+      <div class="mobile-cart-summary">
+        <span class="mobile-cart-total-label">应付金额:</span>
+        <span id="mobile-cart-payable" class="mobile-cart-total-value">¥0</span>
+        <span id="mobile-cart-count" class="mobile-cart-count">域名：0</span>
+        <button id="mobile-cart-toggle" class="mobile-cart-toggle" aria-expanded="false" title="展开购物车">
+          <i class="fa fa-caret-down text-gray-400 ml-1 hover:text-primary transition-colors"></i>
+        </button>
+      </div>
+      <div class="mobile-cart-discount">总价：<span id="mobile-cart-original">¥0</span>，减去优惠: <span id="mobile-cart-discount">¥0</span></div>
+    </div>
+    <div class="mobile-cart-empty" id="mobile-cart-empty" style="display:none;">购物车还是空的，从上方选择域名加入购物车</div>
+    <button id="mobile-checkout-button" class="mobile-cart-submit">立即购买</button>
+  </div>
+  <div id="mobile-cart-dropdown" class="mobile-cart-dropdown" aria-hidden="true">
+    <div class="mobile-cart-list" id="mobile-cart-list"></div>
+  </div>`;
+  $("body").append(html);
+}
+
+// 渲染移动端购物车列表
+function renderMobileCartList(cart: CartStore) {
+  const $ = safe$();
+  if (!$) return;
+  const items = (cart.list || []) as any[];
+  const rows = items.map((item: any, index: number) => {
+    const years = Number(item.years || 1);
+    const unit = Number(
+      item.total_price ?? item.price ?? item.domain_service_price ?? 0,
+    );
+    const domain = String(item.full_domain || item.domain_name || "");
+    return `
+      <div class="mobile-cart-item">
+        <div class="mobile-cart-item-main">
+          <div class="mobile-cart-domain" title="${domain}">${domain}</div>
+          <div class="mobile-cart-actions">
+            <div class="custom-select year-selector" data-index="${index}" data-value="${years}" style="width: 84px; display:inline-block;">
+              <div class="select-display h-[28px] leading-[28px]">
+                <span class="select-text">${years}年</span>
+                <svg class="select-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" style="width: 12px; height: 12px;"><polyline points="6,9 12,15 18,9"></polyline></svg>
+              </div>
+            </div>
+            <div class="mobile-cart-price">${formatPrice(unit)}</div>
+            <button class="remove-from-cart mobile-remove" data-index="${index}" title="移除"><i class="fa fa-trash-o"></i></button>
+          </div>
+        </div>
+      </div>`;
+  });
+  $("#mobile-cart-list").html(rows.join(""));
+}
+
+// 更新移动端购物车底部栏
+function updateMobileCartBar(cart: CartStore) {
+  const $ = safe$();
+  if (!$) return;
+  ensureMobileCartBar();
+  const items = (cart.list || []) as any[];
+  const count = items.length;
+  const original = Number((cart as any).originalTotal ?? 0);
+  const payable = Number((cart as any).payableTotal ?? 0);
+  const discount = Math.max(0, original - payable);
+  $("#mobile-cart-count").text(`域名：${count}`);
+  $("#mobile-cart-payable").text(formatPrice(payable));
+  $("#mobile-cart-original").text(formatPrice(original));
+  $("#mobile-cart-discount").text(`¥${discount.toFixed(2)}`);
+  renderMobileCartList(cart);
+  const $bar = $("#mobile-cart-bar");
+  const $dropdown = $("#mobile-cart-dropdown");
+  const $empty = $("#mobile-cart-empty");
+  // 始终显示底部条
+  $bar.addClass("visible");
+  if (count > 0) {
+    $bar.removeClass("empty");
+    $empty.hide();
+    $(
+      ".mobile-cart-summary, .mobile-cart-discount, #mobile-cart-toggle, #mobile-checkout-button",
+    ).show();
+  } else {
+    // 空态：展示提示，仅显示底部条
+    $bar.addClass("empty");
+    $empty.show();
+    $(
+      ".mobile-cart-summary, .mobile-cart-discount, #mobile-cart-toggle, #mobile-checkout-button",
+    ).hide();
+    // 关闭下拉
+    $dropdown.removeClass("open").attr("aria-hidden", "true");
+    $("#mobile-cart-toggle")
+      .attr("aria-expanded", "false")
+      .removeClass("expanded");
+  }
+}

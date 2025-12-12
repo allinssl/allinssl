@@ -1,0 +1,3 @@
+名称,监控目标,监控类型,通知类型（多个用英文逗号隔开）,周期（单位：分钟）,连续异常时通知间隔,启用状态（0禁用，1启用）,提前提醒天数
+csv1,allinssl.com,https,"mail,workwx",1,10,1,30
+csv2,allinssl.com,smtp,mail,1,10,1,30

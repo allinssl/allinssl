@@ -103,7 +103,7 @@ export default defineComponent({
       if (props.node.type === EXECUTE_RESULT_CONDITION && isDark.value) {
         const type = props.node.config?.type as "success" | "fail" | undefined;
         if (type === "success") {
-          return "var(--n-success-status-color)";
+          return "#20a53a";
         }
         if (type === "fail") {
           return "var(--n-error-primary-color)";
@@ -284,7 +284,7 @@ export default defineComponent({
                 h(renderNodeContent.value, {
                   id: props.node.id,
                   node: props.node || {},
-                  class: "text-center gradient-primary-txt",
+                  class: "text-center",
                   ref: nodeContentRef,
                 })}
             </div>

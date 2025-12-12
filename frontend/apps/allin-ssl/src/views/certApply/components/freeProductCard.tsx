@@ -81,7 +81,7 @@ export default defineComponent({
 						/>
 					</div>
 					<div class="flex-1 w-full">
-						<h3 class="font-semibold mb-[0.8rem] leading-tight">{props.product.title}</h3>
+						<h3 class="font-semibold mb-[0.8rem] leading-tight text-[var(--color-card-title)]">{props.product.title}</h3>
 						<p class="text-[1.3rem] text-color5 m-0 leading-relaxed px-[0.8rem]">
 							{props.product.brand + $t('t_13_1746667599218')}
 						</p>
@@ -123,7 +123,7 @@ export default defineComponent({
 					<div class="flex justify-between items-center mt-[1.6rem] pt-[1.6rem] border-t border-[var(--n-tab-border-color)]">
 						<div class="flex-1 flex flex-col">
 							<div class="flex items-baseline justify-start">
-								<span class="gradient-primary-txt text-[2.2rem] font-bold text-green-500 leading-tight">{$t('t_27_1746667589350')}</span>
+								<span class="text-[2.2rem] font-bold text-[var(--color-text-primary-success)] leading-tight">{$t('t_27_1746667589350')}</span>
 							</div>
 						</div>
 						<NButton
