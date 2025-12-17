@@ -17,7 +17,7 @@ func GetSqlite() (*public.Sqlite, error) {
 	return s, nil
 }
 
-func GetList(search string, p, limit int64) ([]map[string]any, int, error) {
+func GetList(search string, p, limit, status int64) ([]map[string]any, int, error) {
 	var data []map[string]any
 	var count int64
 	s, err := GetSqlite()
@@ -35,13 +35,30 @@ func GetList(search string, p, limit int64) ([]map[string]any, int, error) {
 		}
 	}
 
-	if search != "" {
-		count, err = s.Where("domains like ?", []interface{}{"%" + search + "%"}).Count()
-		data, err = s.Where("domains like ?", []interface{}{"%" + search + "%"}).Limit(limits).Order("end_time", "esc").Select()
-	} else {
-		count, err = s.Count()
-		data, err = s.Order("end_time", "esc").Limit(limits).Select()
+	// 获取当前时间
+	now := time.Now()
+	// 转换为字符串格式
+	nowStr := now.Format("2006-01-02 15:04:05")
+	// 30 天后的时间
+	nowPlus30Days := now.AddDate(0, 0, 30)
+	nowPlus30DaysStr := nowPlus30Days.Format("2006-01-02 15:04:05")
+
+	filterSql := "1=1 "
+	// status: -1 已过期 0/其它 全部 1 即将过期 2 正常
+	if status == -1 {
+		filterSql += "and end_time <= '" + nowStr + "'"
+	} else if status == 1 {
+		filterSql += "and end_time > '" + nowStr + "' AND end_time <= '" + nowPlus30DaysStr + "'"
+	} else if status == 2 {
+		filterSql += "and end_time > '" + nowPlus30DaysStr + "'"
 	}
+
+	if search != "" {
+		filterSql += "and domains like '%" + search + "%'"
+	}
+	count, err = s.Where(filterSql, []interface{}{}).Count()
+	data, err = s.Where(filterSql, []interface{}{}).Order("end_time", "esc").Limit(limits).Select()
+
 	if err != nil {
 		return data, 0, err
 	}
@@ -170,7 +187,7 @@ func DelCert(id string) error {
 	}
 	defer s.Close()
 
-	_, err = s.Where("id=?", []interface{}{id}).Delete()
+	_, err = s.Where("id in (?)", []interface{}{id}).Delete()
 	if err != nil {
 		return err
 	}

@@ -79,7 +79,7 @@ func DeployToTX(cfg map[string]any) error {
 	if err != nil {
 		return err
 	}
-	region := ""
+	region := "ap-beijing"
 	if r, ok := cfg["region"].(string); ok {
 		region = r
 	}
@@ -116,10 +116,6 @@ func DeployToTX(cfg map[string]any) error {
 		domain, ok := cfg["domain"].(string)
 		if !ok {
 			return fmt.Errorf("参数错误：domain")
-		}
-		region, ok := cfg["region"].(string)
-		if !ok {
-			return fmt.Errorf("参数错误：region")
 		}
 		bucket, ok := cfg["bucket"].(string)
 		if !ok {

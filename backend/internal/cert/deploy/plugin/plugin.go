@@ -18,20 +18,28 @@ var (
 	pluginRegistry    = map[string]PluginMetadata{}
 )
 
+type ConfigParam struct {
+	Name        string           `json:"name"`
+	Type        string           `json:"type"` // 数据类型:string/number/boolean/enum
+	Description string           `json:"description"`
+	Required    bool             `json:"required"`
+	Options     []map[string]any `json:"options,omitempty"` // 可选枚举值
+}
+
 type ActionInfo struct {
-	Name        string         `json:"name"`
-	Description string         `json:"description"`
-	Params      map[string]any `json:"params,omitempty"` // 可选参数
+	Name        string        `json:"name"`
+	Description string        `json:"description"`
+	Params      []ConfigParam `json:"params,omitempty"` // 可选参数
 }
 
 type PluginMetadata struct {
-	Name        string         `json:"name"`
-	Description string         `json:"description"`
-	Version     string         `json:"version"`
-	Author      string         `json:"author"`
-	Actions     []ActionInfo   `json:"actions"`
-	Config      map[string]any `json:"config,omitempty"` // 可选配置
-	Path        string         // 插件路径
+	Name        string        `json:"name"`
+	Description string        `json:"description"`
+	Version     string        `json:"version"`
+	Author      string        `json:"author"`
+	Actions     []ActionInfo  `json:"actions"`
+	Config      []ConfigParam `json:"config,omitempty"` // 可选配置
+	Path        string        // 插件路径
 }
 
 type Request struct {
@@ -54,7 +62,7 @@ func scanPlugins(dir string) ([]PluginMetadata, error) {
 		}
 		meta, err := getMetadata(path)
 		if err != nil {
-			fmt.Println("插件无效:", path, "错误:", err)
+			//fmt.Println("插件无效:", path, "错误:", err)
 			return nil
 		}
 		meta.Path = path
@@ -89,6 +97,83 @@ func getMetadata(path string) (PluginMetadata, error) {
 	var meta PluginMetadata
 	raw, _ := json.Marshal(resp.Result)
 	if err := json.Unmarshal(raw, &meta); err != nil {
+		var metaMap map[string]any
+		if err := json.Unmarshal(raw, &metaMap); err == nil {
+
+			name, ok := metaMap["name"].(string)
+			if !ok || name == "" {
+				return PluginMetadata{}, fmt.Errorf("元数据缺失字段: name")
+			}
+			meta.Name = name
+			description, ok := metaMap["description"].(string)
+			if !ok || description == "" {
+				return PluginMetadata{}, fmt.Errorf("元数据缺失字段: description")
+			}
+			meta.Description = description
+			version, ok := metaMap["version"].(string)
+			if !ok || version == "" {
+				return PluginMetadata{}, fmt.Errorf("元数据缺失字段: version")
+			}
+			meta.Version = version
+			author, ok := metaMap["author"].(string)
+			if !ok || author == "" {
+				return PluginMetadata{}, fmt.Errorf("元数据缺失字段: author")
+			}
+			meta.Author = author
+
+			metaMapConfig, ok := metaMap["config"].(map[string]any)
+			if !ok {
+				return PluginMetadata{}, fmt.Errorf("元数据缺失字段: config")
+			}
+			config := ConfigParam{
+				Type:     "string",
+				Required: true,
+			}
+			// 遍历 map 键值对
+			for key, value := range metaMapConfig {
+				config.Name = key
+				config.Description = value.(string)
+				meta.Config = append(meta.Config, config)
+			}
+			actions, ok := metaMap["actions"].([]any)
+			if !ok || len(actions) == 0 {
+				return PluginMetadata{}, fmt.Errorf("元数据缺失字段: actions")
+			}
+			for _, a := range actions {
+				actionMap, ok := a.(map[string]any)
+				if !ok {
+					return PluginMetadata{}, fmt.Errorf("元数据 actions 格式错误")
+				}
+				action := ActionInfo{}
+				name, ok := actionMap["name"].(string)
+				if !ok || name == "" {
+					return PluginMetadata{}, fmt.Errorf("元数据缺失字段: action.name")
+				}
+				action.Name = name
+				description, ok := actionMap["description"].(string)
+				if !ok || description == "" {
+					return PluginMetadata{}, fmt.Errorf("元数据缺失字段: action.description")
+				}
+				action.Description = description
+
+				paramsMap, ok := actionMap["params"].(map[string]any)
+				if ok {
+					for key, value := range paramsMap {
+						param := ConfigParam{
+							Name:        key,
+							Type:        "string",
+							Description: value.(string),
+							Required:    true,
+						}
+						action.Params = append(action.Params, param)
+					}
+				}
+				meta.Actions = append(meta.Actions, action)
+				return meta, nil
+			}
+		} else {
+			fmt.Println(err)
+		}
 		return PluginMetadata{}, fmt.Errorf("元数据解析失败: %w", err)
 	}
 
@@ -97,6 +182,37 @@ func getMetadata(path string) (PluginMetadata, error) {
 	}
 
 	return meta, nil
+}
+
+// GetPluginRawMetadata 获取原始元数据
+func GetPluginRawMetadata(name string) (map[string]interface{}, error) {
+	plugin, ok := pluginRegistry[name]
+	if !ok {
+		return nil, ErrPluginNotFound
+	}
+	path := plugin.Path
+
+	req := Request{Action: "get_metadata"}
+	data, _ := json.Marshal(req)
+
+	cmd := exec.Command(path)
+	cmd.Stdin = bytes.NewReader(data)
+	var out bytes.Buffer
+	cmd.Stdout = &out
+
+	if err := cmd.Run(); err != nil {
+		return nil, fmt.Errorf("运行失败: %w", err)
+	}
+
+	var resp Response
+	if err := json.Unmarshal(out.Bytes(), &resp); err != nil {
+		return nil, fmt.Errorf("输出无效: %w", err)
+	}
+	if resp.Status != "success" {
+		return nil, fmt.Errorf("插件响应错误: %s", resp.Message)
+	}
+
+	return resp.Result, nil
 }
 
 func CallPlugin(name, action string, params map[string]interface{}, logger *public.Logger) (*Response, error) {

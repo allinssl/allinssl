@@ -14,13 +14,14 @@ func GetCertList(c *gin.Context) {
 		Search string `form:"search"`
 		Page   int64  `form:"p"`
 		Limit  int64  `form:"limit"`
+		Status int64  `form:"status"`
 	}
 	err := c.Bind(&form)
 	if err != nil {
 		public.FailMsg(c, err.Error())
 		return
 	}
-	certList, count, err := cert.GetList(form.Search, form.Page, form.Limit)
+	certList, count, err := cert.GetList(form.Search, form.Page, form.Limit, form.Status)
 	if err != nil {
 		public.FailMsg(c, err.Error())
 		return

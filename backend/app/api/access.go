@@ -408,3 +408,26 @@ func GetPlugins(c *gin.Context) {
 	public.SuccessData(c, data, len(data))
 	return
 }
+
+func GetPluginRawMetadata(c *gin.Context) {
+	var form struct {
+		Name string `form:"name"`
+	}
+	err := c.Bind(&form)
+	if err != nil {
+		public.FailMsg(c, err.Error())
+		return
+	}
+	form.Name = strings.TrimSpace(form.Name)
+	if form.Name == "" {
+		public.FailMsg(c, "插件名称不能为空")
+		return
+	}
+	data, err := plugin.GetPluginRawMetadata(form.Name)
+	if err != nil {
+		public.FailMsg(c, err.Error())
+		return
+	}
+	public.SuccessData(c, data, 0)
+	return
+}

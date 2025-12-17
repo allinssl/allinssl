@@ -67,6 +67,7 @@ func Register(r *gin.Engine) {
 		// 插件先放这里
 		access.POST("/get_plugin_actions", api.GetPluginActions)
 		access.POST("/get_plugins", api.GetPlugins)
+		access.POST("/get_plugin_raw_metadata", api.GetPluginRawMetadata)
 	}
 	// acme账户
 	acmeAccount := v1.Group("/acme_account")

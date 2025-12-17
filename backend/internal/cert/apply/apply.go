@@ -31,6 +31,7 @@ import (
 	"github.com/go-acme/lego/v4/providers/dns/cloudflare"
 	"github.com/go-acme/lego/v4/providers/dns/cloudns"
 	"github.com/go-acme/lego/v4/providers/dns/constellix"
+	"github.com/go-acme/lego/v4/providers/dns/edgeone"
 	"github.com/go-acme/lego/v4/providers/dns/gcore"
 	"github.com/go-acme/lego/v4/providers/dns/godaddy"
 	"github.com/go-acme/lego/v4/providers/dns/huaweicloud"
@@ -234,8 +235,12 @@ func GetDNSProvider(providerName string, creds map[string]string, httpClient *ht
 		}
 		config.PropagationTimeout = maxWait
 		return bt.NewDNSProviderConfig(config)
-	//case "edgeone":
-	//config :=
+	case "edgeone":
+		config := edgeone.NewDefaultConfig()
+		config.SecretID = creds["secret_id"]
+		config.SecretKey = creds["secret_key"]
+		config.PropagationTimeout = maxWait
+		return edgeone.NewDNSProviderConfig(config)
 
 	default:
 		return nil, fmt.Errorf("不支持的 DNS Provider: %s", providerName)

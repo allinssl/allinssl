@@ -1,0 +1,34 @@
+{
+  "name": "doge",
+  "description": "多吉云",
+  "version": "1.0.0",
+  "author": "主包",
+  "config": [
+    {
+      "name": "access_key",
+      "type": "string",
+      "description": "多吉云 AccessKey",
+      "required": true
+    },
+    {
+      "name": "secret_key",
+      "type": "string",
+      "description": "多吉云 SecretKey",
+      "required": true
+    }
+  ],
+  "actions": [
+    {
+      "name": "cdn",
+      "description": "部署到多吉云cdn",
+      "params": [
+        {
+          "name": "domain",
+          "type": "string",
+          "description": "CDN 域名",
+          "required": true
+        }
+      ]
+    }
+  ]
+}

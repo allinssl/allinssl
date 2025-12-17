@@ -193,20 +193,17 @@ func Restart() {
 }
 
 func GetVersion() (map[string]string, error) {
-	version := "v1.1.1"
+	version := "v1.1.2"
 	update := "0"
-	newVersionObj, err := http.Get("https://download.allinssl.com/version.json")
+	newVersionObj, err := http.Get("https://allinssl.bt.com/version.json")
 	if err != nil {
-		newVersionObj, err = http.Get("https://node1.allinssl.com/version.json")
-		if err != nil {
-			return map[string]string{
-				"version":     version,
-				"new_version": version,
-				"update":      update,
-				"log":         "",
-				"date":        "",
-			}, nil
-		}
+		return map[string]string{
+			"version":     version,
+			"new_version": version,
+			"update":      update,
+			"log":         "",
+			"date":        "",
+		}, nil
 	}
 	defer newVersionObj.Body.Close()
 

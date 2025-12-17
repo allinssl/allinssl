@@ -1,0 +1,118 @@
+{
+  "name": "aliyun",
+  "description": "阿里云",
+  "version": "1.0.0",
+  "author": "主包",
+  "config": [
+    {
+      "name": "access_key_id",
+      "type": "string",
+      "description": "阿里云 AccessKeyId",
+      "required": true
+    },
+    {
+      "name": "access_key_secret",
+      "type": "string",
+      "description": "阿里云 AccessKeySecret",
+      "required": true
+    }
+  ],
+  "actions": [
+    {
+      "name": "cas",
+      "description": "上传到阿里云 CAS",
+      "params": [
+        {
+          "name": "name",
+          "type": "string",
+          "description": "证书名称",
+          "required": false
+        },
+        {
+          "name": "endpoint",
+          "type": "string",
+          "description": "CAS 端点",
+          "required": false
+        }
+      ]
+    },
+    {
+      "name": "cdn",
+      "description": "部署到阿里云 CDN",
+      "params": [
+        {
+          "name": "domain",
+          "type": "string",
+          "description": "域名",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "dcdn",
+      "description": "部署到阿里云 DCDN",
+      "params": [
+        {
+          "name": "domain",
+          "type": "string",
+          "description": "域名",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "oss",
+      "description": "部署到阿里云 OSS",
+      "params": [
+        {
+          "name": "region",
+          "type": "string",
+          "description": "区域",
+          "required": true
+        },
+        {
+          "name": "bucket",
+          "type": "string",
+          "description": "存储桶",
+          "required": true
+        },
+        {
+          "name": "domain",
+          "type": "string",
+          "description": "域名",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "waf",
+      "description": "部署到阿里云 WAF",
+      "params": [
+        {
+          "name": "region",
+          "type": "string",
+          "description": "区域",
+          "required": true
+        },
+        {
+          "name": "domain",
+          "type": "string",
+          "description": "域名",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "esa",
+      "description": "部署到阿里云 ESA",
+      "params": [
+        {
+          "name": "site_id",
+          "type": "string",
+          "description": "站点 ID",
+          "required": true
+        }
+      ]
+    }
+  ]
+}
