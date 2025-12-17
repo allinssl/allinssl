@@ -36,12 +36,12 @@
 
 ### 极速安装
 ```bash
-curl -sSO http://download.allinssl.com/install_allinssl.sh && bash install_allinssl.sh allinssl
+curl -sSO http://allinssl.bt.cn/install_allinssl.sh && bash install_allinssl.sh allinssl
 ```
 
 ### 极速安装（备用）
 ```bash
-curl -sSO https://cnb.cool/allinssl/install.sh/-/git/raw/main/install_allinssl.sh && bash install_allinssl.sh allinssl
+curl -sSO http://download.allinssl.com/install_allinssl.sh && bash install_allinssl.sh allinssl
 ```
 
 ### Docker安装
