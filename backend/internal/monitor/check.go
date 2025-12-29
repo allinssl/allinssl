@@ -72,7 +72,14 @@ func Check(certs []*x509.Certificate, host string, advanceDay int) (result *Cert
 	result.NotBefore = leafCert.NotBefore.In(time.Local).Format("2006-01-02 15:04:05")
 	result.NotAfter = leafCert.NotAfter.In(time.Local).Format("2006-01-02 15:04:05")
 	result.DaysLeft = int(leafCert.NotAfter.Sub(time.Now()).Hours() / 24)
-	result.SANs = strings.Join(leafCert.DNSNames, ",")
+	// 提取 SAN 列表
+	SANs := leafCert.DNSNames
+	if len(leafCert.IPAddresses) > 0 {
+		for _, ip := range leafCert.IPAddresses {
+			SANs = append(SANs, ip.String())
+		}
+	}
+	result.SANs = strings.Join(SANs, ",")
 	result.SignatureAlgo = leafCert.SignatureAlgorithm.String()
 	sha256Sum := sha256.Sum256(leafCert.Raw)
 	result.Sha256 = hex.EncodeToString(sha256Sum[:])
