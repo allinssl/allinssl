@@ -180,6 +180,9 @@
 			border-color: #2d2d2d;
 			background-color: #2d2d2d;
 		}
+		.n-data-table .n-empty__description .n-button__content {
+			color: #f4d1b4;
+		}
 		.n-base-select-menu {
 			background-color: #1c1c1c;
 			.n-base-select-option--pending::before {
