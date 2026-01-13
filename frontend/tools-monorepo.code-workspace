@@ -1,0 +1,31 @@
+{
+  "folders": [
+    {
+      "path": "."
+    },
+    {
+      "path": ".sync-git/allinssl-gitlab"
+    },
+    {
+      "path": ".sync-git/allinssl-github"
+    },
+    {
+      "path": ".sync-git/origin-cloud-control"
+    }
+  ],
+  "settings": {
+    "i18n-ally.enabledParsers": ["json", "yaml", "js"],
+    "i18n-ally.keystyle": "flat",
+    "i18n-ally.sourceLanguage": "zhCN",
+    "i18n-ally.displayLanguage": "zhCN",
+    "i18n-ally.enabledFrameworks": ["vue"],
+    "i18n-ally.localesPaths": [
+      "packages/vue/i18n",
+      "apps/allin-ssl/src/locales",
+      "apps/cloud-control/src/locales",
+      "apps/naive-template/src/locales",
+      "packages/vue/naive-ui/src/i18n",
+    ],
+    "liveServer.settings.multiRootWorkspaceName": "tools-monorepo",
+  },
+}

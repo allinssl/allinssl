@@ -1,0 +1,126 @@
+.configContainer {
+  padding: 8px 0;
+}
+
+.configField {
+  margin-bottom: 16px;
+}
+
+.configLabel {
+  font-size: 14px;
+  font-weight: 500;
+  margin-bottom: 6px;
+  color: #374151;
+}
+
+.configInput {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid #e5e7eb;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.configInput:focus {
+  outline: none;
+  border-color: #60a5fa;
+  box-shadow: 0 0 0 2px rgba(96, 165, 250, 0.2);
+}
+
+.configFileInput {
+  width: 100%;
+  padding: 8px 0;
+  font-size: 14px;
+}
+
+.configTextarea {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid #e5e7eb;
+  border-radius: 4px;
+  font-size: 14px;
+  resize: vertical;
+  min-height: 100px;
+}
+
+.configTextarea:focus {
+  outline: none;
+  border-color: #60a5fa;
+  box-shadow: 0 0 0 2px rgba(96, 165, 250, 0.2);
+}
+
+.configSelect {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid #e5e7eb;
+  border-radius: 4px;
+  font-size: 14px;
+  background-color: white;
+}
+
+.configSelect:focus {
+  outline: none;
+  border-color: #60a5fa;
+  box-shadow: 0 0 0 2px rgba(96, 165, 250, 0.2);
+}
+
+.configInfo {
+  margin-top: 20px;
+  background-color: #f3f4f6;
+  padding: 12px;
+  border-radius: 4px;
+}
+
+.configInfoTitle {
+  font-size: 14px;
+  font-weight: 500;
+  margin-bottom: 8px;
+  color: #4b5563;
+}
+
+.configInfoContent {
+  font-size: 13px;
+  color: #6b7280;
+  line-height: 1.5;
+}
+
+.configError {
+  margin-bottom: 16px;
+  padding: 8px;
+  background-color: #fee2e2;
+  border-radius: 4px;
+  color: #b91c1c;
+  font-size: 14px;
+}
+
+.configSuccess {
+  margin-left: 12px;
+  color: #047857;
+  font-size: 14px;
+}
+
+.configActions {
+  display: flex;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.configButton {
+  padding: 8px 16px;
+  background-color: #2563eb;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.configButton:hover {
+  background-color: #1d4ed8;
+}
+
+.configButton:disabled {
+  background-color: #93c5fd;
+  cursor: not-allowed;
+} 

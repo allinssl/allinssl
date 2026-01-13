@@ -1,0 +1,65 @@
+{
+  "workbench.colorTheme": "Atom One Dark", // 工作台 设置主题
+  "workbench.iconTheme": "a-file-icon-vscode", // 工作台 设置图标主题
+  "workbench.editor.enablePreview": true, // 工作台 设置预览
+  "workbench.settings.applyToAllProfiles": [], // 工作台 设置应用到所有配置文件
+
+  "editor.fontSize": 14, // 编辑器 设置字体大小
+  "editor.tabSize": 2, // 编辑器 设置制表符大小
+  "editor.formatOnSave": false, // 编辑器 设置保存时自动格式化
+  "editor.formatOnType": true, // 编辑器 设置输入时自动格式化
+  "editor.formatOnPaste": true, // 编辑器 设置粘贴时自动格式化
+  "editor.detectIndentation": false, // 编辑器 设置自动检测缩进
+  "editor.insertSpaces": false, // 编辑器 设置插入空格
+  "editor.bracketPairColorization.enabled": true, // 编辑器 设置括号颜色
+  "editor.guides.bracketPairs": "active", // 编辑器 设置括号对齐
+  "editor.quickSuggestions": {
+    "strings": true // 编辑器 设置快速建议
+  },
+  "editor.unicodeHighlight.allowedLocales": {
+    // 编辑器 设置允许的语言
+    "zh-hant": true,
+    "de": true,
+    "zh-hans": true
+  },
+  "editor.unicodeHighlight.invisibleCharacters": false, // 编辑器 设置隐藏字符
+  "editor.inlineSuggest.enabled": true, // 设置内联建议
+  "editor.codeActionsOnSave": {
+    // 编辑器 设置保存时自动执行
+    "quickfix.biome": "explicit"
+  },
+  "editor.suggestSelection": "first", // 编辑器 设置建议选择
+
+  "explorer.compactFolders": false, // 资源管理器 设置紧凑文件夹
+  "explorer.confirmDelete": true, // 资源管理器 设置确认删除
+
+  "git.autofetch": true, // git 设置自动获取
+  "git.enableSmartCommit": true, // git 设置智能提交
+  "git.confirmSync": false, // git 设置确认同步
+  "git.useEditorAsCommitInput": false, // git 设置使用编辑器作为提交输入
+  "git.autoRepositoryDetection": "subFolders", // git 设置自动检测仓库
+
+  "window.menuBarVisibility": "classic", // 视图 设置菜单栏可见性
+  "files.eol": "\n", // 设置行
+  "terminal.integrated.defaultProfile.windows": "Command Prompt", // 设置默认终端
+
+  "typescript.updateImportsOnFileMove.enabled": "always", // 设置更新导入
+  "i18n-ally.displayLanguage": "zh-cn", // i18n-ally 设置显示语言
+
+  "security.workspace.trust.untrustedFiles": "open", // 设置信任未受信任的文件
+  "security.promptForLocalFileProtocolHandling": false, // 安全 设置提示本地文件协议处理
+  "gitlens.graph.minimap.enabled": false, // gitlens 设置最小地图
+  "chat.editing.alwaysSaveWithGeneratedChanges": true, // chat 设置总是保存生成的更改
+  "cursor.cpp.disabledLanguages": [
+    // cursor cpp 设置禁用语言
+    "plaintext",
+    "scminput"
+  ],
+  "files.autoSave": "afterDelay", // 自动保存
+  "files.autoSaveDelay": 1000,
+  "remote.autoForwardPortsSource": "hybrid",
+  "workbench.activityBar.orientation": "vertical",
+  "[jsonc]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  }
+}

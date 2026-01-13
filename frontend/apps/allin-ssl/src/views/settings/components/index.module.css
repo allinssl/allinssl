@@ -1,0 +1,124 @@
+.baseCard {
+	border: 0!important;
+	:global(.n-card-header),
+	:global(.n-card__content) {
+		padding: 0!important;
+	}
+}
+
+.sectionTitle {
+	position: relative;
+	padding-left: 1.4rem;
+	display: inline-flex;
+	align-items: center;
+}
+
+.sectionTitle::before {
+	content: '';
+	position: absolute;
+	left: 0;
+	top: 50%;
+	transform: translateY(-50%);
+	width: 0.5rem;
+	height: 0.5rem;
+	border-radius: 50%;
+	background-color: currentColor;
+}
+
+
+.formGrid {
+	display: flex;
+	flex-wrap: wrap;
+	column-gap: 24px;
+}
+
+.formGrid :global(.n-form-item) {
+	width: 100%;
+}
+
+.generalSettingsCard :global(.n-form-item) {
+	:global(.n-input__border) {
+		display: none;
+	}
+	:global(.n-input),
+	:global(.n-input-number),
+	:global(.n-textarea) {
+		background-color: #fafafa !important;
+		border: none !important;
+		border-radius: 8px !important;
+	}
+	:global(.n-input__input-el),
+	:global(.n-input-number__input-el),
+	:global(.n-textarea__textarea-el) {
+		background-color: transparent !important;
+	}
+}
+
+.notifyChannelsCard {
+	border: none!important;
+	:global(.n-card__content) {
+		padding: 0!important;
+	}
+	:global(.n-list-item) {
+		border-radius: 6px;
+		padding-left: 2rem;
+		padding-right: 2rem;
+		background-color: var(--setting-input-bg2);
+	}
+	:global(.table-action-btn-danger .n-button__border),
+	:global(.table-action-btn-danger .n-button__state-border),
+	:global(.table-action-btn .n-button__state-border) {
+		display: none!important;
+	}
+
+}
+
+@media (min-width: 768px) {
+	.formGrid :global(.n-form-item) {
+		width: calc(50% - 12px);
+	}
+}
+
+:global(.defaultDark) {
+	.gradientTag :global(.n-tag__border) {
+		border-color: #f4d1b4;
+	}
+
+	.gradientTag {
+		color: #f4d1b4;
+	}
+
+	.gradientTag :global(.n-tag__content) {
+		color: #f4d1b4;
+	} 
+	:global(.n-alert-body__title) {
+		display: inline-flex;
+		width: auto !important;
+		font-weight: bold!important;
+		margin-top: 6px;
+		color: #f4d1b4!important;
+	}
+	:global(.n-alert) {
+		background-color: #0f0f0f;
+		padding-bottom: 1rem;
+		:global(.n-alert__icon) {
+			margin-top: 17px;
+		}
+	}
+	:global(.n-alert__border) {
+		display: none!important;
+	}
+	.generalSettingsCard :global(.n-form-item) {
+		:global(.n-input__border) {
+			display: block;
+		}
+		:global(.n-input),
+		:global(.n-input-number),
+		:global(.n-textarea) {
+			background-color: #2f2f2f !important;
+		}
+	}
+	:global(.n-card) {
+		border: 0!important;
+	}
+}

@@ -1,0 +1,53 @@
+/* Light Theme */
+:root[class='defaultLight'] {
+	/* Empty light theme styles */
+	--background-color: #121212;
+	--text-color: #f1f1f1;
+	--bt-popover-color: #ffffff;
+}
+
+/* Dark Theme */
+:root[class='defaultDark'] {
+	/* Empty dark theme styles */
+	--bg-color: #121212;
+	--bt-popover-color: #48484e;
+}
+
+/* 创建动画 */
+@keyframes fadeToLight {
+	from {
+		opacity: 0.8;
+		transform: scale(0.8);
+	}
+	to {
+		opacity: 1;
+		transform: scale(1);
+	}
+}
+
+@keyframes fadeToDark {
+	from {
+		opacity: 0.8;
+		transform: scale(0.8);
+	}
+	to {
+		opacity: 1;
+		transform: scale(1);
+	}
+}
+
+/* 应用动画 */
+:root {
+	--background-color: #ffffff;
+	--text-color: #333333;
+}
+
+:root.animate-to-light {
+	animation: fadeToLight 0.5s ease forwards;
+	overflow: hidden;
+}
+
+:root.animate-to-dark {
+	animation: fadeToDark 0.5s ease forwards;
+	overflow: hidden;
+}

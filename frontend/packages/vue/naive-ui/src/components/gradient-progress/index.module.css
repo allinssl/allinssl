@@ -1,0 +1,102 @@
+
+.pro-container{
+	border-radius: 50px;
+}
+.probg {
+	height: 12px;
+	border: none;
+	border-radius: 50px;
+	position: relative;
+	overflow: hidden;
+	transition: width 0.3s ease; /* 添加过渡效果 */
+}
+
+.prov {
+	height: 100%;
+	position: absolute;
+	z-index: 12;
+	top: 0;
+	border-radius: 50px;
+	left: 0;
+	overflow: hidden; /* 隐藏多余部分 */
+	transition: width 0.3s ease; /* 添加过渡效果 */
+}
+.proText{
+	height: 100%;
+	position: absolute;
+	z-index: 13;
+	font-size: 12px;
+	line-height: 12px;
+	margin-left: 20px;
+	color: #fff;
+}
+
+.circle-progress {
+	position: relative;
+	border-radius: 50%;
+	overflow: hidden;
+  }
+  
+  .circle-track {
+	position: absolute;
+	width: 100%;
+	height: 100%;
+	background-color: var(--track-color);
+	border-radius: 50%;
+  }
+  
+  .circle-fill {
+	position: absolute;
+	width: 100%;
+	height: 100%;
+	background-image: var(--progress-gradient);
+	mask-image: conic-gradient(black calc(var(--percent) * 100%), transparent 0);
+	-webkit-mask-image: conic-gradient(black calc(var(--percent) * 100%), transparent 0);
+	mask-composite: intersect;
+	-webkit-mask-composite: destination-in;
+	transition: all 0.3s ease;
+	border-radius: 50%;
+  }
+  
+  .circle-hole {
+	position: absolute;
+	top: var(--stroke-width);
+	left: var(--stroke-width);
+	right: var(--stroke-width);
+	bottom: var(--stroke-width);
+	background-color: var(--hole-color);
+	border-radius: 50%;
+	z-index: 1;
+  }
+  
+  .circle-cap {
+	position: absolute;
+	width: var(--stroke-width);
+	height: var(--stroke-width);
+	border-radius: 50%;
+	z-index: 2;
+  }
+  
+  /* 起点圆点（12点方向） */
+  .start-cap {
+	top: 0;
+	left: 50%;
+	transform: translate(-50%, 0);
+	background-color: var(--cap-start-color, #2ba0fb);
+  }
+  
+  /* 终点圆点（动态位置） */
+  .end-cap {
+	transform: translate(-50%, -50%);
+	background-color: var(--cap-end-color, #2ba0fb);
+  }
+  
+  .circle-text {
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	color: var(--text-color);
+	z-index: 2;
+  }
+  

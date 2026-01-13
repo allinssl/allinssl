@@ -1,0 +1,36 @@
+{
+  "name": "@baota/vite",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Vite plugin for automatic i18n translation using GLM-4-Plus",
+  "main": "plugin/index.js",
+  "types": "plugin/i18n.ts",
+  "scripts": {
+    "test": "jest"
+  },
+  "keywords": [
+    "vite-plugin",
+    "i18n",
+    "translation",
+    "GLM-4-Plus"
+  ],
+  "exports": {
+    "./plugin-i18n-atuo": "./plugin-i18n-atuo/index.cjs"
+  },
+  "dependencies": {
+    "axios": "^1.6.7",
+    "form-data": "^4.0.2",
+    "node-fetch": "^3.3.2",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.3.3",
+    "vite": "^5.0.0"
+  },
+  "devDependencies": {
+    "@types/glob": "^8.1.0",
+    "@types/node": "^20.0.0",
+    "fast-glob": "^3.3.3"
+  },
+  "peerDependencies": {
+    "vite": "^5.0.0"
+  }
+}

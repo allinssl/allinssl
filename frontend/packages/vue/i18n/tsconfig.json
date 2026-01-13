@@ -1,0 +1,11 @@
+{
+	"extends": "@baota/typescript/base.json",
+	"include": ["**/*.{js,ts,jsx,tsx}", "eslint.config.ts", "./types.d.ts"],
+	"compilerOptions": {
+		"outDir": "dist", // 输出目录
+		"baseUrl": "./",
+		"rootDir": "src",
+		"sourceMap": true
+	},
+	"exclude": ["node_modules", "dist"]
+}

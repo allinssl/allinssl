@@ -1,0 +1,40 @@
+{
+	"name": "@baota/hooks",
+	"version": "1.0.0",
+	"type": "module",
+	"main": "src/index.ts",
+	"scripts": {
+		"test": "vitest run",
+		"test:watch": "vitest",
+		"test:coverage": "vitest run --coverage",
+		"lint": "eslint --ext .ts,.js src --fix"
+	},
+	"files": [
+		"dist/**",
+		"dist"
+	],
+	"exports": {
+		"./axios": "./src/axios/index.ts",
+		"./axios/model": "./src/axios/model/index.ts",
+		"./notification": "./src/notification/index.ts",
+		"./retry": "./src/retry/index.ts",
+		"./socket": "./src/socket/index.ts",
+		"./task-queue": "./src/task-queue/index.ts",
+		"./error": "./src/error/index.ts"
+	},
+	"dependencies": {
+		"@baota/utils": "workspace:*",
+		"@baota/naive-ui": "workspace:*",
+		"axios": "^1.7.9",
+		"vue": "^3.5.13"
+	},
+	"devDependencies": {
+		"@baota/eslint": "workspace:*",
+		"@baota/typescript": "workspace:*",
+		"@baota/prettier": "workspace:*",
+		"fake-indexeddb": "^6.0.0"
+	},
+	"keywords": [],
+	"author": "",
+	"license": "ISC"
+}

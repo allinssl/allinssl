@@ -1,0 +1,32 @@
+{
+	"name": "@baota/eslint",
+	"version": "1.0.0",
+	"type": "module",
+	"description": "",
+	"exports": {
+		".": "./src/index.js",
+		"./vue": "./src/vue.js",
+		"./vitest": "./src/vitest.js",
+		"./next": "./src/next.js"
+	},
+	"devDependencies": {
+		"@baota/typescript": "workspace:*",
+		"@baota/prettier": "workspace:*",
+		"eslint": "^9.23.0",
+		"@eslint/js": "^9.20.0",
+		"@next/eslint-plugin-next": "^15.1.6",
+		"@vue/eslint-config-typescript": "^14.5.0",
+		"@vitest/eslint-plugin": "^1.1.38",
+		"eslint-plugin-playwright": "^2.2.0",
+		"eslint-config-prettier": "^10.0.1",
+		"eslint-plugin-only-warn": "^1.1.0",
+		"eslint-plugin-react": "^7.37.4",
+		"eslint-plugin-react-hooks": "^5.1.0",
+		"eslint-plugin-turbo": "^2.4.0",
+		"globals": "^15.15.0",
+		"typescript-eslint": "^8.24.0",
+		"eslint-plugin-vue": "^9.32.0",
+		"eslint-plugin-oxlint": "^0.16.2",
+		"@vue/eslint-config-prettier": "10.2.0"
+	}
+}

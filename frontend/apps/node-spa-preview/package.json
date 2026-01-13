@@ -1,0 +1,36 @@
+{
+  "name": "@baota/spa-preview",
+  "version": "1.0.0",
+  "description": "基于 Express 的 SPA 预览与 API 反向代理服务器",
+  "type": "module",
+  "main": "src/server.js",
+  "scripts": {
+    "dev": "node src/server.js",
+    "start": "node src/server.js",
+    "config": "node src/utils/cli-config.js",
+    "config:wizard": "node src/utils/cli-config.js",
+    "test:config": "node src/utils/test-config.js",
+    "build": "echo 'No build step required for server'",
+    "lint": "echo 'No linting configured'"
+  },
+  "keywords": [
+    "spa",
+    "preview",
+    "proxy",
+    "static-server"
+  ],
+  "dependencies": {
+    "chalk": "^5.3.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1",
+    "express": "^4.19.2",
+    "http-proxy-middleware": "^2.0.6"
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.17",
+    "@types/express": "^4.17.21"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

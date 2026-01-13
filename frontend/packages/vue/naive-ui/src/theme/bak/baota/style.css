@@ -1,0 +1,51 @@
+/* 变量配置 */
+:root[class='baotaLight'] {
+	--n-dialog-title-padding: 0 10px 0 18px; /* 对话框标题内边距 */
+	--n-dialog-title-height: 40px; /* 对话框标题高度 */
+	--n-dialog-content-padding: 20px 12px; /* 对话框内容内边距 */
+	--n-dialog-action-bg: #f0f0f0; /* 对话框标题背景色 */
+	--n-dialog-action-padding: 8px 16px; /* 对话框操作按钮内边距 */
+	--bt-card-bg-color: #fff; /* tab卡片背景色 */
+	--bt-card-bg-color-active: #eaf8ed; /* tab卡片背景色-激活 */
+}
+
+:root[class='baotaDark'] {
+	--n-dialog-title-color: #eee; /* 对话框标题文字颜色 */
+	--n-dialog-action-bg: #333; /* 对话框标题背景色 */
+	--n-dialog-border: 1px solid #333; /* 对话框标题下边框 */
+	--bt-card-bg-color: #18181c; /* tab卡片背景色 */
+	--bt-card-bg-color-active: #1e2720; /* tab卡片背景色-激活 */
+}
+
+/* ------------------------------对话框--------------------------------- */
+
+/* 对话框/模态框标题 */
+.n-dialog .n-dialog__title,
+.n-modal .n-card-header {
+	padding: var(--n-dialog-title-padding) !important;
+	background-color: var(--n-dialog-action-bg);
+	color: var(--n-dialog-title-color);
+	border-bottom: var(--n-dialog-border);
+	height: var(--n-dialog-title-height);
+	border-top-right-radius: var(--n-border-radius);
+	border-top-left-radius: var(--n-border-radius);
+}
+
+/* 对话框/模态框内容 */
+.n-dialog .n-dialog__content,
+.n-modal .n-card__content {
+	margin: 0;
+	padding: var(--n-dialog-content-padding);
+}
+
+/* 对话框操作按钮 */
+.n-dialog .n-dialog__action,
+.n-modal .n-card__footer {
+	border-top: var(--n-dialog-border);
+	padding: var(--n-dialog-action-padding);
+	background-color: var(--n-dialog-action-bg);
+	border-bottom-left-radius: var(--n-border-radius);
+	border-bottom-right-radius: var(--n-border-radius);
+}
+
+/* 对话框-END */

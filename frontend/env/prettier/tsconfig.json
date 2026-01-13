@@ -1,0 +1,4 @@
+{
+	"extends": "@baota/typescript/base.json",
+	"include": ["**/*.{js,ts,jsx,tsx}", "eslint.config.ts", "./types.d.ts"]
+}

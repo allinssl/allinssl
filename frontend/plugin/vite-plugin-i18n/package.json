@@ -1,0 +1,52 @@
+{
+	"name": "@baota/vite-plugin-i18n",
+	"version": "1.0.0",
+	"description": "A Vite plugin for automatic i18n translation using AI services",
+	"type": "module",
+	"main": "src/index.js",
+	"scripts": {
+		"test": "node --experimental-vm-modules node_modules/jest/bin/jest.js",
+		"lint": "eslint src/**/*.js",
+		"format": "prettier --write src/**/*.js"
+	},
+	"exports": {
+		".": {
+			"import": "./src/index.js",
+			"require": "./src/index.js"
+		}
+	},
+	"keywords": [
+		"vite-plugin",
+		"i18n",
+		"translation",
+		"ai",
+		"zhipuai"
+	],
+	"author": "",
+	"license": "MIT",
+	"dependencies": {
+		"axios": "^1.6.2",
+		"fast-glob": "^3.3.3",
+		"crypto-js": "^4.2.0",
+		"lodash": "^4.17.21"
+	},
+	"devDependencies": {
+		"@baota/eslint": "workspace:*",
+		"@baota/prettier": "workspace:*",
+		"vite": "^4.0.0",
+		"@jest/globals": "^29.7.0",
+		"jest": "^29.7.0"
+	},
+	"engines": {
+		"node": ">=14.0.0"
+	},
+	"jest": {
+		"transform": {},
+		"extensionsToTreatAsEsm": [
+			".js"
+		],
+		"moduleNameMapper": {
+			"^(\\.{1,2}/.*)\\.js$": "$1"
+		}
+	}
+}

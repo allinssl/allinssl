@@ -1,0 +1,140 @@
+.nodeConfig {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  background-color: #fcfcfc;
+  border-left: 1px solid #e8e8e8;
+  overflow-y: auto;
+}
+
+.nodeConfigHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  border-bottom: 1px solid #e8e8e8;
+  background-color: #f5f5f5;
+}
+
+.nodeConfigTitle {
+  font-size: 16px;
+  font-weight: bold;
+  color: #333;
+}
+
+.saveConfigButton {
+  padding: 4px 12px;
+  background-color: #1890ff;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+.saveConfigButton:hover {
+  background-color: #40a9ff;
+}
+
+.nodeConfigContent {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.emptyConfig {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: #999;
+}
+
+.emptyIcon {
+  font-size: 48px;
+  margin-bottom: 16px;
+}
+
+.emptyText {
+  font-size: 14px;
+}
+
+.noConfig {
+  padding: 16px;
+  text-align: center;
+  color: #999;
+}
+
+.configField {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.configLabel {
+  font-size: 12px;
+  color: #666;
+  font-weight: 500;
+}
+
+.configValue {
+  font-size: 14px;
+  padding: 6px 0;
+  color: #333;
+}
+
+.configInput {
+  border: 1px solid #d9d9d9;
+  border-radius: 4px;
+  padding: 6px 10px;
+  font-size: 14px;
+  transition: all 0.3s;
+  width: 100%;
+}
+
+.configInput:focus {
+  border-color: #4096ff;
+  box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.2);
+  outline: none;
+}
+
+.configTextarea {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid #e5e7eb;
+  border-radius: 4px;
+  font-size: 14px;
+  resize: vertical;
+  min-height: 100px;
+}
+
+.configTextarea:focus {
+  outline: none;
+  border-color: #60a5fa;
+  box-shadow: 0 0 0 2px rgba(96, 165, 250, 0.2);
+}
+
+.configSelect {
+  width: 100%;
+  padding: 6px 10px;
+  border: 1px solid #d9d9d9;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.configButton {
+  padding: 8px 16px;
+  background-color: #2563eb;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.configButton:hover {
+  background-color: #1d4ed8;
+} 

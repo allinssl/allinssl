@@ -1,0 +1,4 @@
+{
+	"extends": "@baota/typescript/node.json",
+	"include": ["vite.config.ts", "types/*.d.ts"]
+}
