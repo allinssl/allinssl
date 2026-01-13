@@ -155,6 +155,37 @@ function get_pack_manager(){
 	fi
 }
 
+function should_set_firewall() {
+    if [ "${PM}" = "apt-get" ]; then
+        # 检查 ufw 是否已启用
+        if command -v ufw &>/dev/null; then
+            ufw_status=$(ufw status | grep -i "Status: active")
+            if [ -n "$ufw_status" ]; then
+                return 0
+            fi
+        else
+            return 1
+        fi
+    else
+        # 检查 firewalld 是否已启用
+        if systemctl is-active --quiet firewalld; then
+            return 0
+        else
+            return 1
+        fi
+        # 检查 iptables 服务是否已启用
+        if [ -f "/etc/init.d/iptables" ]; then
+            iptables_status=$(service iptables status | grep 'not running')
+            if [ -z "${iptables_status}" ]; then
+                return 0
+            fi
+        else
+            return 1
+        fi
+    fi
+    return 1
+}
+
 function set_firewall(){
 	sshPort=$(cat /etc/ssh/sshd_config | grep 'Port '|awk '{print $2}')
 	if [ "${PM}" = "apt-get" ]; then
@@ -233,8 +264,10 @@ elif [ "$1" == "7" ]; then
   
   # 放行新端口
   get_pack_manager
-  echo "正在放行端口 ${panelPort}..."
-  set_firewall
+  if should_set_firewall; then
+      echo "正在放行端口 ${panelPort}..."
+      set_firewall
+  fi
   
   echo "✅ 端口修改并放行完成！"
   exit 0
