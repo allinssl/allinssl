@@ -1,1 +1,0 @@
-export { default } from '../../env/prettier/prettier.config.js';
