@@ -234,3 +234,23 @@ func GetExecLog(c *gin.Context) {
 	public.SuccessData(c, data, 0)
 	return
 }
+
+func DelWorkflowHistory(c *gin.Context) {
+	var form struct {
+		ID string `form:"id"`
+	}
+	err := c.Bind(&form)
+	if err != nil {
+		public.FailMsg(c, err.Error())
+		return
+	}
+	form.ID = strings.TrimSpace(form.ID)
+
+	err = workflow.DelWorkflowHistory(form.ID)
+	if err != nil {
+		public.FailMsg(c, err.Error())
+		return
+	}
+	public.SuccessMsg(c, "删除成功")
+	return
+}

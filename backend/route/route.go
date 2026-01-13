@@ -47,6 +47,7 @@ func Register(r *gin.Engine) {
 		workflow.POST("/get_workflow_history", api.GetWorkflowHistory)
 		workflow.POST("/get_exec_log", api.GetExecLog)
 		workflow.POST("/stop", api.StopWorkflow)
+		workflow.POST("/del_workflow_history", api.DelWorkflowHistory)
 	}
 	access := v1.Group("/access")
 	{

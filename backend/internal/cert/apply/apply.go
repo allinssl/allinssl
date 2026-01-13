@@ -65,6 +65,7 @@ var CADirURLMap = map[string]string{
 	"sslcom-rsa":    "https://acme.ssl.com/sslcom-dv-rsa",
 	"sslcom-ecc":    "https://acme.ssl.com/sslcom-dv-ecc",
 	"buypass":       "https://api.buypass.com/acme/directory",
+	"litessl":       "https://acme.litessl.com/acme/v2/directory",
 }
 
 func GetSqlite() (*public.Sqlite, error) {
@@ -286,6 +287,47 @@ func GetZeroSSLEabFromEmail(email string, httpClient *http.Client) (map[string]a
 	}, nil
 }
 
+func GetEabFromBt(httpClient *http.Client) (map[string]any, error) {
+	APIPath := "https://www.bt.cn/api/v3/litessl/eab"
+	data := map[string]any{}
+	jsonData, err := json.Marshal(data)
+	if err != nil {
+		return nil, err
+	}
+	req, err := http.NewRequest("POST", APIPath, strings.NewReader(string(jsonData)))
+	if err != nil {
+		return nil, err
+	}
+	req.Header.Set("Content-Type", "application/json")
+	if httpClient == nil {
+		httpClient = &http.Client{}
+	}
+	resp, err := httpClient.Do(req)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("获取BT EAB信息失败，状态码：%d", resp.StatusCode)
+	}
+	var result map[string]any
+	err = json.NewDecoder(resp.Body).Decode(&result)
+	if err != nil {
+		return nil, fmt.Errorf("解析BT EAB信息失败：%v", err)
+	}
+	res, ok := result["res"].(map[string]map[string]any)
+	if !ok {
+		return nil, fmt.Errorf("BT EAB信息格式错误，缺少res字段")
+	}
+	if res["data"]["eab_kid"] == nil || res["data"]["eab_hmac"] == nil {
+		return nil, fmt.Errorf("BT EAB信息不完整，缺少kid或hmacEncoded")
+	}
+	return map[string]any{
+		"Kid":         res["data"]["eab_kid"],
+		"HmacEncoded": res["data"]["eab_hmac"],
+	}, nil
+}
+
 func getEABFromAccData(accData map[string]any, eabData *map[string]any) bool {
 	if accData == nil {
 		return false
@@ -388,6 +430,8 @@ func GetAcmeClient(email, algorithm, eabId, ca string, httpClient *http.Client, 
 					if err != nil {
 						return nil, fmt.Errorf("获取ZeroSSL EAB信息失败: %v", err)
 					}
+				case "litessl":
+					eabData, err = GetEabFromBt(httpClient)
 				case "sslcom", "google":
 					return nil, fmt.Errorf("未找到EAB信息，请在账号管理中添加%s账号", ca)
 				}

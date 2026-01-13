@@ -163,3 +163,31 @@ func CleanWorkflowHistory() error {
 	}
 	return nil
 }
+
+// DelWorkflowHistory 删除工作流执行历史记录
+func DelWorkflowHistory(ids string) error {
+	idArr := strings.Split(ids, ",")
+	s, err := GetSqliteObjWH()
+	if err != nil {
+		return err
+	}
+	defer s.Close()
+	_, err = s.Where("id IN ('"+strings.Join(idArr, "','")+"')", nil).Delete()
+	if err != nil {
+		return err
+	}
+	// 删除工作流执行日志
+	logPath := public.GetSettingIgnoreError("workflow_log_path")
+	if logPath == "" {
+		logPath = "logs/workflow"
+	}
+	for _, id := range idArr {
+		logFile := filepath.Join(logPath, id+".log")
+		if _, err := os.Stat(logFile); err == nil {
+			if err := os.Remove(logFile); err != nil {
+				return err
+			}
+		}
+	}
+	return nil
+}

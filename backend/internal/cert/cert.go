@@ -145,6 +145,10 @@ func SaveCert(source, key, cert, issuerCert, historyId string) (string, error) {
 	for _, dns := range certObj.DNSNames {
 		domainSet[dns] = true
 	}
+	// 处理 IP 地址
+	for _, ip := range certObj.IPAddresses {
+		domainSet[ip.String()] = true
+	}
 
 	// 转成切片并拼接成逗号分隔的字符串
 	var domains []string
