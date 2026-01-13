@@ -124,16 +124,6 @@ export default defineConfig({
         exclude: ["node_modules", ".git"],
       },
       {
-        source: "apps/allin-ssl/dist",
-        target: [
-          ".sync-git/allinssl-gitlab/frontend",
-          ".sync-git/allinssl-github/frontend",
-        ],
-        mode: "copy",
-        clearTarget: true,
-        exclude: ["node_modules", ".git"],
-      },
-      {
         source: "/",
         target: [
           ".sync-git/allinssl-gitlab/frontend",

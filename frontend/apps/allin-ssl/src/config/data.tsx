@@ -282,7 +282,7 @@ export const ApiProjectConfig: Record<string, ApiProjectType> = {
   rainyun: {
     name: "雨云",
     icon: "rainyun",
-    type: ["dns"],
+    type: ["host", "dns"],
     hostRelated: {
       sslcenter: { name: "证书中心" }
     },
