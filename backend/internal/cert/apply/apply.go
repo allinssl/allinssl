@@ -298,7 +298,6 @@ func GetEabFromBt(httpClient *http.Client) (map[string]any, error) {
 	if err != nil {
 		return nil, err
 	}
-	req.Header.Set("Content-Type", "application/json")
 	if httpClient == nil {
 		httpClient = &http.Client{}
 	}
@@ -315,16 +314,20 @@ func GetEabFromBt(httpClient *http.Client) (map[string]any, error) {
 	if err != nil {
 		return nil, fmt.Errorf("解析BT EAB信息失败：%v", err)
 	}
-	res, ok := result["res"].(map[string]map[string]any)
+	res, ok := result["res"].(map[string]any)
 	if !ok {
 		return nil, fmt.Errorf("BT EAB信息格式错误，缺少res字段")
 	}
-	if res["data"]["eab_kid"] == nil || res["data"]["eab_hmac"] == nil {
+	data, ok = res["data"].(map[string]any)
+	if !ok {
+		return nil, fmt.Errorf("BT EAB信息格式错误，缺少data字段")
+	}
+	if data["eab_kid"] == nil || data["eab_mac_key"] == nil {
 		return nil, fmt.Errorf("BT EAB信息不完整，缺少kid或hmacEncoded")
 	}
 	return map[string]any{
-		"Kid":         res["data"]["eab_kid"],
-		"HmacEncoded": res["data"]["eab_hmac"],
+		"Kid":         data["eab_kid"],
+		"HmacEncoded": data["eab_mac_key"],
 	}, nil
 }
 
@@ -395,7 +398,7 @@ func GetAcmeClient(email, algorithm, eabId, ca string, httpClient *http.Client, 
 		accData, err = GetAccount(db, email, ca)
 		if err != nil || accData == nil {
 			logger.Debug("获取acme账号信息失败")
-			if ca != "Let's Encrypt" && ca != "zerossl" && ca != "buypass" {
+			if ca != "Let's Encrypt" && ca != "zerossl" && ca != "buypass" && ca != "litessl" {
 				return nil, fmt.Errorf("未找到%s账号信息，请先在账号管理中添加%s账号, email:%s", ca, ca, email)
 			}
 		}
@@ -432,6 +435,9 @@ func GetAcmeClient(email, algorithm, eabId, ca string, httpClient *http.Client, 
 					}
 				case "litessl":
 					eabData, err = GetEabFromBt(httpClient)
+					if err != nil {
+						return nil, fmt.Errorf("获取LiteSSL EAB信息失败: %v", err)
+					}
 				case "sslcom", "google":
 					return nil, fmt.Errorf("未找到EAB信息，请在账号管理中添加%s账号", ca)
 				}
