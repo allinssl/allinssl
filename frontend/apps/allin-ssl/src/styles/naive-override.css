@@ -183,6 +183,32 @@
 		.n-data-table .n-empty__description .n-button__content {
 			color: #f4d1b4;
 		}
+		.n-data-table {
+			.n-checkbox {
+				&.n-checkbox--checked,
+				&.n-checkbox--indeterminate {
+					.n-checkbox-box {
+						background-color: #f4d1b4;
+					}
+					.n-checkbox-box__border {
+						border-color: #f4d1b4;
+						box-shadow: none;
+					}
+				}
+				&:hover,
+				&:active,
+				&:focus {
+					.n-checkbox-box__border {
+						border-color: #f4d1b4;
+					}
+				}
+				&:focus {
+					.n-checkbox-box__border {
+						box-shadow: 0 0 0 2px rgba(244, 209, 180, 0.3)
+					}
+				}
+			} 
+		}
 		.n-base-select-menu {
 			background-color: #1c1c1c;
 			.n-base-select-option--pending::before {

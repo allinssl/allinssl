@@ -114,3 +114,11 @@ export const enableWorkflow = (
  */
 export const stopWorkflow = (params?: StopWorkflowParams): useAxiosReturn<AxiosResponseData, StopWorkflowParams> =>
 	useApi<AxiosResponseData, StopWorkflowParams>('/v1/workflow/stop', params)
+
+/**
+ * @description 删除执行历史
+ * @param {string} params - 工作流ID
+ * @returns {useAxiosReturn<void, void>} 删除执行历史的组合式 API 调用封装。包含响应数据、加载状态及执行函数。
+ */
+export const deleteExistingHistory = (params: any): useAxiosReturn<void, void> =>
+	useApi<void, void>(`/v1/workflow/del_workflow_history`, params)

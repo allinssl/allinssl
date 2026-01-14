@@ -91,6 +91,24 @@ export const useCertManageStore = defineStore('cert-manage-store', () => {
 	}
 
 	/**
+	 * 批量删除证书
+	 * @description 批量删除指定ID的证书
+	 * @param {string[]} ids - 证书ID数组
+	 * @returns {Promise<void>}
+	 */
+	const deleteBatchCerts = async (ids: any) => {
+		try {
+			const ids_param = ids.join(',')
+			const { message, fetch } = deleteCert({ id: ids_param })
+			message.value = true
+			await fetch()
+		} catch (error) {
+			handleError(error)
+			throw error
+		}
+	}
+
+	/**
 	 * @description 重置上传证书表单
 	 */
 	const resetUploadForm = () => {
@@ -108,6 +126,7 @@ export const useCertManageStore = defineStore('cert-manage-store', () => {
 		downloadExistingCert,
 		uploadNewCert,
 		deleteExistingCert,
+		deleteBatchCerts,
 		resetUploadForm,
 	}
 })

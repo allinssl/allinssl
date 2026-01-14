@@ -1341,6 +1341,18 @@ export const useApiFormController = (
           }),
         );
         break;
+      case "edgeone":
+        items.push(
+          useFormInput("SecretId", "config.secret_id", {
+            allowInput: noSideSpace,
+          }),
+          useFormInput("SecretKey", "config.secret_key", {
+            type: "password",
+            showPasswordOn: "click",
+            allowInput: noSideSpace,
+          })
+        );
+        break;
       case "plugin":
         // 插件名称选择器
         items.push(
@@ -1416,9 +1428,13 @@ export const useApiFormController = (
           if (pluginConfig.config === undefined || pluginConfig.config === null) {
             pluginConfig.config = '';
           } else if (typeof pluginConfig.config === 'object') {
-            // 空对象直接设为空字符串，否则尝试JSON序列化（过滤回车和空格）
-            if (Object.keys(pluginConfig.config).length === 0) {
-              pluginConfig.config = '';
+            // 空对象时，根据插件配置生成默认的空值对象
+            if (Object.keys(pluginConfig.config).length === 0 && selectedPlugin?.config) {
+              const defaultConfig: Record<string, string> = {};
+              selectedPlugin.config.forEach(configItem => {
+                defaultConfig[configItem.name] = '';
+              });
+              pluginConfig.config = JSON.stringify(defaultConfig);
             } else {
               try {
                 // 不使用缩进，生成紧凑的JSON字符串
@@ -1869,29 +1885,36 @@ export const useApiFormController = (
     param: UpdateAccessParams | AddAccessParams
   ): Promise<void> => {
     try {
-      // 调整config格式，移除mode字段，保持与原始格式一致
-      let finalConfig;
-      
-      if (typeof param.config.config === 'string') {
-        // 自定义模式：直接使用字符串形式的config，避免双重序列化
-        finalConfig = {
-          name: param.config.name,
-          config: JSON.parse(param.config.config) // 先解析字符串为对象
-        };
+      let data: UpdateAccessParams<string> | AddAccessParams<string>;
+
+      if (param.type === "plugin") {
+        let finalConfig;
+        
+        if (typeof param.config.config === 'string') {
+          finalConfig = {
+            name: param.config.name,
+            config: JSON.parse(param.config.config)
+          };
+        } else {
+          finalConfig = {
+            name: param.config.name,
+            config: param.config.config
+          };
+        }
+        
+        data = {
+          ...param,
+          config: JSON.stringify(finalConfig),
+        } as UpdateAccessParams<string>;
       } else {
-        // 默认模式：正常处理对象形式的config
-        finalConfig = {
-          name: param.config.name,
-          config: param.config.config
-        };
+        data = {
+          ...param,
+          config: JSON.stringify(param.config),
+        } as UpdateAccessParams<string>;
       }
       
-      const data = {
-        ...param,
-        config: JSON.stringify(finalConfig),
-      } as UpdateAccessParams<string>;
-      if ("id" in param) {
-        const { id, name, config } = data; // 解构出 id, name, config
+      if ("id" in data) {
+        const { id, name, config } = data;
         await updateExistingAccess({
           id: id.toString(),
           name,

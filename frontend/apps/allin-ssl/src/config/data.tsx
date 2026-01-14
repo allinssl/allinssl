@@ -288,6 +288,15 @@ export const ApiProjectConfig: Record<string, ApiProjectType> = {
     },
     sort: 33,
   },
+  edgeone: {
+    name: "Edgeone",
+    icon: "edgeone",
+    type: ["host", "dns"],
+    hostRelated: {
+      sslcenter: { name: "Edgeone" }
+    },
+    sort: 38,
+  },
   plugin: {
     name: "插件",
     icon: "plugin",

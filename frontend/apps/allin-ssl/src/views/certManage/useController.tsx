@@ -20,7 +20,7 @@ import type { CertItem, CertListParams } from '@/types/cert'
 
 const { handleError } = useError()
 const { useFormTextarea } = useFormHooks()
-const { fetchCertList, downloadExistingCert, deleteExistingCert, uploadNewCert, uploadForm, resetUploadForm } =
+const { fetchCertList, downloadExistingCert, deleteExistingCert, uploadNewCert, uploadForm, resetUploadForm, deleteBatchCerts } =
 	useStore()
 const { confirm } = useModalHooks()
 /**
@@ -64,11 +64,43 @@ const calculateRemainingDays = (cert: CertItem): number | null => {
  * @returns {object} 返回controller对象
  */
 export const useController = () => {
+	const checkedRowKeysRef = ref<(string | number)[]>([])
+	const batchActionRef = ref<string>('delete')
+	const statusFilterRef = ref<number | null>(null)
+
+	const handleCheck: (rowKeys: (string | number)[]) => void = (rowKeys) => {
+		checkedRowKeysRef.value = rowKeys
+	}
+
+	const handleBatchAction = async () => {
+		if (checkedRowKeysRef.value.length === 0) {
+			return
+		}
+		if (batchActionRef.value === 'delete') {
+			useDialog({
+				title: '批量删除证书',
+				content: `确定要删除选中的 ${checkedRowKeysRef.value.length} 个证书吗？`,
+				onPositiveClick: async () => {
+					try {
+						await deleteBatchCerts(checkedRowKeysRef.value)
+						checkedRowKeysRef.value = []
+						await fetch()
+					} catch (error) {
+						handleError(error)
+					}
+				},
+			})
+		}
+	}
+
 	/**
 	 * @description 创建表格列配置
 	 * @returns {DataTableColumns<CertItem>} 返回表格列配置数组
 	 */
 	const createColumns = (): DataTableColumns<CertItem> => [
+		{
+			type: 'selection',
+		},
 		{
 			title: $t('t_17_1745227838561'),
 			key: 'domains',
@@ -95,6 +127,20 @@ export const useController = () => {
 			title: $t('t_19_1745227839107'),
 			key: 'end_day',
 			width: 100,
+			filterOptions: [
+				{ label: '已过期', value: -1 },
+				{ label: '即将过期', value: 1 },
+				{ label: '正常', value: 2 },
+			],
+			filterMultiple: false,
+			filter: (value: number, row: CertItem) => {
+				const endDay = calculateRemainingDays(row)
+				if (endDay === null) return false
+				if (value === -1) return endDay <= 0
+				if (value === 1) return endDay > 0 && endDay < 30
+				if (value === 2) return endDay >= 30
+				return true
+			},
 			render: (row: CertItem) => {
 				const endDay = calculateRemainingDays(row)
 
@@ -186,10 +232,11 @@ export const useController = () => {
 	const { TableComponent, PageComponent, loading, param, data, fetch } = useTable<CertItem, CertListParams>({
 		config: createColumns(),
 		request: fetchCertList,
-		defaultValue: { p: 1, limit: 10, search: '' },
+		defaultValue: { p: 1, limit: 10, search: '', status: 0 },
 		alias: { page: 'p', pageSize: 'limit' },
-		watchValue: ['p', 'limit'],
+		watchValue: ['p', 'limit', 'status'],
 		storage: 'certManagePageSize',
+		rowKey: (row) => row.id.toString(),
 	})
 
 	// 搜索实例
@@ -199,6 +246,14 @@ export const useController = () => {
 			fetch()
 		},
 	})
+
+	// 监听筛选状态变化
+	watch(
+		() => statusFilterRef.value,
+		(newStatus) => {
+			param.value.status = newStatus === null ? 0 : newStatus
+		}
+	)
 
 	/**
 	 * @description 打开上传证书弹窗
@@ -264,6 +319,11 @@ export const useController = () => {
 		getRowClassName,
 		openUploadModal,
 		openViewModal,
+		checkedRowKeysRef,
+		handleCheck,
+		batchActionRef,
+		handleBatchAction,
+		statusFilterRef,
 	}
 }
 

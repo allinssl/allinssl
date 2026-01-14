@@ -7,6 +7,7 @@ import {
 	enableWorkflow,
 	stopWorkflow,
 	addWorkflow,
+	deleteExistingHistory
 } from '@/api/workflow'
 import { getEabList, addEab, deleteEab, updateEab } from '@/api/access'
 import { useError } from '@baota/hooks/error'
@@ -135,6 +136,38 @@ export const useWorkflowStore = defineStore('workflow-store', () => {
 		}
 	}
 
+	/**
+	 * 删除执行历史
+	 * @description 删除指定ID的执行历史
+	 * @param {string} workflowId - 工作流ID
+	 * @returns {Promise<boolean>} 是否删除成功
+	 */
+	const deleteExistingHistoryHandle = async (workflowId: string) => {
+		try {
+			const { message, fetch } = deleteExistingHistory({ id: workflowId })
+			message.value = true
+			await fetch()
+		} catch (error) {
+			handleError(error)
+		}
+	}
+
+	/**
+	 * 批量删除执行历史
+	 * @description 批量删除指定ID的执行历史
+	 * @param {string[]} ids - 执行历史ID数组
+	 * @returns {Promise<void>}
+	 */
+	const deleteBatchHistory = async (ids: any) => {
+		try {
+			const { message, fetch } = deleteExistingHistory({ id: ids })
+			message.value = true
+			await fetch()
+		} catch (error) {
+			handleError(error)
+			throw error
+		}
+	}
 	/**
 	 * 复制工作流
 	 * @description 复制指定的工作流配置
@@ -277,6 +310,8 @@ export const useWorkflowStore = defineStore('workflow-store', () => {
 		updateExistingEab,
 		deleteExistingEab,
 		resetCaForm,
+		deleteExistingHistoryHandle,
+		deleteBatchHistory,
 	}
 })
 

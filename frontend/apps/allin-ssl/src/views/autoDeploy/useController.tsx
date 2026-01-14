@@ -51,6 +51,8 @@ const {
   deleteExistingEab,
   resetCaForm,
   copyExistingWorkflow,
+  deleteExistingHistoryHandle,
+  deleteBatchHistory,
 } = useStore();
 const {
   isEdit,
@@ -548,6 +550,35 @@ export const useAddWorkflowController = () => {
  * @returns {Object} 返回工作流历史记录业务逻辑控制器实例
  */
 export const useHistoryController = (id: string) => {
+  const checkedRowKeysRef = ref<(string | number)[]>([])
+  const batchActionRef = ref<string>('delete')
+
+  const handleCheck: (rowKeys: (string | number)[]) => void = (rowKeys) => {
+    checkedRowKeysRef.value = rowKeys
+  }
+
+  const handleBatchAction = async () => {
+    if (checkedRowKeysRef.value.length === 0) {
+      return
+    }
+    if (batchActionRef.value === 'delete') {
+      useDialog({
+        title: '批量删除执行历史',
+        content: `确定要删除选中的 ${checkedRowKeysRef.value.length} 条执行历史吗？`,
+        onPositiveClick: async () => {
+          try {
+            const ids_param = checkedRowKeysRef.value.join(',')
+            await deleteBatchHistory(ids_param)
+            checkedRowKeysRef.value = []
+            await fetch()
+          } catch (error) {
+            handleError(error)
+          }
+        },
+      })
+    }
+  }
+
   /**
    * @description 工作流历史详情
    * @param {number} workflowId - 工作流ID
@@ -561,6 +592,20 @@ export const useHistoryController = (id: string) => {
     });
   };
 
+  const handleViewHistoryDel = async (workflowId: string) => {
+    useDialog({
+      title: '删除执行历史',
+      content: '确认删除选中的执行历史吗？此操作不可恢复。',
+      onPositiveClick: async () => {
+        try {
+          await deleteExistingHistoryHandle(workflowId)
+          await fetch()
+        } catch (error) {
+          handleError(error)
+        }
+      },
+    })
+  };
   /**
    * @description 停止工作流执行
    * @param {WorkflowHistoryItem} historyItem - 工作流历史记录项
@@ -583,6 +628,9 @@ export const useHistoryController = (id: string) => {
    * @returns {DataTableColumn<WorkflowHistoryItem>[]} 返回表格列配置数组
    */
   const createColumns = (): DataTableColumn<WorkflowHistoryItem>[] => [
+    {
+      type: 'selection',
+    },
     {
       title: $t("t_4_1745227838558"),
       key: "create_time",
@@ -648,6 +696,16 @@ export const useHistoryController = (id: string) => {
           >
             {$t("t_12_1745227838814")}
           </NButton>
+          <NButton
+            size="tiny"
+            strong
+            secondary
+            type="error"
+            class="table-action-btn"
+            onClick={() => handleViewHistoryDel(row.id.toString())}
+          >
+            删除
+          </NButton>
         </NSpace>
       ),
     },
@@ -671,6 +729,11 @@ export const useHistoryController = (id: string) => {
     PageComponent,
     loading,
     fetch,
+    checkedRowKeysRef,
+    handleCheck,
+    batchActionRef,
+    handleBatchAction,
+    deleteBatchHistory
   };
 };
 

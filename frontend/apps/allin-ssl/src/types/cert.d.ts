@@ -5,6 +5,7 @@ export interface CertListParams {
 	p?: number
 	limit?: number
 	search?: string
+	status?: number
 }
 
 /** 证书项 */

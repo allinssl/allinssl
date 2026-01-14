@@ -467,6 +467,27 @@ export default defineComponent({
 			},
 		)
 
+		// 监听 provider 变化，重置配置模式和跳过选项
+		watch(
+			() => param.value.provider,
+			(newProvider, oldProvider) => {
+				if (newProvider !== oldProvider) {
+					// 重置配置模式为默认
+					configMode.value = 'default'
+					param.value.configMode = 'default'
+					// 重置跳过选项为 true (1)
+					param.value.skip = 1
+					// 如果是插件类型，清空插件相关字段
+					if (newProvider !== 'plugin') {
+						param.value.action = ''
+						param.value.params = {}
+						currentDynamicParams.value = []
+						pluginActionOptions.value = []
+					}
+				}
+			},
+		)
+
 		// 监听配置模式变化，处理params数据格式转换
 		watch(
 			() => configMode.value,
