@@ -155,12 +155,25 @@ export default defineComponent({
             }))
             .filter((item) => item.email) || [];
 
-        // 检查是否为编辑模式且有外部传入的邮箱
-        if (isEdit.value && routeEmail.value) {
-          // 编辑模式：使用外部传入的邮箱地址
-          param.value.email = routeEmail.value;
+        // 检查是否为编辑模式
+        if (isEdit.value) {
+          // 编辑模式：检查是否需要使用外部传入的邮箱
+          if (routeEmail.value) {
+            // 使用外部传入的邮箱地址
+            param.value.email = routeEmail.value;
+            // 尝试在选项中找到对应的 eabId
+            const matchedOption = emailOptions.value.find(
+              (item) => item.email === routeEmail.value
+            );
+            if (matchedOption) {
+              param.value.eabId = matchedOption.id.toString();
+            } else {
+              param.value.eabId = "";
+            }
+          }
+          // 如果没有外部传入的邮箱，保持原有的 email 和 eabId 不变
         } else {
-          // 非编辑模式：保持原有逻辑
+          // 非编辑模式：自动填充第一个邮箱
           if (!emailOptions.value.length) {
             param.value.email = "";
             param.value.eabId = "";
