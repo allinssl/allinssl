@@ -287,9 +287,11 @@ func GetZeroSSLEabFromEmail(email string, httpClient *http.Client) (map[string]a
 	}, nil
 }
 
-func GetEabFromBt(httpClient *http.Client) (map[string]any, error) {
+func GetEabFromBt(email string, httpClient *http.Client) (map[string]any, error) {
 	APIPath := "https://www.bt.cn/api/v3/litessl/eab"
-	data := map[string]any{}
+	data := map[string]any{
+		"email": email,
+	}
 	jsonData, err := json.Marshal(data)
 	if err != nil {
 		return nil, err
@@ -298,6 +300,7 @@ func GetEabFromBt(httpClient *http.Client) (map[string]any, error) {
 	if err != nil {
 		return nil, err
 	}
+	req.Header.Set("Content-Type", "application/json")
 	if httpClient == nil {
 		httpClient = &http.Client{}
 	}
@@ -415,6 +418,7 @@ func GetAcmeClient(email, algorithm, eabId, ca string, httpClient *http.Client, 
 	config := lego.NewConfig(user)
 	config.Certificate.KeyType = AlgorithmMap[algorithm]
 	config.CADirURL = CADirURL
+	config.Certificate.Timeout = time.Duration(60) * time.Second
 	if httpClient != nil {
 		config.HTTPClient = httpClient
 	}
@@ -434,7 +438,7 @@ func GetAcmeClient(email, algorithm, eabId, ca string, httpClient *http.Client, 
 						return nil, fmt.Errorf("获取ZeroSSL EAB信息失败: %v", err)
 					}
 				case "litessl":
-					eabData, err = GetEabFromBt(httpClient)
+					eabData, err = GetEabFromBt(email, httpClient)
 					if err != nil {
 						return nil, fmt.Errorf("获取LiteSSL EAB信息失败: %v", err)
 					}
@@ -839,6 +843,7 @@ func Apply(cfg map[string]any, logger *public.Logger) (map[string]any, error) {
 		Domains: domainArr,
 		Bundle:  true,
 	}
+
 	certObj, err := client.Certificate.Obtain(request)
 	if err != nil {
 		return nil, err

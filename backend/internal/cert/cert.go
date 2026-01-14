@@ -191,7 +191,7 @@ func DelCert(id string) error {
 	}
 	defer s.Close()
 
-	_, err = s.Where("id in (?)", []interface{}{id}).Delete()
+	_, err = s.Where("id in ("+id+")", []interface{}{}).Delete()
 	if err != nil {
 		return err
 	}
