@@ -24,8 +24,11 @@ WORKDIR /www/allinssl/
 # Install runtime dependencies
 RUN apk add --no-cache tzdata
 
-# Copy binary from builder
+# Copy binary and script from builder
 COPY --from=builder /build/allinssl /www/allinssl/allinssl
+COPY --from=builder /build/script/allinssl.sh /www/allinssl/allinssl.sh
+
+RUN chmod +x /www/allinssl/allinssl.sh
 
 ENV TZ=Asia/Shanghai
 RUN cat > /entrypoint.sh <<'EOF'
