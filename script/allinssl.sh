@@ -52,7 +52,7 @@ fi
 function update_allinssl() {
   CN_CHECK=$(curl -sS --connect-timeout 10 -m 10 https://api.bt.cn/api/isCN)
     if [ "${CN_CHECK}" == "True" ];then
-      node_host="https://download.allinssl.com"
+      node_host="https://allinssl.bt.cn"
     else
         node_host="https://node1.allinssl.com"
     fi
