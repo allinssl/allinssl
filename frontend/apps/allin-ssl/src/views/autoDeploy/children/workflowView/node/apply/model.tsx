@@ -140,7 +140,7 @@ export default defineComponent({
     };
 
     // 加载邮件选项
-    const loadEmailOptions = async (ca: string) => {
+    const loadEmailOptions = async (ca: string, autoFill: boolean = true) => {
       if (!ca) return;
       isLoadingEmails.value = true;
       try {
@@ -177,9 +177,7 @@ export default defineComponent({
           if (!emailOptions.value.length) {
             param.value.email = "";
             param.value.eabId = "";
-          } else {
-            // 如果邮箱数组有内容，自动填充第一个邮箱地址
-            // 移除 !param.value.email 条件，让切换CA时总是更新为第一个选项
+          } else if (autoFill) {
             if (emailOptions.value[0]) {
               param.value.email = emailOptions.value[0].email;
               param.value.eabId = emailOptions.value[0].id.toString();
@@ -631,6 +629,10 @@ export default defineComponent({
     onMounted(async () => {
       advancedOptions.value = false;
       await loadCAOptions();
+      
+      if (!param.value.ca && isEdit.value) {
+        param.value.ca = caOptions.value[0]?.value as string;
+      }
 
       // 如果是编辑模式且有外部传入的邮箱，直接设置邮箱值
       if (isEdit.value && routeEmail.value) {
@@ -638,7 +640,8 @@ export default defineComponent({
       } else {
         // 非编辑模式：如果当前已经有CA值，主动加载对应的邮件选项
         if (param.value.ca) {
-          await loadEmailOptions(param.value.ca);
+          const autoFill = !param.value.email;
+          await loadEmailOptions(param.value.ca, autoFill);
         }
       }
 
@@ -649,8 +652,10 @@ export default defineComponent({
     // 确认事件触发
 		confirm(async (close) => {
       try {
+        console.log(123123123)
 				await example.value?.validate();
 				data.value.eabId = "";
+				data.value.email = param.value.email;
         updateNodeConfig(props.node.id, data.value); // 更新节点配置
         isRefreshNode.value = props.node.id; // 刷新节点
         close();
