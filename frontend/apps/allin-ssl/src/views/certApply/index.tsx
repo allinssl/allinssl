@@ -1,4 +1,5 @@
 import { useController } from './useController'
+import { useRouter } from 'vue-router';
 import { NTabs, NTabPane, NEmpty, NIcon } from 'naive-ui'
 import ProductCard from './components/ProductCard'
 import FreeProductCard from './components/FreeProductCard'
@@ -23,7 +24,7 @@ export default defineComponent({
 			formatPrice,
 			handleOpenApplyModal,
 		} = useController()
-
+ 		const router = useRouter();
 		return () => (
 			<div class="w-full max-w-[160rem] mx-auto p-[2rem]">
 				<div class="bg-[var(--content-bg-base)] rounded-[0.6rem] p-[2.4rem] mb-[3rem]">
@@ -78,11 +79,12 @@ export default defineComponent({
 												</NTabs>
 											)}
 											{activeMainTab.value === 'free' && (
-												<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-													{freeProducts.value.map((product) => (
-														<FreeProductCard key={product.pid} product={product} onApply={handleOpenApplyModal} />
-													))}
-												</div>
+												<div><span onClick={() => router.push("/auto-deploy")} class="cursor-pointer text-[var(--color-text-primary-success)] text-[14px]">请前往自动化部署创建工作流申请证书</span></div>
+												// <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+												// 	{freeProducts.value.map((product) => (
+												// 		<FreeProductCard key={product.pid} product={product} onApply={handleOpenApplyModal} />
+												// 	))}
+												// </div>
 											)}
 										</div>
 									),

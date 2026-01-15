@@ -284,11 +284,14 @@ export default defineComponent({
 
     // 计算当前选中的邮箱选项的 value（用于 NSelect）
     const currentEmailValue = computed(() => {
-      if (!param.value.eabId) return null;
-      // 优先使用 eabId 来查找匹配的选项
+      if (!param.value.eabId && !param.value.email) return null;
+      
       const matchedOption = emailOptions.value.find(
-        (item) => item.id.toString() === param.value.eabId
+        (item) => 
+          (param.value.eabId && item.id.toString() === param.value.eabId) ||
+          (param.value.email && item.email === param.value.email)
       );
+      
       return matchedOption ? matchedOption.value : null;
     });
 
@@ -652,7 +655,6 @@ export default defineComponent({
     // 确认事件触发
 		confirm(async (close) => {
       try {
-        console.log(123123123)
 				await example.value?.validate();
 				data.value.eabId = "";
 				data.value.email = param.value.email;
