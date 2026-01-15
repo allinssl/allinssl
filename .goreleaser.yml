@@ -7,7 +7,8 @@ archives:
     name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
     files:
       - LICENSE
-      - script/allinssl.sh
+      - src: script/allinssl.sh
+        dst: allinssl.sh
 checksum:
   name_template: "{{ .ProjectName }}_{{ .Version }}_checksums.txt"
 builds:
