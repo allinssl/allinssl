@@ -688,9 +688,23 @@ export const useApiFormController = (
         trigger: "input",
       },
       secret_id: {
-        required: true,
-        message: $t("t_6_1745317313383"),
         trigger: "input",
+        validator: (
+          rule: FormItemRule,
+          value: string,
+          callback: (error?: Error) => void
+        ) => {
+          if (!value || !value.length) {
+            const mapTips = {
+              tencentcloud: $t("t_2_1747042967277"),
+              edgeone: "请输入正确的 EdgeOne SecretId",
+            };
+            return callback(
+              new Error(mapTips[param.value.type as keyof typeof mapTips])
+            );
+          }
+          callback();
+        },
       },
       access_key: {
         trigger: "input",
@@ -725,6 +739,7 @@ export const useApiFormController = (
           if (!value || !value.length) {
             const mapTips = {
               tencentcloud: $t("t_2_1747042967277"),
+              edgeone: "请输入 EdgeOne Secret Key",
               huawei: $t("t_3_1747042967608"),
               baidu: $t("t_4_1747271294621"),
               volcengine: $t("t_4_1747365600137"),
@@ -1602,6 +1617,12 @@ export const useApiFormController = (
           };
           break;
         case "tencentcloud":
+          param.value.config = {
+            secret_id: "",
+            secret_key: "",
+          };
+          break;
+        case "edgeone":
           param.value.config = {
             secret_id: "",
             secret_key: "",

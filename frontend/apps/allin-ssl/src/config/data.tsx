@@ -289,11 +289,11 @@ export const ApiProjectConfig: Record<string, ApiProjectType> = {
     sort: 33,
   },
   edgeone: {
-    name: "Edgeone",
+    name: "EdgeOne",
     icon: "edgeone",
-    type: ["host", "dns"],
+    type: ["dns"],
     hostRelated: {
-      sslcenter: { name: "Edgeone" }
+      sslcenter: { name: "EdgeOne" }
     },
     sort: 38,
   },
