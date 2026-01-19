@@ -5,10 +5,11 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/qiniu/go-sdk/v7/auth"
-	"github.com/qiniu/go-sdk/v7/client"
 	"net/http"
 	"strconv"
+
+	"github.com/qiniu/go-sdk/v7/auth"
+	"github.com/qiniu/go-sdk/v7/client"
 )
 
 type commonResponse struct {
@@ -41,7 +42,7 @@ func requestQiniu(cfg map[string]any, path string, m map[string]any, method stri
 	if err != nil {
 		return err
 	}
-
+	
 	uri := fmt.Sprintf("https://api.qiniu.com/%v", path)
 	credentials := auth.New(providerConfig["access_key"], providerConfig["access_secret"])
 	header := http.Header{}
@@ -49,6 +50,7 @@ func requestQiniu(cfg map[string]any, path string, m map[string]any, method stri
 	err = client.DefaultClient.CredentialedCallWithJson(context.Background(), credentials, auth.TokenQBox, response, method, uri, header, m)
 	return err
 }
+
 
 func DeployQiniuCdn(cfg map[string]any) error {
 	_, ok := cfg["certificate"].(map[string]any)
@@ -73,43 +75,6 @@ func DeployQiniuCdn(cfg map[string]any) error {
 	return err
 }
 
-func updateQiniuDomainCert(cfg map[string]any) error {
-	_, ok := cfg["certificate"].(map[string]any)
-	if !ok {
-		return fmt.Errorf("证书不存在")
-	}
-
-	domain, ok := cfg["domain"].(string)
-	if !ok {
-		return fmt.Errorf("参数错误：domain")
-	}
-
-	forceHttps, ok := cfg["force_https"].(bool)
-	if !ok {
-		forceHttps = true
-	}
-
-	http2Enable, ok := cfg["http2_enable"].(bool)
-	if !ok {
-		http2Enable = true
-	}
-
-	certId, err := uploadQiniuCert(cfg)
-	if err != nil {
-		return err
-	}
-	m := map[string]any{
-		"certid":      certId,
-		"domain":      domain,
-		"forceHttps":  forceHttps,
-		"http2Enable": http2Enable,
-	}
-
-	var response commonResponse
-	err = requestQiniu(cfg, fmt.Sprintf("domain/%s/httpsconf", domain), m, "PUT", &response)
-	return err
-}
-
 func DeployQiniuOss(cfg map[string]any) error {
 	_, ok := cfg["certificate"].(map[string]any)
 	if !ok {
@@ -119,57 +84,17 @@ func DeployQiniuOss(cfg map[string]any) error {
 	if !ok {
 		return fmt.Errorf("参数错误：domain")
 	}
-
-	// 判断域名是否已开启HTTPS
-	// {
-	//		"certId": <CertID>,
-	//		"forceHttps": <ForceHttps>,
-	//		"http2Enable": <Http2Enable>
-	//	}
-	var httpsConfig struct {
-		Https struct {
-			CertID      string `json:"certId"`
-			ForceHttps  bool   `json:"forceHttps"`
-			Http2Enable bool   `json:"http2Enable"`
-		} `json:"https"`
-	}
-	err := requestQiniu(cfg, fmt.Sprintf("domain/%s", domain), nil, "GET", &httpsConfig)
-	if err != nil {
-		return fmt.Errorf("获取域名HTTPS配置失败: %v", err)
-	}
-
+	
 	certId, err := uploadQiniuCert(cfg)
 	if err != nil {
 		return err
 	}
-
-	if httpsConfig.Https.CertID != "" {
-		// 如果已开启HTTPS，则调用updateQiniuDomainCert更新证书
-		cfg["cert_id"] = certId
-		cfg["force_https"] = httpsConfig.Https.ForceHttps
-		cfg["http2_enable"] = httpsConfig.Https.Http2Enable
-		err = updateQiniuDomainCert(cfg)
-		return err
-	} else {
-		// 如果未开启HTTPS，则使用POST请求绑定证书
-		m := map[string]any{
-			"certid": certId,
-			"domain": domain,
-		}
-		var response commonResponse
-		err = requestQiniu(cfg, "cert/bind", m, "POST", &response)
-		return err
+	m := map[string]any{
+		"certid": certId,
+		"domain": domain,
 	}
-}
-
-func delQiniuCert(cfg map[string]any) error {
-	certId, ok := cfg["old_cert_id"].(string)
-	if !ok {
-		return fmt.Errorf("参数错误：cert_id")
-	}
-	m := map[string]any{}
 	var response commonResponse
-	err := requestQiniu(cfg, fmt.Sprintf("sslcert/%v", certId), m, "DELETE", &response)
+	err = requestQiniu(cfg, "cert/bind", m, "POST", &response)
 	return err
 }
 
