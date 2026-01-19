@@ -118,6 +118,8 @@ export default defineComponent({
 		const currentTab = ref(DeployCategories.ALL)
 		// 搜索关键字
 		const searchKeyword = ref('')
+		// 是否已初始化（用于区分初始化和重新选择类型）
+		const isInitialized = ref(false)
 
 		// 插件方法提示
 		const pluginActionTips = ref('')
@@ -728,7 +730,9 @@ export default defineComponent({
 			// 初始化配置模式和跳过开关为默认值
 			configMode.value = 'default'
 			param.value.configMode = 'default'
-			param.value.skip = 1
+			if (isInitialized.value) {
+				param.value.skip = 1
+			}
 			
 			// 加载证书来源选项
 			certOptions.value = findApplyUploadNodesUp(props.node.id).map((item) => {
@@ -764,6 +768,7 @@ export default defineComponent({
 			param.value = {}
 			param.value.provider_id = ''
 			param.value.provider = ''
+			isInitialized.value = true
 		}
 
 		/**

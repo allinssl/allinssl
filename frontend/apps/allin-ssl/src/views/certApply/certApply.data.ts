@@ -1,8 +1,8 @@
 import type { ProductsType, FreeProductItem } from '@/types/cert'
 
 export const mainTabOptionsData = [
-	{ key: 'commercial', title: '商业证书', desc: '品牌SSL证书，安全保障，全球兼容' },
 	{ key: 'free', title: '免费证书', desc: '适用于个人博客、测试环境的免费SSL证书' },
+	{ key: 'commercial', title: '商业证书', desc: '品牌SSL证书，安全保障，全球兼容' },
 ]
 
 export const typeOptionsData = {
@@ -241,6 +241,17 @@ export const productsData: ProductsType = {
 
 export const freeProductsData: FreeProductItem[] = [
 	{
+		pid: 9002,
+		brand: "LiteSSL",
+		type: '域名型(DV)',
+		title: "LiteSSL 单域名SSL证书",
+		code: 'litessl-single',
+		num: 1,
+		valid_days: 90,
+		desc: '是面向全球开发者提供免费、全生命周期自动化的 TLS / SSL 证书。',
+		features: ['90 天证书', '自主可控', '快速验证', 'ACME 自动化集成'],
+	},
+	{
 		pid: 9001,
 		brand: "Let's Encrypt",
 		type: '域名型(DV)',
@@ -248,6 +259,7 @@ export const freeProductsData: FreeProductItem[] = [
 		code: 'letsencrypt-single',
 		num: 1,
 		valid_days: 90,
+		desc: '是广泛使用的免费SSL证书提供商，适合个人网站和测试环境。',
 		features: ['90天有效期', '自动续期', '单域名', '全球认可'],
 	},
 ]

@@ -12,7 +12,7 @@ interface FreeProductCardProps {
 		valid_days: number
 		features: string[]
 	}
-	onApply: (id: number) => void
+	onApply: (product: { brand: string }) => void
 }
 
 /**
@@ -47,7 +47,7 @@ export default defineComponent({
 
 		// 处理申请按钮点击
 		const handleApply = () => {
-			props.onApply(props.product.pid)
+			props.onApply(props.product)
 		}
 
 		// 获取品牌图标
@@ -58,6 +58,7 @@ export default defineComponent({
 				positive: '/static/icons/positive-ico.png',
 				ssltrus: '/static/icons/ssltrus-ico.png',
 				"let's encrypt": isDark.value ? '/static/icons/letsencrypt-icon-dark.svg' : '/static/icons/letsencrypt-icon.svg',
+				litessl: isDark.value ? '/static/icons/litessl-icon-dark.png' : '/static/icons/litessl-icon.png',
 			}
 			return Object.keys(brandIconMap).find((key) => brandLower.includes(key))
 				? brandIconMap[Object.keys(brandIconMap).find((key) => brandLower.includes(key)) as string]
@@ -66,9 +67,9 @@ export default defineComponent({
 
 		return () => (
 			<div class="bg-[var(--content-bg-secondary)] relative border border-[var(--border-color-transparent)] rounded-[0.8rem] p-[2rem] transition-all duration-300 h-full flex flex-col shadow-sm hover:shadow-md hover:-translate-y-[0.2rem]">
-				{props.product.brand === "Let's Encrypt" && (
+				{props.product.brand === "LiteSSL" && (
 					<div class="absolute top-[1.2rem] right-[1.2rem] z-10">
-						<NBadge type="info" value={$t('t_12_1746667589733')} />
+						<NBadge type="warning" value={'推荐'} />
 					</div>
 				)}
 
@@ -83,7 +84,7 @@ export default defineComponent({
 					<div class="flex-1 w-full">
 						<h3 class="font-semibold mb-[0.8rem] leading-tight text-[var(--color-card-title)]">{props.product.title}</h3>
 						<p class="text-[1.3rem] text-color5 m-0 leading-relaxed px-[0.8rem]">
-							{props.product.brand + $t('t_13_1746667599218')}
+							{props.product.brand +  props.product.desc}
 						</p>
 					</div>
 				</div>

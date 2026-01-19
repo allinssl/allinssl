@@ -118,5 +118,6 @@ export interface FreeProductItem {
 	code: string
 	num: number
 	valid_days: number
+	desc?: string
 	features: string[]
 }

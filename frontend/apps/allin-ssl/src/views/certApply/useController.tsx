@@ -49,11 +49,12 @@ export const useController = () => {
 	/**
 	 * @description 打开申请弹窗
 	 */
-	const handleOpenApplyModal = () => {
+	const handleOpenApplyModal = (product: { brand: string }) => {
 		useModal({
-			title: $t(`申请免费证书 - Let's Encrypt`),
+			title: $t(`申请免费证书 - ${product.brand}`),
 			area: '520px',
 			component: CertificateForm,
+			componentProps: { product },
 			footer: true,
 		})
 	}
@@ -79,7 +80,7 @@ export const useController = () => {
  * @description 证书申请表单控制器
  * @returns {object} 返回controller对象
  */
-export const useCertificateFormController = () => {
+export const useCertificateFormController = (product?: { brand: string }) => {
 	// 表单hooks
 	const { useFormInput } = useFormHooks()
 	const { addNewWorkflow } = useWorkflowViewStore()
@@ -148,7 +149,7 @@ export const useCertificateFormController = () => {
 	const request = async () => {
 		try {
 			await addNewWorkflow({
-				name: `申请免费证书-Let's Encrypt（${formData.value.domains}）`,
+				name: `申请免费证书-${product?.brand || "LiteSSL"}（${formData.value.domains}）`,
 				exec_type: 'manual',
 				active: '1',
 				content: JSON.stringify({

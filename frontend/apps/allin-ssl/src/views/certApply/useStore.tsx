@@ -14,7 +14,7 @@ export const useCertApplyStore = defineStore('cert-apply-store', () => {
 	const test = ref('证书申请')
 
 	// 当前激活的主标签
-	const activeMainTab = ref<'commercial' | 'free'>('commercial')
+	const activeMainTab = ref<'commercial' | 'free'>('free')
 
 	// 当前激活的子标签
 	const activeTab = ref<'dv' | 'ov' | 'ev'>('dv')
