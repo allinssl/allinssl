@@ -106,6 +106,10 @@ func Save(setting *Setting) error {
 		restart = true
 	}
 	if setting.Secure != public.Secure {
+		// 非/开头则添加/
+		if setting.Secure != "" && setting.Secure[0] != '/' {
+			setting.Secure = "/" + setting.Secure
+		}
 		s.Where("key = 'secure'", []interface{}{}).Update(map[string]interface{}{"value": setting.Secure})
 		public.TimeOut = setting.Timeout
 		restart = true
