@@ -242,6 +242,8 @@ if [ "$1" == "16" ]; then
   echo "ALLinSSL 更新完成！"
   exit 0
 elif [ "$1" == "17" ]; then
+  echo "⚠️ 正在停止 ALLinSSL 服务..."
+  "./$BINARY_FILE" 2
   echo "⚠️ 正在准备执行 ALLinSSL 卸载操作..."
   read -p "是否确认卸载 ALLinSSL？这将删除相关组件，此操作不可逆！(y/n): " confirm
   if [[ "$confirm" != "y" && "$confirm" != "Y" ]]; then
@@ -253,6 +255,10 @@ elif [ "$1" == "17" ]; then
   echo "✅ 已确认，执行卸载操作..."
   # 删除工作目录
   rm -rf "$WORK_DIR"
+  # 删除软链接
+  rm -f /usr/bin/allinssl
+  rm -f /usr/bin/aisl
+  echo "ALLinSSL 卸载完成！"
   exit 0
 elif [ "$1" == "7" ]; then
   # 先调用二进制程序修改端口
