@@ -143,6 +143,7 @@ export const ApiProjectConfig: Record<string, ApiProjectType> = {
     hostRelated: {
       panel: { name: $t("t_1_1747298114192") },
       site: { name: $t("t_12_1747886302725") },
+      portal: { name: $t("t_0_1770278647457") },
     },
     sort: 8,
   },

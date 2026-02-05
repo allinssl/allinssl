@@ -11744,5 +11744,22 @@
       "arDZ": "الرجاء إدخال اسم الشهادة للبحث"
     },
     "timestamp": "2025-11-19T09:00:47.861Z"
+  },
+  "雷池WAF-认证中心": {
+    "text": "雷池WAF-认证中心",
+    "key": "t_0_1770278647457",
+    "translations": {
+      "zhCN": "雷池WAF-认证中心",
+      "zhTW": "雷池WAF-認證中心",
+      "enUS": "LeiChi WAF - Authentication Center",
+      "jaJP": "雷池WAF-認証センター",
+      "koKR": "뢰지WAF-인증센터",
+      "ruRU": "LeiChi WAF - Центр аутентификации",
+      "ptBR": "LeiChi WAF - Centro de Autenticação",
+      "frFR": "LeiChi WAF - Centre d'authentification",
+      "esAR": "LeiChi WAF - Centro de Autenticación",
+      "arDZ": "واقي LeiChi WAF - مركز المصادقة"
+    },
+    "timestamp": "2026-02-05T08:04:07.457Z"
   }
 }
