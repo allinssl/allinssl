@@ -77,11 +77,26 @@ func deploy(params map[string]any) (any, error) {
 		logger.Info("=============部署失败=============")
 		return nil, errors.New("证书不存在")
 	}
+	issuerCert := ""
+	if v, ok := certificateMap["issuerCert"]; ok && v != nil {
+		if s, ok := v.(string); ok {
+			issuerCert = s
+		}
+	} else if v, ok := certificateMap["issuer_cert"]; ok && v != nil {
+		if s, ok := v.(string); ok {
+			issuerCert = s
+		}
+	}
 	certStr, ok := certificateMap["cert"].(string)
 	if !ok {
 		logger.Error("证书格式错误")
 		logger.Info("=============部署失败=============")
 		return nil, errors.New("证书格式错误")
+	}
+	if issuerCert != "" {
+		certificateMap["leaf_cert"] = certStr
+		certificateMap["cert"] = public.BuildFullChain(certStr, issuerCert)
+		certStr = certificateMap["cert"].(string)
 	}
 	nowSha256, err := public.GetSHA256(certStr)
 	if err != nil {

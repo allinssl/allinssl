@@ -79,6 +79,7 @@ type LeafCertConfig struct {
 	Usage      int64  `json:"usage" form:"usage"`
 	Cert       string `json:"cert" form:"cert"`
 	Key        string `json:"key" form:"key"`
+	IssuerCert string `json:"-" form:"-"`
 	EnCert     string `json:"en_cert" form:"en_cert"`
 	EnKey      string `json:"en_key" form:"en_key"`
 	Algorithm  string `json:"algorithm" form:"algorithm"`

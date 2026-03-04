@@ -94,6 +94,10 @@ func DownloadCert(c *gin.Context) {
 		public.FailMsg(c, err.Error())
 		return
 	}
+	issuerCert := ""
+	if v, ok := certData["issuer_cert"]; ok {
+		issuerCert = v
+	}
 
 	// 构建 zip 包（内存中）
 	buf := new(bytes.Buffer)
@@ -111,6 +115,17 @@ func DownloadCert(c *gin.Context) {
 		public.FailMsg(c, err.Error())
 		return
 	}
+	// fullchain.pem
+	fullchain := public.BuildFullChain(certStr, issuerCert)
+	fullchainWriter, err := zipWriter.Create("Nginx/fullchain.pem")
+	if err != nil {
+		public.FailMsg(c, err.Error())
+		return
+	}
+	if _, err := fullchainWriter.Write([]byte(fullchain)); err != nil {
+		public.FailMsg(c, err.Error())
+		return
+	}
 	// key.pem
 	keyStr := certData["key"]
 	keyWriter, err := zipWriter.Create("Nginx/key.pem")
@@ -124,7 +139,7 @@ func DownloadCert(c *gin.Context) {
 	}
 	// cert.pfx
 	pfxPassword := "allinssl"
-	pfxData, err := public.PEMToPFX(certStr, keyStr, pfxPassword)
+	pfxData, err := public.PEMToPFX(fullchain, keyStr, pfxPassword)
 	if err == nil && len(pfxData) > 0 {
 		pfxWriter, err := zipWriter.Create("IIS/cert.pfx")
 		if err != nil {

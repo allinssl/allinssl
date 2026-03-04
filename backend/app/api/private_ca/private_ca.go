@@ -166,6 +166,27 @@ func DownloadCert(c *gin.Context) {
 		public.FailMsg(c, "证书不存在")
 		return
 	}
+	issuerCert := ""
+	if form.Type == "leaf" {
+		if caID, ok := certData["ca_id"]; ok && caID != nil {
+			var caIdInt64 int64
+			switch v := caID.(type) {
+			case int64:
+				caIdInt64 = v
+			case int:
+				caIdInt64 = int64(v)
+			case float64:
+				caIdInt64 = int64(v)
+			}
+			if caIdInt64 > 0 {
+				if issuerData, err := private_ca.GetCert(caIdInt64, "ca"); err == nil {
+					if issuer, ok := issuerData["cert"].(string); ok {
+						issuerCert = issuer
+					}
+				}
+			}
+		}
+	}
 
 	// 构建 zip 包（内存中）
 	buf := new(bytes.Buffer)
@@ -189,6 +210,17 @@ func DownloadCert(c *gin.Context) {
 		return
 	}
 	if _, err := keyWriter.Write([]byte(keyStr)); err != nil {
+		public.FailMsg(c, err.Error())
+		return
+	}
+	// fullchain.pem
+	fullchain := public.BuildFullChain(certStr, issuerCert)
+	fullchainWriter, err := zipWriter.Create("fullchain.pem")
+	if err != nil {
+		public.FailMsg(c, err.Error())
+		return
+	}
+	if _, err := fullchainWriter.Write([]byte(fullchain)); err != nil {
 		public.FailMsg(c, err.Error())
 		return
 	}
@@ -220,7 +252,7 @@ func DownloadCert(c *gin.Context) {
 	if certData["algorithm"] == "ecdsa" || certData["algorithm"] == "rsa" {
 		// cert.pfx
 		pfxPassword := "allinssl"
-		pfxData, err := public.PEMToPFX(certStr, keyStr, pfxPassword)
+		pfxData, err := public.PEMToPFX(fullchain, keyStr, pfxPassword)
 		if err == nil && len(pfxData) > 0 {
 			pfxWriter, err := zipWriter.Create("IIS/cert.pfx")
 			if err != nil {

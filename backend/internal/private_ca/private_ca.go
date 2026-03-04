@@ -202,6 +202,13 @@ func CreateLeafCert(caId, usage, keyBits, validDays int64, cn, san string) (*Lea
 	// 保存到数据库
 	leafObj.SAN = san
 	leafObj.CaId = caId
+	if issuer != nil {
+		if certVal, ok := issuer["cert"]; ok {
+			if certStr, ok := certVal.(string); ok {
+				leafObj.IssuerCert = certStr
+			}
+		}
+	}
 	insertData := public.StructToMap(leafObj, true)
 	_, err = s.Insert(insertData)
 	if err != nil {
@@ -406,6 +413,7 @@ func WorkflowCreateLeafCert(params map[string]any, logger *public.Logger) (map[s
 					certificate = map[string]any{
 						"cert": v["cert"],
 						"key":  v["key"],
+						"issuerCert": issuer["cert"],
 						"skip": true,
 					}
 					break
@@ -421,6 +429,7 @@ func WorkflowCreateLeafCert(params map[string]any, logger *public.Logger) (map[s
 		certificate = map[string]any{
 			"cert": leaf.Cert,
 			"key":  leaf.Key,
+			"issuerCert": leaf.IssuerCert,
 		}
 	}
 
