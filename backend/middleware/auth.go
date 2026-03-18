@@ -2,9 +2,7 @@ package middleware
 
 import (
 	"ALLinSSL/backend/public"
-	"crypto/md5"
 	"encoding/gob"
-	"encoding/hex"
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
 	"net/http"
@@ -23,13 +21,32 @@ var Html404 = []byte(`<html>
 
 func SessionAuthMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
+		routePath := c.Request.URL.Path
+		method := c.Request.Method
+		paths := strings.Split(strings.TrimPrefix(routePath, "/"), "/")
+
+		// 跳过认证检查的路径：登录和 token 相关接口
+		if len(paths) >= 2 {
+			if paths[0] == "v1" && (paths[1] == "login" || paths[1] == "token") {
+				c.Next()
+				return
+			}
+		}
+
+		// 按优先级检查多种认证方式：
+		// 1. Bearer Token (Authorization header)
+		// 2. JWT Token (Authorization: Bearer <token>)
+		// 3. API Token (api_token form parameter)
+		// 4. Session Cookie
+
+		if checkBearerToken(c) {
+			return
+		}
+
 		if checkApiKey(c) {
 			return
 		}
 
-		routePath := c.Request.URL.Path
-		method := c.Request.Method
-		paths := strings.Split(strings.TrimPrefix(routePath, "/"), "/")
 		session := sessions.Default(c)
 		now := time.Now()
 		gob.Register(time.Time{})
@@ -38,6 +55,7 @@ func SessionAuthMiddleware() gin.HandlerFunc {
 			public.Secure = ""
 		}
 		if public.Secure == "" && session.Get("secure") == nil {
+			// 如果安全入口是根目录或登录页，则不需要特殊处理
 			session.Set("secure", true)
 			session.Set("lastRequestTime", now)
 			session.Save()
@@ -135,6 +153,56 @@ func SessionAuthMiddleware() gin.HandlerFunc {
 	}
 }
 
+// checkBearerToken 检查 Bearer Token (支持 JWT 和 API Key)
+// 支持两种格式：
+// 1. Authorization: Bearer <jwt_token>
+// 2. Authorization: Bearer api_key:<api_key>:<timestamp>:<api_token>
+func checkBearerToken(c *gin.Context) bool {
+	authHeader := c.GetHeader("Authorization")
+	if authHeader == "" {
+		return false
+	}
+
+	parts := strings.SplitN(authHeader, " ", 2)
+	if len(parts) != 2 || !strings.EqualFold(parts[0], "Bearer") {
+		return false
+	}
+
+	token := strings.TrimSpace(parts[1])
+
+	// 尝试解析为 JWT token
+	claims, err := public.ParseToken(token)
+	if err == nil && claims != nil {
+		// JWT token 有效，将用户信息存入 context
+		c.Set("username", claims.Username)
+		c.Set("user_id", claims.UserID)
+		c.Set("auth_type", "jwt")
+		c.Next()
+		c.Abort()
+		return true
+	}
+
+	// 尝试解析为 API Key 格式：api_key:<api_key>:<timestamp>:<api_token>
+	if strings.HasPrefix(token, "api_key:") {
+		parts := strings.SplitN(token, ":", 4)
+		if len(parts) == 4 {
+			apiKey := parts[1]
+			timestamp := parts[2]
+			apiToken := parts[3]
+
+			if public.VerifyAPIKey(apiKey, apiToken, timestamp) {
+				c.Set("auth_type", "api_key")
+				c.Set("username", "api_user")
+				c.Next()
+				c.Abort()
+				return true
+			}
+		}
+	}
+
+	return false
+}
+
 func checkApiKey(c *gin.Context) bool {
 	var form struct {
 		ApiToken  string `form:"api_token"`
@@ -156,7 +224,7 @@ func checkApiKey(c *gin.Context) bool {
 		return false
 	}
 	// timestamp := time.Now().Unix()
-	ApiToken := generateSignature(form.Timestamp, apiKey)
+	ApiToken := public.GenerateAPIToken(apiKey, form.Timestamp)
 	if form.ApiToken != ApiToken {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "invalid token"})
 		c.Abort()
@@ -173,13 +241,4 @@ func checkApiKey(c *gin.Context) bool {
 		return false
 	}
 	return true
-}
-
-func generateSignature(timestamp, apiKey string) string {
-	keyMd5 := md5.Sum([]byte(apiKey))
-	keyMd5Hex := strings.ToLower(hex.EncodeToString(keyMd5[:]))
-
-	signMd5 := md5.Sum([]byte(timestamp + keyMd5Hex))
-	signMd5Hex := strings.ToLower(hex.EncodeToString(signMd5[:]))
-	return signMd5Hex
 }

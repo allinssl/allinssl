@@ -15,35 +15,123 @@ ALLinSSL is a comprehensive SSL certificate lifecycle management tool that integ
 
 ## Technology Stack
 
-- **Backend**: Go language
-- **Frontend**: HTML/CSS/JavaScript
+- **Backend**: Go (Gin Framework)
+- **Frontend**: Vue 3 + Vite + Turbo Monorepo
 - **Data Storage**: SQLite
 - **Certificate Management**: ACME Protocol (Let's Encrypt)
-- **Scheduled Tasks**: Built-in scheduler.
+- **Scheduled Tasks**: Built-in scheduler
 
 ## Installation Guide
 
 ### System Requirements
 
-- Operating System: Linux
-- Permission Requirements: Read and write permissions to create data directories
+- Operating System: Linux / macOS / Windows
+- Docker (optional)
 
-### Installation Steps
-#### 1. Install via official installation script
-#### 2. Compile and install:
-  - When compiling and installing, pay attention to the name and path of the executable file. In `allinssl.sh`, you need to modify the corresponding name and path, otherwise the script may not work
-  - Recommended installation path is `/www/allinssl/`, executable file name should be `allinssl`, and it's recommended to create a symbolic link of `allinssl.sh` to the `/usr/bin/` directory
-  - Installation:
-    1. Download the latest release package and extract it
-    2. Compile the Go program (allinssl)
-    3. Run the executable to start the service
-       - Linux: Execute `./allinssl start`
+### Installation Methods
+
+#### Method 1: Quick Install (Linux)
+```bash
+curl -sSO http://allinssl.bt.cn/install_allinssl.sh && bash install_allinssl.sh allinssl
+```
+
+#### Method 2: Docker Install
+```bash
+docker run -itd \
+  --name allinssl \
+  -p 8888:8888 \
+  -v /www/allinssl/data:/www/allinssl/data \
+  -e ALLINSSL_USER=allinssl \
+  -e ALLINSSL_PWD=allinssldocker \
+  -e ALLINSSL_URL=allinssl \
+  -e TZ=Asia/Shanghai \
+  allinssl/allinssl:latest
+```
+
+#### Method 3: Binary Install
+1. Download the latest release from [GitHub Releases](https://github.com/allinssl/allinssl/releases)
+2. Extract the archive
+3. Get login credentials:
+   - Linux: `./allinssl 15` (address), `./allinssl 6` (password)
+   - Windows: `.\allinssl 15` (address), `.\allinssl 6` (password)
+4. Run the service:
+   - Linux: `./allinssl start`
+   - Windows: `.\allinssl start`
+
+#### Method 4: Build from Source (Recommended for Development)
+
+##### Option A: Using Build Script (Recommended)
+
+**Linux/macOS:**
+```bash
+git clone https://github.com/allinssl/allinssl.git
+cd allinssl
+chmod +x build.sh
+./build.sh
+```
+
+**Windows:**
+```batch
+git clone https://github.com/allinssl/allinssl.git
+cd allinssl
+build.bat
+```
+
+##### Option B: Manual Build
+
+**Prerequisites:**
+- Go 1.23+
+- Node.js 18+
+- pnpm 8+
+
+```bash
+# 1. Clone the project
+git clone https://github.com/allinssl/allinssl.git
+cd allinssl
+
+# 2. Build frontend
+cd frontend
+pnpm install
+pnpm run build
+cd ..
+
+# 3. Build backend
+go mod tidy
+go build -o allinssl cmd/main.go
+
+# 4. Run
+./allinssl start
+```
+
+##### Option C: Docker Build
+
+```bash
+docker build -t allinssl:latest .
+```
+
+### Development Mode
+
+#### Frontend Development Mode
+```bash
+cd frontend
+pnpm run dev
+# Access http://localhost:5173
+# Configure proxy to point to backend port
+```
+
+#### Backend Development Mode
+```bash
+go run cmd/main.go start
+# Access http://localhost:8888
+```
 
 ### First-time Setup
 
-1. After first startup, set up administrator account and password
-2. Set the secure entry path and port number
-3. After completing the initial setup, you can access the management interface via `http://your-ip:your-port/your-secure-entry`
+1. After first startup, access `http://your-ip:your-port/secure-entry`
+2. Set up administrator account and password
+3. Set the secure entry path and port number
+4. Add DNS provider and hosting provider credentials
+5. Create workflow for automated certificate management
 
 ## User Guide
 
@@ -107,6 +195,53 @@ allinssl 16: Update ALLinSSL to the latest version (file overwrite installation)
 allinssl 17: Uninstall ALLinSSL
 ```
 
+## Architecture
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                     Frontend Layer                          │
+│  Vue 3 + Naive UI + Vite + Turbo Monorepo                   │
+└─────────────────────────────────────────────────────────────┘
+                            │
+                            ▼
+┌─────────────────────────────────────────────────────────────┐
+│                      Backend Layer                          │
+│  Gin Framework + RESTful API + Session Management           │
+└─────────────────────────────────────────────────────────────┘
+                            │
+                            ▼
+┌─────────────────────────────────────────────────────────────┐
+│                     Core Services                           │
+│  Certificate Service │ Deployment Service │ Workflow Engine │
+│  Monitor Scheduler   │ Notification Service                 │
+└─────────────────────────────────────────────────────────────┘
+                            │
+                            ▼
+┌─────────────────────────────────────────────────────────────┐
+│                   Data Storage Layer                        │
+│  SQLite Database │ File Storage                             │
+└─────────────────────────────────────────────────────────────┘
+                            │
+                            ▼
+┌─────────────────────────────────────────────────────────────┐
+│                  External Integrations                      │
+│  ACME Protocol │ Cloud Provider APIs │ DNS Providers        │
+└─────────────────────────────────────────────────────────────┘
+```
+
 ## License
 
 This project is licensed under the terms specified in the [LICENSE](./LICENSE) file.
+
+## Contributing
+
+We welcome contributions! Please feel free to:
+1. Submit issues to report problems
+2. Create pull requests to improve code
+3. Improve project documentation
+4. Share use cases
+
+## Contact Us
+
+- Email: support@allinssl.com
+- Issues: [GitHub Issues](https://github.com/allinssl/allinssl/issues)

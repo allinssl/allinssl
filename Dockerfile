@@ -1,3 +1,26 @@
+# Frontend build stage
+FROM node:18-alpine AS frontend-builder
+
+WORKDIR /frontend
+
+# Install pnpm
+RUN corepack enable && corepack prepare pnpm@latest --activate
+
+# Copy package files
+COPY frontend/package.json frontend/pnpm-lock.yaml* frontend/pnpm-workspace.yaml frontend/turbo.json ./
+COPY frontend/apps/allin-ssl/package.json ./apps/allin-ssl/
+COPY frontend/packages/ ./packages/
+COPY frontend/plugins/ ./plugins/
+
+# Install dependencies
+RUN pnpm install --frozen-lockfile 2>/dev/null || pnpm install
+
+# Copy frontend source code
+COPY frontend/ ./
+
+# Build frontend
+RUN pnpm run build
+
 # Build stage
 FROM golang:1.24-alpine AS builder
 
@@ -9,6 +32,9 @@ RUN apk add --no-cache git make gcc musl-dev
 # Copy go mod files
 COPY go.mod go.sum ./
 RUN go mod download
+
+# Copy frontend build artifacts from frontend-builder
+COPY --from=frontend-builder /frontend/static/build ./static/build
 
 # Copy source code
 COPY . .
