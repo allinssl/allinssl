@@ -11,6 +11,7 @@ import {
   PRIVATE_CA,
   START,
   UPLOAD,
+  WAIT,
   DEFAULT,
 } from "./lib/alias";
 import type { FormRules } from "naive-ui";
@@ -123,7 +124,8 @@ export type NodeNum =
   | typeof NOTIFY // 通知节点（业务）
   | typeof APPLY // 申请节点（业务）
   | typeof PRIVATE_CA // 私有CA节点（业务）
-  | typeof DEPLOY; // 部署节点（业务）
+  | typeof DEPLOY // 部署节点（业务）
+  | typeof WAIT; // 等待节点（控制）
 
 // 节点配置映射
 export type NodeOptions = {
@@ -145,6 +147,7 @@ export type NodeOptions = {
     BaseNodeData & { type: typeof PRIVATE_CA }
   >;
   [DEPLOY]: () => BaseRenderNodeOptions<BaseNodeData & { type: typeof DEPLOY }>;
+  [WAIT]: () => BaseRenderNodeOptions<BaseNodeData & { type: typeof WAIT }>;
 };
 
 // 基础节点配置
