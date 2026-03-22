@@ -297,6 +297,12 @@ export const ApiProjectConfig: Record<string, ApiProjectType> = {
     },
     sort: 38,
   },
+  acmedns: {
+    name: "ACME DNS",
+    icon: "acmedns",
+    type: ["dns"],
+    sort: 39,
+  },
   plugin: {
     name: "插件",
     icon: "plugin",

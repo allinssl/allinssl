@@ -119,6 +119,7 @@ require (
 	github.com/namedotcom/go/v4 v4.0.2 // indirect
 	github.com/ncruces/go-strftime v0.1.9 // indirect
 	github.com/nrdcg/bunny-go v0.1.0 // indirect
+	github.com/nrdcg/goacmedns v0.2.0 // indirect
 	github.com/nrdcg/namesilo v0.5.0 // indirect
 	github.com/pelletier/go-toml/v2 v2.2.3 // indirect
 	github.com/pkg/browser v0.0.0-20240102092130-5ac0b6a4141c // indirect
