@@ -79,8 +79,11 @@ func GetSafeLineWafSiteList(page int, pageSize int, siteName string, providerId 
 	if err != nil {
 		return nil, err
 	}
-	res := response["data"].(map[string]any)
-	return res["data"].([]any), nil
+	data, ok := response["data"].(map[string]any)
+	if !ok {
+		return nil, fmt.Errorf("雷池WAF站点列表响应格式错误")
+	}
+	return data["data"].([]any), nil
 }
 
 func matchSafeLineSiteByColumn(siteList []any, column string, keyword string) (siteInfo map[string]any) {
@@ -98,8 +101,11 @@ func GetSafeLineWafPortalConfig(providerID string) (map[string]any, error) {
 	if err != nil {
 		return nil, err
 	}
-	res := response["data"].(map[string]any)
-	return res, nil
+	data, ok := response["data"].(map[string]any)
+	if !ok {
+		return nil, fmt.Errorf("雷池WAF门户配置响应格式错误: data 字段不是对象")
+	}
+	return data, nil
 }
 
 // 上传证书 certId="" 新上传证书 否则覆盖证书
