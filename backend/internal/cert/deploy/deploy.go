@@ -77,6 +77,9 @@ func Deploy(cfg map[string]any, logger *public.Logger) error {
 	case "safeline-panel":
 		logger.Debug("部署雷池WAF面板...")
 		return DeploySafeLineWaf(cfg)
+	case "safeline-portal":
+		logger.Debug("部署雷池WAF认证中心...")
+		return DeploySafeLineWafPortal(cfg, logger)
 	case "localhost":
 		logger.Debug("部署到本地...")
 		return DeployLocalhost(cfg)

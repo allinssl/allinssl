@@ -270,6 +270,7 @@ export interface DeployConfig<
     | "qiniu-oss"
     | "safeline-site"
     | "safeline-panel"
+    | "safeline-portal"
     | "btpanel-dockersite"
     | "lecdn" // LeCDN 部署类型
     | "plugin" // 新增插件类型

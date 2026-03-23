@@ -79,8 +79,11 @@ func GetSafeLineWafSiteList(page int, pageSize int, siteName string, providerId 
 	if err != nil {
 		return nil, err
 	}
-	res := response["data"].(map[string]any)
-	return res["data"].([]any), nil
+	data, ok := response["data"].(map[string]any)
+	if !ok {
+		return nil, fmt.Errorf("雷池WAF站点列表响应格式错误")
+	}
+	return data["data"].([]any), nil
 }
 
 func matchSafeLineSiteByColumn(siteList []any, column string, keyword string) (siteInfo map[string]any) {
@@ -91,6 +94,18 @@ func matchSafeLineSiteByColumn(siteList []any, column string, keyword string) (s
 		}
 	}
 	return siteInfo
+}
+
+func GetSafeLineWafPortalConfig(providerID string) (map[string]any, error) {
+	response, err := RequestSafeLineWaf(&map[string]any{}, "GET", providerID, "api/open/portal")
+	if err != nil {
+		return nil, err
+	}
+	data, ok := response["data"].(map[string]any)
+	if !ok {
+		return nil, fmt.Errorf("雷池WAF门户配置响应格式错误: data 字段不是对象")
+	}
+	return data, nil
 }
 
 // 上传证书 certId="" 新上传证书 否则覆盖证书
@@ -200,6 +215,59 @@ func DeploySafeLineWafSite(cfg map[string]any, logger *public.Logger) error {
 		_, err := uploadSafeLineCert(certId, keyPem, certPem, providerID)
 		if err != nil {
 			return fmt.Errorf("网站%s证书更新成功...：%s", siteName, err.Error())
+		}
+	}
+
+	return nil
+}
+
+// DeploySafeLineWafPortal 部署证书到雷池WAF认证中心
+func DeploySafeLineWafPortal(cfg map[string]any, logger *public.Logger) error {
+	cert, ok := cfg["certificate"].(map[string]any)
+	if !ok {
+		return fmt.Errorf("证书不存在")
+	}
+	keyPem, ok := cert["key"].(string)
+	if !ok {
+		return fmt.Errorf("证书错误：key")
+	}
+	certPem, ok := cert["cert"].(string)
+	if !ok {
+		return fmt.Errorf("证书错误：cert")
+	}
+	var providerID string
+	switch v := cfg["provider_id"].(type) {
+	case float64:
+		providerID = strconv.Itoa(int(v))
+	case string:
+		providerID = v
+	default:
+		return fmt.Errorf("参数错误：provider_id")
+	}
+
+	portalCfg, err := GetSafeLineWafPortalConfig(providerID)
+	if err != nil {
+		return fmt.Errorf("获取认证中心配置失败: %s", err.Error())
+	}
+
+	var portalCertId float64
+	if v, ok := portalCfg["cert_id"].(float64); ok {
+		portalCertId = v
+	}
+
+	// 上传/更新证书
+	if portalCertId == 0 {
+		logger.Debug("认证中心未启用证书，上传证书中...")
+		certId, err := uploadSafeLineCert(0, keyPem, certPem, providerID)
+		if err != nil {
+			return fmt.Errorf("认证中心上传证书失败: %s", err.Error())
+		}
+		logger.Debug(fmt.Sprintf("认证中心上传证书成功 证书ID：%d 请手动添加至认证中心", int(certId)))
+	} else {
+		logger.Debug(fmt.Sprintf("认证中心已启用证书ID：%d，更新证书中...", int(portalCertId)))
+		_, err = uploadSafeLineCert(portalCertId, keyPem, certPem, providerID)
+		if err != nil {
+			return fmt.Errorf("认证中心更新证书失败: %s", err.Error())
 		}
 	}
 

@@ -46,6 +46,15 @@ func TestGetSafeLineWAFSiteList(t *testing.T) {
 	fmt.Println(siteId)
 }
 
+func TestSafeLineWAFPortalGet(t *testing.T) {
+	res, err := GetSafeLineWafPortalConfig("1")
+	if err != nil {
+		t.Fatalf(err.Error())
+		return
+	}
+	fmt.Println(res)
+}
+
 func TestSafeLineAPITest(t *testing.T) {
 	result := SafeLineAPITest("5")
 	if result != nil {
