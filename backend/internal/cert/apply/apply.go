@@ -3,6 +3,7 @@ package apply
 import (
 	"ALLinSSL/backend/internal/access"
 	"ALLinSSL/backend/internal/cert"
+	"ALLinSSL/backend/internal/cert/apply/lego/acmedns"
 	"ALLinSSL/backend/internal/cert/apply/lego/bt"
 	"ALLinSSL/backend/internal/cert/apply/lego/jdcloud"
 	"ALLinSSL/backend/internal/cert/apply/lego/webhook"
@@ -242,6 +243,12 @@ func GetDNSProvider(providerName string, creds map[string]string, httpClient *ht
 		config.SecretKey = creds["secret_key"]
 		config.PropagationTimeout = maxWait
 		return edgeone.NewDNSProviderConfig(config)
+	case "acmedns":
+		config := &acmedns.Config{
+			ServerURL:   creds["server_url"],
+			Credentials: creds["credentials"],
+		}
+		return acmedns.NewDNSProviderConfig(config)
 
 	default:
 		return nil, fmt.Errorf("不支持的 DNS Provider: %s", providerName)

@@ -55,6 +55,7 @@ import type {
   LecdnAccessConfig,
   ConstellixAccessConfig,
   WebhookAccessConfig,
+  AcmeDnsAccessConfig,
   SpaceshipAccessConfig,
   BTDomainAccessConfig,
 } from "@/types/access";
@@ -550,6 +551,39 @@ export const useApiFormController = (
             return callback(
               new Error(mapTips[param.value.type as keyof typeof mapTips])
             );
+          }
+          callback();
+        },
+      },
+      server_url: {
+        required: true,
+        trigger: "input",
+        validator: (
+          rule: FormItemRule,
+          value: string,
+          callback: (error?: Error) => void
+        ) => {
+          if (!isUrl(value)) {
+            return callback(new Error("请输入正确的 Server URL"));
+          }
+          callback();
+        },
+      },
+      credentials: {
+        required: true,
+        trigger: "input",
+        validator: (
+          rule: FormItemRule,
+          value: string,
+          callback: (error?: Error) => void
+        ) => {
+          if (!value || value.trim() === "") {
+            return callback(new Error("请输入 Credentials JSON"));
+          }
+          try {
+            JSON.parse(value);
+          } catch (error) {
+            return callback(new Error("Credentials 必须是合法 JSON"));
           }
           callback();
         },
@@ -1320,6 +1354,45 @@ export const useApiFormController = (
           })
         );
         break;
+      case "acmedns":
+        items.push(
+          useFormInput("Server URL", "config.server_url", {
+            allowInput: noSideSpace,
+            placeholder: "https://auth.acme-dns.io",
+          }),
+          useFormTextarea(
+            "Credentials(JSON)",
+            "config.credentials",
+            {
+              rows: 8,
+              placeholder:
+                '{\n  "username": "xxx",\n  "password": "xxx",\n  "subdomain": "xxx",\n  "fulldomain": "xxx.auth.acme-dns.io"\n}',
+            }
+          ),
+          useFormCustom(() => {
+            return (
+              <NAlert
+                type="info"
+                class="mt-[1.2rem] whitespace-normal"
+                showIcon={false}
+              >
+                <span class="text-[1.3rem]">
+                  Credentials 需要填写 acme-dns <code>/register</code>{" "}
+                  接口返回的单条 JSON。
+                  <a
+                    href="https://github.com/acme-dns/acme-dns"
+                    target="_blank"
+                    rel="noreferrer"
+                    class="ml-2 text-[#3296FA] underline"
+                  >
+                    官方项目地址
+                  </a>
+                </span>
+              </NAlert>
+            );
+          })
+        );
+        break;
       case "spaceship":
         items.push(
           useFormInput("API Key", "config.api_key", {
@@ -1727,6 +1800,12 @@ export const useApiFormController = (
             data: "",
             ignore_ssl: "0",
           } as WebhookAccessConfig;
+          break;
+        case "acmedns":
+          param.value.config = {
+            server_url: "https://auth.acme-dns.io",
+            credentials: "",
+          } as AcmeDnsAccessConfig;
           break;
         case "spaceship":
           param.value.config = {

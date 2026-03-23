@@ -64,6 +64,7 @@ export interface AddAccessParams<
     | LecdnAccessConfig
     | ConstellixAccessConfig
     | WebhookAccessConfig
+    | AcmeDnsAccessConfig
     | SpaceshipAccessConfig
     | BTDomainAccessConfig
 > {
@@ -102,6 +103,7 @@ export interface UpdateAccessParams<
     | LecdnAccessConfig
     | ConstellixAccessConfig
     | WebhookAccessConfig
+    | AcmeDnsAccessConfig
     | SpaceshipAccessConfig
     | BTDomainAccessConfig
 > extends AddAccessParams<T> {
@@ -318,6 +320,11 @@ export interface WebhookAccessConfig {
   headers: string;
   data: string;
   ignore_ssl: "0" | "1";
+}
+
+export interface AcmeDnsAccessConfig {
+  server_url: string;
+  credentials: string;
 }
 
 export interface SpaceshipAccessConfig {
