@@ -4,3 +4,6 @@
 .idea
 **/.history
 **/.vscode
+*_test.go
+*.exe
+*.syso
