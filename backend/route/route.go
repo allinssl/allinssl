@@ -22,6 +22,17 @@ func Register(r *gin.Engine) {
 		login.GET("/get_code", api.GetCode)
 	}
 
+	// Token 管理
+	token := v1.Group("/token")
+	{
+		token.POST("/generate", api.GenerateToken)
+		token.POST("/refresh", api.RefreshToken)
+		token.POST("/get_api_key", api.GetAPIKey)
+		token.POST("/generate_api_token", api.GenerateAPITokenHandler)
+		token.POST("/save_api_key", api.SaveAPIKey)
+		token.POST("/delete_api_key", api.DeleteAPIKey)
+	}
+
 	_monitor := v1.Group("/monitor")
 	{
 		_monitor.POST("/get_list", monitor.GetMonitorList)

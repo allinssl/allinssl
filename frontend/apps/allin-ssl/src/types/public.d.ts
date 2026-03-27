@@ -21,7 +21,12 @@ export interface loginParams {
 
 /** 登录响应 */
 export interface loginResponse extends AxiosResponseData {
-	data: null
+	data: {
+		token?: string
+		expire?: number
+		token_type?: string
+		username?: string
+	}
 }
 
 /** 首页概览请求参数 */

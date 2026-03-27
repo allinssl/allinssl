@@ -20,9 +20,11 @@ import { router } from "@router/index";
 export const responseHandleStatusCode = errorMiddleware((error: AxiosError) => {
   // 处理 401 状态码
   if (error.status === 401) {
+    // 清除本地 token
+    clearToken();
     router.push(`/login`);
   }
-  // 处理404状态码
+  // 处理 404 状态码
   if (error.status === 404) {
     // router.go(0) // 刷新页面
   }
@@ -48,7 +50,7 @@ export const useApiReturn = <T>(
 };
 
 /**
- * @description 创建http客户端实例
+ * @description 创建 http 客户端实例
  */
 export const instance = new HttpClient({
   baseURL: isDev() ? "/api" : "/",
@@ -68,18 +70,49 @@ interface ApiTokenResult {
 }
 
 /**
- * @description 创建api token
- * @returns {ApiTokenResult} 包含API token和时间戳的对象
+ * @description 获取存储的 JWT token
+ * @returns {string | null} JWT token
+ */
+export const getStoredToken = (): string | null => {
+  return localStorage.getItem("jwt_token") || sessionStorage.getItem("jwt_token");
+};
+
+/**
+ * @description 存储 JWT token
+ * @param {string} token JWT token
+ * @param {boolean} remember 是否记住
+ */
+export const storeToken = (token: string, remember: boolean = true): void => {
+  if (remember) {
+    localStorage.setItem("jwt_token", token);
+    sessionStorage.removeItem("jwt_token");
+  } else {
+    sessionStorage.setItem("jwt_token", token);
+    localStorage.removeItem("jwt_token");
+  }
+};
+
+/**
+ * @description 清除存储的 JWT token
+ */
+export const clearToken = (): void => {
+  localStorage.removeItem("jwt_token");
+  sessionStorage.removeItem("jwt_token");
+};
+
+/**
+ * @description 创建 api token (用于向后兼容)
+ * @returns {ApiTokenResult} 包含 API token 和时间戳的对象
  */
 export const createApiToken = (): ApiTokenResult => {
   const now = new Date().getTime();
-  const apiKey = "123456"; // 注意: 此处为硬编码密钥，建议后续优化
+  const apiKey = "123456"; // 注意：此处为硬编码密钥，仅用于开发测试
   const api_token = MD5(now + MD5(apiKey).toString()).toString();
   return { api_token, timestamp: now };
 };
 
 /**
- * @description 创建axios请求
+ * @description 创建 axios 请求
  * @param {string} url 请求地址
  * @param {Z} [params] 请求参数
  * @returns {useAxiosReturn<T, Z>} 返回结果
@@ -89,11 +122,18 @@ export const useApi = <T, Z = Record<string, unknown>>(
   params?: Z
 ) => {
   const { urlRef, paramsRef, ...other } = useAxios<T>(instance);
-  const apiParams = createApiToken();
   urlRef.value = url;
-  paramsRef.value = isDev()
-    ? { ...(params || {}), ...apiParams }
-    : params || {};
+  paramsRef.value = params || {};
+  
+  // 添加 JWT token 到请求头
+  const token = getStoredToken();
+  if (token) {
+    other.options.value.headers = {
+      ...other.options.value.headers,
+      Authorization: `Bearer ${token}`,
+    };
+  }
+  
   return { urlRef, paramsRef: paramsRef as Ref<Z>, ...other } as useAxiosReturn<
     T,
     Z
@@ -101,7 +141,7 @@ export const useApi = <T, Z = Record<string, unknown>>(
 };
 
 /**
- * @description get请求
+ * @description get 请求
  * @param {string} url 请求地址
  * @param {Z} [params] 请求参数
  * @returns {useAxiosReturn<T, Z>} 返回结果
@@ -110,8 +150,16 @@ export const useGet = <T, Z = Record<string, unknown>>(
   url: string,
   params?: Z
 ) => {
+  const token = getStoredToken();
+  const headers: Record<string, string> = {};
+  
+  if (token) {
+    headers.Authorization = `Bearer ${token}`;
+  }
+  
   return instance.get(url, {
-    data: { ...createApiToken(), ...params },
+    data: { ...params },
+    headers,
   });
 };
 
