@@ -229,6 +229,13 @@ export function createNodeFormConfig() {
 		},
 
 		/**
+		 * 创建 AWS CloudFront 相关字段
+		 */
+		cloudfrontDeploy() {
+			return [this.input('Distribution ID', 'domain', { placeholder: '请输入 CloudFront Distribution ID，如 E1234567890ABC' })]
+		},
+
+		/**
 		 * 创建跳过选项字段
 		 * @param valueRef 值引用
 		 */

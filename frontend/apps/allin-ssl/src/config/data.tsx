@@ -198,7 +198,10 @@ export const ApiProjectConfig: Record<string, ApiProjectType> = {
   aws: {
     name: "AWS",
     icon: "aws",
-    type: ["dns"],
+    type: ["dns", "host"],
+    hostRelated: {
+      cloudfront: { name: "CloudFront" },
+    },
     sort: 19,
   },
   azure: {

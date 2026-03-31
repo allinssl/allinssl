@@ -265,6 +265,9 @@ export default defineComponent({
 				case 'rainyun-sslcenter':
 					config.push(...formConfig.rainyunSSLCenterDeploy())
 					break
+				case 'aws-cloudfront':
+					config.push(...formConfig.cloudfrontDeploy())
+					break
 				case 'plugin':
 					// 插件部署配置
 					config.push(

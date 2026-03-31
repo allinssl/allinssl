@@ -116,6 +116,9 @@ func Deploy(cfg map[string]any, logger *public.Logger) error {
 	case "rainyun-sslcenter":
 		logger.Debug("部署到雨云证书中...")
 		return DeployRainyunSSLCenter(cfg)
+	case "aws-cloudfront":
+		logger.Debug("部署到 AWS CloudFront...")
+		return DeployAWSCloudFront(cfg)
 	default:
 		return fmt.Errorf("不支持的部署: %s", providerName)
 	}
