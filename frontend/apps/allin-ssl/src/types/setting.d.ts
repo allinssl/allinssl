@@ -14,6 +14,7 @@ export interface SystemSetting {
 	cert: string // 证书
 	username: string // 用户
 	password: string // 密码
+	api_key?: string // API Key
 }
 
 /** 获取设置响应 */
@@ -24,6 +25,11 @@ export interface GetSettingResponse extends AxiosResponseData {
 /** 保存设置请求参数 */
 export interface SaveSettingParams extends SystemSetting {
 	// 无参数
+}
+
+/** 保存 API Key 请求参数 */
+export interface SaveApiKeyParams {
+	api_key: string
 }
 
 /** 获取告警类型请求参数 */

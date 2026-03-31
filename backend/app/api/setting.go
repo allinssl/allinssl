@@ -50,6 +50,21 @@ func GetVersion(c *gin.Context) {
 	public.SuccessData(c, data, 0)
 }
 
+func SaveApiKey(c *gin.Context) {
+	var form struct {
+		ApiKey string `form:"api_key"`
+	}
+	if err := c.Bind(&form); err != nil {
+		public.FailMsg(c, "参数错误")
+		return
+	}
+	if err := public.UpdateSetting("api_key", form.ApiKey); err != nil {
+		public.FailMsg(c, err.Error())
+		return
+	}
+	public.SuccessMsg(c, "保存成功")
+}
+
 func DownloadData(c *gin.Context) {
 	dbPath := "data/data.db"
 	dbName := filepath.Base(dbPath)

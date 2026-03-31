@@ -103,6 +103,7 @@ func Register(r *gin.Engine) {
 		setting.POST("/get_version", api.GetVersion)
 		setting.GET("/download_data", api.DownloadData)
 		setting.POST("/upload_data", api.UploadData)
+		setting.POST("/save_api_key", api.SaveApiKey)
 	}
 	overview := v1.Group("/overview")
 	{

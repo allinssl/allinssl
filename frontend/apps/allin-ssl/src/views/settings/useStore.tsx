@@ -50,6 +50,7 @@ export const useSettingsStore = defineStore('settings-store', () => {
 		https: 0,
 		key: '',
 		cert: '',
+		api_key: '',
 	})
 	// // 通知设置表单数据
 	// const notificationSettings = ref<CertEndNoticeTemplate>({

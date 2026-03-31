@@ -267,6 +267,7 @@ INSERT INTO settings (key, value, create_time, update_time, active, type) VALUES
 
 	insertDefaultData(dbSetting, "settings", Isql)
 	InsertIfNotExists(dbSetting, "settings", map[string]any{"key": "plugin_dir"}, []string{"key", "value", "create_time", "update_time", "active"}, []any{"plugin_dir", "plugins", "2025-04-15 15:58", "2025-04-15 15:58", 1})
+	InsertIfNotExists(dbSetting, "settings", map[string]any{"key": "api_key"}, []string{"key", "value", "create_time", "update_time", "active"}, []any{"api_key", "", "2025-04-15 15:58", "2025-04-15 15:58", 1})
 
 	err = sqlite_migrate.EnsureDatabaseWithTables(
 		"data/accounts.db",

@@ -10,6 +10,7 @@ import type {
 	GetSettingResponse,
 	GetVersionParams,
 	GetVersionResponse,
+	SaveApiKeyParams,
 	SaveSettingParams,
 	TestReportParams,
 	UpdateReportParams,
@@ -116,3 +117,8 @@ export const getVersion = (
     "/v1/setting/get_version",
     params
   );
+
+export const saveApiKey = (
+  params?: SaveApiKeyParams
+): useAxiosReturn<AxiosResponseData, SaveApiKeyParams> =>
+  useApi<AxiosResponseData, SaveApiKeyParams>("/v1/setting/save_api_key", params);

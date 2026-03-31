@@ -111,6 +111,65 @@ C --> D[部署到目标平台]
 D --> E[通知结果]
 ```
 
+## 🔑 API Key 访问
+
+系统支持通过 API Key 签名方式直接调用接口，无需 Session 登录，方便脚本自动化操作证书。
+
+### 配置
+
+进入 **常用设置 → API 接口访问**，点击「生成」生成随机密钥，保存后即可使用。清除密钥可关闭 API 访问。
+
+### 签名算法
+
+```
+keyMd5    = MD5(api_key)
+api_token = MD5(timestamp + keyMd5)
+```
+
+每次请求附带以下参数（Query 或 Form 均可）：
+
+| 参数 | 说明 |
+|------|------|
+| `api_token` | 签名值（小写十六进制） |
+| `timestamp` | 当前 Unix 秒级时间戳，误差不超过 5 分钟 |
+
+### Python 示例
+
+```python
+import hashlib, time, urllib.request, urllib.parse
+
+api_key = 'your_api_key'
+timestamp = str(int(time.time()))
+key_md5   = hashlib.md5(api_key.encode()).hexdigest()
+api_token = hashlib.md5((timestamp + key_md5).encode()).hexdigest()
+
+# 下载证书（id 为证书 ID）
+url  = 'http://your-server/v1/cert/download?id=1'
+url += f'&api_token={api_token}&timestamp={timestamp}'
+urllib.request.urlretrieve(url, 'cert.zip')
+
+# 上传证书
+data = urllib.parse.urlencode({
+    'api_token': api_token,
+    'timestamp': timestamp,
+    'cert': open('cert.pem').read(),
+    'key':  open('key.pem').read(),
+}).encode()
+req = urllib.request.Request('http://your-server/v1/cert/upload_cert', data)
+print(urllib.request.urlopen(req).read().decode())
+```
+
+### 可用接口
+
+| 方法 | 路径 | 说明 |
+|------|------|------|
+| GET  | `/v1/cert/download?id={id}` | 下载证书 zip |
+| POST | `/v1/cert/upload_cert` | 上传证书（`cert` + `key` 字段） |
+| POST | `/v1/cert/get_list` | 获取证书列表 |
+| POST | `/v1/workflow/execute_workflow` | 手动触发工作流 |
+
+> ⚠️ API Key 具有完整的系统访问权限，请妥善保管，不要泄露给不可信方。
+
 ## 🛠️ 技术架构
 
 ### 🏗️ 系统架构图

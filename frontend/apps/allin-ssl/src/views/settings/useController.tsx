@@ -11,6 +11,7 @@ import {
 import { clearCookie, clearSession } from "@baota/utils/browser";
 import { useError } from "@baota/hooks/error";
 import { $t } from "@locales/index";
+import { saveApiKey } from "@api/setting";
 import { useStore } from "./useStore";
 
 import EmailChannelModel from "./components/channel/EmailChannelModel";
@@ -512,5 +513,44 @@ export const useGeneralSettingsController = () => {
     GeneralForm,
     config,
     rules,
+  };
+};
+
+/**
+ * API Key 管理控制器
+ */
+export const useApiKeyController = () => {
+  const { generalSettings } = useStore();
+  const message = useMessage();
+
+  const generateApiKey = () => {
+    const chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    let key = '';
+    for (let i = 0; i < 32; i++) {
+      key += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    generalSettings.value.api_key = key;
+  };
+
+  const handleSaveApiKey = async () => {
+    try {
+      const { fetch, message: apiMessage } = saveApiKey({ api_key: generalSettings.value.api_key || '' });
+      apiMessage.value = true;
+      await fetch();
+    } catch (error) {
+      message.error('保存失败');
+    }
+  };
+
+  const handleClearApiKey = async () => {
+    generalSettings.value.api_key = '';
+    await handleSaveApiKey();
+  };
+
+  return {
+    generalSettings,
+    generateApiKey,
+    handleSaveApiKey,
+    handleClearApiKey,
   };
 };

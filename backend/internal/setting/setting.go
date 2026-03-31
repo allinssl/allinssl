@@ -24,6 +24,7 @@ type Setting struct {
 	Username   string `json:"username" form:"username"`
 	Password   string `json:"password" form:"password"`
 	PluginPath string `json:"plugin_path" form:"plugin_path"`
+	ApiKey     string `json:"api_key" form:"api_key"`
 }
 
 func Get() (Setting, error) {
@@ -59,6 +60,7 @@ func Get() (Setting, error) {
 	username := data[0]["username"].(string)
 	setting.Username = username
 	setting.PluginPath = public.GetSettingIgnoreError("plugin_dir")
+	setting.ApiKey = public.GetSettingIgnoreError("api_key")
 	return setting, nil
 }
 
@@ -116,6 +118,9 @@ func Save(setting *Setting) error {
 	}
 	if setting.PluginPath != "" && setting.PluginPath != public.GetSettingIgnoreError("plugin_dir") {
 		public.UpdateSetting("plugin_dir", setting.PluginPath)
+	}
+	if setting.ApiKey != "" && setting.ApiKey != public.GetSettingIgnoreError("api_key") {
+		public.UpdateSetting("api_key", setting.ApiKey)
 	}
 	if setting.Https != "" {
 		if setting.Https == "1" {
