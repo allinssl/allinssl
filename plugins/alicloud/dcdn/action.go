@@ -2,6 +2,7 @@ package dcdn
 
 import (
 	"fmt"
+	"strings"
 
 	aliyunopenapi "github.com/alibabacloud-go/darabonba-openapi/v2/client"
 	dcdn "github.com/alibabacloud-go/dcdn-20180115/v3/client"
@@ -43,14 +44,27 @@ func Deploy(cfg map[string]any) error {
 	if err != nil {
 		return fmt.Errorf("创建 DCDN 客户端失败: %w", err)
 	}
-	req := &dcdn.SetDcdnDomainSSLCertificateRequest{
-		DomainName:  tea.String(domain),
-		SSLPri:      tea.String(keyPEM),
-		SSLPub:      tea.String(certPEM),
-		SSLProtocol: tea.String("on"),
-		CertType:    tea.String("upload"),
-	}
 	runtime := &util.RuntimeOptions{}
-	_, err = client.SetDcdnDomainSSLCertificateWithOptions(req, runtime)
-	return err
+	deployed := 0
+	for _, d := range strings.Split(domain, ",") {
+		d = strings.TrimSpace(d)
+		if d == "" {
+			continue
+		}
+		req := &dcdn.SetDcdnDomainSSLCertificateRequest{
+			DomainName:  tea.String(d),
+			SSLPri:      tea.String(keyPEM),
+			SSLPub:      tea.String(certPEM),
+			SSLProtocol: tea.String("on"),
+			CertType:    tea.String("upload"),
+		}
+		if _, err = client.SetDcdnDomainSSLCertificateWithOptions(req, runtime); err != nil {
+			return err
+		}
+		deployed++
+	}
+	if deployed == 0 {
+		return fmt.Errorf("参数错误：domain")
+	}
+	return nil
 }

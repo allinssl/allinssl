@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
+	"strings"
 
 	"github.com/qiniu/go-sdk/v7/auth"
 	"github.com/qiniu/go-sdk/v7/client"
@@ -66,13 +67,26 @@ func DeployQiniuCdn(cfg map[string]any) error {
 	if err != nil {
 		return err
 	}
-	path := fmt.Sprintf("domain/%v/sslize", domain)
-	m := map[string]any{
-		"certid": certId,
+	deployed := 0
+	for _, d := range strings.Split(domain, ",") {
+		d = strings.TrimSpace(d)
+		if d == "" {
+			continue
+		}
+		path := fmt.Sprintf("domain/%v/sslize", d)
+		m := map[string]any{
+			"certid": certId,
+		}
+		var response commonResponse
+		if err = requestQiniu(cfg, path, m, "PUT", &response); err != nil {
+			return err
+		}
+		deployed++
 	}
-	var response commonResponse
-	err = requestQiniu(cfg, path, m, "PUT", &response)
-	return err
+	if deployed == 0 {
+		return fmt.Errorf("参数错误：domain")
+	}
+	return nil
 }
 
 func DeployQiniuOss(cfg map[string]any) error {
@@ -84,18 +98,31 @@ func DeployQiniuOss(cfg map[string]any) error {
 	if !ok {
 		return fmt.Errorf("参数错误：domain")
 	}
-	
+
 	certId, err := uploadQiniuCert(cfg)
 	if err != nil {
 		return err
 	}
-	m := map[string]any{
-		"certid": certId,
-		"domain": domain,
+	deployed := 0
+	for _, d := range strings.Split(domain, ",") {
+		d = strings.TrimSpace(d)
+		if d == "" {
+			continue
+		}
+		m := map[string]any{
+			"certid": certId,
+			"domain": d,
+		}
+		var response commonResponse
+		if err = requestQiniu(cfg, "cert/bind", m, "POST", &response); err != nil {
+			return err
+		}
+		deployed++
 	}
-	var response commonResponse
-	err = requestQiniu(cfg, "cert/bind", m, "POST", &response)
-	return err
+	if deployed == 0 {
+		return fmt.Errorf("参数错误：domain")
+	}
+	return nil
 }
 
 func uploadQiniuCert(cfg map[string]any) (string, error) {

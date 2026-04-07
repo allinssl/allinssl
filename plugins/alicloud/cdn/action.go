@@ -47,12 +47,25 @@ func Deploy(cfg map[string]any) error {
 	if err != nil {
 		return err
 	}
-	req := &aliyuncdn.SetCdnDomainSSLCertificateRequest{
-		DomainName:  tea.String(domain),
-		SSLProtocol: tea.String("on"),
-		SSLPub:      tea.String(strings.TrimSpace(certPEM)),
-		SSLPri:      tea.String(strings.TrimSpace(keyPEM)),
+	deployed := 0
+	for _, d := range strings.Split(domain, ",") {
+		d = strings.TrimSpace(d)
+		if d == "" {
+			continue
+		}
+		req := &aliyuncdn.SetCdnDomainSSLCertificateRequest{
+			DomainName:  tea.String(d),
+			SSLProtocol: tea.String("on"),
+			SSLPub:      tea.String(strings.TrimSpace(certPEM)),
+			SSLPri:      tea.String(strings.TrimSpace(keyPEM)),
+		}
+		if _, err = client.SetCdnDomainSSLCertificate(req); err != nil {
+			return err
+		}
+		deployed++
 	}
-	_, err = client.SetCdnDomainSSLCertificate(req)
-	return err
+	if deployed == 0 {
+		return fmt.Errorf("参数错误：domain")
+	}
+	return nil
 }

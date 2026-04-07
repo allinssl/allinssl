@@ -4,6 +4,7 @@ import (
 	"ALLinSSL/backend/internal/access"
 	"encoding/json"
 	"fmt"
+	"strings"
 	openapi "github.com/alibabacloud-go/darabonba-openapi/v2/client"
 	dcdn "github.com/alibabacloud-go/dcdn-20180115/v3/client"
 	util "github.com/alibabacloud-go/tea-utils/v2/service"
@@ -84,9 +85,19 @@ func DeployAliyunDcdn(cfg map[string]any) error {
 	if !ok {
 		return fmt.Errorf("域名不存在或格式错误")
 	}
-	err = DeployCertToDcdn(client, domain, certPEM, privkeyPEM)
-	if err != nil {
-		return fmt.Errorf("部署证书到 DCDN 失败: %w", err)
+	deployed := 0
+	for _, d := range strings.Split(domain, ",") {
+		d = strings.TrimSpace(d)
+		if d == "" {
+			continue
+		}
+		if err = DeployCertToDcdn(client, d, certPEM, privkeyPEM); err != nil {
+			return fmt.Errorf("部署证书到 DCDN 失败: %w", err)
+		}
+		deployed++
+	}
+	if deployed == 0 {
+		return fmt.Errorf("域名不存在或格式错误")
 	}
 	return nil
 }
