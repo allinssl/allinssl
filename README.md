@@ -1,4 +1,4 @@
-# All in SSL - SSL证书全流程管理工具 🔒
+# All in SSL - Complete SSL Certificate Management Tool 🔒
 
 [![GitHub License](https://img.shields.io/github/license/allinssl/allinssl)](https://github.com/allinssl/allinssl?tab=readme-ov-file#AGPL-3.0-1-ov-file)
 ![GitHub Stars](https://img.shields.io/github/stars/allinssl/allinssl?style=social)
@@ -6,46 +6,47 @@
 [![GitHub Release](https://img.shields.io/github/v/release/allinssl/allinssl)](https://github.com/allinssl/allinssl/releases)
 [![Docker Pulls](https://img.shields.io/docker/pulls/allinssl/allinssl)](https://hub.docker.com/r/allinssl/allinssl)
 
+[中文文档](./README_CN.md)
 
-> 🚀 一站式SSL证书生命周期管理解决方案 | 支持Let's Encrypt、ZeroSSL、Google、SSL.COM、BuyPass等多家CA | 多平台部署 | 自动化运维
+> 🚀 All-in-one SSL certificate lifecycle management solution | Supports Let's Encrypt, ZeroSSL, Google, SSL.COM, BuyPass and more | Multi-platform deployment | Automated operations
 
 <p align="center">
-  <img src=".github/img/main.gif" alt="控制台预览" width="600">
+  <img src=".github/img/main.gif" alt="Console Preview" width="600">
 </p>
 
-## 📌 项目亮点
-- ✅ 全自动证书申请/续期
-- 🌐 多平台部署（CDN/WAF/面板/云存储）
-- 🔔 证书过期监控
-- 🛡️ 安全入口保护
-- 📊 可视化证书管理
+## 📌 Highlights
+- ✅ Fully automated certificate application / renewal
+- 🌐 Multi-platform deployment (CDN / WAF / control panels / cloud storage)
+- 🔔 Certificate expiration monitoring
+- 🛡️ Secure entry protection
+- 📊 Visual certificate management
 
-## 🚧 开发路线图
+## 🚧 Roadmap
 
-我们正在积极完善以下功能，欢迎通过 [GitHub Issues](https://github.com/allinssl/allinssl/issues) 提出建议！
+We are actively improving the following features. Feel free to suggest via [GitHub Issues](https://github.com/allinssl/allinssl/issues)!
 
 [![GitHub Milestone](https://img.shields.io/github/milestones/progress/allinssl/allinssl/1)](https://github.com/allinssl/allinssl/milestone/1)
 
 
-## 🚀 快速开始
+## 🚀 Quick Start
 
-### 系统要求
-- Linux 系统
-- macOS/Windows（请参照下面教程，暂不支持脚本安装）
+### System Requirements
+- Linux
+- macOS / Windows (script installation not yet supported; see manual steps below)
 - Docker
 
-### 极速安装
+### One-line Install
 ```bash
 curl -sSO http://allinssl.bt.cn/install_allinssl.sh && bash install_allinssl.sh allinssl
 ```
 
-### 极速安装（备用）
+### One-line Install (Mirror)
 ```bash
 curl -sSO http://download.allinssl.com/install_allinssl.sh && bash install_allinssl.sh allinssl
 ```
 
-### Docker安装
-```bash 
+### Docker
+```bash
 docker run -itd \
   --name allinssl \
   -p 8888:8888 \
@@ -57,25 +58,25 @@ docker run -itd \
   allinssl/allinssl:latest
 ```
 
-### 二进制文件安装
-1. 打开 [releases 下载页面](https://github.com/allinssl/allinssl/releases)
-2. 下载最新版本的二进制文件
-3. 解压缩文件，并通过终端或者CMD进入解压目录
-4. 获取登陆地址，账号和密码
-   - 账号和登陆地址：
-    - Linux: `./allinssl 15`
-    - Windows: `.\allinssl 15`
-  - 密码：
-    - Linux: `./allinssl 6`
-    - Windows: `.\allinssl 6`
-5. 运行可执行文件启动服务，请保持终端打开，或者自行配置进程守护
-   - Linux: 执行 `./allinssl start`
-   - Windows: 终端进入到解压目录，执行 `.\allinssl start`
-6. 访问 `http://your-server-ip:port/安全入口`，使用账号和密码登录
-7. 更多命令行操作请参考 [命令行操作](#💻-命令行操作)
+### Binary Installation
+1. Open the [releases page](https://github.com/allinssl/allinssl/releases)
+2. Download the latest binary for your platform
+3. Extract the archive and navigate to the directory in your terminal / CMD
+4. Retrieve the login URL, username, and password:
+   - URL & username:
+     - Linux: `./allinssl 15`
+     - Windows: `.\allinssl 15`
+   - Password:
+     - Linux: `./allinssl 6`
+     - Windows: `.\allinssl 6`
+5. Start the service (keep the terminal open, or configure a process daemon):
+   - Linux: `./allinssl start`
+   - Windows: `.\allinssl start`
+6. Visit `http://your-server-ip:port/<secure-entry>` and log in
+7. See [Command Line Operations](#-command-line-operations) for more commands
 
-### 源码编译安装
-如需自行编译，请确保已安装Go 1.23+环境：
+### Build from Source
+Requires Go 1.23+:
 ```bash
 git clone https://github.com/allinssl/allinssl.git
 cd allinssl
@@ -84,71 +85,71 @@ go build -o allinssl cmd/main.go
 ./allinssl start
 ```
 
-### 首次配置
-1. 访问 `http://your-server-ip:port/安全入口`
-2. 添加DNS提供商和主机提供商凭证 ☁️
-3. 创建工作流
+### First-time Setup
+1. Visit `http://your-server-ip:port/<secure-entry>`
+2. Add DNS provider and host provider credentials ☁️
+3. Create a workflow
 
-[完整安装文档](https://allinssl.com/guide/getting-started.html)
+[Full Installation Docs](https://allinssl.com/guide/getting-started.html)
 
-## 🎯 核心功能
+## 🎯 Core Features
 
-### 📜 证书管理
-![证书管理流程](https://allinssl.com/images/workflow-edit.png)
+### 📜 Certificate Management
+![Certificate Management Workflow](https://allinssl.com/images/workflow-edit.png)
 
-| 功能         | 支持提供商                          |
-|--------------|-----------------------------------|
-| DNS验证      | 阿里云、腾讯云、Cloudflare...      |
-| 证书部署     | 宝塔面板、1Panel、阿里云CDN、腾讯云COS |
-| 监控通知     | 邮件、Webhook、钉钉                |
+| Feature          | Supported Providers                                     |
+|------------------|---------------------------------------------------------|
+| DNS Validation   | Alibaba Cloud, Tencent Cloud, Cloudflare...             |
+| Certificate Deploy | BaoTa Panel, 1Panel, Alibaba Cloud CDN, Tencent COS  |
+| Monitoring / Alerts | Email, Webhook, DingTalk                            |
 
-### ⚙️ 自动化流程
+### ⚙️ Automation Flow
 ```mermaid
 graph LR
-A[证书申请] --> B{有效期监控}
-B -->|剩余30天| C[自动续期]
-C --> D[部署到目标平台]
-D --> E[通知结果]
+A[Apply Certificate] --> B{Expiry Monitor}
+B -->|30 days left| C[Auto Renew]
+C --> D[Deploy to Target]
+D --> E[Send Notification]
 ```
 
-## 🛠️ 技术架构
+## 🛠️ Architecture
 
-### 🏗️ 系统架构图
+### 🏗️ System Architecture
 ```mermaid
 graph TB
-    subgraph "前端层"
+    subgraph "Frontend"
         A[Vue 3 + Naive UI]
-        A --> B[Vite构建系统]
+        A --> B[Vite Build]
         A --> C[Turbo Monorepo]
     end
-    
-    subgraph "后端层"
-        D[Gin Web框架]
+
+    subgraph "Backend"
+        D[Gin Web Framework]
         D --> E[RESTful API]
-        D --> F[Session管理]
-        D --> G[中间件层]
+        D --> F[Session Management]
+        D --> G[Middleware Layer]
     end
-    
-    subgraph "核心服务层"
-        H[证书申请服务]
-        I[证书部署服务] 
-        J[工作流引擎]
-        K[监控调度服务]
-        L[通知服务]
+
+    subgraph "Core Services"
+        H[Certificate Apply Service]
+        I[Certificate Deploy Service]
+        J[Workflow Engine]
+        K[Monitor Scheduler]
+        L[Notification Service]
     end
-    
-    subgraph "数据存储层"
-        M[(SQLite数据库)]
-        N[文件存储]
+
+    subgraph "Data Storage"
+        M[(SQLite Database)]
+        N[File Storage]
     end
-    
-    subgraph "外部集成"
-        O[ACME协议]
-        P[云服务商API]
-        Q[DNS提供商]
-        R[CDN/面板API]
+
+    subgraph "External Integrations"
+        O[ACME Protocol]
+        P[Cloud Provider APIs]
+        Q[DNS Providers]
+        R[CDN / Panel APIs]
     end
-    
+
     A -.-> D
     D --> J
     J --> H
@@ -165,126 +166,123 @@ graph TB
     I --> R
 ```
 
+## 📚 Documentation
+- [Getting Started](https://allinssl.com/guide/getting-started.html)
+- [User Manual](https://allinssl.com/features/dashboard.html)
 
-
-## 📚 使用文档
-- [快速入门指南](https://allinssl.com/guide/getting-started.html)
-- [操作手册](https://allinssl.com/features/dashboard.html)
-
-## 💻 命令行操作
+## 💻 Command Line Operations
 ```bash
-# 基本操作
-allinssl 1: 启动服务 🚀
-allinssl 2: 停止服务 ⛔
-allinssl 3: 重启服务 🔄
-allinssl 4: 修改安全入口 🔐
-allinssl 5: 修改用户名 👤
-allinssl 6: 修改密码 🔑
-allinssl 7: 修改端口 🔧
+# Basic Operations
+allinssl 1:  Start service 🚀
+allinssl 2:  Stop service ⛔
+allinssl 3:  Restart service 🔄
+allinssl 4:  Modify secure entry 🔐
+allinssl 5:  Modify username 👤
+allinssl 6:  Modify password 🔑
+allinssl 7:  Modify port 🔧
 
-# Web服务管理
-allinssl 8: 关闭web服务 🌐➖
-allinssl 9: 开启web服务 🌐➕
-allinssl 10: 重启web服务 🌐🔄
+# Web Service Management
+allinssl 8:  Disable web service 🌐➖
+allinssl 9:  Enable web service 🌐➕
+allinssl 10: Restart web service 🌐🔄
 
-# 后台任务管理
-allinssl 11: 关闭后台自动调度 📻⛔
-allinssl 12: 开启后台自动调度 📻✅
-allinssl 13: 重启后台自动调度 📻🔄
+# Background Task Management
+allinssl 11: Disable background scheduler 📻⛔
+allinssl 12: Enable background scheduler 📻✅
+allinssl 13: Restart background scheduler 📻🔄
 
-# 系统管理
-allinssl 14: 关闭https 🔓
-allinssl 15: 获取面板地址 📋
-allinssl 16: 更新ALLinSSL到最新版本（文件覆盖安装） 🔄⬆️
-allinssl 17: 卸载ALLinSSL 🗑️
+# System Management
+allinssl 14: Disable HTTPS 🔓
+allinssl 15: Get panel URL 📋
+allinssl 16: Update ALLinSSL to latest version (overwrite install) 🔄⬆️
+allinssl 17: Uninstall ALLinSSL 🗑️
 ```
 
-## 🤝 参与贡献
-欢迎通过以下方式参与项目：
-1. 提交Issue报告问题 
-2. 发起Pull Request改进代码 💻
-3. 完善项目文档 📖
-4. 分享使用案例 ✨
+## 🤝 Contributing
+Contributions are welcome in the following ways:
+1. Report bugs via Issues
+2. Submit Pull Requests 💻
+3. Improve documentation 📖
+4. Share your use cases ✨
 
-[贡献指南](https://allinssl.com/community/contributing.html)
+[Contributing Guide](https://allinssl.com/community/contributing.html)
 
-## 📞 联系我们
-- QQ交流群：[768610151](https://qm.qq.com/q/KTmWuskjm0) 👥
-- 邮箱：support@allinssl.com 📧
-- 问题反馈：[GitHub Issues](https://github.com/allinssl/allinssl/issues)
+## 📞 Contact
+- QQ Group: [768610151](https://qm.qq.com/q/KTmWuskjm0) 👥
+- Email: support@allinssl.com 📧
+- Bug Reports: [GitHub Issues](https://github.com/allinssl/allinssl/issues)
 
-## 🙏 致谢
+## 🙏 Acknowledgements
 
-**感谢在SSL证书管理领域做出贡献的开源项目和社区：**
-- [Let's Encrypt](https://letsencrypt.org/) - 免费SSL证书颁发机构
-- [lego](https://github.com/go-acme/lego) - Go语言ACME客户端，为本项目提供核心证书申请功能
-- [acme.sh](https://github.com/acmesh-official/acme.sh) - 纯Shell脚本实现的ACME客户端
-- [certimate](https://github.com/usual2970/certimate) - 工作流部分设计参考，以及使用了其京东云DNS的代码实现
-- [certd](https://github.com/certd/certd) - 工作流部分的设计参考
-- [Certbot](https://certbot.eff.org/) - EFF官方ACME客户端
-- [Caddy](https://caddyserver.com/) - 自动HTTPS Web服务器
+**Open-source projects and communities in the SSL certificate space:**
+- [Let's Encrypt](https://letsencrypt.org/) - Free SSL certificate authority
+- [lego](https://github.com/go-acme/lego) - Go ACME client powering core certificate issuance
+- [acme.sh](https://github.com/acmesh-official/acme.sh) - Pure-shell ACME client
+- [certimate](https://github.com/usual2970/certimate) - Workflow design reference; JD Cloud DNS implementation
+- [certd](https://github.com/certd/certd) - Workflow design reference
+- [Certbot](https://certbot.eff.org/) - EFF's official ACME client
+- [Caddy](https://caddyserver.com/) - Automatic HTTPS web server
 
-**感谢以下技术栈和依赖库：**
+**Technology stack & dependencies:**
 
-**🔧 后端依赖**
-- **Web框架**: [gin-gonic/gin](https://github.com/gin-gonic/gin) - HTTP Web框架
-- **数据库**: [modernc.org/sqlite](https://github.com/modernc/sqlite) - SQLite数据库
-- **ACME客户端**: [go-acme/lego](https://github.com/go-acme/lego) - 证书申请核心
-- **会话管理**: [gin-contrib/sessions](https://github.com/gin-contrib/sessions) - 用户会话
-- **HTTP客户端**: [go-resty/resty](https://github.com/go-resty/resty) - API调用
-- **邮件服务**: [jordan-wright/email](https://github.com/jordan-wright/email) - 邮件发送
-- **验证码**: [mojocn/base64Captcha](https://github.com/mojocn/base64Captcha) - 图形验证码
-- **UUID**: [google/uuid](https://github.com/google/uuid) - 唯一标识符
-- **环境变量**: [joho/godotenv](https://github.com/joho/godotenv) - 配置管理
+**🔧 Backend**
+- **Web Framework**: [gin-gonic/gin](https://github.com/gin-gonic/gin)
+- **Database**: [modernc.org/sqlite](https://github.com/modernc/sqlite)
+- **ACME Client**: [go-acme/lego](https://github.com/go-acme/lego)
+- **Session**: [gin-contrib/sessions](https://github.com/gin-contrib/sessions)
+- **HTTP Client**: [go-resty/resty](https://github.com/go-resty/resty)
+- **Email**: [jordan-wright/email](https://github.com/jordan-wright/email)
+- **Captcha**: [mojocn/base64Captcha](https://github.com/mojocn/base64Captcha)
+- **UUID**: [google/uuid](https://github.com/google/uuid)
+- **Env Config**: [joho/godotenv](https://github.com/joho/godotenv)
 
-**🎨 前端依赖**
-- **框架**: [Vue 3](https://vuejs.org/) - 渐进式JavaScript框架
-- **UI组件**: [Naive UI](https://naiveui.com/) - Vue 3组件库
-- **构建工具**: [Vite](https://vitejs.dev/) - 极速构建工具
-- **包管理**: [Turbo](https://turbo.build/) - Monorepo构建系统
-- **路由**: [Vue Router](https://router.vuejs.org/) - 单页应用路由
-- **状态管理**: [Pinia](https://pinia.vuejs.org/) - 轻量级状态管理
-- **工具库**: [VueUse](https://vueuse.org/) - Vue组合式API工具
-- **图表**: [ECharts](https://echarts.apache.org/) - 数据可视化
-- **工作流**: [Vue Flow](https://vueflow.dev/) - 可视化流程编辑器
-- **HTTP**: [Axios](https://axios-http.com/) - HTTP客户端
-- **样式**: [TailwindCSS](https://tailwindcss.com/) - CSS框架
+**🎨 Frontend**
+- **Framework**: [Vue 3](https://vuejs.org/)
+- **UI Components**: [Naive UI](https://naiveui.com/)
+- **Build Tool**: [Vite](https://vitejs.dev/)
+- **Monorepo**: [Turbo](https://turbo.build/)
+- **Router**: [Vue Router](https://router.vuejs.org/)
+- **State Management**: [Pinia](https://pinia.vuejs.org/)
+- **Utilities**: [VueUse](https://vueuse.org/)
+- **Charts**: [ECharts](https://echarts.apache.org/)
+- **Workflow Editor**: [Vue Flow](https://vueflow.dev/)
+- **HTTP**: [Axios](https://axios-http.com/)
+- **CSS**: [TailwindCSS](https://tailwindcss.com/)
 
-**☁️ 云服务集成**
-- **阿里云**: [alibabacloud-go](https://github.com/alibabacloud-go) SDK系列
-- **腾讯云**: [tencentcloud-sdk-go](https://github.com/tencentcloud/tencentcloud-sdk-go) 
-- **华为云**: [huaweicloud-sdk-go-v3](https://github.com/huaweicloud/huaweicloud-sdk-go-v3)
-- **百度云**: [bce-sdk-go](https://github.com/baidubce/bce-sdk-go)
-- **火山引擎**: [volcengine-go-sdk](https://github.com/volcengine/volcengine-go-sdk)
-- **京东云**: [jdcloud-sdk-go](https://github.com/jdcloud-api/jdcloud-sdk-go)
-- **七牛云**: [qiniu/go-sdk](https://github.com/qiniu/go-sdk)
+**☁️ Cloud Integrations**
+- **Alibaba Cloud**: [alibabacloud-go](https://github.com/alibabacloud-go) SDK
+- **Tencent Cloud**: [tencentcloud-sdk-go](https://github.com/tencentcloud/tencentcloud-sdk-go)
+- **Huawei Cloud**: [huaweicloud-sdk-go-v3](https://github.com/huaweicloud/huaweicloud-sdk-go-v3)
+- **Baidu Cloud**: [bce-sdk-go](https://github.com/baidubce/bce-sdk-go)
+- **Volcengine**: [volcengine-go-sdk](https://github.com/volcengine/volcengine-go-sdk)
+- **JD Cloud**: [jdcloud-sdk-go](https://github.com/jdcloud-api/jdcloud-sdk-go)
+- **Qiniu**: [qiniu/go-sdk](https://github.com/qiniu/go-sdk)
 - **Azure**: [azure-sdk-for-go](https://github.com/Azure/azure-sdk-for-go)
 - **AWS**: [aws-sdk-go-v2](https://github.com/aws/aws-sdk-go-v2)
 - **Cloudflare**: [cloudflare-go](https://github.com/cloudflare/cloudflare-go)
 
-**证书颁发机构：**
-- [Let's Encrypt](https://letsencrypt.org/) - 免费SSL证书
-- [ZeroSSL](https://zerossl.com/) - 免费SSL证书
-- [Google Trust Services](https://pki.goog/) - Google证书服务
-- [SSL.com](https://www.ssl.com/) - 商业SSL证书
-- [BuyPass](https://www.buypass.com/) - 挪威免费SSL证书
-- [TrustAsia](https://www.trustasia.com/) - 亚洲诚信
-- [Racent](https://www.racent.com/) - 锐成信息
+**Certificate Authorities:**
+- [Let's Encrypt](https://letsencrypt.org/) - Free SSL certificates
+- [ZeroSSL](https://zerossl.com/) - Free SSL certificates
+- [Google Trust Services](https://pki.goog/)
+- [SSL.com](https://www.ssl.com/)
+- [BuyPass](https://www.buypass.com/)
+- [TrustAsia](https://www.trustasia.com/)
+- [Racent](https://www.racent.com/)
 
-**特别感谢：**
-- 所有DNS服务商和CDN提供商对API的开放支持
+**Special thanks to all DNS providers and CDN vendors for their open APIs.**
 
-**感谢以下用户对本项目的支持和贡献：**
+**Thanks to the following contributors:**
 - [@寒雨馨](https://www.hanyuxin.cn/)
 
 
-## 📜 许可证
-本项目采用 [AGPL-3.0 license](./LICENSE) 开源协议
+## 📜 License
+This project is licensed under the [AGPL-3.0 license](./LICENSE).
 
-## 🌟Star 历史
+## 🌟 Star History
 
 [![Star History Chart](https://api.star-history.com/svg?repos=allinssl/allinssl&type=Date)](https://www.star-history.com/#allinssl/allinssl&Date)
 
 ---
 
-> 🌟 **Star本项目以支持开发** | 推荐用于：中小型网站运维、多证书管理场景、自动化HTTPS部署
+> 🌟 **Star this project to support development** | Recommended for: small-to-medium site operations, multi-certificate management, and automated HTTPS deployment
