@@ -59,17 +59,11 @@ export default defineComponent({
       isDragging: false,
       startX: 0,
       startY: 0,
-      offsetX: 0,
-      offsetY: 0,
+      hasDragged: false,
     });
 
     // 画布容器引用
     const canvasRef = ref<HTMLElement | null>(null);
-
-    // 画布样式（通过transform实现拖拽）
-    const canvasStyle = computed(() => ({
-      transform: `translate(${dragState.offsetX}px, ${dragState.offsetY}px)`,
-    }));
 
     // 鼠标按下事件
     const handleMouseDown = (e: MouseEvent) => {
@@ -79,6 +73,7 @@ export default defineComponent({
       dragState.isDragging = true;
       dragState.startX = e.clientX;
       dragState.startY = e.clientY;
+      dragState.hasDragged = false;
 
       // 添加鼠标样式反馈
       document.body.style.cursor = "grabbing";
@@ -86,18 +81,20 @@ export default defineComponent({
 
     // 鼠标移动事件
     const handleMouseMove = (e: MouseEvent) => {
-      if (!dragState.isDragging || !isComponentMounted.value) return;
+      if (!dragState.isDragging || !isComponentMounted.value || !canvasRef.value) return;
 
       try {
-        // 计算位移差
         const deltaX = e.clientX - dragState.startX;
         const deltaY = e.clientY - dragState.startY;
 
-        // 更新偏移量
-        dragState.offsetX += deltaX;
-        dragState.offsetY += deltaY;
+        if (Math.abs(deltaX) > 3 || Math.abs(deltaY) > 3) {
+          dragState.hasDragged = true;
+        }
 
-        // 更新起始位置（用于连续计算）
+        // 通过 scrollLeft/scrollTop 平移，与原生滚动条同步
+        canvasRef.value.scrollLeft -= deltaX;
+        canvasRef.value.scrollTop -= deltaY;
+
         dragState.startX = e.clientX;
         dragState.startY = e.clientY;
       } catch (error) {
@@ -110,6 +107,11 @@ export default defineComponent({
       if (dragState.isDragging) {
         dragState.isDragging = false;
         document.body.style.cursor = ""; // 恢复鼠标样式
+        // 实际发生了拖拽时，拦截紧接的 click 事件，避免误选节点
+        if (dragState.hasDragged) {
+          document.addEventListener('click', (e) => e.stopPropagation(), { once: true, capture: true });
+          dragState.hasDragged = false;
+        }
       }
     };
 
@@ -118,9 +120,11 @@ export default defineComponent({
       try {
         // 重置缩放为100%
         setZoomValue(100);
-        // 重置拖拽位置
-        dragState.offsetX = 0;
-        dragState.offsetY = 0;
+        // 重置滚动位置
+        if (canvasRef.value) {
+          canvasRef.value.scrollLeft = 0;
+          canvasRef.value.scrollTop = 0;
+        }
       } catch (error) {
         console.warn("重置处理出错:", error);
       }
@@ -131,31 +135,26 @@ export default defineComponent({
     const isComponentMounted = ref(true);
 
     const handleWheel = (e: WheelEvent) => {
-      // 阻止默认滚动行为
+      // 只有捏合手势（ctrlKey）才触发缩放，普通双指滑动交给原生滚动
+      if (!e.ctrlKey) return;
+
       e.preventDefault();
 
-      // 如果组件已卸载，不处理事件
-      if (!isComponentMounted.value) {
-        return;
-      }
+      if (!isComponentMounted.value) return;
 
-      // 节流处理，避免频繁触发
       if (wheelTimeout) {
         clearTimeout(wheelTimeout);
       }
 
       wheelTimeout = window.setTimeout(() => {
-        // 再次检查组件是否仍然挂载
-        if (!isComponentMounted.value) {
-          return;
-        }
+        if (!isComponentMounted.value) return;
 
         try {
-          const delta = e.deltaY > 0 ? -10 : 10; // 向下滚动缩小，向上滚动放大
+          const delta = e.deltaY > 0 ? -10 : 10;
           const newZoom = Math.max(50, Math.min(300, flowZoom.value + delta));
 
           if (newZoom !== flowZoom.value) {
-            setZoomValue(newZoom); // 直接设置缩放值
+            setZoomValue(newZoom);
           }
         } catch (error) {
           console.warn("滚轮缩放处理出错:", error);
@@ -238,25 +237,17 @@ export default defineComponent({
           onMousedown={handleMouseDown}
           onMouseleave={handleMouseUp}
         >
-          {/* 左侧流程容器 */}
-          <div class="flex min-w-0">
-            {/* 流程容器*/}
-            <div
-              class={styles.flowProcess}
-              style={{
-                transform: `scale(${flowZoom.value / 100}) ${
-                  canvasStyle.value.transform
-                }`,
-                transition: dragState.isDragging
-                  ? "none"
-                  : "transform 0.05s ease-out",
-              }}
-            >
-              {/* 渲染流程节点 */}
-              <NodeWrap node={flowData.value.childNode} />
-              {/* 流程结束节点  */}
-              <EndNode />
-            </div>
+          {/* 流程容器*/}
+          <div
+            class={styles.flowProcess}
+            style={{
+              transform: `scale(${flowZoom.value / 100})`,
+            }}
+          >
+            {/* 渲染流程节点 */}
+            <NodeWrap node={flowData.value.childNode} />
+            {/* 流程结束节点  */}
+            <EndNode />
           </div>
         </div>
         {/*  缩放控制区 */}

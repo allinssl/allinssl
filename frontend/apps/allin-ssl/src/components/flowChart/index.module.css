@@ -1,5 +1,5 @@
 .flowContainer {
-  @apply flex relative box-border w-full h-[calc(100vh-19rem)] overflow-hidden p-[1rem] justify-center;
+  @apply flex relative box-border w-full h-[calc(100vh-19rem)] overflow-auto p-[1rem];
   user-select: none; /* 防止拖拽时选中文本 */
   cursor: grab; /* 默认鼠标样式 */
 }
@@ -9,7 +9,9 @@
 }
 
 .flowProcess {
-  @apply relative h-full;
+  @apply relative;
+  min-width: max-content;
+  transform-origin: 0 0;
 }
 
 .flowZoom {
