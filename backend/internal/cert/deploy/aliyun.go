@@ -77,15 +77,25 @@ func DeployAliCdn(cfg map[string]any) error {
 		return fmt.Errorf("证书错误：cert")
 	}
 
-	setCdnDomainSSLCertificateRequest := &aliyuncdn.SetCdnDomainSSLCertificateRequest{
-		DomainName:  tea.String(domain),
-		SSLProtocol: tea.String("on"),
-		SSLPub:      tea.String(strings.TrimSpace(certPem)),
-		SSLPri:      tea.String(strings.TrimSpace(keyPem)),
+	deployed := 0
+	for _, d := range strings.Split(domain, ",") {
+		d = strings.TrimSpace(d)
+		if d == "" {
+			continue
+		}
+		setCdnDomainSSLCertificateRequest := &aliyuncdn.SetCdnDomainSSLCertificateRequest{
+			DomainName:  tea.String(d),
+			SSLProtocol: tea.String("on"),
+			SSLPub:      tea.String(strings.TrimSpace(certPem)),
+			SSLPri:      tea.String(strings.TrimSpace(keyPem)),
+		}
+		if _, err = client.SetCdnDomainSSLCertificate(setCdnDomainSSLCertificateRequest); err != nil {
+			return err
+		}
+		deployed++
 	}
-	_, err = client.SetCdnDomainSSLCertificate(setCdnDomainSSLCertificateRequest)
-	if err != nil {
-		return err
+	if deployed == 0 {
+		return fmt.Errorf("参数错误：domain")
 	}
 	return nil
 }

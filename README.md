@@ -75,10 +75,31 @@ docker run -itd \
 7. 更多命令行操作请参考 [命令行操作](#💻-命令行操作)
 
 ### 源码编译安装
-如需自行编译，请确保已安装Go 1.23+环境：
+如需自行编译，请确保已安装 Go 1.23+ 和 Node.js 18+ 环境：
+
+#### 1. 克隆仓库
 ```bash
 git clone https://github.com/allinssl/allinssl.git
 cd allinssl
+```
+
+#### 2. 构建前端资源
+```bash
+cd frontend
+npm install -g pnpm   # 如未安装 pnpm
+pnpm install
+pnpm run build
+cd ..
+```
+
+> 构建完成后，将 `frontend/apps/allin-ssl/dist/` 下的内容复制到项目根目录的 `static/build/`，后端通过 Go embed 将其打包进二进制。
+```bash
+rm -rf static/build/static/css static/build/static/js
+cp -r frontend/apps/allin-ssl/dist/. static/build
+```
+
+#### 3. 编译后端并启动
+```bash
 go mod tidy
 go build -o allinssl cmd/main.go
 ./allinssl start

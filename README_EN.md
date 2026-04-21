@@ -31,13 +31,36 @@ ALLinSSL is a comprehensive SSL certificate lifecycle management tool that integ
 ### Installation Steps
 #### 1. Install via official installation script
 #### 2. Compile and install:
-  - When compiling and installing, pay attention to the name and path of the executable file. In `allinssl.sh`, you need to modify the corresponding name and path, otherwise the script may not work
-  - Recommended installation path is `/www/allinssl/`, executable file name should be `allinssl`, and it's recommended to create a symbolic link of `allinssl.sh` to the `/usr/bin/` directory
-  - Installation:
-    1. Download the latest release package and extract it
-    2. Compile the Go program (allinssl)
-    3. Run the executable to start the service
-       - Linux: Execute `./allinssl start`
+
+Make sure Go 1.23+ and Node.js 18+ are installed.
+
+**Step 1: Clone the repository**
+```bash
+git clone https://github.com/allinssl/allinssl.git
+cd allinssl
+```
+
+**Step 2: Build frontend assets**
+```bash
+cd frontend
+npm install -g pnpm   # if pnpm is not installed
+pnpm install
+pnpm run build
+cd ..
+```
+
+> After building, copy the output to `static/build/` so Go can embed it into the binary:
+```bash
+rm -rf static/build/static/css static/build/static/js
+cp -r frontend/apps/allin-ssl/dist/. static/build
+```
+
+**Step 3: Compile and start**
+```bash
+go mod tidy
+go build -o allinssl cmd/main.go
+./allinssl start
+```
 
 ### First-time Setup
 
