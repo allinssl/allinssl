@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"crypto/rand"
 	"fmt"
-	"github.com/google/uuid"
 	"io"
 	"math/big"
 	"net"
@@ -13,6 +12,8 @@ import (
 	"reflect"
 	"runtime"
 	"strings"
+
+	"github.com/google/uuid"
 )
 
 const defaultCharset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
@@ -176,6 +177,11 @@ func GetPublicIP() (string, error) {
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return "", fmt.Errorf("读取响应失败: %v", err)
+	}
+	// 如果是IPv6加上中括号
+	ip := string(body)
+	if net.ParseIP(ip) != nil && strings.Contains(ip, ":") {
+		return fmt.Sprintf("[%s]", ip), nil
 	}
 
 	return string(body), nil
