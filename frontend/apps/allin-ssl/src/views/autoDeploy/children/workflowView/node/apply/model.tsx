@@ -48,6 +48,8 @@ export default defineComponent({
 					close_cname: 0,
 					max_wait: undefined,
 					ignore_check: 0,
+					// 新建工作流默认启用 ARI；旧工作流缺省时后端保持原续签逻辑。
+					ari_enabled: 1,
 				},
 			}),
 		},
@@ -495,6 +497,15 @@ export default defineComponent({
               useFormSwitch(
                 $t("t_2_1749204567193"),
                 "close_cname",
+                {
+                  checkedValue: 1,
+                  uncheckedValue: 0,
+                },
+                { showRequireMark: false }
+              ),
+              useFormSwitch(
+                "ARI续签建议",
+                "ari_enabled",
                 {
                   checkedValue: 1,
                   uncheckedValue: 0,

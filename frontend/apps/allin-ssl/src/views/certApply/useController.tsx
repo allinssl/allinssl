@@ -165,6 +165,7 @@ export const useCertificateFormController = (product?: { brand: string }) => {
 							...formData.value,
 							email: 'test@test.com',
 							end_day: 30,
+							ari_enabled: 1,
 						},
 					},
 				}),

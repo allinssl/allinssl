@@ -9,7 +9,9 @@ import (
 	"ALLinSSL/backend/internal/cert/apply/lego/webhook"
 	"ALLinSSL/backend/public"
 	"crypto/tls"
+	"crypto/x509"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/http"
 	"net/url"
@@ -19,6 +21,7 @@ import (
 	"time"
 
 	azcorecloud "github.com/Azure/azure-sdk-for-go/sdk/azcore/cloud"
+	"github.com/go-acme/lego/v4/acme/api"
 	"github.com/go-acme/lego/v4/certcrypto"
 	"github.com/go-acme/lego/v4/certificate"
 	"github.com/go-acme/lego/v4/challenge"
@@ -487,7 +490,53 @@ func GetAcmeClient(email, algorithm, eabId, ca string, httpClient *http.Client, 
 	return client, nil
 }
 
-func GetCert(runId string, domainArr []string, endDay int, logger *public.Logger) (map[string]any, error) {
+type MatchedCert struct {
+	Data     map[string]any
+	DaysLeft float64
+	EndTime  time.Time
+}
+
+// 统一返回复用本地证书的结果，供普通续签判断和 ARI 跳过逻辑共用。
+func certResult(item map[string]any) map[string]any {
+	return map[string]any{
+		"cert":       item["cert"],
+		"key":        item["key"],
+		"issuerCert": item["issuer_cert"],
+		"skip":       true,
+	}
+}
+
+// 解析工作流配置中的布尔值。ari_enabled 缺省必须保持 false，保证旧工作流行为不变。
+func parseBoolConfig(v any, defaultValue bool, name string) (bool, error) {
+	if v == nil {
+		return defaultValue, nil
+	}
+	switch val := v.(type) {
+	case bool:
+		return val, nil
+	case int:
+		return val > 0, nil
+	case int64:
+		return val > 0, nil
+	case float64:
+		return val > 0, nil
+	case string:
+		switch strings.ToLower(strings.TrimSpace(val)) {
+		case "", "0", "false", "off", "no":
+			return false, nil
+		case "1", "true", "on", "yes":
+			return true, nil
+		default:
+			return false, fmt.Errorf("参数错误：%s", name)
+		}
+	default:
+		return false, fmt.Errorf("参数错误：%s", name)
+	}
+}
+
+// 查找当前工作流下和域名集合匹配的最新证书。
+// 这里不判断是否需要续签，方便旧逻辑和 ARI 逻辑复用同一份本地证书。
+func FindMatchedCert(runId string, domainArr []string) (*MatchedCert, error) {
 	if runId == "" {
 		return nil, fmt.Errorf("参数错误：_runId")
 	}
@@ -513,9 +562,14 @@ func GetCert(runId string, domainArr []string, endDay int, logger *public.Logger
 	if len(certs) <= 0 {
 		return nil, fmt.Errorf("未获取到当前工作流下的证书")
 	}
-	layout := "2006-01-02 15:04:05"
-	var maxDays float64
-	var maxItem map[string]any
+	var (
+		found     bool
+		maxItem   map[string]any
+		maxEnd    time.Time
+		maxDays   float64
+		layout    = "2006-01-02 15:04:05"
+		now       = time.Now()
+	)
 	for i := range certs {
 		if !public.ContainsAllIgnoreBRepeats(strings.Split(certs[i]["domains"].(string), ","), domainArr) {
 			continue
@@ -528,26 +582,104 @@ func GetCert(runId string, domainArr []string, endDay int, logger *public.Logger
 		if err != nil {
 			continue
 		}
-		diff := endTime.Sub(time.Now()).Hours() / 24
-		if diff > maxDays {
-			maxDays = diff
+		if !found || endTime.After(maxEnd) {
+			found = true
+			maxEnd = endTime
+			maxDays = endTime.Sub(now).Hours() / 24
 			maxItem = certs[i]
 		}
 	}
 	if maxItem == nil {
 		return nil, fmt.Errorf("未获取到对应的证书")
 	}
-	if int(maxDays) <= endDay {
-		return nil, fmt.Errorf("证书已过期或即将过期，剩余天数：%d 小于%d天", int(maxDays), endDay)
+
+	return &MatchedCert{
+		Data:     maxItem,
+		DaysLeft: maxDays,
+		EndTime:  maxEnd,
+	}, nil
+}
+
+func GetCert(runId string, domainArr []string, endDay int, logger *public.Logger) (map[string]any, error) {
+	matchedCert, err := FindMatchedCert(runId, domainArr)
+	if err != nil {
+		return nil, err
+	}
+	if int(matchedCert.DaysLeft) <= endDay {
+		return nil, fmt.Errorf("证书已过期或即将过期，剩余天数：%d 小于%d天", int(matchedCert.DaysLeft), endDay)
 	}
 	// 证书未过期，直接返回
-	logger.Debug(fmt.Sprintf("上次证书申请成功,域名：%s，剩余天数：%d 大于%d天，已跳过申请复用此证书", maxItem["domains"], int(maxDays), endDay))
-	return map[string]any{
-		"cert":       maxItem["cert"],
-		"key":        maxItem["key"],
-		"issuerCert": maxItem["issuer_cert"],
-		"skip":       true,
-	}, nil
+	logger.Debug(fmt.Sprintf("上次证书申请成功,域名：%s，剩余天数：%d 大于%d天，已跳过申请复用此证书", matchedCert.Data["domains"], int(matchedCert.DaysLeft), endDay))
+	return certResult(matchedCert.Data), nil
+}
+
+// 解析旧证书并生成 RFC 9773 要求的 replaces CertID。
+func getARILeafAndReplacesID(certPEM any) (*x509.Certificate, string, error) {
+	certStr, ok := certPEM.(string)
+	if !ok || certStr == "" {
+		return nil, "", fmt.Errorf("证书内容为空")
+	}
+	leaf, err := public.ParseCertificate([]byte(certStr))
+	if err != nil {
+		return nil, "", err
+	}
+	replacesCertID, err := certificate.MakeARICertID(leaf)
+	if err != nil {
+		return leaf, "", err
+	}
+	return leaf, replacesCertID, nil
+}
+
+// ARI 不可用时回退原来的 end_day 续签判断，避免影响旧行为。
+func fallbackLocalRenewalDecision(matchedCert *MatchedCert, endDay int, logger *public.Logger) bool {
+	if int(matchedCert.DaysLeft) > endDay {
+		logger.Debug(fmt.Sprintf("ARI不可用，回退本地续签判断：剩余天数 %d 大于 %d，跳过申请", int(matchedCert.DaysLeft), endDay))
+		return true
+	}
+	logger.Debug(fmt.Sprintf("ARI不可用，回退本地续签判断：剩余天数 %d 小于等于 %d，继续申请", int(matchedCert.DaysLeft), endDay))
+	return false
+}
+
+// 根据 CA 返回的 ARI renewalInfo 判断本次是否跳过续签。
+// 返回值中的 string 是下新订单时要携带的 replaces CertID。
+func shouldSkipByARI(client *lego.Client, matchedCert *MatchedCert, endDay int, logger *public.Logger) (bool, string) {
+	leaf, replacesCertID, err := getARILeafAndReplacesID(matchedCert.Data["cert"])
+	if err != nil {
+		logger.Debug("ARI证书解析失败，回退本地续签判断：" + err.Error())
+		return fallbackLocalRenewalDecision(matchedCert, endDay, logger), ""
+	}
+	if replacesCertID != "" {
+		logger.Debug("ARI replaces CertID: " + replacesCertID)
+	}
+	if matchedCert.DaysLeft <= 0 {
+		logger.Debug("ARI已启用，但本地证书已过期，继续申请新证书")
+		return false, replacesCertID
+	}
+
+	renewalInfo, err := client.Certificate.GetRenewalInfo(certificate.RenewalInfoRequest{Cert: leaf})
+	if err != nil {
+		if errors.Is(err, api.ErrNoARI) {
+			logger.Debug("当前CA不支持ARI，回退本地续签判断：" + err.Error())
+		} else {
+			logger.Debug("ARI查询失败，回退本地续签判断：" + err.Error())
+		}
+		return fallbackLocalRenewalDecision(matchedCert, endDay, logger), replacesCertID
+	}
+
+	logger.Debug(fmt.Sprintf("ARI建议续签窗口：%s - %s", renewalInfo.SuggestedWindow.Start.Format(time.RFC3339), renewalInfo.SuggestedWindow.End.Format(time.RFC3339)))
+	if renewalInfo.ExplanationURL != "" {
+		logger.Debug("ARI说明地址：" + renewalInfo.ExplanationURL)
+	}
+
+	now := time.Now().UTC()
+	renewAt := renewalInfo.ShouldRenewAt(now, 0)
+	if renewAt == nil || renewAt.After(now) {
+		logger.Debug("ARI建议当前暂不续签，本次跳过申请并复用本地证书")
+		return true, replacesCertID
+	}
+
+	logger.Debug("ARI建议当前执行续签，继续申请新证书")
+	return false, replacesCertID
 }
 
 func Apply(cfg map[string]any, logger *public.Logger) (map[string]any, error) {
@@ -754,6 +886,10 @@ func Apply(cfg map[string]any, logger *public.Logger) (map[string]any, error) {
 			maxWait = 2 * time.Minute
 		}
 	}
+	ariEnabled, err := parseBoolConfig(cfg["ari_enabled"], false, "ari_enabled")
+	if err != nil {
+		return nil, err
+	}
 
 	domainArr := strings.Split(domains, ",")
 	for i := range domainArr {
@@ -765,20 +901,42 @@ func Apply(cfg map[string]any, logger *public.Logger) (map[string]any, error) {
 	if !ok {
 		return nil, fmt.Errorf("参数错误：_runId")
 	}
-	certData, err := GetCert(runId, domainArr, endDay, logger)
-	if err != nil {
-		logger.Debug("未获取到符合条件的本地证书:" + err.Error())
+	var matchedCert *MatchedCert
+	var replacesCertID string
+	if ariEnabled {
+		logger.Debug("ARI renewal info enabled")
+		matchedCert, err = FindMatchedCert(runId, domainArr)
+		if err != nil {
+			logger.Debug("No local certificate matched, skip ARI check: " + err.Error())
+		}
 	} else {
-		return certData, nil
+		certData, err := GetCert(runId, domainArr, endDay, logger)
+		if err != nil {
+			logger.Debug("未获取到符合条件的本地证书:" + err.Error())
+		} else {
+			return certData, nil
+		}
+		logger.Debug("正在申请证书，域名: " + domains)
 	}
-	logger.Debug("正在申请证书，域名: " + domains)
 	os.Setenv("LEGO_DISABLE_CNAME_SUPPORT", strconv.FormatBool(closeCname))
 	// 创建 ACME 客户端
 	client, err := GetAcmeClient(email, algorithm, eabId, ca, httpClient, logger)
 	if err != nil {
+		// 创建 ACME 客户端失败时无法查询 ARI，因此按原 end_day 逻辑决定是否复用本地证书。
+		if ariEnabled && matchedCert != nil && fallbackLocalRenewalDecision(matchedCert, endDay, logger) {
+			return certResult(matchedCert.Data), nil
+		}
 		return nil, err
 	}
 	// 获取 DNS 验证提供者
+	if ariEnabled && matchedCert != nil {
+		var skip bool
+		skip, replacesCertID = shouldSkipByARI(client, matchedCert, endDay, logger)
+		if skip {
+			return certResult(matchedCert.Data), nil
+		}
+		logger.Debug("ARI indicates renewal should continue")
+	}
 	providerData, err := access.GetAccess(providerID)
 	if err != nil {
 		return nil, err
@@ -849,6 +1007,10 @@ func Apply(cfg map[string]any, logger *public.Logger) (map[string]any, error) {
 	request := certificate.ObtainRequest{
 		Domains: domainArr,
 		Bundle:  true,
+	}
+	// CA 支持 ARI 时，lego 会把 ReplacesCertID 转成 newOrder 的 replaces 字段。
+	if replacesCertID != "" {
+		request.ReplacesCertID = replacesCertID
 	}
 
 	certObj, err := client.Certificate.Obtain(request)

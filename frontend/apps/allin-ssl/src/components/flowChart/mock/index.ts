@@ -25,6 +25,7 @@ export default {
 				provider_id: '',
 				algorithm: 'RSA2048',
 				skip_check: 0,
+				ari_enabled: 1,
 			},
 			childNode: {
 				id: 'deploy-1',

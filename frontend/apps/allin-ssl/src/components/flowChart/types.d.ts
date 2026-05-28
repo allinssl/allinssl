@@ -236,6 +236,7 @@ export interface ApplyNodeConfig {
   close_cname: number; // 禁用CNAME支持，0关闭1开启，默认0
   max_wait?: number; // 预检查超时时间，单位秒（可选）
   ignore_check: number; // 忽略预检查结果，1继续，0停止，默认0
+  ari_enabled?: number; // 启用ARI续签建议，1启用，0关闭；旧工作流缺省关闭
   // 高级功能
   // algorithm: 'RSA2048' | 'RSA3072' | 'RSA4096' | 'RSA8192' | 'EC256' | 'EC384' // 数字证书算法
   // dnsServer?: string // 指定DNS解析服务器

@@ -123,6 +123,8 @@ nodeOptions[APPLY] = () =>
         close_cname: 0,
         max_wait: undefined,
         ignore_check: 0,
+        // 新建工作流默认启用 ARI；旧工作流没有该字段，后端会按关闭处理。
+        ari_enabled: 1,
       },
       childNode: null,
     },
