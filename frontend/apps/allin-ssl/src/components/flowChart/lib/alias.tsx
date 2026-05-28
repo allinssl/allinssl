@@ -11,3 +11,4 @@ export const NOTIFY = 'notify' // 通知节点
 export const APPLY = 'apply' // 申请节点
 export const PRIVATE_CA = 'private_ca' // 私有CA节点
 export const DEPLOY = 'deploy' // 部署节点
+export const WAIT = 'wait' // 等待节点
