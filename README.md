@@ -30,6 +30,11 @@ We are actively improving the following features. Feel free to suggest via [GitH
 
 ## 🚀 Quick Start
 
+### Deploy on Sealos
+Launch AllinSSL on Sealos with one click:
+
+[![](https://raw.githubusercontent.com/labring-actions/templates/main/Deploy-on-Sealos.svg)](https://gzg.sealos.run/?openapp=system-template%3FtemplateName%3DAllinSSL&uid=W1Rq6kLI_b)
+
 ### System Requirements
 - Linux
 - macOS / Windows (script installation not yet supported; see manual steps below)
