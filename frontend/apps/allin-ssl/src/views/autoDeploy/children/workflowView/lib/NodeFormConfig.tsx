@@ -227,8 +227,7 @@ export function createNodeFormConfig() {
 		 */
 		leCdnDeploy() {
 			return [
-				this.input('站点ID', 'site_id', { placeholder: '请输入LeCDN站点ID' }),
-				this.input($t('t_17_1745227838561'), 'domain', { placeholder: $t('t_0_1744958839535') }),
+				this.input('证书ID', 'cert_id', { placeholder: '请输入LeCDN证书ID，多个请用逗号分隔' }),
 			]
 		},
 

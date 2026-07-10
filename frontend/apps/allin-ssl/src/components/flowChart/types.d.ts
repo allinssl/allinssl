@@ -354,8 +354,7 @@ export interface DeployBTPanelDockerSiteConfig extends DeployBTPanelSiteConfig {
 
 // 部署LeCDN配置
 export interface DeployLeCDNConfig {
-  site_id: string; // 站点ID
-  domain: string; // 域名
+  cert_id: string; // 证书ID
 }
 
 // 部署插件配置
