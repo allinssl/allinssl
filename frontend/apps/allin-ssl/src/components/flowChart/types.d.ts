@@ -342,7 +342,8 @@ export interface DeploySafelineConfig {
 }
 
 // 部署节点配置（雷池WAF站点）
-export interface DeploySafelineSiteConfig extends DeployBTPanelSiteConfig {
+export interface DeploySafelineSiteConfig {
+  cert_id: string;
   [key: string]: unknown;
 }
 

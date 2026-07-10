@@ -226,8 +226,10 @@ export default defineComponent({
 				case 'btwaf-site':
 				case 'btpanel-dockersite':
 				case 'btpanel-singlesite':
-				case 'safeline-site':
 					config.push(...formConfig.siteDeploy())
+					break
+				case 'safeline-site':
+					config.push(...formConfig.safelineSiteDeploy())
 					break
 				case 'tencentcloud-cdn':
 				case 'tencentcloud-waf':

@@ -161,6 +161,10 @@ export function createNodeFormConfig() {
 		siteDeploy() {
 			return [this.input($t('t_0_1747296173751'), 'siteName', { placeholder: $t('t_0_1748589752275') })]
 		},
+
+		safelineSiteDeploy() {
+			return [this.input('证书ID', 'cert_id', { placeholder: '请输入雷池WAF网站当前绑定的证书ID，多个请用逗号分隔' })]
+		},
 		
 		rainyunSSLCenterDeploy(){
 			return [this.input("证书ID", 'cert_id', { placeholder:"雨云证书中心中显示的ID"})]

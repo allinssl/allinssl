@@ -11,6 +11,7 @@ import (
 	"net/http"
 	"net/url"
 	"strconv"
+	"strings"
 )
 
 func RequestSafeLineWaf(data *map[string]any, method, providerID, requestUrl string) (map[string]any, error) {
@@ -186,35 +187,46 @@ func DeploySafeLineWafSite(cfg map[string]any, logger *public.Logger) error {
 	default:
 		return fmt.Errorf("参数错误：provider_id")
 	}
-	siteName, ok := cfg["siteName"].(string)
+	certIDValue, ok := cfg["cert_id"]
 	if !ok {
-		return fmt.Errorf("参数错误：siteName")
+		return fmt.Errorf("参数错误：cert_id")
 	}
-	siteList, err := GetSafeLineWafSiteList(1, 100, siteName, providerID)
-	if siteList == nil || err != nil {
-		return fmt.Errorf("雷池WAF找不到网站名称：%s", siteName)
-	}
-	//通过应用名名匹配
-	siteInfo := matchSafeLineSiteByColumn(siteList, "comment", siteName)
-	if siteInfo == nil {
-		return fmt.Errorf("雷池WAF 找不到应用名称：%s", siteName)
-	}
-	//siteId := siteInfo["id"]
-	certId := siteInfo["cert_id"].(float64)
-	if certId == 0 {
-		//未部署证书
-		logger.Debug(fmt.Sprintf("网站%s未启用SSL,上传证书中...", siteName))
-		certId, err := uploadSafeLineCert(0, keyPem, certPem, providerID)
-		if err != nil {
-			return fmt.Errorf("网站%s上传证书失败...：%s", siteName, err.Error())
+
+	certIDs := make([]float64, 0)
+	switch v := certIDValue.(type) {
+	case float64:
+		certIDs = append(certIDs, v)
+	case int:
+		certIDs = append(certIDs, float64(v))
+	case string:
+		for _, item := range strings.Split(v, ",") {
+			trimmed := strings.TrimSpace(item)
+			if trimmed == "" {
+				continue
+			}
+			parsedId, parseErr := strconv.ParseFloat(trimmed, 64)
+			if parseErr != nil {
+				return fmt.Errorf("参数错误：cert_id")
+			}
+			certIDs = append(certIDs, parsedId)
 		}
-		logger.Debug(fmt.Sprintf("网站%s上传成功 证书ID：%d 请手动添加至网站中", siteName, int(certId)))
-	} else {
-		//已部署证书
-		logger.Debug(fmt.Sprintf("网站已启用SSL 证书ID：%d 更新证书中...", int(certId)))
+	default:
+		return fmt.Errorf("参数错误：cert_id")
+	}
+
+	if len(certIDs) == 0 {
+		return fmt.Errorf("参数错误：cert_id")
+	}
+
+	for _, certId := range certIDs {
+		if certId <= 0 {
+			return fmt.Errorf("参数错误：cert_id")
+		}
+
+		logger.Debug(fmt.Sprintf("雷池WAF网站证书ID：%d，更新证书中...", int(certId)))
 		_, err := uploadSafeLineCert(certId, keyPem, certPem, providerID)
 		if err != nil {
-			return fmt.Errorf("网站%s证书更新成功...：%s", siteName, err.Error())
+			return fmt.Errorf("雷池WAF网站证书更新失败：%s", err.Error())
 		}
 	}
 

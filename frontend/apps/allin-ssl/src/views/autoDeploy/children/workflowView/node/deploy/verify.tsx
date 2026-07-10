@@ -45,6 +45,7 @@ export default {
 
 	// 1panel相关字段验证
 	site_id: validator.required('site_id', $t('t_24_1745735766826'), 'input'),
+	cert_id: validator.required('cert_id', '请输入证书ID，多个请用逗号分隔', 'input'),
 
 	// CDN相关字段验证
 	domain: validator.custom((rule, value) => {
