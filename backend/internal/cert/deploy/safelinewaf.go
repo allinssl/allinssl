@@ -13,6 +13,59 @@ import (
 	"strconv"
 )
 
+type safeLineWafConfig struct {
+	URL       string
+	APIToken  string
+	IgnoreSSL bool
+}
+
+func parseSafeLineWafConfig(configJSON string) (safeLineWafConfig, error) {
+	var rawConfig struct {
+		URL       string          `json:"url"`
+		APIToken  string          `json:"api_token"`
+		IgnoreSSL json.RawMessage `json:"ignore_ssl"`
+	}
+	if err := json.Unmarshal([]byte(configJSON), &rawConfig); err != nil {
+		return safeLineWafConfig{}, err
+	}
+
+	config := safeLineWafConfig{
+		URL:      rawConfig.URL,
+		APIToken: rawConfig.APIToken,
+	}
+	value := bytes.TrimSpace(rawConfig.IgnoreSSL)
+	if len(value) == 0 || bytes.Equal(value, []byte("null")) {
+		return config, nil
+	}
+
+	if value[0] == '"' {
+		var stringValue string
+		if err := json.Unmarshal(value, &stringValue); err != nil {
+			return safeLineWafConfig{}, err
+		}
+		ignoreSSL, err := strconv.ParseBool(stringValue)
+		if err != nil {
+			return safeLineWafConfig{}, fmt.Errorf("invalid ignore_ssl value %q", stringValue)
+		}
+		config.IgnoreSSL = ignoreSSL
+		return config, nil
+	}
+
+	var boolValue bool
+	if err := json.Unmarshal(value, &boolValue); err == nil {
+		config.IgnoreSSL = boolValue
+		return config, nil
+	}
+
+	var numberValue float64
+	if err := json.Unmarshal(value, &numberValue); err == nil && (numberValue == 0 || numberValue == 1) {
+		config.IgnoreSSL = numberValue == 1
+		return config, nil
+	}
+
+	return safeLineWafConfig{}, fmt.Errorf("invalid ignore_ssl value %s", value)
+}
+
 func RequestSafeLineWaf(data *map[string]any, method, providerID, requestUrl string) (map[string]any, error) {
 	providerData, err := access.GetAccess(providerID)
 	if err != nil {
@@ -23,13 +76,12 @@ func RequestSafeLineWaf(data *map[string]any, method, providerID, requestUrl str
 		return nil, fmt.Errorf("api配置错误")
 	}
 	// 解析 JSON 配置
-	var providerConfig map[string]string
-	err = json.Unmarshal([]byte(providerConfigStr), &providerConfig)
+	providerConfig, err := parseSafeLineWafConfig(providerConfigStr)
 	if err != nil {
 		return nil, err
 	}
 
-	parsedURL, err := url.Parse(providerConfig["url"])
+	parsedURL, err := url.Parse(providerConfig.URL)
 	if err != nil {
 		return nil, err
 	}
@@ -41,16 +93,12 @@ func RequestSafeLineWaf(data *map[string]any, method, providerID, requestUrl str
 		return nil, err
 	}
 
-	req.Header.Set("X-SLCE-API-TOKEN", providerConfig["api_token"])
+	req.Header.Set("X-SLCE-API-TOKEN", providerConfig.APIToken)
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("user-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36")
 	// 自定义 Transport，跳过 SSL 证书验证
-	ignoreSsl := false
-	if providerConfig["ignore_ssl"] == "1" {
-		ignoreSsl = true
-	}
 	tr := &http.Transport{
-		TLSClientConfig:   &tls.Config{InsecureSkipVerify: ignoreSsl},
+		TLSClientConfig:   &tls.Config{InsecureSkipVerify: providerConfig.IgnoreSSL},
 		DisableKeepAlives: true,
 	}
 
