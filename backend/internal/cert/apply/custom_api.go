@@ -61,12 +61,12 @@ func applyCustomApi(cfg map[string]any, logger *public.Logger) (map[string]any, 
 		domainArr[i] = strings.TrimSpace(domainArr[i])
 	}
 
-	// 获取上次申请的证书（复用逻辑与 ACME 一致）
-	certData, err := GetCert(runId, domainArr, endDay, logger)
+	// 获取上次申请的证书（复用逻辑与 ACME 一致：ARI 重构后的新写法）
+	matched, err := FindMatchedCert(runId, domainArr)
 	if err != nil {
 		logger.Debug("未获取到符合条件的本地证书:" + err.Error())
-	} else {
-		return certData, nil
+	} else if fallbackLocalRenewalDecision(matched, endDay, logger) {
+		return certResult(matched.Data), nil
 	}
 
 	providerData, err := access.GetAccess(providerID)
