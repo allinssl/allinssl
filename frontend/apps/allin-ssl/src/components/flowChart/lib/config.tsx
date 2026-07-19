@@ -110,6 +110,7 @@ nodeOptions[APPLY] = () =>
       name: "申请",
       type: APPLY,
       config: {
+        apply_type: "acme",
         domains: "",
         email: "",
         eabId: "",

@@ -1,5 +1,6 @@
 import { useError } from '@baota/hooks/error'
 import { $t } from '@locales/index'
+import { createCustomApiStep } from '@components/customApiEditor'
 import {
 	getSystemSetting,
 	saveSystemSetting,
@@ -23,6 +24,7 @@ import type {
 	ReportWebhook,
 	ReportDingtalk,
 	ReportWecom,
+	ReportCustomApi,
 } from '@/types/setting'
 
 const { handleError } = useError()
@@ -67,6 +69,7 @@ export const useSettingsStore = defineStore('settings-store', () => {
 		workwx: $t('t_33_1746773350932'),
 		feishu: $t('t_34_1746773350153'),
 		webhook: 'WebHook',
+		custom_api: '自定义API',
 	})
 
 	// 邮箱通知渠道表单
@@ -126,6 +129,14 @@ export const useSettingsStore = defineStore('settings-store', () => {
     ]
   }
 }`, // 企业微信推送数据格式
+	})
+
+	// 自定义API通知渠道表单
+	const customApiChannelForm = ref<ReportCustomApi>({
+		name: '',
+		enabled: '1',
+		variables: [],
+		steps: [createCustomApiStep('step1')],
 	})
 
 	// 关于页面数据
@@ -272,6 +283,7 @@ export const useSettingsStore = defineStore('settings-store', () => {
 		webhookChannelForm,
 		dingtalkChannelForm,
 		wecomChannelForm,
+		customApiChannelForm,
 		aboutInfo,
 
 		// 方法

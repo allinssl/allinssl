@@ -8,6 +8,7 @@ import type {
 	GetAccessAllListParams,
 	GetAccessAllListResponse,
 	UpdateAccessParams,
+	TestCustomApiConfigParams,
 	// CA授权相关类型
 	EabListParams,
 	EabListResponse,
@@ -149,6 +150,16 @@ export const getPluginsActions = (
 	params: GetPluginsActionsParams,
 ): useAxiosReturn<GetPluginsActionsResponse, GetPluginsActionsParams> =>
 	useApi<GetPluginsActionsResponse, GetPluginsActionsParams>('/v1/access/get_plugin_actions', params)
+
+/**
+ * @description 测试自定义HTTP(S)配置（用测试数据执行未保存的配置）
+ * @param {TestCustomApiConfigParams} [params] 请求参数
+ * @returns {useAxiosReturn<AxiosResponseData, TestCustomApiConfigParams>} 测试结果
+ */
+export const testCustomApiConfig = (
+	params?: TestCustomApiConfigParams,
+): useAxiosReturn<AxiosResponseData, TestCustomApiConfigParams> =>
+	useApi<AxiosResponseData, TestCustomApiConfigParams>('/v1/access/test_custom_api_config', params)
 
 
 

@@ -11,17 +11,20 @@ import {
 	NFormItemGi,
 	NSpin,
 	NDropdown,
+	NRadioGroup,
+	NRadioButton,
 } from 'naive-ui'
 import { useForm, useFormHooks, useModalHooks } from '@baota/naive-ui/hooks'
 import { useStore } from '@components/FlowChart/useStore'
 import { useRoute } from '@baota/router'
 import { $t } from '@locales/index'
-import rules from './verify'
+import { getApplyRules } from './verify'
 import DnsProviderSelect from '@components/DnsProviderSelect'
 import type { ApplyNodeConfig } from '@components/FlowChart/types'
 import { deepClone } from '@baota/utils/data'
 import { noSideSpace } from '@lib/utils'
-import { getEabList } from '@api/access'
+import { getEabList, getAccessAllList } from '@api/access'
+import { matchCustomApiUsage } from '@components/customApiEditor'
 import SvgIcon from '@components/SvgIcon'
 import { CACertificateAuthorization } from '@config/data'
 
@@ -68,6 +71,35 @@ export default defineComponent({
     } = useFormHooks();
     // 表单参数
     const param = ref(deepClone(props.node.config));
+    // 兼容旧节点：缺省按 ACME 处理
+    param.value.apply_type = param.value.apply_type || 'acme';
+
+    // 自定义API提供方选项
+    const customApiOptions = ref<Array<{ label: string; value: string }>>([]);
+    const isLoadingCustomApi = ref(false);
+
+    // 加载自定义API提供方（仅证书提供商用途）
+    const loadCustomApiOptions = async () => {
+      isLoadingCustomApi.value = true;
+      try {
+        const { data } = await getAccessAllList({ type: 'custom_api' }).fetch();
+        customApiOptions.value = (data || [])
+          .filter((item) => matchCustomApiUsage((item as any).config || '', 'cert'))
+          .map((item) => ({
+            label: item.name,
+            value: String(item.id),
+          }));
+      } catch (error) {
+        console.error('加载自定义API失败:', error);
+      } finally {
+        isLoadingCustomApi.value = false;
+      }
+    };
+
+    // 跳转到自定义API管理页面（授权API管理）
+    const goToCustomApiManage = () => {
+      window.open('/auth-api-manage', '_blank');
+    };
 
     // 获取路由参数
     const isEdit = computed(() => route.query.isEdit === "true");
@@ -295,10 +327,133 @@ export default defineComponent({
       return matchedOption ? matchedOption.value : null;
     });
 
+    // 申请方式选择
+    const applyTypeItem = {
+      type: "custom" as const,
+      render: () => {
+        return (
+          <NFormItem label="申请方式" path="apply_type">
+            <NRadioGroup
+              value={param.value.apply_type || 'acme'}
+              onUpdateValue={(v: string | number) => {
+                param.value.apply_type = String(v);
+              }}
+            >
+              <NRadioButton value="acme">ACME</NRadioButton>
+              <NRadioButton value="custom_api">自定义API</NRadioButton>
+            </NRadioGroup>
+          </NFormItem>
+        );
+      },
+    };
+
+    // 续期天数（两种申请方式共用）
+    const endDayItem = {
+      type: "custom" as const,
+      render: () => {
+        return (
+          <NFormItem label={$t("t_4_1747990227956")} path="end_day">
+            <div class="flex items-center">
+              <span class="text-[1.4rem] mr-[1.2rem]">
+                {$t("t_5_1747990228592")}
+              </span>
+              <NInputNumber
+                v-model:value={param.value.end_day}
+                showButton={false}
+                min={1}
+                class="w-[120px]"
+              />
+              <span class="text-[1.4rem] ml-[1.2rem]">
+                {$t("t_6_1747990228465")}
+              </span>
+            </div>
+          </NFormItem>
+        );
+      },
+    };
+
     // 表单渲染配置
     const config = computed(() => {
-      // 基本选项
-      return [
+      // 自定义API模式的表单项
+      const customApiItems = [
+        {
+          type: "custom" as const,
+          render: () => {
+            return (
+              <NFormItem label="自定义API" path="provider_id" showRequireMark={true}>
+                <NGrid cols={24}>
+                  <NFormItemGi span={13}>
+                    <NSelect
+                      value={param.value.provider_id}
+                      options={customApiOptions.value}
+                      loading={isLoadingCustomApi.value}
+                      filterable
+                      placeholder="请选择自定义API"
+                      onUpdateValue={(v: string) => {
+                        param.value.provider_id = v;
+                        param.value.provider = 'custom_api';
+                      }}
+                    />
+                  </NFormItemGi>
+                  <NFormItemGi span={11}>
+                    <NButton class="mx-[8px]" onClick={goToCustomApiManage}>
+                      管理
+                    </NButton>
+                    <NButton onClick={loadCustomApiOptions} loading={isLoadingCustomApi.value}>
+                      {$t("t_0_1746497662220")}
+                    </NButton>
+                  </NFormItemGi>
+                </NGrid>
+              </NFormItem>
+            );
+          },
+        },
+        useFormInput($t("t_17_1745227838561"), "domains", {
+          placeholder: $t("t_0_1745735774005"),
+          allowInput: noSideSpace,
+          onInput: (val: string) => {
+            param.value.domains = val.replace(/，/g, ",").replace(/;/g, ","); // 中文逗号分隔
+          },
+        }),
+        {
+          type: "custom" as const,
+          render: () => {
+            return (
+              <NFormItem label={$t("t_68_1745289354676")}>
+                <NInput
+                  v-model:value={param.value.email}
+                  placeholder="可选，作为 {{email}} 变量注入请求"
+                  clearable
+                  class="w-full"
+                />
+              </NFormItem>
+            );
+          },
+        },
+        useFormSelect(
+          $t("t_0_1747647014927"),
+          "algorithm",
+          [
+            { label: "RSA2048", value: "RSA2048" },
+            { label: "RSA3072", value: "RSA3072" },
+            { label: "RSA4096", value: "RSA4096" },
+            { label: "RSA8192", value: "RSA8192" },
+            { label: "EC256", value: "EC256" },
+            { label: "EC384", value: "EC384" },
+          ],
+          {},
+          { showRequireMark: false }
+        ),
+        endDayItem,
+        useFormHelp([
+          {
+            content: '执行所选自定义API获取证书，需在其配置中提取 cert、key（可选 issuer_cert）变量。',
+          },
+        ]),
+      ];
+
+      // 基本选项（ACME 模式）
+      const acmeItems = [
         useFormInput($t("t_17_1745227838561"), "domains", {
           placeholder: $t("t_0_1745735774005"),
           allowInput: noSideSpace,
@@ -443,29 +598,7 @@ export default defineComponent({
           },
         },
 
-        {
-          type: "custom" as const,
-          render: () => {
-            return (
-              <NFormItem label={$t("t_4_1747990227956")} path="end_day">
-                <div class="flex items-center">
-                  <span class="text-[1.4rem] mr-[1.2rem]">
-                    {$t("t_5_1747990228592")}
-                  </span>
-                  <NInputNumber
-                    v-model:value={param.value.end_day}
-                    showButton={false}
-                    min={1}
-                    class="w-[120px]"
-                  />
-                  <span class="text-[1.4rem] ml-[1.2rem]">
-                    {$t("t_6_1747990228465")}
-                  </span>
-                </div>
-              </NFormItem>
-            );
-          },
-        },
+        endDayItem,
         useFormMore(advancedOptions),
         ...(advancedOptions.value
           ? [
@@ -595,14 +728,24 @@ export default defineComponent({
           },
         ]),
       ];
+
+      if (param.value.apply_type === 'custom_api') {
+        return [applyTypeItem, ...customApiItems];
+      }
+      return [applyTypeItem, ...acmeItems];
     });
 
-    // 创建表单实例
+    // 创建表单实例（按当前申请方式生成校验规则）
     const {
       component: Form,
       data,
       example,
-    } = useForm<ApplyNodeConfig>({ defaultValue: param, config, rules });
+      rules: formRules,
+    } = useForm<ApplyNodeConfig>({
+      defaultValue: param,
+      config,
+      rules: getApplyRules(param.value.apply_type || 'acme'),
+    });
 
     // 监听CA值变化，自动加载邮箱选项
     watch(
@@ -629,8 +772,31 @@ export default defineComponent({
       }
     );
 
+    // 监听申请方式切换，按需加载选项并刷新校验规则
+    watch(
+      () => param.value.apply_type,
+      async (t) => {
+        formRules.value = getApplyRules(t || 'acme');
+        if (t === 'custom_api') {
+          if (!customApiOptions.value.length) {
+            await loadCustomApiOptions();
+          }
+        } else if (!caOptions.value.length) {
+          await loadCAOptions();
+          if (param.value.ca) {
+            await loadEmailOptions(param.value.ca, !param.value.email);
+          }
+        }
+      }
+    );
+
     onMounted(async () => {
       advancedOptions.value = false;
+      // 自定义API模式：无需加载 CA / 邮箱选项
+      if (param.value.apply_type === 'custom_api') {
+        await loadCustomApiOptions();
+        return;
+      }
       await loadCAOptions();
       
       if (!param.value.ca && isEdit.value) {

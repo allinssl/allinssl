@@ -27,6 +27,7 @@ export type DnsProviderType =
 	| 'btpanel'
 	| '1panel'
 	| 'ssh'
+	| 'custom_api'
 	| ''
 
 /**
