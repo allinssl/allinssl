@@ -18,6 +18,7 @@ import FeishuChannelModel from "./components/channel/FeishuChannelModel";
 import WebhookChannelModel from "./components/channel/WebhookChannelModel";
 import DingtalkChannelModel from "./components/channel/DingtalkChannelModel";
 import WecomChannelModel from "./components/channel/WecomChannelModel";
+import CustomApiChannelModel from "./components/channel/CustomApiChannelModel";
 import type {
   ReportMail,
   SaveSettingParams,
@@ -233,6 +234,18 @@ export const useController = () => {
     });
   };
 
+  /**
+   * 打开添加自定义API通知渠道弹窗
+   */
+  const openAddCustomApiChannelModal = () => {
+    useModal({
+      title: "添加自定义API通知",
+      area: 850,
+      component: CustomApiChannelModel,
+      footer: true,
+    });
+  };
+
   // 处理启用状态切换
   const handleEnableChange = async (item: ReportType<ReportMail>) => {
     useDialog({
@@ -333,6 +346,17 @@ export const useController = () => {
         footer: true,
         onClose: () => fetchNotifyChannels(),
       });
+    } else if (item.type === "custom_api") {
+      useModal({
+        title: "编辑自定义API通知",
+        area: 850,
+        component: CustomApiChannelModel,
+        componentProps: {
+          data: item,
+        },
+        footer: true,
+        onClose: () => fetchNotifyChannels(),
+      });
     }
   };
 
@@ -349,7 +373,8 @@ export const useController = () => {
       item.type !== "feishu" &&
       item.type !== "webhook" &&
       item.type !== "dingtalk" &&
-      item.type !== "workwx"
+      item.type !== "workwx" &&
+      item.type !== "custom_api"
     ) {
       message.warning($t("t_19_1746773352558"));
       return;
@@ -360,6 +385,7 @@ export const useController = () => {
       webhook: $t("t_3_1748591484673"),
       dingtalk: $t("t_32_1746773348993"),
       workwx: $t("t_33_1746773350932"),
+      custom_api: "自定义API",
     };
     const { open, close } = useLoadingMask({
       text: $t("t_4_1748591492587", { type: typeMap[item.type] }),
@@ -418,6 +444,7 @@ export const useController = () => {
     openAddWebhookChannelModal,
     openAddDingtalkChannelModal,
     openAddWecomChannelModal,
+    openAddCustomApiChannelModal,
     handleEnableChange,
     editChannelConfig,
     testChannelConfig,

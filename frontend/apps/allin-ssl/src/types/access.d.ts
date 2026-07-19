@@ -523,3 +523,9 @@ export interface GetPluginsActionsResponse extends AxiosResponseData {
 		params: string
 	}[]
 }
+
+/** 测试自定义HTTP(S)配置（未保存）的请求参数 */
+export interface TestCustomApiConfigParams {
+	usage: string
+	config: string
+}

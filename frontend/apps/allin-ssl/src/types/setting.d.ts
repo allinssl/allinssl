@@ -87,6 +87,67 @@ export interface ReportWebhook {
 	ignore_ssl: boolean
 }
 
+/** 自定义API KeyValue */
+export interface CustomApiKeyValue {
+	key: string
+	value: string
+}
+
+/** 自定义API响应提取 */
+export interface CustomApiResponseExtract {
+	name: string
+	path: string
+	process?: boolean
+}
+
+/** 自定义API成功条件（按响应内容判断） */
+export interface CustomApiSuccessCondition {
+	field: string
+	operator: 'eq' | 'ne' | 'contains' | 'not_contains' | 'gt' | 'lt'
+	value: string
+}
+
+/** 自定义API响应配置 */
+export interface CustomApiResponseConfig {
+	format?: 'json' | 'xml'
+	variables?: CustomApiVariable[]
+	success_code: number
+	condition?: CustomApiSuccessCondition
+	extracts: CustomApiResponseExtract[]
+}
+
+/** 自定义API变量 */
+export interface CustomApiVariable {
+	name: string
+	formula: string
+	process?: boolean
+}
+
+/** 自定义API请求步骤 */
+export interface CustomApiStep {
+	name: string
+	method: 'GET' | 'POST'
+	url: string
+	timeout: number
+	insecure?: boolean
+	headers: CustomApiKeyValue[]
+	params: CustomApiKeyValue[]
+	cookies: CustomApiKeyValue[]
+	body: string
+	variables?: CustomApiVariable[]
+	response: CustomApiResponseConfig
+}
+
+/** 自定义API通知配置 */
+export interface ReportCustomApi {
+	name?: string
+	enabled: string
+	source?: 'inline' | 'access'
+	access_id?: string
+	variables: CustomApiVariable[]
+	steps: CustomApiStep[]
+}
+
 /** 企业微信通知配置 */
 export interface ReportWecom {
 	name?: string

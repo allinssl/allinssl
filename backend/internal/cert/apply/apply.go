@@ -684,6 +684,10 @@ func shouldSkipByARI(client *lego.Client, matchedCert *MatchedCert, endDay int, 
 
 func Apply(cfg map[string]any, logger *public.Logger) (map[string]any, error) {
 	log.Logger = logger.GetLogger()
+	// 自定义API申请：走独立分支，ACME 逻辑保持不动
+	if t, _ := cfg["apply_type"].(string); t == "custom_api" {
+		return applyCustomApi(cfg, logger)
+	}
 	var err error
 	email, ok := cfg["email"].(string)
 	if !ok {

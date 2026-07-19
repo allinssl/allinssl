@@ -27,6 +27,7 @@ import {
 	useFormHooks,
 	useForm,
 	useLoadingMask,
+	useMessage,
 } from '@baota/naive-ui/hooks'
 import { useError } from '@baota/hooks/error'
 import { isEmail, isIp, isPort, isUrl, isDomain } from '@baota/utils/business'
@@ -60,10 +61,11 @@ import type {
   BTDomainAccessConfig,
 } from "@/types/access";
 import type { VNode, Ref } from "vue";
-import { testAccess, getPlugins } from "@/api/access";
+import { testAccess, getPlugins, testCustomApiConfig } from "@/api/access";
 // import { useLocalStorage } from '@vueuse/core'
 
 import ApiManageForm from "./components/ApiManageModel";
+import CustomApiEditor, { createCustomApiStep } from "@components/customApiEditor";
 import SvgIcon from "@components/svgIcon";
 import TypeIcon from "@components/typeIcon";
 import { noSideSpace } from "@lib/utils";
@@ -158,22 +160,38 @@ export const useController = (): AuthApiManageControllerExposes => {
       title: $t("t_2_1746754500270"),
       key: "type",
       width: 200,
-      render: (row) => (
-        <NSpace>
-          {row.access_type?.map((type) => {
-            return (
-              <NTag
-                key={type}
-                type={type === "dns" ? "success" : "info"}
-                size="small"
-                round
-              >
-                {accessTypeMap[type as keyof typeof accessTypeMap]}
+      render: (row) => {
+        // 数据库 access_type 有映射时按映射显示（dns/host）；
+        // 否则回退到 ApiProjectConfig 的 type 映射（如 custom_api 的 cert/host/notify）
+        if (row.access_type?.length) {
+          return (
+            <NSpace>
+              {row.access_type.map((type) => (
+                <NTag
+                  key={type}
+                  type={type === "dns" ? "success" : "info"}
+                  size="small"
+                  round
+                >
+                  {accessTypeMap[type as keyof typeof accessTypeMap] || type}
+                </NTag>
+              ))}
+            </NSpace>
+          );
+        }
+        const tags = (ApiProjectConfig[row.type]?.type || []).map(
+          (t) => unref(accessTypeMap)[t] || t
+        );
+        return (
+          <NSpace>
+            {tags.map((label) => (
+              <NTag key={label} type="info" size="small" round>
+                {label}
               </NTag>
-            );
-          })}
-        </NSpace>
-      ),
+            ))}
+          </NSpace>
+        );
+      },
     },
     {
       title: $t("t_7_1745215914189"),
@@ -261,7 +279,7 @@ export const useController = (): AuthApiManageControllerExposes => {
   const openAddForm = (): void => {
     useModal({
       title: $t("t_0_1745289355714"),
-      area: 500,
+      area: 800,
       component: ApiManageForm,
       footer: true,
       onUpdateShow: (show) => {
@@ -278,7 +296,7 @@ export const useController = (): AuthApiManageControllerExposes => {
   const openEditForm = (row: AccessItem): void => {
     useModal({
       title: $t("t_4_1745289354902"),
-      area: 500,
+      area: 800,
       component: ApiManageForm,
       componentProps: { data: row },
       footer: true,
@@ -355,6 +373,7 @@ export const useApiFormController = (
   props: ApiFormControllerProps
 ): ApiFormControllerExposes => {
   const { confirm } = useModalHooks(); // 弹窗挂载方法
+  const message = useMessage();
   const { open: openLoad, close: closeLoad } = useLoadingMask({
     text: $t("t_0_1746667592819"),
   });
@@ -373,6 +392,43 @@ export const useApiFormController = (
       : apiFormProps
   ) as Ref<AddAccessParams | UpdateAccessParams>;
   const pluginActionTips = ref("");
+
+  // 自定义HTTP(S) 各用途的系统内置变量
+  const customApiUsageVars: Record<string, Array<{ label: string; value: string }>> = {
+    cert: [
+      { label: "申请证书的域名列表（英文逗号分隔，如 example.com,*.example.com）", value: "{{domains}}" },
+      { label: "域名列表中的第一个域名", value: "{{domain}}" },
+      { label: "申请时填写的邮箱（可为空）", value: "{{email}}" },
+      { label: "密钥算法（如 RSA2048、EC256）", value: "{{algorithm}}" },
+    ],
+    host: [
+      { label: "证书内容（PEM 格式）", value: "{{cert}}" },
+      { label: "证书私钥（PEM 格式）", value: "{{key}}" },
+      { label: "证书链/中间证书（PEM 格式）", value: "{{issuer_cert}}" },
+      { label: "证书的域名列表（取自证书 SAN，英文逗号分隔）", value: "{{domains}}" },
+      { label: "证书的第一个域名", value: "{{domain}}" },
+    ],
+    notify: [
+      { label: "通知主题", value: "{{subject}}" },
+      { label: "通知正文内容", value: "{{body}}" },
+      { label: "通知对象（证书）的域名列表，无证书时为空", value: "{{domains}}" },
+      { label: "通知对象（证书）的第一个域名", value: "{{domain}}" },
+    ],
+  };
+
+  // 自定义HTTP(S) 各用途的提示文案
+  const customApiUsageTips: Record<string, string> = {
+    cert: "证书签发时注入 {{domains}}、{{domain}}、{{email}}、{{algorithm}} 变量；需在响应提取中提取 cert、key（可选 issuer_cert）变量作为证书输出。",
+    host: "部署时注入 {{cert}}、{{key}}、{{issuer_cert}}、{{domains}}、{{domain}} 变量，在请求中引用即可将证书推送到目标接口。",
+    notify: "告警时注入 {{subject}}、{{body}} 以及通知对象（证书）的 {{domains}}、{{domain}} 变量，在请求中引用即可发送通知内容。",
+  };
+
+  // 自定义HTTP(S) 各用途的响应参数变量名建议（最后一步必须输出的变量）
+  const customApiUsageExtracts: Record<string, string[]> = {
+    cert: ["cert", "key", "issuer_cert"],
+    host: [],
+    notify: [],
+  };
 
   // 插件列表
   const pluginList = ref<Array<PluginOption>>([]);
@@ -1634,6 +1690,93 @@ export const useApiFormController = (
           );
         }
         break;
+      case "custom_api":
+        items.push(
+          useFormRadioButton("用途", "config.usage", [
+            { label: "证书提供商", value: "cert" },
+            { label: "主机提供商", value: "host" },
+            { label: "告警提供商", value: "notify" },
+          ]),
+          useFormCustom(() => {
+            const usage = (param.value.config as any)?.usage || "cert";
+            return (
+              <NAlert type="info" class="mb-4" showIcon={false}>
+                <span class="text-[1.3rem]">{customApiUsageTips[usage]}</span>
+              </NAlert>
+            );
+          }),
+          useFormCustom(() => {
+            const usage = (param.value.config as any)?.usage || "cert";
+            return (
+              <CustomApiEditor
+                value={param.value.config as { variables: any[]; steps: any[] }}
+                systemVars={customApiUsageVars[usage] || []}
+                extractSuggestions={customApiUsageExtracts[usage] || []}
+              />
+            );
+          }),
+          useFormCustom(() => {
+            // 用测试数据执行当前配置（无需先保存），并展示每步请求结果
+            const testing = ref(false);
+            const testSteps = ref<any[]>([]);
+            const handleTestConfig = async () => {
+              const cfg = param.value.config as any;
+              testing.value = true;
+              try {
+                const res = await testCustomApiConfig({
+                  usage: cfg?.usage || "cert",
+                  config: JSON.stringify({
+                    variables: cfg?.variables || [],
+                    steps: cfg?.steps || [],
+                  }),
+                }).fetch();
+                testSteps.value = (res as any)?.data?.steps || [];
+                message.success("测试成功");
+              } catch (error) {
+                testSteps.value = [];
+                handleError(error);
+              } finally {
+                testing.value = false;
+              }
+            };
+            return (
+              <div class="mt-3">
+                <NButton secondary type="primary" loading={testing.value} onClick={handleTestConfig}>
+                  测试（用测试数据执行全部步骤）
+                </NButton>
+                {testSteps.value.length > 0 && (
+                  <div class="mt-3 border rounded">
+                    {testSteps.value.map((s: any, i: number) => (
+                      <div key={i} class={i > 0 ? "border-t p-3" : "p-3"}>
+                        <div class="flex items-center gap-2 mb-2">
+                          <NTag size="small" type="primary">{s.name || `步骤${i + 1}`}</NTag>
+                          <code class="text-gray-600">{s.method} {s.url}</code>
+                          <NTag size="small" type={s.status >= 200 && s.status < 300 ? "success" : "error"}>
+                            {s.status}
+                          </NTag>
+                        </div>
+                        {s.body && (
+                          <pre class="text-gray-600 whitespace-pre-wrap break-all bg-gray-50 rounded p-2 max-h-60 overflow-y-auto" style="font-size: 12px">{s.body}</pre>
+                        )}
+                        {s.extracts && Object.keys(s.extracts).length > 0 && (
+                          <div class="mt-2">
+                            <span class="text-gray-500">提取变量：</span>
+                            {Object.entries(s.extracts).map(([k, v]: any) => (
+                              <div key={k} class="text-gray-600">
+                                <code>{k}</code> = <code class="break-all">{v}</code>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            );
+          })
+        );
+        break;
       default:
         break;
     }
@@ -1801,6 +1944,13 @@ export const useApiFormController = (
             ignore_ssl: "0",
           } as WebhookAccessConfig;
           break;
+        case "custom_api":
+          param.value.config = {
+            usage: "cert",
+            variables: [],
+            steps: [createCustomApiStep("step1")],
+          };
+          break;
         case "acmedns":
           param.value.config = {
             server_url: "https://auth.acme-dns.io",
@@ -1904,6 +2054,8 @@ export const useApiFormController = (
     const accessTypeMap = {
       dns: $t("t_3_1745735765112"),
       host: $t("t_0_1746754500246"),
+      cert: "证书提供商",
+      notify: "告警提供商",
       plugin: "插件",
     };
 

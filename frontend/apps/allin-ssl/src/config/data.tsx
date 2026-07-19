@@ -266,6 +266,13 @@ export const ApiProjectConfig: Record<string, ApiProjectType> = {
     hostRelated: { default: { name: "Webhook" } },
     sort: 31,
   },
+  custom_api: {
+    name: "自定义HTTP(S)",
+    icon: "custom_api",
+    type: ["cert", "host", "notify"],
+    hostRelated: { default: { name: "自定义HTTP(S)" } },
+    sort: 34,
+  },
   spaceship: {
     name: "Spaceship",
     icon: "spaceship",

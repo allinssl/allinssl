@@ -221,6 +221,7 @@ export interface StartNodeConfig {
 // 定义组件接收的参数类型(申请节点)
 export interface ApplyNodeConfig {
   // 基本选项
+  apply_type?: string; // 申请方式：acme（默认）| custom_api
   domains: string; // 域名
   email: string; // 邮箱
   eabId: string; // CA授权ID（EAB ID）

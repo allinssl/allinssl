@@ -32,7 +32,9 @@ export function useBaseNodeValidator<T extends Record<string, any>>(
 		() => isRefreshNode.value,
 		(newVal) => {
 			useTimeoutFn(() => {
-				registerCompatValidator(props.node.id, rules, props.node.config)
+				// 规则支持函数形式：注册时再求值（如申请节点 ACME/自定义API 切换后规则不同）
+				const descriptor = typeof rules === 'function' ? rules() : rules
+				registerCompatValidator(props.node.id, descriptor, props.node.config)
 				validate(props.node.id)
 				isRefreshNode.value = null
 			}, 500)
