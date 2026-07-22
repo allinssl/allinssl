@@ -413,7 +413,7 @@ export const useApiFormController = (
     cert: "证书签发时注入 {{domains}}、{{domain}}、{{email}}、{{algorithm}} 变量；需在响应提取中提取 cert、key（可选 issuer_cert）变量作为证书输出。",
     host: "部署时注入 {{cert}}、{{key}}、{{issuer_cert}}、{{domains}}、{{domain}} 变量，在请求中引用即可将证书推送到目标接口。",
     notify: "告警时注入 {{subject}}、{{body}} 以及通知对象（证书）的 {{domains}}、{{domain}} 变量，在请求中引用即可发送通知内容。",
-    dns: "DNS-01 验证时注入 {{domain}}/{{fqdn}}（完整记录名）、{{value}}（TXT 记录值）、{{token}}、{{action}}（present=写入，cleanup=清理），按 action 决定写入或删除 TXT 记录。",
+    dns: "DNS-01 验证时注入 {{domain}}/{{fqdn}}（完整记录名）、{{value}}（TXT 记录值）、{{token}}、{{action}}（present=写入，cleanup=清理）；若写入/清理是两套接口，用「执行条件」 eq({{action}}, \"present\") / eq({{action}}, \"cleanup\") 分别挂在两组步骤上。",
   };
 
   // 自定义HTTP(S) 各用途的响应参数变量名建议（最后一步必须输出的变量）

@@ -130,6 +130,7 @@ export interface CustomApiStep {
 	url: string
 	timeout: number
 	insecure?: boolean
+	when?: string
 	headers: CustomApiKeyValue[]
 	params: CustomApiKeyValue[]
 	cookies: CustomApiKeyValue[]

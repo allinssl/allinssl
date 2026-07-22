@@ -461,6 +461,13 @@ export default defineComponent({
 							<NCheckbox v-model:checked={step.insecure}>忽略SSL校验</NCheckbox>
 						</div>
 					</NFormItem>
+					<NFormItem label="执行条件（可选，公式结果为 true 才执行，留空总是执行）">
+						<NInput
+							value={step.when ?? ''}
+							onUpdateValue={(v: string) => (step.when = v)}
+							placeholder='如 eq({{action}}, "present")，DNS 场景按此区分两套接口'
+						/>
+					</NFormItem>
 					{renderKeyValue(step, 'headers', '请求头部')}
 					{renderKeyValue(step, 'params', '请求URL参数')}
 					{renderKeyValue(step, 'cookies', '请求Cookie')}
@@ -566,6 +573,7 @@ export default defineComponent({
 							<div>
 								<div class="font-medium text-gray-700 mb-1">请求中（每个步骤）</div>
 								<div>· 可用位置：请求地址、请求头部、URL参数、Cookie、请求Body（仅 POST），写法 {'{{变量名}}'}</div>
+								<div>· 执行条件：公式结果为 true 才执行该步骤（如 DNS 场景用 {'eq({{action}}, "present")'} 区分两套接口），留空总是执行</div>
 								<div>· 系统内置变量：随用途注入（见下方列表，点击复制）</div>
 								<div>
 									· 步骤变量：在该步骤请求前计算，可用 {'{{var.变量名}}'} 或 {'{{变量名}}'} 引用；勾选「过程」后仅公式可见、不进请求

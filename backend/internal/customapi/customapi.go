@@ -67,6 +67,7 @@ type Step struct {
 	Url       string         `json:"url"`
 	Timeout   int            `json:"timeout"`
 	Insecure  bool           `json:"insecure,omitempty"` // 忽略 SSL 证书校验
+	When      string         `json:"when,omitempty"`     // 执行条件（公式，结果为 true/1 才执行，留空总是执行）
 	Headers   []KeyValue     `json:"headers"`
 	Params    []KeyValue     `json:"params"`
 	Cookies   []KeyValue     `json:"cookies"`
@@ -1451,6 +1452,20 @@ func execute(cfg *Config, vars map[string]string, logger *public.Logger, trace *
 	for _, step := range cfg.Steps {
 		if step.Name == "" {
 			continue
+		}
+		// 执行条件：公式结果为 true/1 才执行（如 DNS 场景按 action 区分两套接口）
+		if when := strings.TrimSpace(step.When); when != "" {
+			condVal, err := evaluateFormulaMemo(when, ctx.cloneVars(), memo)
+			condVal = strings.ToLower(strings.TrimSpace(condVal))
+			if err != nil {
+				return nil, fmt.Errorf("步骤 [%s] 执行条件计算失败: %w", step.Name, err)
+			}
+			if condVal != "true" && condVal != "1" {
+				if logger != nil {
+					logger.Debug(fmt.Sprintf("CustomApi step [%s] 条件不满足（%s），跳过", step.Name, step.When))
+				}
+				continue
+			}
 		}
 		if len(step.Variables) > 0 {
 			if _, err = evalVars(step.Variables, true); err != nil {
