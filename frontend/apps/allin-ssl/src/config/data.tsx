@@ -269,7 +269,7 @@ export const ApiProjectConfig: Record<string, ApiProjectType> = {
   custom_api: {
     name: "自定义HTTP(S)",
     icon: "custom_api",
-    type: ["cert", "host", "notify"],
+    type: ["cert", "host", "notify", "dns"],
     hostRelated: { default: { name: "自定义HTTP(S)" } },
     sort: 34,
   },

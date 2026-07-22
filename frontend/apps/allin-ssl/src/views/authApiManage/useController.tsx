@@ -161,31 +161,16 @@ export const useController = (): AuthApiManageControllerExposes => {
       key: "type",
       width: 200,
       render: (row) => {
-        // 数据库 access_type 有映射时按映射显示（dns/host）；
-        // 否则回退到 ApiProjectConfig 的 type 映射（如 custom_api 的 cert/host/notify）
-        if (row.access_type?.length) {
-          return (
-            <NSpace>
-              {row.access_type.map((type) => (
-                <NTag
-                  key={type}
-                  type={type === "dns" ? "success" : "info"}
-                  size="small"
-                  round
-                >
-                  {accessTypeMap[type as keyof typeof accessTypeMap] || type}
-                </NTag>
-              ))}
-            </NSpace>
-          );
-        }
-        const tags = (ApiProjectConfig[row.type]?.type || []).map(
+        // 优先用 ApiProjectConfig 的 type 映射展示（如 custom_api 的 cert/host/notify/dns）；
+        // 未登记的用数据库 access_type 映射（dns/host）
+        const configTypes = ApiProjectConfig[row.type]?.type;
+        const tags = (configTypes?.length ? configTypes : row.access_type || []).map(
           (t) => unref(accessTypeMap)[t] || t
         );
         return (
           <NSpace>
-            {tags.map((label) => (
-              <NTag key={label} type="info" size="small" round>
+            {tags.map((label, i) => (
+              <NTag key={i} type="info" size="small" round>
                 {label}
               </NTag>
             ))}
@@ -414,6 +399,13 @@ export const useApiFormController = (
       { label: "通知对象（证书）的域名列表，无证书时为空", value: "{{domains}}" },
       { label: "通知对象（证书）的第一个域名", value: "{{domain}}" },
     ],
+    dns: [
+      { label: "完整记录名（如 _acme-challenge.example.com）", value: "{{domain}}" },
+      { label: "完整记录名（同 domain）", value: "{{fqdn}}" },
+      { label: "TXT 记录值", value: "{{value}}" },
+      { label: "ACME 挑战令牌", value: "{{token}}" },
+      { label: "操作类型：present=写入记录 / cleanup=清理记录", value: "{{action}}" },
+    ],
   };
 
   // 自定义HTTP(S) 各用途的提示文案
@@ -421,6 +413,7 @@ export const useApiFormController = (
     cert: "证书签发时注入 {{domains}}、{{domain}}、{{email}}、{{algorithm}} 变量；需在响应提取中提取 cert、key（可选 issuer_cert）变量作为证书输出。",
     host: "部署时注入 {{cert}}、{{key}}、{{issuer_cert}}、{{domains}}、{{domain}} 变量，在请求中引用即可将证书推送到目标接口。",
     notify: "告警时注入 {{subject}}、{{body}} 以及通知对象（证书）的 {{domains}}、{{domain}} 变量，在请求中引用即可发送通知内容。",
+    dns: "DNS-01 验证时注入 {{domain}}/{{fqdn}}（完整记录名）、{{value}}（TXT 记录值）、{{token}}、{{action}}（present=写入，cleanup=清理），按 action 决定写入或删除 TXT 记录。",
   };
 
   // 自定义HTTP(S) 各用途的响应参数变量名建议（最后一步必须输出的变量）
@@ -428,6 +421,7 @@ export const useApiFormController = (
     cert: ["cert", "key", "issuer_cert"],
     host: [],
     notify: [],
+    dns: [],
   };
 
   // 插件列表
@@ -1696,6 +1690,7 @@ export const useApiFormController = (
             { label: "证书提供商", value: "cert" },
             { label: "主机提供商", value: "host" },
             { label: "告警提供商", value: "notify" },
+            { label: "DNS提供商", value: "dns" },
           ]),
           useFormCustom(() => {
             const usage = (param.value.config as any)?.usage || "cert";

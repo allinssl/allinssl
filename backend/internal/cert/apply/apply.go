@@ -5,8 +5,10 @@ import (
 	"ALLinSSL/backend/internal/cert"
 	"ALLinSSL/backend/internal/cert/apply/lego/acmedns"
 	"ALLinSSL/backend/internal/cert/apply/lego/bt"
+	customapilego "ALLinSSL/backend/internal/cert/apply/lego/customapi"
 	"ALLinSSL/backend/internal/cert/apply/lego/jdcloud"
 	"ALLinSSL/backend/internal/cert/apply/lego/webhook"
+	"ALLinSSL/backend/internal/customapi"
 	"ALLinSSL/backend/public"
 	"crypto/tls"
 	"crypto/x509"
@@ -949,17 +951,31 @@ func Apply(cfg map[string]any, logger *public.Logger) (map[string]any, error) {
 	if !ok {
 		return nil, fmt.Errorf("api配置错误")
 	}
-	// 解析 JSON 配置
-	var providerConfig map[string]string
-	err = json.Unmarshal([]byte(providerConfigStr), &providerConfig)
-	if err != nil {
-		return nil, err
-	}
 
-	// DNS 验证
-	provider, err := GetDNSProvider(providerStr, providerConfig, httpClient, maxWait)
-	if err != nil {
-		return nil, fmt.Errorf("创建 DNS provider 失败: %v", err)
+	var provider challenge.Provider
+	if providerStr == "custom_api" {
+		// 自定义HTTP(S) 作为 DNS 提供商：配置为嵌套 JSON（变量+多步请求），不走键值对解析
+		var caConfig customapi.Config
+		if err := json.Unmarshal([]byte(providerConfigStr), &caConfig); err != nil {
+			return nil, fmt.Errorf("解析自定义API配置失败: %w", err)
+		}
+		provider, err = customapilego.NewDNSProviderConfig(customapilego.NewConfig(&caConfig, logger))
+		if err != nil {
+			return nil, err
+		}
+	} else {
+		// 解析 JSON 配置
+		var providerConfig map[string]string
+		err = json.Unmarshal([]byte(providerConfigStr), &providerConfig)
+		if err != nil {
+			return nil, err
+		}
+
+		// DNS 验证
+		provider, err = GetDNSProvider(providerStr, providerConfig, httpClient, maxWait)
+		if err != nil {
+			return nil, fmt.Errorf("创建 DNS provider 失败: %v", err)
+		}
 	}
 
 	if skipCheck {

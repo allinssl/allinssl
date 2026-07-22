@@ -32,6 +32,15 @@ func TestVars(usage string) (map[string]string, error) {
 		vars["key"] = keyPEM
 		vars["issuer_cert"] = certPEM
 	}
+	if usage == "dns" {
+		// DNS-01 挑战场景的示例变量
+		vars["domain"] = "_acme-challenge.example.com"
+		vars["fqdn"] = "_acme-challenge.example.com"
+		vars["value"] = "test-txt-value"
+		vars["token"] = "test-token"
+		vars["action"] = "present"
+		vars["domains"] = "example.com"
+	}
 	return vars, nil
 }
 
