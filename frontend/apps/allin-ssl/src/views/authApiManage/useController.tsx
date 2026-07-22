@@ -161,12 +161,20 @@ export const useController = (): AuthApiManageControllerExposes => {
       key: "type",
       width: 200,
       render: (row) => {
-        // 优先用 ApiProjectConfig 的 type 映射展示（如 custom_api 的 cert/host/notify/dns）；
-        // 未登记的用数据库 access_type 映射（dns/host）
-        const configTypes = ApiProjectConfig[row.type]?.type;
-        const tags = (configTypes?.length ? configTypes : row.access_type || []).map(
-          (t) => unref(accessTypeMap)[t] || t
-        );
+        // custom_api 每行只按其 config.usage 显示一种用途；
+        // 其他提供商按 ApiProjectConfig 的 type 映射（如 aliyun 的 host/dns）
+        let types: string[] = []
+        if (row.type === 'custom_api') {
+          let usage = ''
+          try {
+            usage = JSON.parse(row.config || '{}').usage || ''
+          } catch {}
+          types = [usage || 'cert']
+        } else {
+          const configTypes = ApiProjectConfig[row.type]?.type
+          types = configTypes?.length ? configTypes : row.access_type || []
+        }
+        const tags = types.map((t) => unref(accessTypeMap)[t] || t)
         return (
           <NSpace>
             {tags.map((label, i) => (
@@ -175,7 +183,7 @@ export const useController = (): AuthApiManageControllerExposes => {
               </NTag>
             ))}
           </NSpace>
-        );
+        )
       },
     },
     {
