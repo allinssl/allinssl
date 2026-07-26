@@ -2,6 +2,7 @@ package api
 
 import (
 	"ALLinSSL/backend/internal/cert"
+	"ALLinSSL/backend/internal/cert/apply"
 	"ALLinSSL/backend/public"
 	"archive/zip"
 	"bytes"
@@ -80,6 +81,40 @@ func DelCert(c *gin.Context) {
 	}
 	public.SuccessMsg(c, "删除成功")
 	return
+}
+
+func RevokeCert(c *gin.Context) {
+	var form struct {
+		ID         string `form:"id"`
+		Reason     int    `form:"reason"`
+		ReasonNote string `form:"reason_note"`
+	}
+	err := c.Bind(&form)
+	if err != nil {
+		public.FailMsg(c, err.Error())
+		return
+	}
+	if form.ID == "" {
+		public.FailMsg(c, "ID不能为空")
+		return
+	}
+	err = apply.RevokeCert(form.ID, form.Reason, strings.TrimSpace(form.ReasonNote))
+	if err != nil {
+		public.FailMsg(c, err.Error())
+		return
+	}
+	public.SuccessMsg(c, "吊销成功")
+	return
+}
+
+// BackfillACME 从工作流配置回填历史证书的 ACME 账户元数据。
+func BackfillACME(c *gin.Context) {
+	n, err := cert.BackfillACMEMetadata()
+	if err != nil {
+		public.FailMsg(c, err.Error())
+		return
+	}
+	public.SuccessData(c, map[string]any{"updated": n}, n)
 }
 
 func DownloadCert(c *gin.Context) {

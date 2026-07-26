@@ -11,19 +11,21 @@ import (
 	"net/http"
 	"os"
 	"strconv"
+	"strings"
 	"syscall"
 	"time"
 )
 
 type Setting struct {
-	Timeout    int    `json:"timeout" form:"timeout"`
-	Secure     string `json:"secure" form:"secure"`
-	Https      string `json:"https" form:"https"`
-	Key        string `json:"key" form:"key"`
-	Cert       string `json:"cert" form:"cert"`
-	Username   string `json:"username" form:"username"`
-	Password   string `json:"password" form:"password"`
-	PluginPath string `json:"plugin_path" form:"plugin_path"`
+	Timeout       int    `json:"timeout" form:"timeout"`
+	Secure        string `json:"secure" form:"secure"`
+	Https         string `json:"https" form:"https"`
+	Key           string `json:"key" form:"key"`
+	Cert          string `json:"cert" form:"cert"`
+	Username      string `json:"username" form:"username"`
+	Password      string `json:"password" form:"password"`
+	PluginPath    string `json:"plugin_path" form:"plugin_path"`
+	PublicBaseURL string `json:"public_base_url" form:"public_base_url"`
 }
 
 func Get() (Setting, error) {
@@ -59,6 +61,7 @@ func Get() (Setting, error) {
 	username := data[0]["username"].(string)
 	setting.Username = username
 	setting.PluginPath = public.GetSettingIgnoreError("plugin_dir")
+	setting.PublicBaseURL = public.GetSettingIgnoreError("public_base_url")
 	return setting, nil
 }
 
@@ -116,6 +119,30 @@ func Save(setting *Setting) error {
 	}
 	if setting.PluginPath != "" && setting.PluginPath != public.GetSettingIgnoreError("plugin_dir") {
 		public.UpdateSetting("plugin_dir", setting.PluginPath)
+	}
+	// 公网基址：写入 CDP/OCSP 扩展与公开下载链接
+	if setting.PublicBaseURL != public.GetSettingIgnoreError("public_base_url") {
+		base := strings.TrimSpace(setting.PublicBaseURL)
+		if base != "" {
+			if !strings.HasPrefix(base, "http://") && !strings.HasPrefix(base, "https://") {
+				return fmt.Errorf("public_base_url 需以 http:// 或 https:// 开头")
+			}
+			base = strings.TrimRight(base, "/")
+		}
+		// 无记录则插入
+		if public.GetSettingIgnoreError("public_base_url") == "" && base != "" {
+			s.TableName = "settings"
+			now := time.Now().Format("2006-01-02 15:04:05")
+			_, _ = s.Insert(map[string]interface{}{
+				"key":         "public_base_url",
+				"value":       base,
+				"create_time": now,
+				"update_time": now,
+				"active":      1,
+			})
+		} else {
+			_ = public.UpdateSetting("public_base_url", base)
+		}
 	}
 	if setting.Https != "" {
 		if setting.Https == "1" {
