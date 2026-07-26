@@ -11,8 +11,9 @@ import (
 	"time"
 )
 
-// GenerateLeafCertificate 生成叶子证书（服务器/客户端证书/邮件证书）
-func GenerateLeafCertificate(commonName string, san SAN, issuer *Certificate, keyType KeyType, usage int, keyBits int, validDays int) (*LeafCertConfig, error) {
+// GenerateLeafCertificate 生成叶子证书（服务器/客户端证书/邮件证书）。
+// caId 用于写入 CRL Distribution Point / OCSP 扩展；<=0 时跳过扩展。
+func GenerateLeafCertificate(commonName string, san SAN, issuer *Certificate, keyType KeyType, usage int, keyBits int, validDays int, caId int64) (*LeafCertConfig, error) {
 	if issuer == nil {
 		return nil, errors.New("issuer is nil")
 	}
@@ -84,17 +85,18 @@ func GenerateLeafCertificate(commonName string, san SAN, issuer *Certificate, ke
 
 		// 6. 组装返回结果
 		return &LeafCertConfig{
-			CN:         commonName,
-			Usage:      int64(usage),
-			Cert:       string(signCert.CertPEM),
-			Key:        string(signCert.KeyPEM),
-			EnCert:     string(encryptCert.CertPEM),
-			EnKey:      string(encryptCert.KeyPEM),
-			Algorithm:  "sm2",
-			KeyLength:  256,
-			NotAfter:   expire.Format("2006-01-02 15:04:05"),
-			NotBefore:  now.Format("2006-01-02 15:04:05"),
-			CreateTime: now.Format("2006-01-02 15:04:05"),
+			CN:           commonName,
+			Usage:        int64(usage),
+			Cert:         string(signCert.CertPEM),
+			Key:          string(signCert.KeyPEM),
+			EnCert:       string(encryptCert.CertPEM),
+			EnKey:        string(encryptCert.KeyPEM),
+			Algorithm:    "sm2",
+			KeyLength:    256,
+			NotAfter:     expire.Format("2006-01-02 15:04:05"),
+			NotBefore:    now.Format("2006-01-02 15:04:05"),
+			CreateTime:   now.Format("2006-01-02 15:04:05"),
+			SerialNumber: fmt.Sprintf("%x", signTmpl.SerialNumber),
 		}, nil
 	}
 
@@ -128,14 +130,15 @@ func GenerateLeafCertificate(commonName string, san SAN, issuer *Certificate, ke
 	}
 	cert.KeyType = keyType
 	return &LeafCertConfig{
-		CN:         commonName,
-		Usage:      int64(usage),
-		Cert:       string(cert.CertPEM),
-		Key:        string(cert.KeyPEM),
-		Algorithm:  string(keyType),
-		KeyLength:  int64(keyBits),
-		NotAfter:   expire.Format("2006-01-02 15:04:05"),
-		NotBefore:  now.Format("2006-01-02 15:04:05"),
-		CreateTime: now.Format("2006-01-02 15:04:05"),
+		CN:           commonName,
+		Usage:        int64(usage),
+		Cert:         string(cert.CertPEM),
+		Key:          string(cert.KeyPEM),
+		Algorithm:    string(keyType),
+		KeyLength:    int64(keyBits),
+		NotAfter:     expire.Format("2006-01-02 15:04:05"),
+		NotBefore:    now.Format("2006-01-02 15:04:05"),
+		CreateTime:   now.Format("2006-01-02 15:04:05"),
+		SerialNumber: fmt.Sprintf("%x", tmpl.SerialNumber),
 	}, nil
 }

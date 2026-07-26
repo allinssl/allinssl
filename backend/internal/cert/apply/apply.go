@@ -571,6 +571,10 @@ func FindMatchedCert(runId string, domainArr []string) (*MatchedCert, error) {
 		now       = time.Now()
 	)
 	for i := range certs {
+		// 已吊销证书不可复用
+		if status, _ := certs[i]["status"].(string); status == cert.CertStatusRevoked {
+			continue
+		}
 		if !public.ContainsAllIgnoreBRepeats(strings.Split(certs[i]["domains"].(string), ","), domainArr) {
 			continue
 		}
@@ -1029,7 +1033,12 @@ func Apply(cfg map[string]any, logger *public.Logger) (map[string]any, error) {
 		"issuerCert": issuerCertStr,
 	}
 
-	_, err = cert.SaveCert("workflow", keyStr, certStr, issuerCertStr, runId)
+	// 规范化 CA 标识，便于吊销时找回账户
+	acmeCA := ca
+	if acmeCA == "" || acmeCA == "letsencrypt" {
+		acmeCA = "Let's Encrypt"
+	}
+	_, err = cert.SaveCert("workflow", keyStr, certStr, issuerCertStr, runId, email, acmeCA)
 	if err != nil {
 		return nil, err
 	}

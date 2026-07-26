@@ -84,6 +84,7 @@ func Register(r *gin.Engine) {
 		cert.POST("/get_list", api.GetCertList)
 		cert.POST("/upload_cert", api.UploadCert)
 		cert.POST("/del_cert", api.DelCert)
+		cert.POST("/revoke_cert", api.RevokeCert)
 		cert.GET("/download", api.DownloadCert)
 	}
 	report := v1.Group("/report")
@@ -118,6 +119,8 @@ func Register(r *gin.Engine) {
 		privateCa.POST("/create_leaf_cert", private_ca.CreateLeafCert)
 		privateCa.POST("/get_leaf_cert_list", private_ca.GetLeafCertList)
 		privateCa.POST("/del_leaf_cert", private_ca.DeleteLeafCert)
+		privateCa.POST("/revoke_leaf_cert", private_ca.RevokeLeafCert)
+		// 公开端点：无需登录（auth middleware 白名单）
 		privateCa.GET("/download_cert", private_ca.DownloadCert)
 	}
 

@@ -123,18 +123,18 @@ func GetLeafCertList(c *gin.Context) {
 
 func DeleteLeafCert(c *gin.Context) {
 	var form struct {
-		Id int64 `form:"id"`
+		Id string `form:"id"`
 	}
 	err := c.Bind(&form)
 	if err != nil {
 		public.FailMsg(c, err.Error())
 		return
 	}
-	if form.Id <= 0 {
+	if strings.TrimSpace(form.Id) == "" {
 		public.FailMsg(c, "ID不能为空")
 		return
 	}
-	err = private_ca.DeleteLeafCert(form.Id)
+	err = private_ca.DeleteLeafCerts(form.Id)
 	if err != nil {
 		public.FailMsg(c, err.Error())
 		return
@@ -142,6 +142,31 @@ func DeleteLeafCert(c *gin.Context) {
 	public.SuccessMsg(c, "删除成功")
 	return
 }
+
+func RevokeLeafCert(c *gin.Context) {
+	var form struct {
+		Id         string `form:"id"`
+		Reason     int    `form:"reason"`
+		ReasonNote string `form:"reason_note"`
+	}
+	err := c.Bind(&form)
+	if err != nil {
+		public.FailMsg(c, err.Error())
+		return
+	}
+	if strings.TrimSpace(form.Id) == "" {
+		public.FailMsg(c, "ID不能为空")
+		return
+	}
+	err = private_ca.RevokeLeafCerts(form.Id, form.Reason, strings.TrimSpace(form.ReasonNote))
+	if err != nil {
+		public.FailMsg(c, err.Error())
+		return
+	}
+	public.SuccessMsg(c, "吊销成功")
+	return
+}
+
 
 func DownloadCert(c *gin.Context) {
 	var form struct {
