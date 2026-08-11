@@ -38,6 +38,7 @@ import type {
   AccessListParams,
   AddAccessParams,
   SshAccessConfig,
+  FtpAccessConfig,
   UpdateAccessParams,
   PanelAccessConfig,
   NamecheapAccessConfig,
@@ -373,6 +374,13 @@ export const useApiFormController = (
       : apiFormProps
   ) as Ref<AddAccessParams | UpdateAccessParams>;
   const pluginActionTips = ref("");
+  // FTP端口是否被用户手动修改过，手动修改后不再自动覆盖
+  const ftpPortTouched = ref(false);
+  // 编辑已有配置时：自定义端口视为用户已手动设置，标准端口(21/990)仍可自动调整
+  if (props.data?.id) {
+    const port = (param.value.config as FtpAccessConfig)?.port;
+    ftpPortTouched.value = !(port === 21 || port === 990);
+  }
 
   // 插件列表
   const pluginList = ref<Array<PluginOption>>([]);
@@ -519,6 +527,7 @@ export const useApiFormController = (
             const mapTips = {
               westcn: $t("t_1_1747365603108"),
               lecdn: "请输入密码",
+              ftp: "请输入密码",
             };
             return callback(
               new Error(mapTips[param.value.type as keyof typeof mapTips])
@@ -940,6 +949,99 @@ export const useApiFormController = (
 
         // 合并所有 SSH 配置项
         items.push(...sshBaseItems, ...sshAuthItems);
+        break;
+      }
+      case "ftp": {
+        // FTP 基础配置项
+        const ftpTlsOn = !!(
+          (param.value.config as FtpAccessConfig)?.tls
+        );
+        const ftpBaseItems = [
+          useFormCustom(() => {
+            return (
+              <NGrid cols={24} xGap={4}>
+                <NFormItemGi
+                  label={$t("t_1_1747711335336")}
+                  span={16}
+                  path="config.host"
+                >
+                  <NInput
+                    v-model:value={(param.value.config as FtpAccessConfig).host}
+                    placeholder={$t("t_2_1747711337958")}
+                    allow-input={noSideSpace}
+                  />
+                </NFormItemGi>
+                <NFormItemGi
+                  label={$t("t_2_1745833931404")}
+                  span={8}
+                  path="config.port"
+                >
+                  <NInputNumber
+                    v-model:value={(param.value.config as FtpAccessConfig).port}
+                    showButton={false}
+                    onUpdateValue={() => {
+                      ftpPortTouched.value = true;
+                    }}
+                  />
+                </NFormItemGi>
+              </NGrid>
+            );
+          }),
+          useFormInput($t("t_44_1745289354583"), "config.user"),
+          useFormInput($t("t_48_1745289355714"), "config.password", {
+            type: "password",
+            showPasswordOn: "click",
+            allowInput: noSideSpace,
+          }),
+          useFormRadioButton("传输模式", "config.mode", [
+            { label: "被动(PASV)", value: "pasv" },
+          ]),
+          useFormRadioButton("TLS加密", "config.tls", [
+            { label: "关闭", value: "" },
+            { label: "显式TLS(AUTH TLS)", value: "explicit" },
+            { label: "隐式TLS(990)", value: "implicit" },
+          ]),
+        ];
+        if (ftpTlsOn) {
+          const ftpMtlsOn = (param.value.config as FtpAccessConfig)?.mtls === true;
+          ftpBaseItems.push(
+            useFormSwitch(
+              "跳过证书校验",
+              "config.insecure_skip_verify",
+              { checkedValue: true, uncheckedValue: false },
+              { showRequireMark: false }
+            ),
+            useFormSwitch(
+              "mTLS双向认证",
+              "config.mtls",
+              { checkedValue: true, uncheckedValue: false },
+              { showRequireMark: false }
+            )
+          );
+          if (ftpMtlsOn) {
+            ftpBaseItems.push(
+              useFormTextarea(
+                "客户端证书(PEM)",
+                "config.client_cert",
+                {
+                  rows: 3,
+                  placeholder: "mTLS双向认证客户端证书，与私钥同时填写",
+                },
+                { showRequireMark: false }
+              ),
+              useFormTextarea(
+                "客户端私钥(PEM)",
+                "config.client_key",
+                {
+                  rows: 3,
+                  placeholder: "mTLS双向认证客户端私钥，与证书同时填写",
+                },
+                { showRequireMark: false }
+              )
+            );
+          }
+        }
+        items.push(...ftpBaseItems);
         break;
       }
       case "1panel":
@@ -1654,6 +1756,21 @@ export const useApiFormController = (
             password: "",
           } as SshAccessConfig;
           break;
+        case "ftp":
+          param.value.config = {
+            host: "",
+            port: 21,
+            user: "ftp",
+            password: "",
+            mode: "pasv",
+            tls: "",
+            insecure_skip_verify: false,
+            mtls: false,
+            client_cert: "",
+            client_key: "",
+          } as FtpAccessConfig;
+          ftpPortTouched.value = false;
+          break;
         case "1panel":
           param.value.config = {
             url: "",
@@ -1828,6 +1945,18 @@ export const useApiFormController = (
           } as PluginAccessConfig;
           break;
       }
+    }
+  );
+
+  // FTP端口自动匹配：TLS 模式变化时自动选择标准端口，用户手动改过则不覆盖
+  watch(
+    () => [param.value.type, (param.value.config as FtpAccessConfig)?.tls],
+    ([type, tls]) => {
+      if (type !== "ftp" || !param.value.config || ftpPortTouched.value) {
+        return;
+      }
+      const defaultPort = tls === "implicit" ? 990 : 21;
+      (param.value.config as FtpAccessConfig).port = defaultPort;
     }
   );
 

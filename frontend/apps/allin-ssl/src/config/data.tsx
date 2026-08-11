@@ -54,6 +54,13 @@ export const ApiProjectConfig: Record<string, ApiProjectType> = {
     hostRelated: { default: { name: "SSH" } },
     sort: 2,
   },
+  ftp: {
+    name: "FTP",
+    icon: "ftp",
+    type: ["host"],
+    hostRelated: { default: { name: "FTP" } },
+    sort: 2,
+  },
   btpanel: {
     name: $t("t_10_1745735765165"),
     icon: "btpanel",

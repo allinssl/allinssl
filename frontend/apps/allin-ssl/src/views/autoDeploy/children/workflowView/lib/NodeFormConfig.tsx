@@ -155,6 +155,16 @@ export function createNodeFormConfig() {
 		},
 
 		/**
+		 * 创建FTP部署相关字段
+		 */
+		ftpDeploy() {
+			return [
+				this.input($t('t_1_1747280813656'), 'certPath', { placeholder: '上传目录如 /ssl/（默认名 fullchain.pem）或完整路径如 /ssl/test.crt' }),
+				this.input($t('t_2_1747280811593'), 'keyPath', { placeholder: '上传目录如 /ssl/（默认名 privkey.pem）或完整路径如 /ssl/test.key' }),
+			]
+		},
+
+		/**
 		 * 创建站点相关字段
 		 * @param valueRef 值引用
 		 */

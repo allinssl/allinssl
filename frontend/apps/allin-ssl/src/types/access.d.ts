@@ -38,6 +38,7 @@ export interface AccessTypesResponse extends AxiosResponseData {
 export interface AddAccessParams<
   T =
     | SshAccessConfig
+    | FtpAccessConfig
     | AliyunAccessConfig
     | TencentCloudAccessConfig
     | PanelAccessConfig
@@ -77,6 +78,7 @@ export interface AddAccessParams<
 export interface UpdateAccessParams<
   T =
     | SshAccessConfig
+    | FtpAccessConfig
     | AliyunAccessConfig
     | TencentCloudAccessConfig
     | PanelAccessConfig
@@ -119,6 +121,22 @@ type SshAccessConfig = {
   user: string;
   password?: string; // 密码字段：密码模式下作为登录密码，密钥模式下作为私钥密码（可选）
 } & ({ mode: "password"; key?: never } | { mode: "key"; key: string });
+
+/**
+ * ftp 授权配置
+ */
+export interface FtpAccessConfig {
+  host: string;
+  port: number;
+  user: string;
+  password?: string;
+  mode?: "pasv"; // 传输模式：仅支持被动 PASV（库不支持主动 PORT）
+  tls?: "" | "explicit" | "implicit"; // TLS加密：空=不加密 / explicit=显式TLS / implicit=隐式TLS(990)
+  insecure_skip_verify?: boolean; // 跳过证书校验（自签证书场景）
+  mtls?: boolean; // mTLS双向认证开关，开启后必须填写客户端证书/私钥
+  client_cert?: string; // mTLS双向认证客户端证书 PEM（mtls 开启时必填）
+  client_key?: string; // mTLS双向认证客户端私钥 PEM（mtls 开启时必填）
+}
 
 /**
  * 阿里云授权配置

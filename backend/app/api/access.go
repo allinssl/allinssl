@@ -316,6 +316,8 @@ func TestAccess(c *gin.Context) {
 		result = deploy.BtPanelAPITest(form.ID)
 	case "ssh":
 		result = deploy.SSHAPITest(form.ID)
+	case "ftp":
+		result = deploy.FTPAPITest(form.ID)
 	case "safeline":
 		result = deploy.SafeLineAPITest(form.ID)
 	case "1panel":
