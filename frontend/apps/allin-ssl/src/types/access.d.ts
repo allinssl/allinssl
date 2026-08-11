@@ -130,7 +130,7 @@ export interface FtpAccessConfig {
   port: number;
   user: string;
   password?: string;
-  mode?: "pasv"; // 传输模式：仅支持被动 PASV（库不支持主动 PORT）
+  mode?: "pasv" | "port"; // 传输模式：pasv 被动（默认）/ port 主动
   tls?: "" | "explicit" | "implicit"; // TLS加密：空=不加密 / explicit=显式TLS / implicit=隐式TLS(990)
   insecure_skip_verify?: boolean; // 跳过证书校验（自签证书场景）
   mtls?: boolean; // mTLS双向认证开关，开启后必须填写客户端证书/私钥

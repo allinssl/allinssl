@@ -995,6 +995,7 @@ export const useApiFormController = (
           }),
           useFormRadioButton("传输模式", "config.mode", [
             { label: "被动(PASV)", value: "pasv" },
+            { label: "主动(PORT)", value: "port" },
           ]),
           useFormRadioButton("TLS加密", "config.tls", [
             { label: "关闭", value: "" },

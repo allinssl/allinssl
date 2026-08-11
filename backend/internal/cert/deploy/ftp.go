@@ -44,10 +44,8 @@ func dialFTP(config FTPConfig) (*ftp.ServerConn, error) {
 
 	var opts []ftp.DialOption
 	opts = append(opts, ftp.DialWithTimeout(15*time.Second))
-	// 仅支持被动模式（PASV/EPSV）：jlaffaye/ftp 库无主动 PORT 实现，
-	// 历史配置中的 port 值忽略并回退为被动
-	if config.Mode != "pasv" {
-		config.Mode = "pasv"
+	if config.Mode == "port" {
+		opts = append(opts, ftp.DialWithActiveMode())
 	}
 	if config.TLS != "" {
 		tlsConfig := &tls.Config{
