@@ -19,6 +19,11 @@ needs_build() {
 
 if needs_build; then
   echo "==> 前端源码已更新，重建前端..."
+  # workspace 包（@baota/*）dist 缺失时先构建（vite-plugin-dts 依赖 utils 等类型声明）
+  if [ ! -f "frontend/packages/utils/dist/string.d.ts" ] || [ ! -f "frontend/packages/vue/router/dist/index.d.ts" ]; then
+    echo "==> workspace 包 dist 缺失，先构建..."
+    (cd frontend && pnpm -r build)
+  fi
   (cd frontend/apps/allin-ssl && pnpm build)
   rm -rf "$STATIC_BUILD"
   cp -r "$FRONTEND_DIST" "$STATIC_BUILD"
