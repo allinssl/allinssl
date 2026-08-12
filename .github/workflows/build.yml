@@ -1,0 +1,99 @@
+name: 自动编译
+
+on:
+  push:
+
+  release:
+    types:
+      - published
+
+  workflow_dispatch:
+
+env:
+  TZ: Asia/Shanghai
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+
+    # 环境准备
+    - name: 安装最新版 Golang
+      uses: actions/setup-go@v7
+      with:
+        go-version: 'stable'
+
+    - name: 检测Golang环境版本
+      run: |
+        go version
+
+    - name: 安装 Node
+      uses: actions/setup-node@v7
+      with:
+        node-version: 'lts/*'
+
+    - name: 检测 Node 版本
+      run: |
+        node -v
+
+    - name: 检测 npm 版本
+      run: |
+        npm -v
+
+    - name: 下载 upx
+      run: |
+        wget -qO- https://github.com/upx/upx/releases/download/v5.2.0/upx-5.2.0-amd64_linux.tar.xz | tar -xJ
+
+    - name: 安装 upx
+      run: |
+        sudo rm /usr/bin/upx
+        sudo cp upx-5.2.0-amd64_linux/upx /usr/bin/
+        rm -rf upx-5.2.0-amd64_linux
+
+    - name: 验证 upx 
+      run: |
+        which upx
+        upx --version
+
+    - name: 验证 upx 
+      run: |
+        which upx
+        upx --version
+
+    # 编译
+
+    - name: 压缩静态资源
+      run: |
+        node min.js
+
+    - name: 设置环境变量
+      run: |
+        export GOAMD64=v2
+        export GOARCH=amd64
+        export GOOS=linux
+
+    - name: 下载编译依赖
+      run: |
+        go mod tidy
+    
+    - name: 编译
+      run: |
+        go build -gcflags="-l=4" -pgo=auto -trimpath -ldflags="-s -w" -o allinssl cmd/main.go
+    
+    - name: 压缩
+      run: |
+        upx --best allinssl
+    
+    # 部署
+
+    - name: 部署
+      run: |
+        mkdir -p ./build
+        cp allinssl ./build/allinssl
+        cd ./build
+        git init
+        git config user.name "${{ github.actor }}"
+        git config user.email "${{ github.actor }}@users.noreply.github.com"
+        git add .
+        git commit -m "${{ github.event.head_commit.message }}··[$(date +"%Z %Y-%m-%d %A %H:%M:%S")]"
+        git push --force --quiet "https://${{ github.actor }}:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}" master:refs/heads/build
