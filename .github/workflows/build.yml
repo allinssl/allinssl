@@ -134,8 +134,6 @@ jobs:
 
     - name: 部署
       run: |
-        mkdir -p ./build
-        cp allinssl ./build/allinssl
         cd ./build
         git init
         git config user.name "${{ github.actor }}"
