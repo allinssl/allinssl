@@ -57,15 +57,11 @@ jobs:
         which upx
         upx --version
 
-    - name: 验证 upx 
-      run: |
-        which upx
-        upx --version
-
     # 编译
 
     - name: 压缩静态资源
       run: |
+        npm install terser html-minifier-terser postcss cssnano sharp svgo glob fast-glob
         node min.js
 
     - name: 设置环境变量
