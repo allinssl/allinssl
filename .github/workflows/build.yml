@@ -130,49 +130,6 @@ jobs:
         mkdir -p ./build/linux/amd64/GOAMD64-v1
         mv allinssl ./build/linux/amd64/GOAMD64-v1
 
-#############################
-##### Linux ARM64 Build #####
-#############################
-
-    - name: Linux ARM64-GOARM64-V5 Build
-      env:
-        GOARM64: v5
-        GOARCH: arm64
-        GOOS: linux
-      run: |
-        go mod tidy
-        go build -gcflags="-l=4" -pgo=auto -trimpath -ldflags="-s -w" -o allinssl cmd/main.go
-    
-    - name: 压缩
-      run: |
-        upx --best allinssl
-    
-    - name: 移动
-      run: |
-        mkdir -p ./build/linux/arm64/GOARM64-5
-        mv allinssl ./build/linux/arm64/GOARM64-5
-
-
-
-
-    - name: Linux ARM64 Build
-      env:
-        GOARCH: arm64
-        GOOS: linux
-      run: |
-        go mod tidy
-        go build -gcflags="-l=4" -pgo=auto -trimpath -ldflags="-s -w" -o allinssl cmd/main.go
-    
-    - name: 压缩
-      run: |
-        upx --best allinssl
-    
-    - name: 移动
-      run: |
-        mkdir -p ./build/linux/arm64
-        mv allinssl ./build/linux/arm64
-
-
     # 部署
 
     - name: 部署
