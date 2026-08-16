@@ -281,7 +281,7 @@ This project is licensed under the [AGPL-3.0 license](./LICENSE).
 
 ## 🌟 Star History
 
-[![Star History Chart](https://api.star-history.com/svg?repos=allinssl/allinssl&type=Date)](https://www.star-history.com/#allinssl/allinssl&Date)
+[![Star History Chart](https://star-history.dera.page/svg?repos=allinssl/allinssl&type=Date)](https://star-history.dera.page/#allinssl/allinssl&Date)
 
 ---
 

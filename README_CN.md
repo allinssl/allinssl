@@ -283,7 +283,7 @@ allinssl 17: 卸载ALLinSSL 🗑️
 
 ## 🌟Star 历史
 
-[![Star History Chart](https://api.star-history.com/svg?repos=allinssl/allinssl&type=Date)](https://www.star-history.com/#allinssl/allinssl&Date)
+[![Star History Chart](https://star-history.dera.page/svg?repos=allinssl/allinssl&type=Date)](https://star-history.dera.page/#allinssl/allinssl&Date)
 
 ---
 
