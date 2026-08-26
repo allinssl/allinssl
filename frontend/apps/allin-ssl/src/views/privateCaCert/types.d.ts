@@ -9,6 +9,11 @@ export interface CertItem {
 	id: string;
 	name: string;
 	cn: string;
+	o?: string;
+	c?: string;
+	ou?: string;
+	province?: string;
+	locality?: string;
 	san: string;
 	usage: number;
 	algorithm: string;
@@ -42,6 +47,11 @@ export interface LeafCertFormData {
 	key_length?: number;
 	valid_days: string;
 	cn: string;
+	o: string;
+	c: string;
+	ou: string;
+	province: string;
+	locality: string;
 	san: string;
 }
 
