@@ -23,6 +23,7 @@ export const MessagePushConfig = {
 	dingtalk: { name: $t('t_32_1746773348993'), type: 'dingtalk' },
 	feishu: { name: $t('t_34_1746773350153'), type: 'feishu' },
 	webhook: { name: 'WebHook', type: 'webhook' },
+	custom_api: { name: '自定义API', type: 'custom_api' },
 }
 
 // CA证书授权

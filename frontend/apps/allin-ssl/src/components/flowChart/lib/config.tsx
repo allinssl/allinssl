@@ -215,6 +215,7 @@ nodeOptions[PRIVATE_CA] = () =>
         validity_unit: "day",
         cn: "",
         san: "",
+        usage: 1,
       },
       childNode: null,
     },

@@ -156,12 +156,31 @@ export interface DeleteCaResponse {
 }
 
 /**
+ * 续期CA请求参数（保持私钥不变，仅更新证书有效期）
+ */
+export interface RenewCaParams {
+	/** CA ID */
+	id: string;
+	/** 新的有效期（天） */
+	valid_days: string;
+}
+
+/**
+ * 续期CA响应数据
+ */
+export interface RenewCaResponse {
+	code: number;
+	message: string;
+	status: boolean;
+}
+
+/**
  * 创建叶子证书请求参数
  */
 export interface CreateLeafCertParams {
 	/** 中间证书ID */
 	ca_id: string;
-	/** 用途：1服务器2客户端4邮件 */
+	/** 用途位掩码：1服务器 2客户端 4邮件，可按位组合（如 3=服务器+客户端） */
 	usage: string;
 	/** 密钥长度 */
 	key_length: string;

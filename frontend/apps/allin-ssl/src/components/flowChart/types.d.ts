@@ -416,6 +416,7 @@ interface UploadNodeConfig {
     validity_unit?: 'day' | 'year'; // 有效期单位
     cn?: string; // 通用名称
     san?: string; // 主题备用名称
+    usage?: number; // 证书用途位掩码：1服务器 2客户端 4邮件，可组合（3=服务器+客户端）
   }
 
 // 部署节点配置（ssh）

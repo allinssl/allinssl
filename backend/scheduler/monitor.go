@@ -155,16 +155,30 @@ func Monitor() {
 								if reportType == "" {
 									continue
 								}
-								rdata, err := s1.Where("type=?", []interface{}{reportType}).Select()
-								if err != nil {
-									return
-								}
-								if len(rdata) <= 0 {
-									return
+								provider := reportType
+								providerId := ""
+								if _, err := strconv.ParseInt(reportType, 10, 64); err == nil {
+									// 新版：存的是具体渠道ID，按ID取渠道
+									rdata, err := report.GetReport(reportType)
+									if err != nil {
+										continue
+									}
+									provider, _ = rdata["type"].(string)
+									providerId = reportType
+								} else {
+									// 兼容旧版：存的是渠道类型，取该类型第一条渠道
+									rdata, err := s1.Where("type=?", []interface{}{reportType}).Select()
+									if err != nil {
+										return
+									}
+									if len(rdata) <= 0 {
+										return
+									}
+									providerId = strconv.FormatInt(rdata[0]["id"].(int64), 10)
 								}
 								report.Notify(map[string]any{
-									"provider":    reportType,
-									"provider_id": strconv.FormatInt(rdata[0]["id"].(int64), 10),
+									"provider":    provider,
+									"provider_id": providerId,
 									"subject":     "ALLinSSL 监控通知",
 									"body":        fmt.Sprintf(MonitorErrTemplate, v["name"], monitorType, v["target"], strings.Split(checkErr, "：")[0], now.Format("2006-01-02 15:04:05")),
 								})

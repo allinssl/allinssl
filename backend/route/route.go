@@ -115,6 +115,7 @@ func Register(r *gin.Engine) {
 		privateCa.POST("/create_intermediate_ca", private_ca.CreateIntermediateCA)
 		privateCa.POST("/get_ca_list", private_ca.GetCAList)
 		privateCa.POST("/del_ca", private_ca.DeleteCA)
+		privateCa.POST("/renew_ca", private_ca.RenewCA)
 
 		privateCa.POST("/create_leaf_cert", private_ca.CreateLeafCert)
 		privateCa.POST("/get_leaf_cert_list", private_ca.GetLeafCertList)

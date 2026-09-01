@@ -14,6 +14,7 @@ import { getCaList, deleteCa as deleteCaApi, createRootCa, createIntermediateCa 
 import type { GetCaListParams } from '@/types/ca';
 import { onMounted } from 'vue';
 import AddCaModal from './components/AddCaModal';
+import RenewCaModal from './components/RenewCaModal';
 
 const { handleError } = useError();
 
@@ -152,9 +153,19 @@ export const useController = () => {
 			key: "actions",
 			fixed: "right" as const,
 			align: "right",
-			width: 200,
+			width: 240,
 			render: (row: PrivateCaItem) => (
 				<NFlex justify="end">
+					<NButton
+						class="table-action-btn"
+						size="tiny"
+						strong
+						secondary
+						type="warning"
+						onClick={() => handleRenew(row)}
+					>
+						续期
+					</NButton>
 					<NButton
 						class="table-action-btn"
 						size="tiny"
@@ -303,6 +314,30 @@ export const useController = () => {
 		} catch (error: any) {
 			handleError(error);
 		}
+	};
+
+	/**
+	 * 续期CA证书（保持私钥不变，仅更新有效期）
+	 */
+	const handleRenew = (row: PrivateCaItem) => {
+		useModal({
+			title: `续期CA - ${row.name}`,
+			area: 500,
+			component: () => (
+				<RenewCaModal
+					ca={row}
+					onSuccess={() => {
+						fetch();
+					}}
+				/>
+			),
+			footer: false,
+			onUpdateShow: (show: boolean) => {
+				if (!show) {
+					fetch();
+				}
+			},
+		});
 	};
 
 	// 删除CA事件

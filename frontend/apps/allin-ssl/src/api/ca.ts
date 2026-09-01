@@ -12,6 +12,8 @@ import type {
 	GetCaListResponse,
 	DeleteCaParams,
 	DeleteCaResponse,
+	RenewCaParams,
+	RenewCaResponse,
 	CreateLeafCertParams,
 	CreateLeafCertResponse,
 	GetLeafCertListParams,
@@ -53,6 +55,14 @@ export const getCaList = (params?: GetCaListParams): useAxiosReturn<GetCaListRes
  */
 export const deleteCa = (params?: DeleteCaParams): useAxiosReturn<DeleteCaResponse, DeleteCaParams> =>
 	useApi<DeleteCaResponse, DeleteCaParams>('/v1/private_ca/del_ca', params)
+
+/**
+ * @description 续期CA（保持私钥不变，仅更新证书有效期）
+ * @param {RenewCaParams} [params] 请求参数
+ * @returns {useAxiosReturn<RenewCaResponse, RenewCaParams>} 续期CA的组合式 API 调用封装。包含响应数据、加载状态及执行函数。
+ */
+export const renewCa = (params?: RenewCaParams): useAxiosReturn<RenewCaResponse, RenewCaParams> =>
+	useApi<RenewCaResponse, RenewCaParams>('/v1/private_ca/renew_ca', params)
 
 /**
  * @description 创建叶子证书

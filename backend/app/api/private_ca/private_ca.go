@@ -62,6 +62,34 @@ func GetCAList(c *gin.Context) {
 	return
 }
 
+// RenewCA 以不变更私钥的方式续期CA证书（兼容更新）
+func RenewCA(c *gin.Context) {
+	var form struct {
+		Id        int64 `form:"id"`
+		ValidDays int64 `form:"valid_days"`
+	}
+	err := c.Bind(&form)
+	if err != nil {
+		public.FailMsg(c, err.Error())
+		return
+	}
+	if form.Id <= 0 {
+		public.FailMsg(c, "ID不能为空")
+		return
+	}
+	if form.ValidDays <= 0 {
+		public.FailMsg(c, "有效期必须大于0")
+		return
+	}
+	err = private_ca.RenewCA(form.Id, form.ValidDays)
+	if err != nil {
+		public.FailMsg(c, err.Error())
+		return
+	}
+	public.SuccessMsg(c, "CA续期成功")
+	return
+}
+
 func DeleteCA(c *gin.Context) {
 	var form struct {
 		Id int64 `form:"id"`
