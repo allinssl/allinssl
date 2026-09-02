@@ -298,6 +298,34 @@ func GetCert(id int64, certType string) (map[string]any, error) {
 	return leafs[0], nil
 }
 
+// GetRootCACert 沿 root_id 向上找到证书链顶端的根CA，返回其证书（公钥）与名称，
+// 用于导出挂载到客户端信任库（如 Windows 证书管理器）
+func GetRootCACert(id int64) (certPEM string, name string, err error) {
+	s, err := GetSqlite()
+	if err != nil {
+		return "", "", err
+	}
+	defer s.Close()
+	currentId := id
+	for depth := 0; depth < 10 && currentId > 0; depth++ {
+		rows, err := s.Where("id=?", []interface{}{currentId}).Select()
+		if err != nil {
+			return "", "", err
+		}
+		if len(rows) == 0 {
+			return "", "", fmt.Errorf("CA with id %d not found", currentId)
+		}
+		ca := rows[0]
+		rootId := dbInt64(ca["root_id"])
+		if rootId <= 0 {
+			// 到达根CA
+			return dbString(ca["cert"]), dbString(ca["name"]), nil
+		}
+		currentId = rootId
+	}
+	return "", "", fmt.Errorf("证书链层级过深，未找到根CA")
+}
+
 func WorkflowCreateLeafCert(params map[string]any, logger *public.Logger) (map[string]any, error) {
 	caId, ok := params["ca_id"].(float64)
 	if !ok || caId <= 0 {

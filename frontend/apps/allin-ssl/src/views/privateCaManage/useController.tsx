@@ -1,4 +1,4 @@
-import { NButton, NFlex, NTag, type DataTableColumns } from 'naive-ui';
+import { NButton, NDropdown, NFlex, NTag, type DataTableColumns } from 'naive-ui';
 import {
 	useTable,
 	useSearch,
@@ -166,16 +166,24 @@ export const useController = () => {
 					>
 						续期
 					</NButton>
-					<NButton
-						class="table-action-btn"
-						size="tiny"
-						strong
-						secondary
-						type="primary"
-						onClick={() => handleDownload(row)}
+					<NDropdown
+						trigger="click"
+						options={[
+							{ label: "完整包（证书+私钥）", key: "full" },
+							{ label: "仅根证书（公钥，挂载信任库）", key: "root" },
+						]}
+						onSelect={(key: string) => handleDownload(row, key === "root")}
 					>
-						下载
-					</NButton>
+						<NButton
+							class="table-action-btn"
+							size="tiny"
+							strong
+							secondary
+							type="primary"
+						>
+							下载
+						</NButton>
+					</NDropdown>
 					<NButton
 						class="table-action-btn-danger"
 						size="tiny"
@@ -304,11 +312,12 @@ export const useController = () => {
 
 	/**
 	 * 下载CA证书
+	 * @param rootOnly 为 true 时仅导出证书链顶端的根证书（公钥），用于挂载到 Windows 等客户端信任库
 	 */
-	const handleDownload = (row: PrivateCaItem) => {
+	const handleDownload = (row: PrivateCaItem, rootOnly = false) => {
 		try {
       const link = document.createElement("a");
-      link.href = `/v1/private_ca/download_cert?id=${row.id.toString()}&type=ca`;
+      link.href = `/v1/private_ca/download_cert?id=${row.id.toString()}&type=ca${rootOnly ? "&root_only=1" : ""}`;
       link.target = "_blank";
       link.click();
 		} catch (error: any) {
