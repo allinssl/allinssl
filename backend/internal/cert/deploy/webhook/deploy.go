@@ -3,7 +3,9 @@ package webhook
 import (
 	"ALLinSSL/backend/internal/access"
 	"ALLinSSL/backend/public"
+	"crypto/x509"
 	"encoding/json"
+	"encoding/pem"
 	"fmt"
 	"strconv"
 )
@@ -69,8 +71,17 @@ func Deploy(cfg map[string]any) error {
 	if !ok || keyStr == "" {
 		return fmt.Errorf("key is required and must be a string")
 	}
+	domain, _ := cfg["domain"].(string)
+	if domain == "" {
+		block, _ := pem.Decode([]byte(certStr))
+		if block != nil && block.Type == "CERTIFICATE" {
+			if certObj, err := x509.ParseCertificate(block.Bytes); err == nil {
+				domain = certObj.Subject.CommonName
+			}
+		}
+	}
 
-	data, err := public.ReplaceJSONPlaceholders(providerConfig.Data, map[string]interface{}{"key": keyStr, "cert": certStr})
+	data, err := public.ReplaceJSONPlaceholders(providerConfig.Data, map[string]interface{}{"key": keyStr, "cert": certStr, "domain": domain})
 	if err != nil {
 		return fmt.Errorf("替换JSON占位符失败: %w", err)
 	}
