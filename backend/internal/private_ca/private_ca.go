@@ -4,6 +4,7 @@ import (
 	"ALLinSSL/backend/public"
 	"encoding/json"
 	"fmt"
+	"strings"
 	"time"
 )
 
@@ -194,7 +195,7 @@ func CreateLeafCert(caId, usage, keyBits, validDays int64, cn, san string) (*Lea
 		issuerObj, err = NewCertificateFromPEMStandard([]byte(cert), []byte(key), KeyType(keyType))
 
 	}
-	leafObj, err := GenerateLeafCertificate(cn, sans, issuerObj, KeyType(keyType), int(usage), int(keyBits), int(validDays))
+	leafObj, err := GenerateLeafCertificate(cn, sans, issuerObj, KeyType(keyType), int(usage), int(keyBits), int(validDays), caId)
 	if err != nil {
 		return nil, err
 	}
@@ -202,6 +203,7 @@ func CreateLeafCert(caId, usage, keyBits, validDays int64, cn, san string) (*Lea
 	// 保存到数据库
 	leafObj.SAN = san
 	leafObj.CaId = caId
+	leafObj.Status = LeafStatusNormal
 	insertData := public.StructToMap(leafObj, true)
 	_, err = s.Insert(insertData)
 	if err != nil {
@@ -259,10 +261,33 @@ func ListLeafCerts(caId int64, search string, p, limit int64) ([]map[string]inte
 		count = countResult[0]["count"].(int64)
 	}
 
+	// 兼容旧数据：无 status 字段时视为正常
+	for _, v := range data {
+		status, _ := v["status"].(string)
+		if status == "" {
+			v["status"] = LeafStatusNormal
+		}
+	}
+
 	return data, int(count), nil
 }
 
 func DeleteLeafCert(id int64) error {
+	return DeleteLeafCerts(fmt.Sprintf("%d", id))
+}
+
+// DeleteLeafCerts 支持逗号分隔的多个叶子证书 ID 批量删除。
+func DeleteLeafCerts(ids string) error {
+	ids = strings.TrimSpace(ids)
+	if ids == "" {
+		return fmt.Errorf("ID不能为空")
+	}
+	// 仅允许数字和逗号，防止 SQL 注入
+	for _, ch := range ids {
+		if (ch < '0' || ch > '9') && ch != ',' && ch != ' ' {
+			return fmt.Errorf("ID格式无效")
+		}
+	}
 	s, err := GetSqlite()
 	if err != nil {
 		return err
@@ -270,9 +295,93 @@ func DeleteLeafCert(id int64) error {
 	defer s.Close()
 	s.TableName = "leaf"
 
-	_, err = s.Where("id=?", []interface{}{id}).Delete()
+	_, err = s.Where("id in ("+ids+")", []interface{}{}).Delete()
 	if err != nil {
 		return err
+	}
+	return nil
+}
+
+// validRevokeReasons RFC 5280 允许的吊销原因码
+var validRevokeReasons = map[int]string{
+	RevokeReasonUnspecified:          "unspecified",
+	RevokeReasonKeyCompromise:        "keyCompromise",
+	RevokeReasonCACompromise:         "cACompromise",
+	RevokeReasonAffiliationChanged:   "affiliationChanged",
+	RevokeReasonSuperseded:           "superseded",
+	RevokeReasonCessationOfOperation: "cessationOfOperation",
+	RevokeReasonCertificateHold:      "certificateHold",
+	RevokeReasonRemoveFromCRL:        "removeFromCRL",
+	RevokeReasonPrivilegeWithdrawn:   "privilegeWithdrawn",
+	RevokeReasonAACompromise:         "aACompromise",
+}
+
+// RevokeLeafCert 吊销私有 CA 签发的叶子证书。
+// reason 使用 RFC 5280 §5.3.1 原因码；reasonNote 为可选备注。
+// 吊销后证书记录保留，状态标记为 revoked，工作流复用会跳过该证书。
+func RevokeLeafCert(id int64, reason int, reasonNote string) error {
+	return RevokeLeafCerts(fmt.Sprintf("%d", id), reason, reasonNote)
+}
+
+// RevokeLeafCerts 支持逗号分隔的多个叶子证书 ID 批量吊销。
+// 已吊销的会跳过；全部无效时返回错误。
+func RevokeLeafCerts(ids string, reason int, reasonNote string) error {
+	ids = strings.TrimSpace(ids)
+	if ids == "" {
+		return fmt.Errorf("证书 ID 无效")
+	}
+	for _, ch := range ids {
+		if (ch < '0' || ch > '9') && ch != ',' && ch != ' ' {
+			return fmt.Errorf("ID格式无效")
+		}
+	}
+	reasonLabel, ok := validRevokeReasons[reason]
+	if !ok {
+		return fmt.Errorf("不支持的吊销原因码: %d", reason)
+	}
+
+	s, err := GetSqlite()
+	if err != nil {
+		return err
+	}
+	defer s.Close()
+	s.TableName = "leaf"
+
+	leafs, err := s.Where("id in ("+ids+")", []interface{}{}).Select()
+	if err != nil {
+		return err
+	}
+	if len(leafs) == 0 {
+		return fmt.Errorf("证书不存在")
+	}
+
+	revokeReason := reasonLabel
+	if reasonNote != "" {
+		revokeReason = reasonLabel + ": " + reasonNote
+	}
+	now := time.Now().Format("2006-01-02 15:04:05")
+	updated := 0
+	skipped := 0
+	for _, leaf := range leafs {
+		if status, _ := leaf["status"].(string); status == LeafStatusRevoked {
+			skipped++
+			continue
+		}
+		_, err = s.Where("id=?", []interface{}{leaf["id"]}).Update(map[string]interface{}{
+			"status":        LeafStatusRevoked,
+			"revoke_reason": revokeReason,
+			"revoked_at":    now,
+		})
+		if err != nil {
+			return fmt.Errorf("吊销证书失败: %v", err)
+		}
+		updated++
+	}
+	if updated == 0 {
+		if skipped > 0 {
+			return fmt.Errorf("所选证书均已吊销，无需重复操作")
+		}
+		return fmt.Errorf("未吊销任何证书")
 	}
 	return nil
 }
@@ -367,13 +476,17 @@ func WorkflowCreateLeafCert(params map[string]any, logger *public.Logger) (map[s
 		}
 	}
 	s.TableName = "leaf"
-	// 获取所有未过期的证书，判断是否有相同的cn和san
-	leafs, err := s.Where("ca_id=? and not_after>? and usage=1", []interface{}{caId, time.Now().Format("2006-01-02 15:04:05")}).Select()
+	// 获取所有未过期且未吊销的证书，判断是否有相同的cn和san
+	leafs, err := s.Where("ca_id=? and not_after>? and usage=1 and (status is null or status=? or status='')", []interface{}{caId, time.Now().Format("2006-01-02 15:04:05"), LeafStatusNormal}).Select()
 	if err != nil {
 		return nil, err
 	}
 	var certificate map[string]any
 	for _, v := range leafs {
+		// 已吊销的证书不可复用
+		if status, _ := v["status"].(string); status == LeafStatusRevoked {
+			continue
+		}
 		// 判断剩余天数是否满足要求
 		if endDay > 0 {
 			notAfter, err := time.Parse("2006-01-02 15:04:05", v["not_after"].(string))

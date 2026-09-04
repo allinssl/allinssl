@@ -29,6 +29,10 @@ func SessionAuthMiddleware() gin.HandlerFunc {
 
 		routePath := c.Request.URL.Path
 		method := c.Request.Method
+			if isPrivateCAPublicPath(routePath, method) {
+				c.Next()
+				return
+			}
 		paths := strings.Split(strings.TrimPrefix(routePath, "/"), "/")
 		session := sessions.Default(c)
 		now := time.Now()
@@ -183,3 +187,17 @@ func generateSignature(timestamp, apiKey string) string {
 	signMd5Hex := strings.ToLower(hex.EncodeToString(signMd5[:]))
 	return signMd5Hex
 }
+
+// isPrivateCAPublicPath CRL/OCSP 公开端点，无需登录。
+func isPrivateCAPublicPath(path, method string) bool {
+	if !strings.HasPrefix(path, "/v1/private_ca/public/") {
+		return false
+	}
+	switch method {
+	case "GET", "POST":
+		return true
+	default:
+		return false
+	}
+}
+

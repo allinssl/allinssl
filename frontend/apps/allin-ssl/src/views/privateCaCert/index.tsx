@@ -7,17 +7,26 @@ import BaseComponent from "@components/BaseLayout";
 import EmptyState from "@components/TableEmptyState";
 import { useStore } from "./useStore";
 
+const batchActionOptions = [
+	{ label: "删除", value: "delete" },
+	{ label: "吊销", value: "revoke" },
+];
+
 export default defineComponent({
 	name: "PrivateCaCert",
 	setup() {
-		const { 
-			TableComponent, 
-			PageComponent, 
-			SearchComponent,
-			getRowClassName,
-			openCreateLeafCertModal,
-			handleCaIdChange,
-		} = useController();
+		const {
+				TableComponent,
+				PageComponent,
+				SearchComponent,
+				getRowClassName,
+				openCreateLeafCertModal,
+				handleCaIdChange,
+				checkedRowKeysRef,
+				handleCheck,
+				batchActionRef,
+				handleBatchAction,
+			} = useController();
 		const { intermediateCaList, getIntermediateCaList } = useStore();
 
 		const cssVar = useThemeCssVar(['contentPadding', 'borderColor', 'headerHeight', 'iconColorHover']);
@@ -68,6 +77,9 @@ export default defineComponent({
                   <TableComponent
                     size="medium"
                     rowClassName={getRowClassName}
+                    checkedRowKeys={checkedRowKeysRef.value}
+                    onUpdateCheckedRowKeys={handleCheck}
+                    rowKey={(row: any) => row.id.toString()}
                     v-slots={{
                       empty: () => (
                         <EmptyState
@@ -82,6 +94,28 @@ export default defineComponent({
               footerRight: () => (
                 <div class="mt-4 flex justify-end">
                   <PageComponent />
+                </div>
+              ),
+              footerLeft: () => (
+                <div class="mt-4 flex items-center gap-3">
+                  <NSelect
+                    v-model:value={batchActionRef.value}
+                    options={batchActionOptions}
+                    style={{ width: "120px" }}
+                    disabled={checkedRowKeysRef.value.length === 0}
+                    size="small"
+                  />
+                  <NButton
+                    size="small"
+                    type="primary"
+                    disabled={checkedRowKeysRef.value.length === 0}
+                    onClick={handleBatchAction}
+                  >
+                    批量操作
+                  </NButton>
+                  <span class="text-gray-500">
+                    已选中 {checkedRowKeysRef.value.length} 项
+                  </span>
                 </div>
               ),
             }}
