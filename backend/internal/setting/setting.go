@@ -6,13 +6,14 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
-	"github.com/joho/godotenv"
 	"io"
 	"net/http"
 	"os"
 	"strconv"
 	"syscall"
 	"time"
+
+	"github.com/joho/godotenv"
 )
 
 type Setting struct {
@@ -197,7 +198,7 @@ func Restart() {
 }
 
 func GetVersion() (map[string]string, error) {
-	version := "v1.1.2"
+	version := "v1.1.3"
 	update := "0"
 	newVersionObj, err := http.Get("https://allinssl.bt.com/version.json")
 	if err != nil {
