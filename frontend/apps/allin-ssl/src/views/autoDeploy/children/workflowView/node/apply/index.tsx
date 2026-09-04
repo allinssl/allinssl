@@ -2,7 +2,7 @@ import { Ref } from 'vue'
 import { defineComponent, PropType } from 'vue'
 import { useBaseNodeValidator } from '@workflowView/lib/BaseNodeValidator'
 import { $t } from '@locales/index'
-import rules from './verify'
+import { getApplyRules } from './verify'
 import Drawer from './model'
 import { useNodeHandler } from '@workflowView/lib/NodeHandler'
 import type { ApplyNodeConfig } from '@components/FlowChart/types'
@@ -34,7 +34,11 @@ export default defineComponent({
 			return $t('t_9_1745735765287')
 		}
 
-		const { renderNode } = useBaseNodeValidator(props, rules, renderContent)
+		const { renderNode } = useBaseNodeValidator(
+			props,
+			() => getApplyRules(props.node.config?.apply_type || 'acme'),
+			renderContent,
+		)
 
 		// 使用通用节点处理器
 		const { handleNodeClick } = useNodeHandler<ApplyNodeConfig>()

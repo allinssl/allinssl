@@ -4,6 +4,7 @@ import (
 	"ALLinSSL/backend/public"
 	"encoding/json"
 	"fmt"
+	"strings"
 	"time"
 )
 
@@ -145,6 +146,9 @@ func ListCAs(search, level string, p, limit int64) ([]map[string]interface{}, in
 func CreateLeafCert(caId, usage, keyBits, validDays int64, cn, san string) (*LeafCertConfig, error) {
 	if caId <= 0 {
 		return nil, fmt.Errorf("CA ID不能为空")
+	}
+	if usage < UsageServer || usage > UsageServer|UsageClient|UsageEmail {
+		return nil, fmt.Errorf("证书用途参数错误")
 	}
 	if san == "" {
 		return nil, fmt.Errorf("备用名称不能为空")
@@ -294,6 +298,34 @@ func GetCert(id int64, certType string) (map[string]any, error) {
 	return leafs[0], nil
 }
 
+// GetRootCACert 沿 root_id 向上找到证书链顶端的根CA，返回其证书（公钥）与名称，
+// 用于导出挂载到客户端信任库（如 Windows 证书管理器）
+func GetRootCACert(id int64) (certPEM string, name string, err error) {
+	s, err := GetSqlite()
+	if err != nil {
+		return "", "", err
+	}
+	defer s.Close()
+	currentId := id
+	for depth := 0; depth < 10 && currentId > 0; depth++ {
+		rows, err := s.Where("id=?", []interface{}{currentId}).Select()
+		if err != nil {
+			return "", "", err
+		}
+		if len(rows) == 0 {
+			return "", "", fmt.Errorf("CA with id %d not found", currentId)
+		}
+		ca := rows[0]
+		rootId := dbInt64(ca["root_id"])
+		if rootId <= 0 {
+			// 到达根CA
+			return dbString(ca["cert"]), dbString(ca["name"]), nil
+		}
+		currentId = rootId
+	}
+	return "", "", fmt.Errorf("证书链层级过深，未找到根CA")
+}
+
 func WorkflowCreateLeafCert(params map[string]any, logger *public.Logger) (map[string]any, error) {
 	caId, ok := params["ca_id"].(float64)
 	if !ok || caId <= 0 {
@@ -310,6 +342,14 @@ func WorkflowCreateLeafCert(params map[string]any, logger *public.Logger) (map[s
 	endDay, ok := params["end_day"].(float64)
 	if !ok {
 		endDay = 0
+	}
+	// 证书用途位掩码：1服务器 2客户端 4邮件，可组合（如 3=服务器+客户端），缺省为服务器证书
+	usage, ok := params["usage"].(float64)
+	if !ok || usage == 0 {
+		usage = UsageServer
+	}
+	if usage < UsageServer || usage > UsageServer|UsageClient|UsageEmail {
+		return nil, fmt.Errorf("usage参数错误")
 	}
 	cn, ok := params["cn"].(string)
 	if !ok {
@@ -368,7 +408,7 @@ func WorkflowCreateLeafCert(params map[string]any, logger *public.Logger) (map[s
 	}
 	s.TableName = "leaf"
 	// 获取所有未过期的证书，判断是否有相同的cn和san
-	leafs, err := s.Where("ca_id=? and not_after>? and usage=1", []interface{}{caId, time.Now().Format("2006-01-02 15:04:05")}).Select()
+	leafs, err := s.Where("ca_id=? and not_after>? and usage=?", []interface{}{caId, time.Now().Format("2006-01-02 15:04:05"), int64(usage)}).Select()
 	if err != nil {
 		return nil, err
 	}
@@ -414,7 +454,7 @@ func WorkflowCreateLeafCert(params map[string]any, logger *public.Logger) (map[s
 		}
 	}
 	if certificate == nil {
-		leaf, err := CreateLeafCert(int64(caId), 1, int64(keyBits), int64(validDays), cn, san)
+		leaf, err := CreateLeafCert(int64(caId), int64(usage), int64(keyBits), int64(validDays), cn, san)
 		if err != nil {
 			return nil, err
 		}
@@ -424,5 +464,43 @@ func WorkflowCreateLeafCert(params map[string]any, logger *public.Logger) (map[s
 		}
 	}
 
+	// 拼接完整证书链（叶子 + 中间CA + 根CA）供部署使用，否则客户端无法构建信任链
+	chain, err := buildChainPEM(certificate["cert"].(string), int64(caId))
+	if err != nil {
+		return nil, err
+	}
+	certificate["cert"] = chain
+
 	return certificate, nil
+}
+
+// buildChainPEM 自叶子证书向上拼接完整证书链：叶子 + 中间CA + ... + 根CA
+func buildChainPEM(leafCert string, caId int64) (string, error) {
+	s, err := GetSqlite()
+	if err != nil {
+		return "", err
+	}
+	defer s.Close()
+	var sb strings.Builder
+	sb.WriteString(strings.TrimSpace(leafCert))
+	sb.WriteString("\n")
+	currentId := caId
+	for depth := 0; depth < 10 && currentId > 0; depth++ {
+		rows, err := s.Where("id=?", []interface{}{currentId}).Select()
+		if err != nil {
+			return "", err
+		}
+		if len(rows) == 0 {
+			return "", fmt.Errorf("证书链构建失败：CA id %d 不存在", currentId)
+		}
+		ca := rows[0]
+		sb.WriteString(strings.TrimSpace(dbString(ca["cert"])))
+		sb.WriteString("\n")
+		rootId := dbInt64(ca["root_id"])
+		if rootId <= 0 {
+			break
+		}
+		currentId = rootId
+	}
+	return sb.String(), nil
 }

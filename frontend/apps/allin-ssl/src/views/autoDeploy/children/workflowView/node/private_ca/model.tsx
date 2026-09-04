@@ -32,6 +32,7 @@ export default defineComponent({
           validity_unit: "day",
           cn: "",
           san: "",
+          usage: 1,
         },
       }),
     },
@@ -47,6 +48,10 @@ export default defineComponent({
     }
     if ((param.value as any).ca_id !== undefined && (param.value as any).ca_id !== null) {
       (param.value as any).ca_id = String((param.value as any).ca_id) as unknown as string;
+    }
+    // 兼容未配置用途的旧工作流，默认签发服务器证书
+    if (param.value.usage === undefined || param.value.usage === null) {
+      param.value.usage = 1;
     }
 
     const caList = ref<Array<{ id: number; name: string; algorithm: string; key_length: number}>>([]);
@@ -245,6 +250,25 @@ export default defineComponent({
                     console.log("密钥长度选项:", currentKeyLengthOptions.value);
                   }
                 }}
+              />
+            </NFormItem>
+          );
+        },
+      },
+      {
+        type: "custom" as const,
+        render: () => {
+          return (
+            <NFormItem label="证书用途" path="usage">
+              <NSelect
+                v-model:value={param.value.usage}
+                options={[
+                  { label: "服务器证书", value: 1 },
+                  { label: "客户端证书", value: 2 },
+                  { label: "服务器+客户端证书", value: 3 },
+                ]}
+                placeholder="请选择证书用途"
+                class="w-full"
               />
             </NFormItem>
           );
@@ -536,6 +560,7 @@ export default defineComponent({
           valid_days: validDaysNumber,
           cn: data.value.cn,
           san: data.value.san,
+          usage: Number(data.value.usage ?? 1),
         } as const;
 
         updateNodeConfig(props.node.id, submitData);

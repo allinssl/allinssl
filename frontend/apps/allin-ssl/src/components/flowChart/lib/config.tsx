@@ -110,6 +110,7 @@ nodeOptions[APPLY] = () =>
       name: "申请",
       type: APPLY,
       config: {
+        apply_type: "acme",
         domains: "",
         email: "",
         eabId: "",
@@ -214,6 +215,7 @@ nodeOptions[PRIVATE_CA] = () =>
         validity_unit: "day",
         cn: "",
         san: "",
+        usage: 1,
       },
       childNode: null,
     },

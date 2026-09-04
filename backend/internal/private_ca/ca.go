@@ -238,7 +238,7 @@ func GenerateIntermediateCAStandard(name, commonName, organization, organization
 		IsCA:                  true,
 		KeyUsage:              x509.KeyUsageCertSign | x509.KeyUsageCRLSign,
 		BasicConstraintsValid: true,
-		MaxPathLen:            1,
+		MaxPathLenZero:        true, // 收紧为 pathlen:0，中间CA只允许直接签发叶子证书
 	}
 
 	certObj, err := signCert(tmpl, issuer.Cert, priv, issuer.Key, keyType)
@@ -320,7 +320,7 @@ func GenerateIntermediateCASM2(name, commonName, organization, organizationalUni
 		IsCA:                  true,
 		KeyUsage:              gmx509.KeyUsageCertSign | gmx509.KeyUsageCRLSign,
 		BasicConstraintsValid: true,
-		MaxPathLen:            1,
+		MaxPathLenZero:        true, // 收紧为 pathlen:0，中间CA只允许直接签发叶子证书
 	}
 
 	// 3. 创建中间加密证书模板
@@ -332,7 +332,7 @@ func GenerateIntermediateCASM2(name, commonName, organization, organizationalUni
 		IsCA:                  true,
 		KeyUsage:              gmx509.KeyUsageKeyEncipherment | gmx509.KeyUsageDataEncipherment,
 		BasicConstraintsValid: true,
-		MaxPathLen:            1,
+		MaxPathLenZero:        true, // 收紧为 pathlen:0
 	}
 
 	// 4. 使用颁发者的签名证书和私钥，签发中间签名证书

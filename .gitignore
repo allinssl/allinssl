@@ -1,6 +1,7 @@
 .DS_Store
 /data/
 /logs/
+/release/
 .idea
 **/.history
 **/.vscode

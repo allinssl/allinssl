@@ -137,8 +137,21 @@ export const useLayoutStore = defineStore('layout-store', (): LayoutStoreInterfa
 		try {
 			dnsProvider.value = []
 			const { data } = await getAccessAllList({ type }).fetch()
+			// DNS 场景下自定义HTTP(S)仅显示「DNS提供商」用途的提供方（用途存于 config.usage）
+			const filtered =
+				type === 'dns'
+					? (data || []).filter((item: any) => {
+							if (item.type !== 'custom_api') return true
+							try {
+								const usage = JSON.parse(item.config || '{}').usage
+								return !usage || usage === 'dns'
+							} catch {
+								return true
+							}
+						})
+					: data || []
 			dnsProvider.value =
-				data?.map((item) => ({
+				filtered.map((item) => ({
 					label: item.name,
 					value: item.id.toString(),
 					type: item.type,

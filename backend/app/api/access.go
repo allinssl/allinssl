@@ -5,7 +5,9 @@ import (
 	"ALLinSSL/backend/internal/access"
 	"ALLinSSL/backend/internal/cert/deploy"
 	"ALLinSSL/backend/internal/cert/deploy/plugin"
+	"ALLinSSL/backend/internal/customapi"
 	"ALLinSSL/backend/public"
+	"encoding/json"
 	"strings"
 
 	"github.com/gin-gonic/gin"
@@ -293,6 +295,35 @@ func DelEAB(c *gin.Context) {
 	return
 }
 
+// TestCustomApiConfig 用测试数据执行未保存的自定义HTTP(S)配置（表单内测试按钮）
+func TestCustomApiConfig(c *gin.Context) {
+	var form struct {
+		Usage  string `form:"usage"`
+		Config string `form:"config"`
+	}
+	if err := c.Bind(&form); err != nil {
+		public.FailMsg(c, err.Error())
+		return
+	}
+	var config customapi.Config
+	if err := json.Unmarshal([]byte(form.Config), &config); err != nil {
+		public.FailMsg(c, "配置解析失败: "+err.Error())
+		return
+	}
+	vars, err := customapi.TestVars(form.Usage)
+	if err != nil {
+		public.FailMsg(c, err.Error())
+		return
+	}
+	steps, _, err := customapi.ExecuteTrace(&config, vars, nil)
+	if err != nil {
+		public.FailMsg(c, err.Error())
+		return
+	}
+	public.SuccessData(c, map[string]any{"steps": steps}, len(steps))
+	return
+}
+
 func TestAccess(c *gin.Context) {
 	var form struct {
 		ID   string `form:"id"`
@@ -330,6 +361,8 @@ func TestAccess(c *gin.Context) {
 		result = deploy.QiniuAPITest(form.ID)
 	case "baidu":
 		result = deploy.BaiduyunAPITest(form.ID)
+	case "custom_api":
+		result = customapi.Test(form.ID)
 	default:
 		public.FailMsg(c, "不支持测试的提供商")
 		return

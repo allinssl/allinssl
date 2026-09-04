@@ -221,6 +221,7 @@ export interface StartNodeConfig {
 // 定义组件接收的参数类型(申请节点)
 export interface ApplyNodeConfig {
   // 基本选项
+  apply_type?: string; // 申请方式：acme（默认）| custom_api
   domains: string; // 域名
   email: string; // 邮箱
   eabId: string; // CA授权ID（EAB ID）
@@ -415,6 +416,7 @@ interface UploadNodeConfig {
     validity_unit?: 'day' | 'year'; // 有效期单位
     cn?: string; // 通用名称
     san?: string; // 主题备用名称
+    usage?: number; // 证书用途位掩码：1服务器 2客户端 4邮件，可组合（3=服务器+客户端）
   }
 
 // 部署节点配置（ssh）

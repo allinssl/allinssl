@@ -9,6 +9,7 @@ import type {
 	ReportWebhook,
 	ReportDingtalk,
 	ReportWecom,
+	ReportCustomApi,
 	AddReportParams,
 } from '@/types/setting'
 
@@ -18,6 +19,7 @@ const {
 	webhookChannelForm,
 	dingtalkChannelForm,
 	wecomChannelForm,
+	customApiChannelForm,
 	addReportChannel,
 	updateReportChannel,
 } = useStore()
@@ -461,6 +463,48 @@ export const useWecomChannelFormController = () => {
 		config,
 		rules,
 		wecomChannelForm,
+		submitForm,
+	}
+}
+
+/**
+ * 自定义API通知渠道表单控制器
+ */
+export const useCustomApiChannelFormController = () => {
+	const { open: openLoad, close: closeLoad } = useLoadingMask({ text: $t('t_0_1746667592819') })
+
+	const rules: FormRules = {
+		name: {
+			required: true,
+			trigger: ['input', 'blur'],
+			message: $t('t_25_1746773349596'),
+		},
+	}
+
+	const submitForm = async (
+		{ config, ...other }: AddReportParams<ReportCustomApi>,
+		formRef: Ref<FormInst | null>,
+		id?: number,
+	) => {
+		try {
+			openLoad()
+			if (id) {
+				await updateReportChannel({ id, config: JSON.stringify(config), ...other })
+			} else {
+				await addReportChannel({ config: JSON.stringify(config), ...other })
+			}
+			return true
+		} catch (error) {
+			handleError(error)
+			return false
+		} finally {
+			closeLoad()
+		}
+	}
+
+	return {
+		rules,
+		customApiChannelForm,
 		submitForm,
 	}
 }

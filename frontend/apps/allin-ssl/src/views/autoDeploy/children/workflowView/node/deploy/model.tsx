@@ -1,9 +1,10 @@
-import { NButton, NCard, NStep, NSteps, NText, NTooltip, NTabs, NTabPane, NInput, NDivider, NFormItem } from 'naive-ui'
+import { NButton, NCard, NStep, NSteps, NText, NTooltip, NTabs, NTabPane, NInput, NDivider, NFormItem, NSelect } from 'naive-ui'
 import { useForm, useModalClose, useModalOptions, useMessage } from '@baota/naive-ui/hooks'
 import { useThemeCssVar } from '@baota/naive-ui/theme'
 import { useError } from '@baota/hooks/error'
 import { useStore } from '@components/flowChart/useStore'
-import { getSites, getPlugins } from '@api/access'
+import { getSites, getPlugins, getAccessAllList } from '@api/access'
+import { matchCustomApiUsage } from '@components/customApiEditor'
 
 import { $t } from '@locales/index'
 import { deepClone } from '@baota/utils/data'
@@ -134,6 +135,33 @@ export default defineComponent({
 		if (!param.value.configMode) {
 			param.value.configMode = 'default'
 		}
+
+		// 自定义HTTP(S) 提供方选项（仅主机提供商用途）
+		const customApiOptions = ref<FormOption[]>([])
+		const customApiLoading = ref(false)
+		const loadCustomApiOptions = async () => {
+			customApiLoading.value = true
+			try {
+				const { data } = await getAccessAllList({ type: 'custom_api' }).fetch()
+				customApiOptions.value = (data || [])
+					.filter((item) => matchCustomApiUsage((item as any).config || '', 'host'))
+					.map((item) => ({ label: item.name, value: String(item.id) }))
+			} catch (error) {
+				handleError(error)
+			} finally {
+				customApiLoading.value = false
+			}
+		}
+		// 选择/初始化自定义HTTP(S)类型时加载提供方
+		watch(
+			() => param.value.provider,
+			(p) => {
+				if (p === 'custom_api' && !customApiOptions.value.length) {
+					loadCustomApiOptions()
+				}
+			},
+			{ immediate: true },
+		)
 		// 本地提供商
 		const localProvider = ref(getLocalProviderOptions())
 		// 提供商描述
@@ -152,7 +180,28 @@ export default defineComponent({
 		const nodeFormConfig = computed(() => {
 			const config = []
 			// 部署提供商选择
-			if (param.value.provider !== 'localhost') {
+			if (param.value.provider === 'custom_api') {
+				// 自定义HTTP(S)：专用下拉（仅主机提供商用途的提供方）
+				config.push(
+					formConfig.custom(() => {
+						return (
+							<NFormItem label="自定义HTTP(S)" path="provider_id">
+								<NSelect
+									value={param.value.provider_id}
+									options={customApiOptions.value}
+									loading={customApiLoading.value}
+									filterable
+									placeholder="请选择自定义HTTP(S)提供方"
+									onUpdateValue={(v: string) => {
+										param.value.provider_id = v
+										param.value.type = 'custom_api'
+									}}
+								/>
+							</NFormItem>
+						) as VNode
+					}),
+				)
+			} else if (param.value.provider !== 'localhost') {
 				config.push(
 					formConfig.custom(() => {
 						// 创建props对象

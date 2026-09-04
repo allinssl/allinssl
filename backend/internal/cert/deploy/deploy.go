@@ -113,6 +113,9 @@ func Deploy(cfg map[string]any, logger *public.Logger) error {
 	case "webhook":
 		logger.Debug("通过Webhook推送证书...")
 		return webhook.Deploy(cfg)
+	case "custom_api":
+		logger.Debug("通过自定义HTTP(S)接口推送证书...")
+		return DeployCustomApi(cfg, logger)
 	case "rainyun-sslcenter":
 		logger.Debug("部署到雨云证书中...")
 		return DeployRainyunSSLCenter(cfg)

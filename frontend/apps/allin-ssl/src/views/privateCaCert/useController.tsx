@@ -106,16 +106,13 @@ export const useController = () => {
       width: 120,
       render: (row: CertItem) => {
         const getUsageText = (usage: number) => {
-          switch (usage) {
-            case 1:
-              return "服务器证书";
-            case 2:
-              return "客户端证书";
-            case 4:
-              return "邮件证书";
-            default:
-              return `未知用途(${usage})`;
-          }
+          const usages: string[] = [];
+          if (usage & 1) usages.push("服务器");
+          if (usage & 2) usages.push("客户端");
+          if (usage & 4) usages.push("邮件");
+          return usages.length > 0
+            ? `${usages.join("+")}证书`
+            : `未知用途(${usage})`;
         };
 
         return <NTag size="small">{getUsageText(row.usage)}</NTag>;
@@ -400,6 +397,7 @@ export const useCreateLeafCertController = (list: IntermediateCa[]) => {
   const usageOptions: UsageOption[] = [
     { label: "服务器证书", value: "1" },
     { label: "客户端证书", value: "2" },
+    { label: "服务器+客户端证书", value: "3" },
     { label: "邮件证书", value: "4" },
   ];
 
@@ -609,7 +607,7 @@ export const useCreateLeafCertController = (list: IntermediateCa[]) => {
         <NRadioGroup
           v-model:value={formData.value.usage}
           onUpdateValue={(value: string) => {
-            sanType.value = value === "1" ? "dns_names" : "email_addresses";
+            sanType.value = value === "2" || value === "4" ? "email_addresses" : "dns_names";
             resetSanData();
           }}
         >
@@ -685,17 +683,17 @@ export const useCreateLeafCertController = (list: IntermediateCa[]) => {
                 {
                   label: "IP地址",
                   value: "ip_addresses",
-                  disabled: formData.value.usage !== "1",
+                  disabled: !["1", "3"].includes(formData.value.usage),
                 },
                 {
                   label: "DNS名称",
                   value: "dns_names",
-                  disabled: formData.value.usage !== "1",
+                  disabled: !["1", "3"].includes(formData.value.usage),
                 },
                 {
                   label: "邮箱地址",
                   value: "email_addresses",
-                  disabled: formData.value.usage === "1",
+                  disabled: ["1", "3"].includes(formData.value.usage),
                 },
               ]}
               style={{ width: "160px" }}

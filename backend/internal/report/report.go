@@ -132,6 +132,8 @@ func NotifyTest(id string) error {
 		err = NotifyDingtalk(params)
 	case "workwx":
 		err = NotifyWorkWx(params)
+	case "custom_api":
+		err = NotifyCustomApi(params)
 	}
 	return err
 }
@@ -157,6 +159,8 @@ func Notify(params map[string]any) error {
 		return NotifyDingtalk(params)
 	case "workwx":
 		return NotifyWorkWx(params)
+	case "custom_api":
+		return NotifyCustomApi(params)
 	default:
 		return fmt.Errorf("不支持的通知类型")
 	}

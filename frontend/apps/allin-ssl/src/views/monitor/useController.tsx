@@ -500,10 +500,10 @@ export const useMonitorFormController = (data: UpdateSiteMonitorParams | null = 
 					path="report_types"
 					isAddMode={true}
 					value={currentValue}
-					valueType="type"
+					valueType="value"
 					onUpdate:value={(items) => {
-						// 将选中的多个值转换为数组格式，存储类型值
-						monitorForm.value.report_types = items.map((item) => item.type || item.value)
+						// 存储具体渠道ID，支持同类型多渠道分别发送
+						monitorForm.value.report_types = items.map((item) => item.value)
 					}}
 				/>
 			)

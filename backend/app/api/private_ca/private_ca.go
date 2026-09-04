@@ -62,6 +62,34 @@ func GetCAList(c *gin.Context) {
 	return
 }
 
+// RenewCA 以不变更私钥的方式续期CA证书（兼容更新）
+func RenewCA(c *gin.Context) {
+	var form struct {
+		Id        int64 `form:"id"`
+		ValidDays int64 `form:"valid_days"`
+	}
+	err := c.Bind(&form)
+	if err != nil {
+		public.FailMsg(c, err.Error())
+		return
+	}
+	if form.Id <= 0 {
+		public.FailMsg(c, "ID不能为空")
+		return
+	}
+	if form.ValidDays <= 0 {
+		public.FailMsg(c, "有效期必须大于0")
+		return
+	}
+	err = private_ca.RenewCA(form.Id, form.ValidDays)
+	if err != nil {
+		public.FailMsg(c, err.Error())
+		return
+	}
+	public.SuccessMsg(c, "CA续期成功")
+	return
+}
+
 func DeleteCA(c *gin.Context) {
 	var form struct {
 		Id int64 `form:"id"`
@@ -145,8 +173,9 @@ func DeleteLeafCert(c *gin.Context) {
 
 func DownloadCert(c *gin.Context) {
 	var form struct {
-		Id   int64  `form:"id"`
-		Type string `form:"type"`
+		Id       int64  `form:"id"`
+		Type     string `form:"type"`
+		RootOnly string `form:"root_only"`
 	}
 	err := c.Bind(&form)
 	if err != nil {
@@ -155,6 +184,20 @@ func DownloadCert(c *gin.Context) {
 	}
 	if form.Id <= 0 {
 		public.FailMsg(c, "ID不能为空")
+		return
+	}
+	// 仅导出根证书（公钥）：沿证书链向上取根CA证书，供挂载到客户端信任库（如 Windows）
+	if form.Type == "ca" && form.RootOnly == "1" {
+		certPEM, name, err := private_ca.GetRootCACert(form.Id)
+		if err != nil {
+			public.FailMsg(c, err.Error())
+			return
+		}
+		fileName := strings.ReplaceAll(name, ".", "_")
+		fileName = strings.ReplaceAll(fileName, ",", "-")
+		c.Header("Content-Type", "application/x-x509-ca-cert")
+		c.Header("Content-Disposition", "attachment; filename="+fileName+"-root.crt")
+		c.Data(200, "application/x-x509-ca-cert", []byte(certPEM))
 		return
 	}
 	certData, err := private_ca.GetCert(form.Id, form.Type)

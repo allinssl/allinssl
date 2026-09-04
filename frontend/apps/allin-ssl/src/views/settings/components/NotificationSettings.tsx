@@ -25,6 +25,7 @@ export default defineComponent({
 			openAddWebhookChannelModal,
 			openAddDingtalkChannelModal,
 			openAddWecomChannelModal,
+			openAddCustomApiChannelModal,
 			editChannelConfig,
 			testChannelConfig,
 			confirmDeleteChannel,
@@ -80,6 +81,12 @@ export default defineComponent({
 						{$t('t_1_1746676859550')}
 					</NButton>
 				)
+			} else if (type === 'custom_api') {
+				return (
+					<NButton strong secondary type="primary" class="gradient-primary-btn" onClick={() => openAddCustomApiChannelModal()}>
+						{$t('t_1_1746676859550')}
+					</NButton>
+				)
 			}
 			// 其他渠道暂未支持
 			return (
@@ -120,6 +127,12 @@ export default defineComponent({
 				name: $t('t_7_1746676857191'),
 				description: $t('t_8_1746676860457'),
 				color: '#07c160',
+			},
+			{
+				type: 'custom_api',
+				name: '自定义API',
+				description: '支持多步HTTP请求、系统变量与自定义变量公式',
+				color: '#f5222d',
 			},
 		]
 		return () => (

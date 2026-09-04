@@ -11,7 +11,44 @@ import (
 	"time"
 )
 
-// GenerateLeafCertificate 生成叶子证书（服务器/客户端证书/邮件证书）
+// 证书用途位掩码，可按位组合（如 3=服务器+客户端）
+const (
+	UsageServer = 1 // 服务器证书
+	UsageClient = 2 // 客户端证书
+	UsageEmail  = 4 // 邮件证书
+)
+
+// extKeyUsages 将用途位掩码展开为标准算法的扩展密钥用途列表
+func extKeyUsages(usage int) []x509.ExtKeyUsage {
+	var usages []x509.ExtKeyUsage
+	if usage&UsageServer != 0 {
+		usages = append(usages, x509.ExtKeyUsageServerAuth)
+	}
+	if usage&UsageClient != 0 {
+		usages = append(usages, x509.ExtKeyUsageClientAuth)
+	}
+	if usage&UsageEmail != 0 {
+		usages = append(usages, x509.ExtKeyUsageEmailProtection)
+	}
+	return usages
+}
+
+// gmExtKeyUsages 将用途位掩码展开为国密算法的扩展密钥用途列表
+func gmExtKeyUsages(usage int) []gmx509.ExtKeyUsage {
+	var usages []gmx509.ExtKeyUsage
+	if usage&UsageServer != 0 {
+		usages = append(usages, gmx509.ExtKeyUsageServerAuth)
+	}
+	if usage&UsageClient != 0 {
+		usages = append(usages, gmx509.ExtKeyUsageClientAuth)
+	}
+	if usage&UsageEmail != 0 {
+		usages = append(usages, gmx509.ExtKeyUsageEmailProtection)
+	}
+	return usages
+}
+
+// GenerateLeafCertificate 生成叶子证书（服务器/客户端证书/邮件证书，usage 可按位组合）
 func GenerateLeafCertificate(commonName string, san SAN, issuer *Certificate, keyType KeyType, usage int, keyBits int, validDays int) (*LeafCertConfig, error) {
 	if issuer == nil {
 		return nil, errors.New("issuer is nil")
@@ -48,9 +85,10 @@ func GenerateLeafCertificate(commonName string, san SAN, issuer *Certificate, ke
 			Subject:        pkix.Name{CommonName: commonName},
 			NotBefore:      now,
 			NotAfter:       expire,
-			IsCA:           false,
-			KeyUsage:       gmx509.KeyUsageDigitalSignature, // 仅用于签名
-			ExtKeyUsage:    []gmx509.ExtKeyUsage{gmx509.ExtKeyUsage(usage)},
+			IsCA:                  false,
+			BasicConstraintsValid: true, // 显式声明 CA=FALSE
+			KeyUsage:              gmx509.KeyUsageDigitalSignature, // 仅用于签名
+			ExtKeyUsage:           gmExtKeyUsages(usage),
 			DNSNames:       san.DNSNames,
 			IPAddresses:    san.IPAddresses,
 			EmailAddresses: san.EmailAddresses,
@@ -62,9 +100,10 @@ func GenerateLeafCertificate(commonName string, san SAN, issuer *Certificate, ke
 			Subject:        pkix.Name{CommonName: commonName},
 			NotBefore:      now,
 			NotAfter:       expire,
-			IsCA:           false,
-			KeyUsage:       gmx509.KeyUsageKeyEncipherment, // 仅用于加密
-			ExtKeyUsage:    []gmx509.ExtKeyUsage{gmx509.ExtKeyUsage(usage)},
+			IsCA:                  false,
+			BasicConstraintsValid: true, // 显式声明 CA=FALSE
+			KeyUsage:              gmx509.KeyUsageKeyEncipherment, // 仅用于加密
+			ExtKeyUsage:           gmExtKeyUsages(usage),
 			DNSNames:       san.DNSNames,
 			IPAddresses:    san.IPAddresses,
 			EmailAddresses: san.EmailAddresses,
@@ -111,13 +150,14 @@ func GenerateLeafCertificate(commonName string, san SAN, issuer *Certificate, ke
 	}
 
 	tmpl := &x509.Certificate{
-		SerialNumber: big.NewInt(now.UnixNano()),
-		Subject:      pkix.Name{CommonName: commonName},
-		NotBefore:    now,
-		NotAfter:     expire,
-		IsCA:         false,
-		KeyUsage:     x509.KeyUsageDigitalSignature | x509.KeyUsageKeyEncipherment,
-		ExtKeyUsage:  []x509.ExtKeyUsage{x509.ExtKeyUsage(usage)},
+		SerialNumber:          big.NewInt(now.UnixNano()),
+		Subject:               pkix.Name{CommonName: commonName},
+		NotBefore:             now,
+		NotAfter:              expire,
+		IsCA:                  false,
+		BasicConstraintsValid: true, // 显式声明 CA=FALSE
+		KeyUsage:              x509.KeyUsageDigitalSignature | x509.KeyUsageKeyEncipherment,
+		ExtKeyUsage:           extKeyUsages(usage),
 	}
 
 	tmpl.DNSNames = san.DNSNames
