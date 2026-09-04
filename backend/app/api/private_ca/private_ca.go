@@ -91,7 +91,19 @@ func CreateLeafCert(c *gin.Context) {
 		public.FailMsg(c, err.Error())
 		return
 	}
-	_, err = private_ca.CreateLeafCert(form.CaId, form.Usage, form.KeyLength, form.ValidDays, form.CN, form.SAN)
+	_, err = private_ca.CreateLeafCert(
+		form.CaId,
+		form.Usage,
+		form.KeyLength,
+		form.ValidDays,
+		form.CN,
+		form.O,
+		form.OU,
+		form.C,
+		form.Province,
+		form.Locality,
+		form.SAN,
+	)
 	if err != nil {
 		public.FailMsg(c, err.Error())
 		return

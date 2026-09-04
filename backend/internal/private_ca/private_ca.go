@@ -142,7 +142,10 @@ func ListCAs(search, level string, p, limit int64) ([]map[string]interface{}, in
 	return data, int(count), nil
 }
 
-func CreateLeafCert(caId, usage, keyBits, validDays int64, cn, san string) (*LeafCertConfig, error) {
+func CreateLeafCert(
+	caId, usage, keyBits, validDays int64,
+	cn, organization, organizationalUnit, country, province, locality, san string,
+) (*LeafCertConfig, error) {
 	if caId <= 0 {
 		return nil, fmt.Errorf("CA ID不能为空")
 	}
@@ -194,7 +197,20 @@ func CreateLeafCert(caId, usage, keyBits, validDays int64, cn, san string) (*Lea
 		issuerObj, err = NewCertificateFromPEMStandard([]byte(cert), []byte(key), KeyType(keyType))
 
 	}
-	leafObj, err := GenerateLeafCertificate(cn, sans, issuerObj, KeyType(keyType), int(usage), int(keyBits), int(validDays))
+	leafObj, err := GenerateLeafCertificate(
+		cn,
+		organization,
+		organizationalUnit,
+		country,
+		province,
+		locality,
+		sans,
+		issuerObj,
+		KeyType(keyType),
+		int(usage),
+		int(keyBits),
+		int(validDays),
+	)
 	if err != nil {
 		return nil, err
 	}
@@ -315,6 +331,11 @@ func WorkflowCreateLeafCert(params map[string]any, logger *public.Logger) (map[s
 	if !ok {
 		cn = ""
 	}
+	organization, _ := params["o"].(string)
+	organizationalUnit, _ := params["ou"].(string)
+	country, _ := params["c"].(string)
+	province, _ := params["province"].(string)
+	locality, _ := params["locality"].(string)
 	san, ok := params["san"].(string)
 	if !ok || san == "" {
 		return nil, fmt.Errorf("san参数错误")
@@ -387,6 +408,13 @@ func WorkflowCreateLeafCert(params map[string]any, logger *public.Logger) (map[s
 		}
 		// 判断cn和san是否相同
 		if v["cn"] == cn {
+			if stringValue(v["o"]) != organization ||
+				stringValue(v["c"]) != country ||
+				stringValue(v["ou"]) != organizationalUnit ||
+				stringValue(v["province"]) != province ||
+				stringValue(v["locality"]) != locality {
+				continue
+			}
 			var existingSAN SAN
 			err = json.Unmarshal([]byte(v["san"].(string)), &existingSAN)
 			if err != nil {
@@ -414,7 +442,19 @@ func WorkflowCreateLeafCert(params map[string]any, logger *public.Logger) (map[s
 		}
 	}
 	if certificate == nil {
-		leaf, err := CreateLeafCert(int64(caId), 1, int64(keyBits), int64(validDays), cn, san)
+		leaf, err := CreateLeafCert(
+			int64(caId),
+			1,
+			int64(keyBits),
+			int64(validDays),
+			cn,
+			organization,
+			organizationalUnit,
+			country,
+			province,
+			locality,
+			san,
+		)
 		if err != nil {
 			return nil, err
 		}
@@ -425,4 +465,14 @@ func WorkflowCreateLeafCert(params map[string]any, logger *public.Logger) (map[s
 	}
 
 	return certificate, nil
+}
+
+func stringValue(value any) string {
+	if value == nil {
+		return ""
+	}
+	if result, ok := value.(string); ok {
+		return result
+	}
+	return fmt.Sprint(value)
 }

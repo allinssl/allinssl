@@ -414,6 +414,11 @@ interface UploadNodeConfig {
     valid_days?: string; // 有效期
     validity_unit?: 'day' | 'year'; // 有效期单位
     cn?: string; // 通用名称
+    o?: string; // 组织
+    c?: string; // 国家
+    ou?: string; // 组织单位
+    province?: string; // 省份
+    locality?: string; // 城市
     san?: string; // 主题备用名称
   }
 

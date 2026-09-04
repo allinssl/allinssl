@@ -169,6 +169,16 @@ export interface CreateLeafCertParams {
 	valid_days: string;
 	/** 通用名称 */
 	cn: string;
+	/** 组织 */
+	o: string;
+	/** 国家 */
+	c: string;
+	/** 组织单位 */
+	ou: string;
+	/** 省份 */
+	province: string;
+	/** 城市 */
+	locality: string;
 	/** 主题备用名称 (SAN) */
 	san: string;
 }
@@ -219,6 +229,16 @@ export interface GetLeafCertListResponse {
 		name: string;
 		/** 通用名称 */
 		cn: string;
+		/** 组织 */
+		o?: string;
+		/** 国家 */
+		c?: string;
+		/** 组织单位 */
+		ou?: string;
+		/** 省份 */
+		province?: string;
+		/** 城市 */
+		locality?: string;
 		/** 用途 */
 		usage: string;
 		/** 中间证书ID */

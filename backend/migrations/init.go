@@ -397,7 +397,7 @@ create table monitor
 	// 创建表
 	_, err = dbPrivateCa.Exec(`
 	PRAGMA journal_mode=WAL;
-	create table ca
+	create table if not exists ca
 	(
 		id          integer         not null
 			constraint ca_pk
@@ -407,6 +407,9 @@ create table monitor
 		cn          TEXT            not null,
 		o           TEXT default '' not null,
 		c           TEXT            not null,
+		ou          TEXT default '' not null,
+		province    TEXT default '' not null,
+		locality    TEXT default '' not null,
 		cert        TEXT            not null,
 		key         TEXT            not null,
 		en_cert     TEXT,
@@ -417,15 +420,20 @@ create table monitor
 		not_after   TEXT            not null,
 		create_time TEXT            not null
 	);
-	create index ca_root_id_index
+	create index if not exists ca_root_id_index
 		on ca (root_id);
-	create table leaf
+	create table if not exists leaf
 	(
 		id          integer not null
 			constraint leaf_pk
 				primary key autoincrement,
 		ca_id       integer not null,
 		cn          TEXT    not null,
+		o           TEXT    default '' not null,
+		c           TEXT    default '' not null,
+		ou          TEXT    default '' not null,
+		province    TEXT    default '' not null,
+		locality    TEXT    default '' not null,
 		san         TEXT    not null,
 		usage       integer not null,
 		cert        TEXT    not null,
@@ -439,10 +447,53 @@ create table monitor
 		create_time TEXT    not null
 	);
 	
-	create index leaf_ca_id_index
+	create index if not exists leaf_ca_id_index
 		on leaf (ca_id);
 `)
+	if err != nil {
+		return
+	}
 
+	ensurePrivateCaColumns(dbPrivateCa, "ca", map[string]string{
+		"ou":       "TEXT DEFAULT '' NOT NULL",
+		"province": "TEXT DEFAULT '' NOT NULL",
+		"locality": "TEXT DEFAULT '' NOT NULL",
+	})
+	ensurePrivateCaColumns(dbPrivateCa, "leaf", map[string]string{
+		"o":        "TEXT DEFAULT '' NOT NULL",
+		"c":        "TEXT DEFAULT '' NOT NULL",
+		"ou":       "TEXT DEFAULT '' NOT NULL",
+		"province": "TEXT DEFAULT '' NOT NULL",
+		"locality": "TEXT DEFAULT '' NOT NULL",
+	})
+
+}
+
+func ensurePrivateCaColumns(db *sql.DB, table string, columns map[string]string) {
+	rows, err := db.Query("PRAGMA table_info(" + table + ")")
+	if err != nil {
+		return
+	}
+	defer rows.Close()
+
+	existing := make(map[string]struct{})
+	for rows.Next() {
+		var cid int
+		var name, columnType string
+		var notNull, primaryKey int
+		var defaultValue any
+		if err := rows.Scan(&cid, &name, &columnType, &notNull, &defaultValue, &primaryKey); err != nil {
+			return
+		}
+		existing[name] = struct{}{}
+	}
+
+	for name, definition := range columns {
+		if _, ok := existing[name]; ok {
+			continue
+		}
+		_, _ = db.Exec("ALTER TABLE " + table + " ADD COLUMN " + name + " " + definition)
+	}
 }
 
 func insertDefaultData(db *sql.DB, table, insertSQL string) {
