@@ -262,6 +262,13 @@ func StructToMap(obj interface{}, ignoreZero bool) map[string]interface{} {
 
 		// 获取 json tag，若为空则用字段名
 		tag := field.Tag.Get("json")
+		if tag != "" {
+			// 去掉 json tag 里的选项，比如 "name,omitempty"
+			tag = strings.Split(tag, ",")[0]
+			if tag == "-" {
+				continue
+			}
+		}
 		if tag == "" {
 			tag = field.Name
 		}

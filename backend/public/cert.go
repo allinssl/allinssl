@@ -13,10 +13,11 @@ import (
 	"encoding/pem"
 	"errors"
 	"fmt"
-	"github.com/pavlo-v-chernykh/keystore-go/v4"
-	"software.sslmate.com/src/go-pkcs12"
 	"strings"
 	"time"
+
+	"github.com/pavlo-v-chernykh/keystore-go/v4"
+	"software.sslmate.com/src/go-pkcs12"
 )
 
 // **解析 PEM 格式的证书**
@@ -46,6 +47,19 @@ func ParsePrivateKey(keyPEM []byte) (crypto.PrivateKey, error) {
 		return key, nil
 	}
 	return nil, fmt.Errorf("无法识别的私钥格式")
+}
+
+// BuildFullChain 拼接叶子证书和中间证书（不包含根证书）
+func BuildFullChain(certPEM, issuerPEM string) string {
+	cert := strings.TrimSpace(certPEM)
+	issuer := strings.TrimSpace(issuerPEM)
+	if cert == "" {
+		return ""
+	}
+	if issuer == "" {
+		return cert
+	}
+	return cert + "\n" + issuer + "\n"
 }
 
 // **检查证书是否过期**

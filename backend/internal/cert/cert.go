@@ -218,6 +218,11 @@ func GetCert(id string) (map[string]string, error) {
 		"cert":    res[0]["cert"].(string),
 		"key":     res[0]["key"].(string),
 	}
+	if res[0]["issuer_cert"] != nil {
+		if issuer, ok := res[0]["issuer_cert"].(string); ok {
+			data["issuer_cert"] = issuer
+		}
+	}
 
 	return data, nil
 }
