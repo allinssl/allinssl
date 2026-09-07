@@ -1676,6 +1676,13 @@ export const useApiFormController = (
             ignore_ssl: "0",
           };
           break;
+        case "safeline":
+          param.value.config = {
+            url: "",
+            api_token: "",
+            ignore_ssl: "0",
+          };
+          break;
         case "aliyun":
           param.value.config = {
             access_key_id: "",
