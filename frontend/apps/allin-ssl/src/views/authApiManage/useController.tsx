@@ -1321,6 +1321,12 @@ export const useApiFormController = (
                         </code>
                         <span class="text-color5">：私钥内容</span>
                       </div>
+                      <div>
+                        <code class="px-2 py-1 bg-[var(--form-log-code-bg)] rounded text-lg font-mono">
+                          __domain__
+                        </code>
+                        <span class="text-color5">：主域名（如 example.com）</span>
+                      </div>
                     </div>
                   </div>
                   <div>
