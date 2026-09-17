@@ -8,6 +8,7 @@ import {
   NOTIFY,
   UPLOAD,
   PRIVATE_CA,
+  WAIT,
   EXECUTE_RESULT_BRANCH,
   EXECUTE_RESULT_CONDITION,
   START,
@@ -166,6 +167,23 @@ nodeOptions[DEPLOY] = () =>
           fromNodeId: "",
           name: "",
         },
+      },
+      childNode: null,
+    },
+  });
+
+// 等待节点
+nodeOptions[WAIT] = () =>
+  baseOptions({
+    title: { name: "等待" },
+    icon: { name: WAIT },
+    operateNode: { sort: 3.5 },
+    defaultNode: {
+      id: uuidv4(),
+      name: "等待",
+      type: WAIT,
+      config: {
+        seconds: undefined,
       },
       childNode: null,
     },

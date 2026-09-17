@@ -10,6 +10,7 @@ import (
 	"errors"
 	"fmt"
 	"strconv"
+	"time"
 )
 
 // var executors map[string]func(map[string]any) (any, error)
@@ -30,9 +31,65 @@ func Executors(exec string, params map[string]any) (any, error) {
 		return notify(params)
 	case "private_ca":
 		return privateCa(params)
+	case "wait":
+		return wait(params)
 	default:
 		return nil, nil
 	}
+}
+
+func parseWaitSeconds(value any) (float64, error) {
+	switch v := value.(type) {
+	case int:
+		return float64(v), nil
+	case int64:
+		return float64(v), nil
+	case float64:
+		return v, nil
+	case float32:
+		return float64(v), nil
+	case string:
+		if v == "" {
+			return 0, errors.New("等待秒数不能为空")
+		}
+		seconds, err := strconv.ParseFloat(v, 64)
+		if err != nil {
+			return 0, errors.New("等待秒数格式错误")
+		}
+		return seconds, nil
+	default:
+		return 0, errors.New("等待秒数格式错误")
+	}
+}
+
+func wait(params map[string]any) (any, error) {
+	logger := params["logger"].(*public.Logger)
+	logger.Info("=============等待执行=============")
+
+	seconds, err := parseWaitSeconds(params["seconds"])
+	if err != nil {
+		logger.Error(err.Error())
+		logger.Info("=============等待失败=============")
+		return nil, err
+	}
+	if seconds < 0 {
+		err = errors.New("等待秒数不能小于0")
+		logger.Error(err.Error())
+		logger.Info("=============等待失败=============")
+		return nil, err
+	}
+
+	duration := time.Duration(seconds * float64(time.Second))
+	logger.Info(fmt.Sprintf("等待 %.3f 秒后继续执行", seconds))
+	timer := time.NewTimer(duration)
+	defer timer.Stop()
+	<-timer.C
+	logger.Info("=============等待完成=============")
+
+	if fromNodeData, ok := params["fromNodeData"]; ok {
+		return fromNodeData, nil
+	}
+	return nil, nil
 }
 
 func privateCa(params map[string]any) (any, error) {
