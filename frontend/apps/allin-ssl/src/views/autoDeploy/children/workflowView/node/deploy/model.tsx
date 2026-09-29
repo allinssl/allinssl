@@ -197,10 +197,13 @@ export default defineComponent({
 
 			// 根据不同的部署类型添加不同的表单配置
 			switch (param.value.provider) {
-				case 'localhost':
-				case 'ssh':
-					config.push(...formConfig.sshDeploy())
-					break
+			case 'localhost':
+			case 'ssh':
+				config.push(...formConfig.sshDeploy())
+				break
+			case 'ftp':
+				config.push(...formConfig.ftpDeploy())
+				break
 				case 'btpanel-site':
 				case '1panel-site':
 					// 使用异步加载的网站选择器
