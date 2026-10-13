@@ -9,6 +9,7 @@ import EmptyState from '@components/TableEmptyState'
 
 const batchActionOptions = [
 	{ label: '删除', value: 'delete' },
+	{ label: '吊销', value: 'revoke' },
 ]
 
 /**

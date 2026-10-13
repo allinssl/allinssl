@@ -14,6 +14,8 @@ import type {
 	DownloadCertResponse, // Ensuring this type is imported
 	UploadCertParams,
 	UploadCertResponse,
+	RevokeCertParams,
+	RevokeCertResponse,
 } from '@/types/cert' // Path alias and sorted types
 
 // Relative internal imports
@@ -59,3 +61,11 @@ export const deleteCert = (params?: DeleteCertParams): useAxiosReturn<DeleteCert
 export const downloadCert = (params?: DownloadCertParams): Promise<AxiosResponse<DownloadCertResponse>> => {
 	return axios.get<DownloadCertResponse>('/v1/cert/download', { params })
 }
+
+/**
+ * @description 吊销证书（ACME）
+ * @param {RevokeCertParams} [params] 请求参数
+ * @returns {useAxiosReturn<RevokeCertResponse, RevokeCertParams>} 吊销证书的组合式 API 调用封装。
+ */
+export const revokeCert = (params?: RevokeCertParams): useAxiosReturn<RevokeCertResponse, RevokeCertParams> =>
+	useApi<RevokeCertResponse, RevokeCertParams>('/v1/cert/revoke_cert', params)

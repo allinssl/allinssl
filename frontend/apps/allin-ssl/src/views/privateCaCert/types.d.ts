@@ -14,8 +14,11 @@ export interface CertItem {
 	algorithm: string;
 	not_before: string;
 	not_after: string;
+	/** normal | revoked | expired(前端推导) */
 	status: string;
 	ca_cn: string;
+	revoke_reason?: string;
+	revoked_at?: string;
 }
 
 // 表格查询参数

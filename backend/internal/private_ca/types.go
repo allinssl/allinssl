@@ -71,20 +71,45 @@ type CAConfig struct {
 	ValidDays  int64  `json:"valid_days" form:"valid_days"`
 }
 
+// 叶子证书状态
+const (
+	LeafStatusNormal  = "normal"
+	LeafStatusRevoked = "revoked"
+)
+
+// RFC 5280 §5.3.1 吊销原因码（与 ACME / CRL 保持一致）
+const (
+	RevokeReasonUnspecified          = 0
+	RevokeReasonKeyCompromise        = 1
+	RevokeReasonCACompromise         = 2
+	RevokeReasonAffiliationChanged   = 3
+	RevokeReasonSuperseded           = 4
+	RevokeReasonCessationOfOperation = 5
+	RevokeReasonCertificateHold      = 6
+	// 7 保留
+	RevokeReasonRemoveFromCRL      = 8
+	RevokeReasonPrivilegeWithdrawn = 9
+	RevokeReasonAACompromise       = 10
+)
+
 type LeafCertConfig struct {
-	Id         int64  `json:"id" form:"id"`
-	CaId       int64  `json:"ca_id" form:"ca_id"`
-	CN         string `json:"cn" form:"cn"`
-	SAN        string `json:"san" form:"san"`
-	Usage      int64  `json:"usage" form:"usage"`
-	Cert       string `json:"cert" form:"cert"`
-	Key        string `json:"key" form:"key"`
-	EnCert     string `json:"en_cert" form:"en_cert"`
-	EnKey      string `json:"en_key" form:"en_key"`
-	Algorithm  string `json:"algorithm" form:"algorithm"`
-	KeyLength  int64  `json:"key_length" form:"key_length"`
-	NotAfter   string `json:"not_after" form:"not_after"`
-	NotBefore  string `json:"not_before" form:"not_before"`
-	ValidDays  int64  `json:"valid_days" form:"valid_days"`
-	CreateTime string `json:"create_time" form:"create_time"`
+	Id           int64  `json:"id" form:"id"`
+	CaId         int64  `json:"ca_id" form:"ca_id"`
+	CN           string `json:"cn" form:"cn"`
+	SAN          string `json:"san" form:"san"`
+	Usage        int64  `json:"usage" form:"usage"`
+	Cert         string `json:"cert" form:"cert"`
+	Key          string `json:"key" form:"key"`
+	EnCert       string `json:"en_cert" form:"en_cert"`
+	EnKey        string `json:"en_key" form:"en_key"`
+	Algorithm    string `json:"algorithm" form:"algorithm"`
+	KeyLength    int64  `json:"key_length" form:"key_length"`
+	NotAfter     string `json:"not_after" form:"not_after"`
+	NotBefore    string `json:"not_before" form:"not_before"`
+	ValidDays    int64  `json:"valid_days" form:"valid_days"`
+	CreateTime   string `json:"create_time" form:"create_time"`
+	Status       string `json:"status" form:"status"`
+	RevokeReason string `json:"revoke_reason" form:"revoke_reason"`
+	RevokedAt    string `json:"revoked_at" form:"revoked_at"`
+	SerialNumber string `json:"serial_number" form:"serial_number"`
 }

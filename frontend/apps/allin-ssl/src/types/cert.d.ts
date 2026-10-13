@@ -25,6 +25,12 @@ export interface CertItem {
 	start_time: string
 	update_time: string
 	workflow_id: string
+	/** normal | revoked */
+	status?: string
+	revoke_reason?: string
+	revoked_at?: string
+	acme_email?: string
+	acme_ca?: string
 }
 
 /** 证书列表响应 */
@@ -120,4 +126,16 @@ export interface FreeProductItem {
 	valid_days: number
 	desc?: string
 	features: string[]
+}
+
+/** 吊销证书请求参数 */
+export interface RevokeCertParams {
+	id: string
+	reason?: number | string
+	reason_note?: string
+}
+
+/** 吊销证书响应 */
+export interface RevokeCertResponse extends AxiosResponseData {
+	data: null
 }

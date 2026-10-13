@@ -18,6 +18,8 @@ import type {
 	GetLeafCertListResponse,
 	DeleteLeafCertParams,
 	DeleteLeafCertResponse,
+	RevokeLeafCertParams,
+	RevokeLeafCertResponse,
 } from '@/types/ca'
 
 import { useApi } from "@api/index";
@@ -77,3 +79,11 @@ export const getLeafCertList = (params?: GetLeafCertListParams): useAxiosReturn<
  */
 export const deleteLeafCert = (params?: DeleteLeafCertParams): useAxiosReturn<DeleteLeafCertResponse, DeleteLeafCertParams> =>
 	useApi<DeleteLeafCertResponse, DeleteLeafCertParams>('/v1/private_ca/del_leaf_cert', params)
+
+/**
+ * @description 吊销叶子证书
+ * @param {RevokeLeafCertParams} [params] 请求参数
+ * @returns {useAxiosReturn<RevokeLeafCertResponse, RevokeLeafCertParams>} 吊销叶子证书的组合式 API 调用封装。包含响应数据、加载状态及执行函数。
+ */
+export const revokeLeafCert = (params?: RevokeLeafCertParams): useAxiosReturn<RevokeLeafCertResponse, RevokeLeafCertParams> =>
+	useApi<RevokeLeafCertResponse, RevokeLeafCertParams>('/v1/private_ca/revoke_leaf_cert', params)

@@ -23,9 +23,22 @@ import type {
 	KeyLengthOption,
 	ValidityUnit
 } from './types';
-import { createLeafCert, deleteLeafCert } from '@/api/ca';
-import type { CreateLeafCertParams, DeleteLeafCertParams } from '@/types/ca';
+import { createLeafCert, deleteLeafCert, revokeLeafCert } from '@/api/ca';
+import type { CreateLeafCertParams, DeleteLeafCertParams, RevokeLeafCertParams } from '@/types/ca';
 import type { GetLeafCertListParams } from '@/types/ca';
+
+
+const REVOKE_REASON_OPTIONS = [
+  { label: '未指定 (unspecified)', value: 0 },
+  { label: '密钥泄露 (keyCompromise)', value: 1 },
+  { label: 'CA 泄露 (cACompromise)', value: 2 },
+  { label: '从属关系变更 (affiliationChanged)', value: 3 },
+  { label: '被取代 (superseded)', value: 4 },
+  { label: '停止运营 (cessationOfOperation)', value: 5 },
+  { label: '证书挂起 (certificateHold)', value: 6 },
+  { label: '权限撤销 (privilegeWithdrawn)', value: 9 },
+  { label: 'AA 泄露 (aACompromise)', value: 10 },
+]
 
 const { handleError } = useError();
 
@@ -40,8 +53,20 @@ export const useController = () => {
 
   const message = useMessage();
 
+  const checkedRowKeysRef = ref<(string | number)[]>([]);
+  const batchActionRef = ref<string>("delete");
+
+  const handleCheck = (rowKeys: (string | number)[]) => {
+    checkedRowKeysRef.value = rowKeys;
+  };
+
+
   // 获取状态标签类型和文本
-  const getStatusInfo = (notAfter: string) => {
+  const getStatusInfo = (cert: CertItem) => {
+    if (cert.status === "revoked") {
+      return { type: "error" as const, text: "已吊销" };
+    }
+
     const calculateRemainingDays = (expiryDate: string) => {
       const expiry = new Date(expiryDate);
       const now = new Date();
@@ -50,7 +75,7 @@ export const useController = () => {
       return diffDays;
     };
 
-    const remainingDays = calculateRemainingDays(notAfter);
+    const remainingDays = calculateRemainingDays(cert.not_after);
 
     if (remainingDays > 30) {
       return { type: "success" as const, text: "正常" };
@@ -65,6 +90,9 @@ export const useController = () => {
 
   // 创建表格列
   const createColumns = (): DataTableColumns<CertItem> => [
+    {
+      type: "selection",
+    },
     {
       title: "名称",
       key: "cn",
@@ -181,7 +209,7 @@ export const useController = () => {
       key: "status",
       width: 100,
       render: (row: CertItem) => {
-        const statusInfo = getStatusInfo(row.not_after);
+        const statusInfo = getStatusInfo(row);
         return (
           <NTag type={statusInfo.type} size="small">
             {statusInfo.text}
@@ -199,7 +227,7 @@ export const useController = () => {
       key: "actions",
       fixed: "right" as const,
       align: "right",
-      width: 200,
+      width: 260,
       render: (row: CertItem) => (
         <NFlex justify="end">
           <NButton
@@ -212,6 +240,18 @@ export const useController = () => {
           >
             下载
           </NButton>
+          {row.status !== "revoked" && (
+            <NButton
+              size="tiny"
+              strong
+              secondary
+              type="warning"
+              class="table-action-btn"
+              onClick={() => handleRevoke(row)}
+            >
+              吊销
+            </NButton>
+          )}
           <NButton
             size="tiny"
             strong
@@ -254,7 +294,7 @@ export const useController = () => {
 
   // 获取行样式类名
   const getRowClassName = (row: CertItem): string => {
-    const statusInfo = getStatusInfo(row.not_after);
+    const statusInfo = getStatusInfo(row);
     if (statusInfo.type === "error") return "bg-red-500/10";
     if (statusInfo.type === "warning") return "bg-orange-500/10";
     return "";
@@ -270,6 +310,62 @@ export const useController = () => {
     } catch (error) {
       handleError(error);
     }
+  };
+
+  // 吊销证书
+  const handleRevoke = async (cert: CertItem) => {
+    if (cert.status === "revoked") {
+      useMessage().warning("证书已吊销");
+      return;
+    }
+    const reasonRef = ref<number>(0);
+    const { open: openLoad, close } = useLoadingMask({
+      text: "正在吊销，请稍后...",
+      zIndex: 3000,
+    });
+    useDialog({
+      title: "确认吊销",
+      content: () => (
+        <div class="flex flex-col gap-3">
+          <div>确定要吊销证书 "{cert.cn}" 吗？吊销后证书将不可再被工作流复用，此操作不可恢复。</div>
+          <div>
+            <div class="mb-1 text-sm text-gray-500">吊销原因</div>
+            <NSelect
+              value={reasonRef.value}
+              options={REVOKE_REASON_OPTIONS}
+              onUpdateValue={(v: number) => {
+                reasonRef.value = v;
+              }}
+            />
+          </div>
+        </div>
+      ),
+      onPositiveClick: async () => {
+        try {
+          openLoad();
+          const {
+            message,
+            fetch: revokeFetch,
+            data,
+          } = revokeLeafCert({
+            id: cert.id.toString(),
+            reason: reasonRef.value,
+          } as RevokeLeafCertParams);
+          message.value = true;
+          await revokeFetch();
+          if (data.value.status) {
+            useMessage().success(data.value.message || "吊销成功");
+            await fetch();
+          } else {
+            useMessage().error(data.value?.message || "吊销失败");
+          }
+        } catch (error) {
+          handleError(error);
+        } finally {
+          close();
+        }
+      },
+    });
   };
 
   // 删除证书
@@ -309,7 +405,104 @@ export const useController = () => {
   };
 
   // 打开签发证书模态框
-  const openCreateLeafCertModal = async () => {
+  
+  // 批量操作：删除 / 吊销
+  const handleBatchAction = async () => {
+    if (checkedRowKeysRef.value.length === 0) {
+      return;
+    }
+    if (batchActionRef.value === "delete") {
+      const { open: openLoad, close } = useLoadingMask({
+        text: "正在批量删除，请稍后...",
+        zIndex: 3000,
+      });
+      useDialog({
+        title: "批量删除证书",
+        content: `确定要删除选中的 ${checkedRowKeysRef.value.length} 个证书吗？此操作不可恢复。`,
+        onPositiveClick: async () => {
+          try {
+            openLoad();
+            const {
+              message,
+              fetch: deleteFetch,
+              data,
+            } = deleteLeafCert({
+              id: checkedRowKeysRef.value.join(","),
+            } as DeleteLeafCertParams);
+            message.value = true;
+            await deleteFetch();
+            if (data.value?.status) {
+              useMessage().success(data.value.message || "批量删除成功");
+              checkedRowKeysRef.value = [];
+              await fetch();
+            } else {
+              useMessage().error(data.value?.message || "批量删除失败");
+            }
+          } catch (error) {
+            handleError(error);
+          } finally {
+            close();
+          }
+        },
+      });
+      return;
+    }
+    if (batchActionRef.value === "revoke") {
+      const reasonRef = ref<number>(0);
+      const { open: openLoad, close } = useLoadingMask({
+        text: "正在批量吊销，请稍后...",
+        zIndex: 3000,
+      });
+      useDialog({
+        title: "批量吊销证书",
+        content: () => (
+          <div class="flex flex-col gap-3">
+            <div>
+              确定要吊销选中的 {checkedRowKeysRef.value.length} 个证书吗？已吊销的会自动跳过，此操作不可恢复。
+            </div>
+            <div>
+              <div class="mb-1 text-sm text-gray-500">吊销原因</div>
+              <NSelect
+                value={reasonRef.value}
+                options={REVOKE_REASON_OPTIONS}
+                onUpdateValue={(v: number) => {
+                  reasonRef.value = v;
+                }}
+              />
+            </div>
+          </div>
+        ),
+        onPositiveClick: async () => {
+          try {
+            openLoad();
+            const {
+              message,
+              fetch: revokeFetch,
+              data,
+            } = revokeLeafCert({
+              id: checkedRowKeysRef.value.join(","),
+              reason: reasonRef.value,
+            } as RevokeLeafCertParams);
+            message.value = true;
+            await revokeFetch();
+            if (data.value?.status) {
+              useMessage().success(data.value.message || "批量吊销成功");
+              checkedRowKeysRef.value = [];
+              await fetch();
+            } else {
+              useMessage().error(data.value?.message || "批量吊销失败");
+            }
+          } catch (error) {
+            handleError(error);
+          } finally {
+            close();
+          }
+        },
+      });
+    }
+  };
+
+const openCreateLeafCertModal = async () => {
     try {
       await getIntermediateCaList();
       useModal({
@@ -341,10 +534,15 @@ export const useController = () => {
     SearchComponent,
     getRowClassName,
     handleDownload,
+    handleRevoke,
     handleDelete,
     openCreateLeafCertModal,
     fetch,
     handleCaIdChange,
+    checkedRowKeysRef,
+    handleCheck,
+    batchActionRef,
+    handleBatchAction,
   };
 };
 
@@ -353,7 +551,8 @@ export const useController = () => {
  * @returns {Object} 返回签发证书表单控制器对象
  */
 export const useCreateLeafCertController = (list: IntermediateCa[]) => {
-  const { handleError } = useError();
+  
+const { handleError } = useError();
   const { confirm } = useModalHooks();
   const { useFormInput, useFormSelect, useFormCustom } = useFormHooks();
 

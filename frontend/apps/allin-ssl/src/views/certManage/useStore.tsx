@@ -1,5 +1,5 @@
 import { defineStore, storeToRefs } from 'pinia'
-import { getCertList, uploadCert, deleteCert } from '@/api/cert'
+import { getCertList, uploadCert, deleteCert, revokeCert } from '@/api/cert'
 import { useError } from '@baota/hooks/error'
 import { $t } from '@locales/index'
 import type { CertItem, UploadCertParams, CertListParams } from '@/types/cert'
@@ -96,6 +96,40 @@ export const useCertManageStore = defineStore('cert-manage-store', () => {
 	 * @param {string[]} ids - 证书ID数组
 	 * @returns {Promise<void>}
 	 */
+
+	/**
+	 * 吊销证书
+	 * @description 通过 ACME 向 CA 吊销指定证书
+	 * @param {string} id - 证书ID
+	 */
+	const revokeExistingCert = async (id: string, reason: number = 0, reason_note: string = '') => {
+		try {
+			const { message, fetch } = revokeCert({ id, reason, reason_note })
+			message.value = true
+			await fetch()
+		} catch (error) {
+			handleError(error)
+			throw error
+		}
+	}
+
+	
+	/**
+	 * 批量吊销证书
+	 * @description 通过 ACME 批量吊销选中证书
+	 */
+	const revokeBatchCerts = async (ids: any, reason: number = 0) => {
+		try {
+			const ids_param = Array.isArray(ids) ? ids.join(',') : String(ids)
+			const { message, fetch } = revokeCert({ id: ids_param, reason })
+			message.value = true
+			await fetch()
+		} catch (error) {
+			handleError(error)
+			throw error
+		}
+	}
+
 	const deleteBatchCerts = async (ids: any) => {
 		try {
 			const ids_param = ids.join(',')
@@ -126,6 +160,8 @@ export const useCertManageStore = defineStore('cert-manage-store', () => {
 		downloadExistingCert,
 		uploadNewCert,
 		deleteExistingCert,
+		revokeExistingCert,
+		revokeBatchCerts,
 		deleteBatchCerts,
 		resetUploadForm,
 	}

@@ -1,6 +1,7 @@
 package server
 
 import (
+	"ALLinSSL/backend/internal/cert"
 	"ALLinSSL/backend/middleware"
 	"ALLinSSL/backend/public"
 	"ALLinSSL/backend/route"
@@ -21,6 +22,10 @@ import (
 func Run() error {
 	public.ReloadConfig()
 	public.InitLogger(public.LogPath)
+	// startup: backfill ACME account metadata for legacy certs
+	if n, err := cert.BackfillACMEMetadata(); err == nil && n > 0 {
+		fmt.Printf("backfilled ACME metadata for %d cert(s)\n", n)
+	}
 	defer public.CloseLogger()
 	r := gin.Default()
 

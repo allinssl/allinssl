@@ -14,6 +14,9 @@ export interface SystemSetting {
 	cert: string // 证书
 	username: string // 用户
 	password: string // 密码
+	plugin_path?: string // 插件目录
+	/** 公网访问基址，用于私有 CA 的 CRL/OCSP URL（如 https://ca.example.com） */
+	public_base_url?: string
 }
 
 /** 获取设置响应 */

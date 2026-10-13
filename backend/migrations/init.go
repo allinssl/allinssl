@@ -74,25 +74,30 @@ func init() {
 	
 	create table IF NOT EXISTS cert
 	(
-	    id          integer not null
+	    id            integer not null
 	        constraint cert_pk
 	            primary key autoincrement,
-	    source      TEXT    not null,
-	    sha256      TEXT,
-	    history_id  TEXT,
-	    key         TEXT    not null,
-	    cert        TEXT    not null,
-	    issuer_cert integer,
-	    domains     TEXT    not null,
-	    create_time TEXT,
-	    update_time TEXT,
-	    issuer      TEXT    not null,
-	    start_time  TEXT,
-	    end_time    TEXT,
-	    end_day     TEXT,
-	    workflow_id TEXT
+	    source        TEXT    not null,
+	    sha256        TEXT,
+	    history_id    TEXT,
+	    key           TEXT    not null,
+	    cert          TEXT    not null,
+	    issuer_cert   integer,
+	    domains       TEXT    not null,
+	    create_time   TEXT,
+	    update_time   TEXT,
+	    issuer        TEXT    not null,
+	    start_time    TEXT,
+	    end_time      TEXT,
+	    end_day       TEXT,
+	    workflow_id   TEXT,
+	    status        TEXT    default 'normal' not null,
+	    revoke_reason TEXT    default '' not null,
+	    revoked_at    TEXT,
+	    acme_email    TEXT    default '' not null,
+	    acme_ca       TEXT    default '' not null
 	);
-	
+
 	create table IF NOT EXISTS report
 	(
 	    id          integer not null
@@ -145,6 +150,14 @@ func init() {
 	);
 
 	`)
+	// 为已有 cert 表补充吊销相关字段
+	ensureColumn(db, "cert", "status", "TEXT default 'normal' not null")
+	ensureColumn(db, "cert", "revoke_reason", "TEXT default '' not null")
+	ensureColumn(db, "cert", "revoked_at", "TEXT")
+	ensureColumn(db, "cert", "acme_email", "TEXT default '' not null")
+	ensureColumn(db, "cert", "acme_ca", "TEXT default '' not null")
+	_, _ = db.Exec(`UPDATE cert SET status = 'normal' WHERE status IS NULL OR status = ''`)
+
 	insertDefaultData(db, "access_type", `
 	INSERT INTO access_type (name, type) VALUES ('aliyun', 'dns');
 	INSERT INTO access_type (name, type) VALUES ('tencentcloud', 'dns');
@@ -397,7 +410,7 @@ create table monitor
 	// 创建表
 	_, err = dbPrivateCa.Exec(`
 	PRAGMA journal_mode=WAL;
-	create table ca
+	create table IF NOT EXISTS ca
 	(
 		id          integer         not null
 			constraint ca_pk
@@ -417,32 +430,66 @@ create table monitor
 		not_after   TEXT            not null,
 		create_time TEXT            not null
 	);
-	create index ca_root_id_index
+	create index IF NOT EXISTS ca_root_id_index
 		on ca (root_id);
-	create table leaf
+	create table IF NOT EXISTS leaf
 	(
-		id          integer not null
+		id            integer not null
 			constraint leaf_pk
 				primary key autoincrement,
-		ca_id       integer not null,
-		cn          TEXT    not null,
-		san         TEXT    not null,
-		usage       integer not null,
-		cert        TEXT    not null,
-		key         TEXT    not null,
-		en_cert     TEXT,
-		en_key      TEXT,
-		algorithm   TEXT    not null,
-		key_length  integer,
-		not_before  TEXT    not null,
-		not_after   TEXT    not null,
-		create_time TEXT    not null
+		ca_id         integer not null,
+		cn            TEXT    not null,
+		san           TEXT    not null,
+		usage         integer not null,
+		cert          TEXT    not null,
+		key           TEXT    not null,
+		en_cert       TEXT,
+		en_key        TEXT,
+		algorithm     TEXT    not null,
+		key_length    integer,
+		not_before    TEXT    not null,
+		not_after     TEXT    not null,
+		create_time   TEXT    not null,
+		status        TEXT    default 'normal' not null,
+		revoke_reason TEXT    default '' not null,
+		revoked_at    TEXT,
+		serial_number TEXT    default '' not null
 	);
-	
-	create index leaf_ca_id_index
+
+	create index IF NOT EXISTS leaf_ca_id_index
 		on leaf (ca_id);
 `)
+	if err == nil {
+		ensureColumn(dbPrivateCa, "leaf", "status", "TEXT default 'normal' not null")
+		ensureColumn(dbPrivateCa, "leaf", "revoke_reason", "TEXT default '' not null")
+		ensureColumn(dbPrivateCa, "leaf", "revoked_at", "TEXT")
+		ensureColumn(dbPrivateCa, "leaf", "serial_number", "TEXT default '' not null")
+		// 兼容旧数据：已有叶子证书默认视为正常
+		_, _ = dbPrivateCa.Exec(`UPDATE leaf SET status = 'normal' WHERE status IS NULL OR status = ''`)
+	}
+}
 
+// ensureColumn 为已存在的表补充缺失字段，兼容旧版本数据库。
+func ensureColumn(db *sql.DB, table, column, definition string) {
+	rows, err := db.Query(fmt.Sprintf("PRAGMA table_info(%s)", table))
+	if err != nil {
+		return
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var cid int
+		var name, ctype string
+		var notnull, pk int
+		var dflt sql.NullString
+		if err := rows.Scan(&cid, &name, &ctype, &notnull, &dflt, &pk); err != nil {
+			return
+		}
+		if name == column {
+			return
+		}
+	}
+	_, _ = db.Exec(fmt.Sprintf("ALTER TABLE %s ADD COLUMN %s %s", table, column, definition))
 }
 
 func insertDefaultData(db *sql.DB, table, insertSQL string) {

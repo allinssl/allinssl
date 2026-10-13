@@ -165,6 +165,16 @@ export const useController = () => {
 					>
 						下载
 					</NButton>
+						<NButton
+							class="table-action-btn"
+							size="tiny"
+							strong
+							secondary
+							type="info"
+							onClick={() => handleDownloadCrl(row)}
+						>
+							CRL
+						</NButton>
 					<NButton
 						class="table-action-btn-danger"
 						size="tiny"
@@ -306,7 +316,20 @@ export const useController = () => {
 	};
 
 	// 删除CA事件
-	const handleDelete = async (row: PrivateCaItem) => {
+	
+	// 下载 CRL
+	const handleDownloadCrl = (row: PrivateCaItem) => {
+		try {
+			const link = document.createElement("a");
+			link.href = `/v1/private_ca/download_crl?id=${row.id.toString()}`;
+			link.target = "_blank";
+			link.click();
+		} catch (error: any) {
+			handleError(error);
+		}
+	};
+
+const handleDelete = async (row: PrivateCaItem) => {
 		const { open: openLoad, close: close } = useLoadingMask({ text: '正在删除CA，请稍后...', zIndex: 3000 });
 		useDialog({
 			title: "删除CA",
