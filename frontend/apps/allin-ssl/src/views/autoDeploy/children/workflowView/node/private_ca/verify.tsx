@@ -46,4 +46,5 @@ export default {
 		return true;
 	}, 'input'),
   cn: validator.required("cn", "请输入通用名称", "input"),
+  c: validator.required("c", "请选择国家", "change"),
 } as FormRules;

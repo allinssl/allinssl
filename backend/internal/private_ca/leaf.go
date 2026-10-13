@@ -12,7 +12,15 @@ import (
 )
 
 // GenerateLeafCertificate 生成叶子证书（服务器/客户端证书/邮件证书）
-func GenerateLeafCertificate(commonName string, san SAN, issuer *Certificate, keyType KeyType, usage int, keyBits int, validDays int) (*LeafCertConfig, error) {
+func GenerateLeafCertificate(
+	commonName, organization, organizationalUnit, country, province, locality string,
+	san SAN,
+	issuer *Certificate,
+	keyType KeyType,
+	usage int,
+	keyBits int,
+	validDays int,
+) (*LeafCertConfig, error) {
 	if issuer == nil {
 		return nil, errors.New("issuer is nil")
 	}
@@ -45,7 +53,7 @@ func GenerateLeafCertificate(commonName string, san SAN, issuer *Certificate, ke
 		// 2. 创建签名证书模板
 		signTmpl := &gmx509.Certificate{
 			SerialNumber:   big.NewInt(now.UnixNano()),
-			Subject:        pkix.Name{CommonName: commonName},
+			Subject:        buildSubject(commonName, organization, organizationalUnit, country, province, locality),
 			NotBefore:      now,
 			NotAfter:       expire,
 			IsCA:           false,
@@ -59,7 +67,7 @@ func GenerateLeafCertificate(commonName string, san SAN, issuer *Certificate, ke
 		// 3. 创建加密证书模板
 		encryptTmpl := &gmx509.Certificate{
 			SerialNumber:   big.NewInt(now.UnixNano() + 1), // 使用不同的序列号
-			Subject:        pkix.Name{CommonName: commonName},
+			Subject:        buildSubject(commonName, organization, organizationalUnit, country, province, locality),
 			NotBefore:      now,
 			NotAfter:       expire,
 			IsCA:           false,
@@ -85,6 +93,11 @@ func GenerateLeafCertificate(commonName string, san SAN, issuer *Certificate, ke
 		// 6. 组装返回结果
 		return &LeafCertConfig{
 			CN:         commonName,
+			O:          organization,
+			C:          country,
+			OU:         organizationalUnit,
+			Province:   province,
+			Locality:   locality,
 			Usage:      int64(usage),
 			Cert:       string(signCert.CertPEM),
 			Key:        string(signCert.KeyPEM),
@@ -112,7 +125,7 @@ func GenerateLeafCertificate(commonName string, san SAN, issuer *Certificate, ke
 
 	tmpl := &x509.Certificate{
 		SerialNumber: big.NewInt(now.UnixNano()),
-		Subject:      pkix.Name{CommonName: commonName},
+		Subject:      buildSubject(commonName, organization, organizationalUnit, country, province, locality),
 		NotBefore:    now,
 		NotAfter:     expire,
 		IsCA:         false,
@@ -129,6 +142,11 @@ func GenerateLeafCertificate(commonName string, san SAN, issuer *Certificate, ke
 	cert.KeyType = keyType
 	return &LeafCertConfig{
 		CN:         commonName,
+		O:          organization,
+		C:          country,
+		OU:         organizationalUnit,
+		Province:   province,
+		Locality:   locality,
 		Usage:      int64(usage),
 		Cert:       string(cert.CertPEM),
 		Key:        string(cert.KeyPEM),
@@ -138,4 +156,24 @@ func GenerateLeafCertificate(commonName string, san SAN, issuer *Certificate, ke
 		NotBefore:  now.Format("2006-01-02 15:04:05"),
 		CreateTime: now.Format("2006-01-02 15:04:05"),
 	}, nil
+}
+
+func buildSubject(commonName, organization, organizationalUnit, country, province, locality string) pkix.Name {
+	subject := pkix.Name{CommonName: commonName}
+	if organization != "" {
+		subject.Organization = []string{organization}
+	}
+	if organizationalUnit != "" {
+		subject.OrganizationalUnit = []string{organizationalUnit}
+	}
+	if country != "" {
+		subject.Country = []string{country}
+	}
+	if province != "" {
+		subject.Province = []string{province}
+	}
+	if locality != "" {
+		subject.Locality = []string{locality}
+	}
+	return subject
 }

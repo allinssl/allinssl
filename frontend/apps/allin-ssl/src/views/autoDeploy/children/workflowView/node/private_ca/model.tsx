@@ -31,6 +31,11 @@ export default defineComponent({
           valid_days: "",
           validity_unit: "day",
           cn: "",
+          o: "",
+          c: "CN",
+          ou: "",
+          province: "",
+          locality: "",
           san: "",
         },
       }),
@@ -48,6 +53,11 @@ export default defineComponent({
     if ((param.value as any).ca_id !== undefined && (param.value as any).ca_id !== null) {
       (param.value as any).ca_id = String((param.value as any).ca_id) as unknown as string;
     }
+    param.value.o = param.value.o || "";
+    param.value.c = param.value.c || "CN";
+    param.value.ou = param.value.ou || "";
+    param.value.province = param.value.province || "";
+    param.value.locality = param.value.locality || "";
 
     const caList = ref<Array<{ id: number; name: string; algorithm: string; key_length: number}>>([]);
     const caListLoading = ref(false);
@@ -121,6 +131,14 @@ export default defineComponent({
       const algorithm = param.value.algorithm?.toLowerCase() || '';
       return getKeyLengthOptions(algorithm);
     });
+
+    const countryOptions = [
+      { label: "中国", value: "CN" },
+      { label: "美国", value: "US" },
+      { label: "日本", value: "JP" },
+      { label: "德国", value: "DE" },
+      { label: "英国", value: "GB" },
+    ];
 
     // SAN类型选项
     const sanTypeOptions = [
@@ -435,6 +453,42 @@ export default defineComponent({
           );
         },
       },
+      useFormMore(advancedOptions),
+      ...(advancedOptions.value
+        ? [
+            useFormInput(
+              "组织(O)",
+              "o",
+              { placeholder: "请输入组织名称" },
+              { required: false, showRequireMark: false }
+            ),
+            useFormSelect(
+              "国家(C)",
+              "c",
+              countryOptions,
+              { placeholder: "请选择国家" },
+              { required: true }
+            ),
+            useFormInput(
+              "组织单位(OU)",
+              "ou",
+              { placeholder: "请输入组织单位" },
+              { required: false, showRequireMark: false }
+            ),
+            useFormInput(
+              "省份",
+              "province",
+              { placeholder: "请输入省份" },
+              { required: false, showRequireMark: false }
+            ),
+            useFormInput(
+              "城市",
+              "locality",
+              { placeholder: "请输入城市" },
+              { required: false, showRequireMark: false }
+            ),
+          ]
+        : []),
     ]);
 
     // 创建表单实例
@@ -535,6 +589,11 @@ export default defineComponent({
           end_day: data.value.end_day,
           valid_days: validDaysNumber,
           cn: data.value.cn,
+          o: data.value.o,
+          c: data.value.c,
+          ou: data.value.ou,
+          province: data.value.province,
+          locality: data.value.locality,
           san: data.value.san,
         } as const;
 

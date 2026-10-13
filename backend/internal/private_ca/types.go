@@ -75,6 +75,11 @@ type LeafCertConfig struct {
 	Id         int64  `json:"id" form:"id"`
 	CaId       int64  `json:"ca_id" form:"ca_id"`
 	CN         string `json:"cn" form:"cn"`
+	O          string `json:"o" form:"o"`
+	C          string `json:"c" form:"c"`
+	OU         string `json:"ou" form:"ou"`
+	Province   string `json:"province" form:"province"`
+	Locality   string `json:"locality" form:"locality"`
 	SAN        string `json:"san" form:"san"`
 	Usage      int64  `json:"usage" form:"usage"`
 	Cert       string `json:"cert" form:"cert"`

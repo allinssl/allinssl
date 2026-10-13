@@ -1,4 +1,4 @@
-import { NButton, NFlex, NTag, type DataTableColumns, NRadioGroup, NRadio, NInput, NSelect, NFormItem, type FormRules } from 'naive-ui';
+import { NButton, NFlex, NTag, type DataTableColumns, NRadioGroup, NRadio, NInput, NSelect, NFormItem, NDivider, NIcon, type FormRules } from 'naive-ui';
 import {
   useTable,
   useSearch,
@@ -26,6 +26,7 @@ import type {
 import { createLeafCert, deleteLeafCert } from '@/api/ca';
 import type { CreateLeafCertParams, DeleteLeafCertParams } from '@/types/ca';
 import type { GetLeafCertListParams } from '@/types/ca';
+import { ChevronDown } from "@vicons/ionicons5";
 
 const { handleError } = useError();
 
@@ -363,6 +364,11 @@ export const useCreateLeafCertController = (list: IntermediateCa[]) => {
     algorithm: "",
     valid_days: "",
     cn: "",
+    o: "",
+    c: "CN",
+    ou: "",
+    province: "",
+    locality: "",
     san: "",
   });
 
@@ -390,6 +396,15 @@ export const useCreateLeafCertController = (list: IntermediateCa[]) => {
 
   // 有效期单位
   const validityUnit = ref<ValidityUnit>("day");
+  const showAdvancedConfig = ref(false);
+
+  const countryOptions = [
+    { label: "中国", value: "CN" },
+    { label: "美国", value: "US" },
+    { label: "日本", value: "JP" },
+    { label: "德国", value: "DE" },
+    { label: "英国", value: "GB" },
+  ];
 
   // SAN输入相关
   const sanType = ref<SanItem['type']>("dns_names");
@@ -736,6 +751,79 @@ export const useCreateLeafCertController = (list: IntermediateCa[]) => {
         </div>
       </NFormItem>
     )),
+    useFormCustom(() => (
+      <div class="mt-2 mb-2">
+        <div
+          class="flex items-center justify-center cursor-pointer py-2"
+          onClick={() => (showAdvancedConfig.value = !showAdvancedConfig.value)}
+        >
+          <NDivider>
+            <div class="flex items-center gap-2">
+              <span class="text-[var(--form-more-color)] font-medium">
+                更多配置
+              </span>
+              <NIcon
+                size="16"
+                color="var(--form-more-color)"
+                class="transition-transform duration-200"
+                style={{
+                  transform: showAdvancedConfig.value
+                    ? "rotate(180deg)"
+                    : "rotate(0deg)",
+                }}
+              >
+                <ChevronDown />
+              </NIcon>
+            </div>
+          </NDivider>
+        </div>
+      </div>
+    )),
+    ...(showAdvancedConfig.value
+      ? [
+          useFormCustom(() => (
+            <NFormItem label="组织(O)" path="o" showRequireMark={false}>
+              <NInput
+                v-model:value={formData.value.o}
+                placeholder="请输入组织名称"
+              />
+            </NFormItem>
+          )),
+          useFormCustom(() => (
+            <NFormItem label="国家(C)" path="c" required>
+              <NSelect
+                v-model:value={formData.value.c}
+                options={countryOptions}
+                placeholder="请选择国家"
+              />
+            </NFormItem>
+          )),
+          useFormCustom(() => (
+            <NFormItem label="组织单位(OU)" path="ou" showRequireMark={false}>
+              <NInput
+                v-model:value={formData.value.ou}
+                placeholder="请输入组织单位"
+              />
+            </NFormItem>
+          )),
+          useFormCustom(() => (
+            <NFormItem label="省份" path="province" showRequireMark={false}>
+              <NInput
+                v-model:value={formData.value.province}
+                placeholder="请输入省份"
+              />
+            </NFormItem>
+          )),
+          useFormCustom(() => (
+            <NFormItem label="城市" path="locality" showRequireMark={false}>
+              <NInput
+                v-model:value={formData.value.locality}
+                placeholder="请输入城市"
+              />
+            </NFormItem>
+          )),
+        ]
+      : []),
   ]);
 
   // 表单实例
@@ -745,7 +833,7 @@ export const useCreateLeafCertController = (list: IntermediateCa[]) => {
     fetch,
   } = useForm({
     config: formConfig,
-    defaultValue: formData.value as any,
+    defaultValue: formData as any,
 		request: async (params: CreateLeafCertParams & { algorithm?: string }) => {
 			const { open: openLoad, close: close } = useLoadingMask({
 				text: "正在创建，请稍后...",
@@ -780,6 +868,11 @@ export const useCreateLeafCertController = (list: IntermediateCa[]) => {
         required: true,
         message: "请选择中间CA",
         trigger: "blur",
+      },
+      c: {
+        required: true,
+        message: "请选择国家",
+        trigger: "change",
       },
       valid_days: [
         {
