@@ -42,11 +42,13 @@ export default defineComponent({
 					provider_id: '',
 					provider: '',
 					end_day: 30,
+					cert_source: 'workflow',
 					name_server: '',
 					skip_check: 0,
 					algorithm: 'RSA2048',
 					close_cname: 0,
 					max_wait: undefined,
+					certificate_timeout: 60,
 					ignore_check: 0,
 					// 新建工作流默认启用 ARI；旧工作流缺省时后端保持原续签逻辑。
 					ari_enabled: 1,
@@ -63,13 +65,16 @@ export default defineComponent({
     // 获取表单助手函数
     const {
       useFormInput,
+      useFormInputNumber,
       useFormSelect,
       useFormMore,
       useFormHelp,
       useFormSwitch,
+      useFormRadio,
     } = useFormHooks();
     // 表单参数
     const param = ref(deepClone(props.node.config));
+    param.value.cert_source ??= 'workflow';
 
     // 获取路由参数
     const isEdit = computed(() => route.query.isEdit === "true");
@@ -468,6 +473,10 @@ export default defineComponent({
             );
           },
         },
+        useFormRadio($t('t_cert_source'), 'cert_source', [
+          { label: $t('t_cert_source_workflow'), value: 'workflow' },
+          { label: $t('t_cert_source_local'), value: 'local' },
+        ]),
         useFormMore(advancedOptions),
         ...(advancedOptions.value
           ? [
@@ -492,6 +501,12 @@ export default defineComponent({
                   placeholder: $t("t_8_1747990235316"),
                   allowInput: noSideSpace,
                 },
+                { showRequireMark: false }
+              ),
+              useFormInputNumber(
+                "证书下发超时（秒）",
+                "certificate_timeout",
+                { min: 1, precision: 0, placeholder: "默认 60 秒", class: "w-full" },
                 { showRequireMark: false }
               ),
               useFormSwitch(

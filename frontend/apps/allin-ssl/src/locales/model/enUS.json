@@ -1,4 +1,8 @@
 {
+  "t_cert_source": "Historical certificate source",
+  "t_cert_source_workflow": "Current workflow",
+  "t_cert_source_local": "Local certificate list",
+  "t_workflow_partial": "Partial failure",
   "t_0_1770278647457": "LeiChi WAF - Authentication Center",
   "t_0_1744098811152": "Warning: You have entered an unknown area, the page you are visiting does not exist, please click the button to return to the homepage.",
   "t_1_1744098801860": "Return Home",

@@ -229,12 +229,14 @@ export interface ApplyNodeConfig {
   provider_id: string; // DNS提供商授权ID
   provider: string; // DNS提供商
   end_day: number; // 续签间隔
+  cert_source?: 'workflow' | 'local'; // 历史证书取用位置，缺省为当前工作流
   // 高级功能
   name_server: string; // DNS递归服务器
   skip_check: number; // 跳过检查
   algorithm: string; // 数字证书算法
   close_cname: number; // 禁用CNAME支持，0关闭1开启，默认0
   max_wait?: number; // 预检查超时时间，单位秒（可选）
+  certificate_timeout?: number | null; // 证书下发超时时间，单位秒，缺省为60秒
   ignore_check: number; // 忽略预检查结果，1继续，0停止，默认0
   ari_enabled?: number; // 启用ARI续签建议，1启用，0关闭；旧工作流缺省关闭
   // 高级功能

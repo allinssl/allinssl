@@ -79,6 +79,7 @@ const statusCol = <T extends Record<string, any>>(
   render: (row: T) => {
     const statusMap: Record<string, { type: string; text: string }> = {
       success: { type: "success", text: $t("t_0_1747895713179") },
+      partial: { type: "warning", text: $t("t_workflow_partial") },
       fail: { type: "error", text: $t("t_4_1746773348957") },
       running: { type: "warning", text: $t("t_1_1747895712756") },
     };
@@ -100,6 +101,23 @@ const statusCol = <T extends Record<string, any>>(
  * @function useController
  */
 export const useController = () => {
+  const checkedRowKeysRef = ref<(string | number)[]>([]);
+  const batchActionRef = ref('delete');
+  const handleCheck = (rowKeys: (string | number)[]) => {
+    checkedRowKeysRef.value = rowKeys;
+  };
+  const handleBatchAction = () => {
+    if (checkedRowKeysRef.value.length === 0) return;
+    useDialog({
+      title: '批量删除工作流',
+      content: `确定要删除选中的 ${checkedRowKeysRef.value.length} 个工作流吗？`,
+      onPositiveClick: async () => {
+        if (!(await deleteExistingWorkflow(checkedRowKeysRef.value.join(',')))) return false;
+        checkedRowKeysRef.value = [];
+        await fetch();
+      },
+    });
+  };
   // 获取当前路由
   const route = useRoute();
   // 获取路由实例
@@ -166,6 +184,7 @@ export const useController = () => {
    * @returns {DataTableColumn<WorkflowItem>[]} 返回表格列配置数组
    */
   const createColumns = (): DataTableColumn<WorkflowItem>[] => [
+    { type: 'selection' },
     {
       title: $t("t_0_1745215914686"),
       key: "name",
@@ -497,6 +516,10 @@ export const useController = () => {
     TableComponent,
     PageComponent,
     SearchComponent,
+    checkedRowKeysRef,
+    batchActionRef,
+    handleCheck,
+    handleBatchAction,
     isDetectionAddWorkflow, // 检测是否需要添加工作流
     isDetectionOpenCAManage, // 检测是否需要打开CA授权管理弹窗
     isDetectionOpenAddCAForm, // 检测是否需要打开添加CA授权弹窗

@@ -200,7 +200,7 @@ func Restart() {
 func GetVersion() (map[string]string, error) {
 	version := "v1.1.3"
 	update := "0"
-	newVersionObj, err := http.Get("https://allinssl.bt.com/version.json")
+	newVersionObj, err := http.Get("https://allinssl.bt.cn/version.json")
 	if err != nil {
 		return map[string]string{
 			"version":     version,

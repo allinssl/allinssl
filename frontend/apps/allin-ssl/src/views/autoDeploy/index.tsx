@@ -1,4 +1,4 @@
-import { NInput, NButton, NSpace } from 'naive-ui'
+import { NInput, NButton, NSpace, NSelect } from 'naive-ui'
 import { $t } from '@/locales'
 import { useThemeCssVar } from '@baota/naive-ui/theme'
 import { RouterView } from '@baota/router'
@@ -26,6 +26,10 @@ export default defineComponent({
 			handleOpenCAManage,
 			hasChildRoutes,
 			fetch,
+			checkedRowKeysRef,
+			batchActionRef,
+			handleCheck,
+			handleBatchAction,
 		} = useController()
 		const router = useRouter()
 		// 获取主题变量
@@ -68,6 +72,9 @@ export default defineComponent({
 								content: () => (
 									<div class="rounded-lg ">
 										<TableComponent
+											checkedRowKeys={checkedRowKeysRef.value}
+											onUpdateCheckedRowKeys={handleCheck}
+											rowKey={(row: any) => row.id.toString()}
 											size="medium"
 											v-slots={{
 												empty: () => (
@@ -75,6 +82,21 @@ export default defineComponent({
 												),
 											}}
 										/>
+									</div>
+								),
+								footerLeft: () => (
+									<div class="mt-4 flex items-center gap-3">
+										<NSelect
+											v-model:value={batchActionRef.value}
+											options={[{ label: '删除', value: 'delete' }]}
+											style={{ width: '120px' }}
+											disabled={checkedRowKeysRef.value.length === 0}
+											size="small"
+										/>
+										<NButton size="small" type="primary" disabled={checkedRowKeysRef.value.length === 0} onClick={handleBatchAction}>
+											批量操作
+										</NButton>
+										<span class="text-gray-500">已选中 {checkedRowKeysRef.value.length} 项</span>
 									</div>
 								),
 								footerRight: () => (

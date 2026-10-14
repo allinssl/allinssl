@@ -4,6 +4,7 @@ import (
 	"ALLinSSL/backend/public"
 	"encoding/json"
 	"fmt"
+	"strings"
 	"sync"
 	"time"
 )
@@ -82,12 +83,17 @@ func DelWorkflow(id string) error {
 		return err
 	}
 	defer s.Close()
-	_, err = s.Where("id=?", []interface{}{id}).Delete()
+	ids := strings.Split(id, ",")
+	params := make([]any, len(ids))
+	for i, value := range ids {
+		params[i] = strings.TrimSpace(value)
+	}
+	_, err = s.Where("id IN ("+strings.TrimSuffix(strings.Repeat("?,", len(ids)), ",")+")", params).Delete()
 	if err != nil {
 		return err
 	}
 	// 清理工作流历史记录
-	err = CleanWorkflowHistory()
+	err = CleanWorkflowHistory(params)
 	if err != nil {
 		return fmt.Errorf("清理工作流历史记录失败: %v", err)
 	}
@@ -177,10 +183,8 @@ func ExecuteWorkflow(id string) error {
 		err = RunWorkflow(c, ctx)
 		if err != nil {
 			fmt.Println("执行工作流失败:", err)
-			SetWorkflowStatus(id, RunID, "fail")
-		} else {
-			SetWorkflowStatus(id, RunID, "success")
 		}
+		SetWorkflowStatus(id, RunID, ctx.GetWorkflowStatus(err))
 	}(id, content)
 	return nil
 }
@@ -254,7 +258,7 @@ func RunNode(node *WorkflowNode, ctx *ExecutionContext) error {
 				wg.Add(1)
 				go func(node *WorkflowNode) {
 					defer wg.Done()
-					if err = RunNode(node, ctx); err != nil {
+					if err := RunNode(node, ctx); err != nil {
 						errChan <- err
 					}
 				}(branch)

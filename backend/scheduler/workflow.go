@@ -93,10 +93,8 @@ func RunWorkflows() {
 				err = wf.RunWorkflow(c, ctx)
 				if err != nil {
 					fmt.Println("执行工作流失败:", err)
-					wf.SetWorkflowStatus(WorkflowID, RunID, "fail")
-				} else {
-					wf.SetWorkflowStatus(WorkflowID, RunID, "success")
 				}
+				wf.SetWorkflowStatus(WorkflowID, RunID, ctx.GetWorkflowStatus(err))
 			}(workflow["id"].(int64), content)
 		}
 	}

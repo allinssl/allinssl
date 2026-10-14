@@ -1,5 +1,5 @@
 import { defineComponent } from 'vue'
-import { NInput, NButton } from 'naive-ui'
+import { NInput, NButton, NSelect } from 'naive-ui'
 import { Search } from '@vicons/carbon'
 import { $t } from '@locales/index'
 import { useThemeCssVar } from '@baota/naive-ui/theme'
@@ -15,7 +15,7 @@ import BaseComponent from '@components/BaseLayout'
 export default defineComponent({
 	name: 'AuthApiManage',
 	setup() {
-		const { TableComponent, PageComponent, SearchComponent, openAddForm } = useController()
+		const { TableComponent, PageComponent, SearchComponent, openAddForm, checkedRowKeysRef, batchActionRef, handleCheck, handleBatchAction } = useController()
 		const cssVar = useThemeCssVar(['contentPadding', 'borderColor', 'headerHeight', 'iconColorHover'])
 
 		return () => (
@@ -32,12 +32,30 @@ export default defineComponent({
 							content: () => (
 								<div class="rounded-lg">
 									<TableComponent
+										checkedRowKeys={checkedRowKeysRef.value}
+										onUpdateCheckedRowKeys={handleCheck}
+										rowKey={(row: any) => row.id.toString()}
 										size="medium"
 										scroll-x="1560"
 										v-slots={{
 											empty: () => <EmptyState addButtonText={$t('t_0_1745289355714')} onAddClick={openAddForm} />,
 										}}
 									/>
+								</div>
+							),
+							footerLeft: () => (
+								<div class="mt-4 flex items-center gap-3">
+									<NSelect
+										v-model:value={batchActionRef.value}
+										options={[{ label: '删除', value: 'delete' }]}
+										style={{ width: '120px' }}
+										disabled={checkedRowKeysRef.value.length === 0}
+										size="small"
+									/>
+									<NButton size="small" type="primary" disabled={checkedRowKeysRef.value.length === 0} onClick={handleBatchAction}>
+										批量操作
+									</NButton>
+									<span class="text-gray-500">已选中 {checkedRowKeysRef.value.length} 项</span>
 								</div>
 							),
 							footerRight: () => (

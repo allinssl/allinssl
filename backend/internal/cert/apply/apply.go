@@ -360,7 +360,7 @@ func getEABFromAccData(accData map[string]any, eabData *map[string]any) bool {
 	return false
 }
 
-func GetAcmeClient(email, algorithm, eabId, ca string, httpClient *http.Client, logger *public.Logger) (*lego.Client, error) {
+func GetAcmeClient(email, algorithm, eabId, ca string, timeout int, httpClient *http.Client, logger *public.Logger) (*lego.Client, error) {
 	var (
 		eabData map[string]any
 		err     error
@@ -428,7 +428,7 @@ func GetAcmeClient(email, algorithm, eabId, ca string, httpClient *http.Client, 
 	config := lego.NewConfig(user)
 	config.Certificate.KeyType = AlgorithmMap[algorithm]
 	config.CADirURL = CADirURL
-	config.Certificate.Timeout = time.Duration(60) * time.Second
+	config.Certificate.Timeout = time.Duration(timeout) * time.Second
 	if httpClient != nil {
 		config.HTTPClient = httpClient
 	}
@@ -534,41 +534,43 @@ func parseBoolConfig(v any, defaultValue bool, name string) (bool, error) {
 	}
 }
 
-// 查找当前工作流下和域名集合匹配的最新证书。
+// 按配置范围查找和域名集合匹配的最新证书。
 // 这里不判断是否需要续签，方便旧逻辑和 ARI 逻辑复用同一份本地证书。
-func FindMatchedCert(runId string, domainArr []string) (*MatchedCert, error) {
-	if runId == "" {
-		return nil, fmt.Errorf("参数错误：_runId")
-	}
+func FindMatchedCert(runId string, domainArr []string, source string) (*MatchedCert, error) {
 	s, err := public.NewSqlite("data/data.db", "")
 	if err != nil {
 		return nil, err
 	}
-	s.TableName = "workflow_history"
 	defer s.Close()
-	// 查询 workflowId
-	wh, err := s.Where("id=?", []interface{}{runId}).Select()
-	if err != nil {
-		return nil, err
-	}
-	if len(wh) <= 0 {
-		return nil, fmt.Errorf("未获取到对应的workflowId")
+	if source != "local" {
+		if runId == "" {
+			return nil, fmt.Errorf("参数错误：_runId")
+		}
+		s.TableName = "workflow_history"
+		wh, err := s.Where("id=?", []interface{}{runId}).Select()
+		if err != nil {
+			return nil, err
+		}
+		if len(wh) <= 0 {
+			return nil, fmt.Errorf("未获取到对应的workflowId")
+		}
+		s.Where("workflow_id=?", []interface{}{wh[0]["workflow_id"]})
 	}
 	s.TableName = "cert"
-	certs, err := s.Where("workflow_id=?", []interface{}{wh[0]["workflow_id"]}).Select()
+	certs, err := s.Select()
 	if err != nil {
 		return nil, err
 	}
 	if len(certs) <= 0 {
-		return nil, fmt.Errorf("未获取到当前工作流下的证书")
+		return nil, fmt.Errorf("未获取到指定范围内的证书")
 	}
 	var (
-		found     bool
-		maxItem   map[string]any
-		maxEnd    time.Time
-		maxDays   float64
-		layout    = "2006-01-02 15:04:05"
-		now       = time.Now()
+		found   bool
+		maxItem map[string]any
+		maxEnd  time.Time
+		maxDays float64
+		layout  = "2006-01-02 15:04:05"
+		now     = time.Now()
 	)
 	for i := range certs {
 		if !public.ContainsAllIgnoreBRepeats(strings.Split(certs[i]["domains"].(string), ","), domainArr) {
@@ -600,8 +602,8 @@ func FindMatchedCert(runId string, domainArr []string) (*MatchedCert, error) {
 	}, nil
 }
 
-func GetCert(runId string, domainArr []string, endDay int, logger *public.Logger) (map[string]any, error) {
-	matchedCert, err := FindMatchedCert(runId, domainArr)
+func GetCert(runId string, domainArr []string, endDay int, source string, logger *public.Logger) (map[string]any, error) {
+	matchedCert, err := FindMatchedCert(runId, domainArr, source)
 	if err != nil {
 		return nil, err
 	}
@@ -609,7 +611,7 @@ func GetCert(runId string, domainArr []string, endDay int, logger *public.Logger
 		return nil, fmt.Errorf("证书已过期或即将过期，剩余天数：%d 小于%d天", int(matchedCert.DaysLeft), endDay)
 	}
 	// 证书未过期，直接返回
-	logger.Debug(fmt.Sprintf("上次证书申请成功,域名：%s，剩余天数：%d 大于%d天，已跳过申请复用此证书", matchedCert.Data["domains"], int(matchedCert.DaysLeft), endDay))
+	logger.Debug(fmt.Sprintf("匹配到历史证书，域名：%s，剩余天数：%d 大于%d天，已跳过申请复用此证书", matchedCert.Data["domains"], int(matchedCert.DaysLeft), endDay))
 	return certResult(matchedCert.Data), nil
 }
 
@@ -886,9 +888,26 @@ func Apply(cfg map[string]any, logger *public.Logger) (map[string]any, error) {
 			maxWait = 2 * time.Minute
 		}
 	}
+	certificateTimeout := 60
+	switch v := cfg["certificate_timeout"].(type) {
+	case nil:
+	case int:
+		certificateTimeout = v
+	case float64:
+		certificateTimeout = int(v)
+	default:
+		return nil, fmt.Errorf("参数错误：certificate_timeout")
+	}
 	ariEnabled, err := parseBoolConfig(cfg["ari_enabled"], false, "ari_enabled")
 	if err != nil {
 		return nil, err
+	}
+	certSource := "workflow"
+	if cfg["cert_source"] != nil {
+		certSource, ok = cfg["cert_source"].(string)
+		if !ok || (certSource != "workflow" && certSource != "local") {
+			return nil, fmt.Errorf("参数错误：cert_source")
+		}
 	}
 
 	domainArr := strings.Split(domains, ",")
@@ -905,12 +924,12 @@ func Apply(cfg map[string]any, logger *public.Logger) (map[string]any, error) {
 	var replacesCertID string
 	if ariEnabled {
 		logger.Debug("ARI renewal info enabled")
-		matchedCert, err = FindMatchedCert(runId, domainArr)
+		matchedCert, err = FindMatchedCert(runId, domainArr, certSource)
 		if err != nil {
 			logger.Debug("No local certificate matched, skip ARI check: " + err.Error())
 		}
 	} else {
-		certData, err := GetCert(runId, domainArr, endDay, logger)
+		certData, err := GetCert(runId, domainArr, endDay, certSource, logger)
 		if err != nil {
 			logger.Debug("未获取到符合条件的本地证书:" + err.Error())
 		} else {
@@ -920,7 +939,7 @@ func Apply(cfg map[string]any, logger *public.Logger) (map[string]any, error) {
 	}
 	os.Setenv("LEGO_DISABLE_CNAME_SUPPORT", strconv.FormatBool(closeCname))
 	// 创建 ACME 客户端
-	client, err := GetAcmeClient(email, algorithm, eabId, ca, httpClient, logger)
+	client, err := GetAcmeClient(email, algorithm, eabId, ca, certificateTimeout, httpClient, logger)
 	if err != nil {
 		// 创建 ACME 客户端失败时无法查询 ARI，因此按原 end_day 逻辑决定是否复用本地证书。
 		if ariEnabled && matchedCert != nil && fallbackLocalRenewalDecision(matchedCert, endDay, logger) {

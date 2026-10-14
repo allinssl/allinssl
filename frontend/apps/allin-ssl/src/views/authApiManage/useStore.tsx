@@ -23,7 +23,7 @@ interface AuthApiManageStoreExposes {
 	fetchAccessList: <T = AccessItem>(params: AccessListParams) => Promise<TableResponse<T>>
 	addNewAccess: (params: AddAccessParams<string>) => Promise<void>
 	updateExistingAccess: (params: UpdateAccessParams<string>) => Promise<void>
-	deleteExistingAccess: (id: string) => Promise<void>
+	deleteExistingAccess: (id: string) => Promise<boolean>
 	resetApiForm: () => void
 }
 
@@ -116,17 +116,19 @@ interface AuthApiManageStoreExposes {
 		 * 删除授权API
 		 * @description 删除指定的授权API配置
 		 * @param {string} id - 授权API ID
-		 * @returns {Promise<void>} 操作结果
+		 * @returns {Promise<boolean>} 是否删除成功
 		 */
-		const deleteExistingAccess = async (id: string): Promise<void> => {
+		const deleteExistingAccess = async (id: string): Promise<boolean> => {
 			try {
 				const { fetch, message: apiMessage } = deleteAccess({ id })
 				apiMessage.value = true
-				await fetch()
+				const result = await fetch()
+				if (!result?.status) return false
 				resetApiForm()
+				return true
 			} catch (error) {
 				if (handleError(error)) message.error($t('t_40_1745227838872'))
-				throw error
+				return false
 			}
 		}
 

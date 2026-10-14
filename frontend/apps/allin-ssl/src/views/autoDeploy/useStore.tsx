@@ -194,9 +194,10 @@ export const useWorkflowStore = defineStore('workflow-store', () => {
 		try {
 			const { message, fetch } = deleteWorkflow({ id: id.toString() })
 			message.value = true
-			await fetch()
+			return (await fetch())?.status === true
 		} catch (error) {
 			handleError(error).default($t('t_14_1745457488092'))
+			return false
 		}
 	}
 

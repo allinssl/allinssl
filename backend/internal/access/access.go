@@ -140,7 +140,12 @@ func DelAccess(id string) error {
 		return err
 	}
 	defer s.Close()
-	_, err = s.Where("id = ?", []interface{}{id}).Delete()
+	ids := strings.Split(id, ",")
+	params := make([]any, len(ids))
+	for i, value := range ids {
+		params[i] = strings.TrimSpace(value)
+	}
+	_, err = s.Where("id IN ("+strings.TrimSuffix(strings.Repeat("?,", len(ids)), ",")+")", params).Delete()
 	if err != nil {
 		return err
 	}

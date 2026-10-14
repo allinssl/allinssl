@@ -89,6 +89,10 @@ interface AuthApiManageControllerExposes {
   ) => VNode;
   param: Ref<AccessListParams>;
   openAddForm: () => void;
+  checkedRowKeysRef: Ref<(string | number)[]>;
+  batchActionRef: Ref<string>;
+  handleCheck: (rowKeys: (string | number)[]) => void;
+  handleBatchAction: () => void;
 }
 
 /**
@@ -121,6 +125,23 @@ const { handleError } = useError();
  * @returns {AuthApiManageControllerExposes} 返回授权API相关的状态数据和处理方法
  */
 export const useController = (): AuthApiManageControllerExposes => {
+  const checkedRowKeysRef = ref<(string | number)[]>([]);
+  const batchActionRef = ref('delete');
+  const handleCheck = (rowKeys: (string | number)[]) => {
+    checkedRowKeysRef.value = rowKeys;
+  };
+  const handleBatchAction = () => {
+    if (checkedRowKeysRef.value.length === 0) return;
+    useDialog({
+      title: '批量删除授权API',
+      content: `确定要删除选中的 ${checkedRowKeysRef.value.length} 个授权API吗？`,
+      onPositiveClick: async () => {
+        if (!(await deleteExistingAccess(checkedRowKeysRef.value.join(',')))) return false;
+        checkedRowKeysRef.value = [];
+        await fetch();
+      },
+    });
+  };
   /**
    * 测试授权API
    * @param {AccessItem} row - 授权API信息
@@ -140,6 +161,7 @@ export const useController = (): AuthApiManageControllerExposes => {
    * @returns {DataTableColumns<AccessItem>} 返回表格列配置数组
    */
   const createColumns = (): DataTableColumns<AccessItem> => [
+    { type: 'selection' },
     {
       title: $t("t_2_1745289353944"),
       key: "name",
@@ -317,6 +339,10 @@ export const useController = (): AuthApiManageControllerExposes => {
     SearchComponent,
     param,
     openAddForm,
+    checkedRowKeysRef,
+    batchActionRef,
+    handleCheck,
+    handleBatchAction,
   };
 };
 

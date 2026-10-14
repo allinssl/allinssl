@@ -31,3 +31,18 @@ func (ctx *ExecutionContext) GetStatus(nodeID string) ExecutionStatus {
 	defer ctx.mu.RUnlock()
 	return ctx.Status[nodeID]
 }
+
+// GetWorkflowStatus 汇总整体执行结果和节点状态，整体失败优先。
+func (ctx *ExecutionContext) GetWorkflowStatus(err error) string {
+	if err != nil {
+		return "fail"
+	}
+	ctx.mu.RLock()
+	defer ctx.mu.RUnlock()
+	for _, status := range ctx.Status {
+		if status == StatusFailed {
+			return "partial"
+		}
+	}
+	return "success"
+}

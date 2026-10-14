@@ -15,7 +15,7 @@ export interface WorkflowItem {
 	content: string // 工作流脚本
 	exec_type: 'manual' | 'auto' // 执行类型
 	exec_time: string // 执行时间配置
-	last_run_status: 'success' | 'failed' | 'running' // 最后执行状态
+	last_run_status: 'success' | 'fail' | 'partial' | 'running' // 最后执行状态
 	cron: string // 执行时间
 	last_run_time: string // 最后执行时间
 	update_time: string // 更新时间
@@ -82,7 +82,7 @@ export interface WorkflowHistoryItem {
 	create_time: number
 	end_time: string
 	exec_type: 'auto' | 'manual'
-	status: 'success' | 'failed' | 'running'
+	status: 'success' | 'fail' | 'partial' | 'running'
 	workflow_id: string
 }
 
