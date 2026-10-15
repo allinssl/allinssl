@@ -1,5 +1,5 @@
 import { defineComponent, ref } from "vue";
-import { NButton, NDropdown, NIcon } from "naive-ui";
+import { NButton, NDropdown, NIcon, NSelect } from "naive-ui";
 import { useThemeCssVar } from "@baota/naive-ui/theme";
 import { $t } from "@locales/index";
 import { AddOutline, ChevronDown } from "@vicons/ionicons5";
@@ -21,6 +21,8 @@ export default defineComponent({
 			TableComponent, 
 			PageComponent, 
 			SearchComponent,
+			checkedRowKeysRef,
+			handleBatchDelete,
 			openAddModal, 
 			getRowClassName,
 		} = useController();
@@ -74,12 +76,22 @@ export default defineComponent({
 							content: () => (
 								<div class="rounded-lg">
 									<TableComponent
+										checkedRowKeys={checkedRowKeysRef.value}
+										onUpdateCheckedRowKeys={(keys) => { checkedRowKeysRef.value = keys as string[]; }}
+										rowKey={(row) => row.id.toString()}
 										size="medium"
 										rowClassName={getRowClassName}
 										v-slots={{
 											empty: () => <EmptyState addButtonText="添加CA" onAddClick={openAddModal} />,
 										}}
 									/>
+								</div>
+							),
+							footerLeft: () => (
+								<div class="mt-4 flex items-center gap-3">
+									<NSelect value="delete" options={[{ label: '删除', value: 'delete' }]} style={{ width: '120px' }} disabled={checkedRowKeysRef.value.length === 0} size="small" />
+									<NButton size="small" type="primary" disabled={checkedRowKeysRef.value.length === 0} onClick={handleBatchDelete}>批量操作</NButton>
+									<span class="text-gray-500">已选中 {checkedRowKeysRef.value.length} 项</span>
 								</div>
 							),
 							footerRight: () => (

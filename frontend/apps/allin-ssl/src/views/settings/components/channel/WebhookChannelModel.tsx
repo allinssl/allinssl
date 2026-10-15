@@ -22,13 +22,6 @@ export default defineComponent({
 		const { fetchNotifyChannels } = useStore()
 		const { config, rules, webhookChannelForm, submitForm } = useWebhookChannelFormController()
 
-		if (props.data) {
-			const { name, config } = props.data
-			webhookChannelForm.value = {
-				name,
-				...config,
-			}
-		}
 		// 使用表单hooks
 		const {
 			component: WebhookForm,
@@ -36,7 +29,7 @@ export default defineComponent({
 			data,
 		} = useForm({
 			config,
-			defaultValue: webhookChannelForm,
+			defaultValue: { ...webhookChannelForm.value, ...props.data?.config, name: props.data?.name || '' },
 			rules,
 		})
 

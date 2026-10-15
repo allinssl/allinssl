@@ -30,7 +30,7 @@ export const useController = () => {
 		resetAddForm
 	} = useStore();
 	
-	const message = useMessage();
+	const checkedRowKeysRef = ref<string[]>([]);
 
 	// 获取状态标签类型和文本
 	const getStatusInfo = (validTo: string) => {
@@ -57,6 +57,7 @@ export const useController = () => {
 
 	// 创建表格列
 	const createColumns = (): DataTableColumns<PrivateCaItem> => [
+		{ type: 'selection' },
 		{
 			title: "名称",
 			key: "name",
@@ -306,22 +307,25 @@ export const useController = () => {
 	};
 
 	// 删除CA事件
-	const handleDelete = async (row: PrivateCaItem) => {
+	const handleDelete = async (row?: PrivateCaItem) => {
+		const ids = row ? [row.id] : [...checkedRowKeysRef.value];
+		if (ids.length === 0) return;
 		const { open: openLoad, close: close } = useLoadingMask({ text: '正在删除CA，请稍后...', zIndex: 3000 });
 		useDialog({
-			title: "删除CA",
-			content: `确认要删除CA "${row.name}" 吗？此操作不可恢复。`,
+			title: row ? '删除CA' : '批量删除CA',
+			content: row ? `确认要删除CA "${row.name}" 吗？此操作不可恢复。` : `确定要删除选中的 ${ids.length} 个CA吗？此操作不可恢复。`,
 			onPositiveClick: async () => {
 				openLoad();
 				try {
-					const { fetch: deleteFetch, data } = deleteCaApi({ id: row.id });
-					await deleteFetch();
-					if (data.value && data.value.status === true) {
-						message.success("删除成功");
-						await fetch();
-					}
+					const { fetch: deleteFetch, message: apiMessage } = deleteCaApi({ id: ids.join(',') });
+					apiMessage.value = true;
+					const result = await deleteFetch();
+					if (!result?.status) return false;
+					checkedRowKeysRef.value = checkedRowKeysRef.value.filter((id) => !ids.includes(id));
+					await fetch();
 				} catch (err) {
-					console.error("删除CA失败:", err);
+					handleError(err);
+					return false;
 				} finally {
 					close();
 				}
@@ -344,6 +348,8 @@ export const useController = () => {
 		TableComponent,
 		PageComponent,
 		SearchComponent,
+		checkedRowKeysRef,
+		handleBatchDelete: () => handleDelete(),
 		// 状态
 		loading,
 		data,

@@ -24,13 +24,6 @@ export default defineComponent({
 		const { fetchNotifyChannels } = useStore()
 		const { config, rules, emailChannelForm, submitForm } = useEmailChannelFormController()
 
-		if (props.data) {
-			const { name, config } = props.data
-			emailChannelForm.value = {
-				name,
-				...config,
-			}
-		}
 		// 使用表单hooks
 		const {
 			component: EmailForm,
@@ -38,7 +31,7 @@ export default defineComponent({
 			data,
 		} = useForm({
 			config,
-			defaultValue: emailChannelForm,
+			defaultValue: { ...emailChannelForm.value, ...props.data?.config, name: props.data?.name || '' },
 			rules,
 		})
 

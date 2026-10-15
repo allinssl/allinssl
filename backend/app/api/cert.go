@@ -5,8 +5,9 @@ import (
 	"ALLinSSL/backend/public"
 	"archive/zip"
 	"bytes"
-	"github.com/gin-gonic/gin"
 	"strings"
+
+	"github.com/gin-gonic/gin"
 )
 
 func GetCertList(c *gin.Context) {
@@ -44,11 +45,11 @@ func UploadCert(c *gin.Context) {
 	form.Cert = strings.TrimSpace(form.Cert)
 
 	if form.Key == "" {
-		public.FailMsg(c, "名称不能为空")
+		public.FailMsg(c, "密钥不能为空")
 		return
 	}
 	if form.Cert == "" {
-		public.FailMsg(c, "类型不能为空")
+		public.FailMsg(c, "证书不能为空")
 		return
 	}
 	sha256, err := cert.UploadCert(form.Key, form.Cert)

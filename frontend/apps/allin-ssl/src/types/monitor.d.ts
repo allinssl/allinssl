@@ -24,7 +24,7 @@ export interface SiteMonitorItem {
 	not_after: string // Certificate valid until (YYYY-MM-DD HH:mm:ss)
 	not_before: string // Certificate valid from (YYYY-MM-DD HH:mm:ss)
 	repeat_send_gap: number | null // Gap between repeat notifications
-	report_types: string | string[] // Notification types (e.g., "dingtalk" or ["dingtalk", "mail"])
+	report_types: string | string[] // 通知账号 ID，兼容旧版渠道类型
 	sans: string // Subject Alternative Names
 	target: string // Monitoring target URL/domain
 	update_time: string // Last update time (YYYY-MM-DD HH:mm:ss)
@@ -41,7 +41,7 @@ export interface AddSiteMonitorParams {
 	name: string
 	target: string
 	monitor_type: string // 监控类型 (e.g., "https", "smtp")
-	report_types: string | string[] // 支持单个或多个通知类型
+	report_types: string | string[] // 通知账号 ID，兼容旧版渠道类型
 	cycle: number
 	repeat_send_gap: number // 重复发送间隔(次数)
 	active: number // 启用状态 (1 = 启用, 0 = 禁用)
@@ -54,7 +54,7 @@ export interface UpdateSiteMonitorParams extends AddSiteMonitorParams {
 }
 /** 删除站点监控请求参数 */
 export interface DeleteSiteMonitorParams {
-	id: number
+	id: number | string
 }
 
 /** 启用/禁用站点监控请求参数 */

@@ -22,13 +22,6 @@ export default defineComponent({
 		const { fetchNotifyChannels } = useStore()
 		const { config, rules, wecomChannelForm, submitForm } = useWecomChannelFormController()
 
-		if (props.data) {
-			const { name, config } = props.data
-			wecomChannelForm.value = {
-				name,
-				...config,
-			}
-		}
 		// 使用表单hooks
 		const {
 			component: WecomForm,
@@ -36,7 +29,7 @@ export default defineComponent({
 			data,
 		} = useForm({
 			config,
-			defaultValue: wecomChannelForm,
+			defaultValue: { ...wecomChannelForm.value, ...props.data?.config, name: props.data?.name || '' },
 			rules,
 		})
 

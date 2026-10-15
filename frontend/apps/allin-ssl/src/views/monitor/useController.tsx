@@ -1,4 +1,4 @@
-import { computed, onMounted, onUnmounted } from 'vue'
+import { computed, onMounted, onUnmounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { FormRules, NButton, NSpace, NSwitch, NText, NDivider, type DataTableColumns } from 'naive-ui'
 import { useTheme } from "@baota/naive-ui/theme";
@@ -20,6 +20,7 @@ import { $t } from '@locales/index'
 
 // Store和组件
 import { useStore } from './useStore'
+import { useStore as useLayoutStore } from '@layout/useStore'
 import MonitorForm from './components/AddMonitorModel'
 import ImportMonitorModal from './components/ImportMonitorModal'
 import NotifyProviderMultiSelect from '@components/notifyProviderMultiSelect'
@@ -44,6 +45,8 @@ interface MonitorControllerExposes {
 	ColumnSettingsComponent: ReturnType<typeof useTable>['ColumnSettingsComponent']
 	SearchComponent: ReturnType<typeof useSearch>['SearchComponent']
 	loading: Ref<boolean>
+	checkedRowKeysRef: Ref<string[]>
+	handleBatchDelete: () => void
 	// param: Ref<SiteMonitorListParams>
 	// data: Ref<{ list: SiteMonitorItem[]; total: number }>
 	fetch: () => Promise<void>
@@ -69,6 +72,7 @@ const {
 	resetMonitorForm,
 	updateMonitorForm,
 } = useStore()
+const { notifyProvider, fetchNotifyProvider } = useLayoutStore()
 
 // 错误处理
 const { handleError } = useError()
@@ -105,6 +109,8 @@ const isDomainWithPort = (value: string): boolean => {
  * @returns {MonitorControllerExposes} 返回controller对象
  */
 export const useController = (): MonitorControllerExposes => {
+	const checkedRowKeysRef = ref<string[]>([])
+	onMounted(fetchNotifyProvider)
 	const route = useRoute()
 	const router = useRouter()
 
@@ -117,6 +123,7 @@ export const useController = (): MonitorControllerExposes => {
 	 * @returns {DataTableColumns<SiteMonitorItem>} 返回表格列配置数组
 	 */
 	const createColumns = (): DataTableColumns<SiteMonitorItem> => [
+		{ type: 'selection' },
 		{
 			title: $t('t_13_1745289354528'),
 			key: 'name',
@@ -220,7 +227,10 @@ export const useController = (): MonitorControllerExposes => {
 					return <span style="color: var(--n-text-color-disabled); font-size: 12px;">-</span>
 				}
 
-				return <TypeIcon icon={reportTypes} class={isDark.value ? 'rounded-full' : ''} />
+				return <NSpace size="small">{reportTypes.map((value) => {
+					const account = notifyProvider.value.find((item) => item.value === value)
+					return <span key={value}><TypeIcon icon={account?.type || value} text={!account} class={isDark.value ? 'rounded-full' : ''} />{account && <span class="ml-1">{account.label}</span>}</span>
+				})}</NSpace>
 			},
 		},
 		{
@@ -372,15 +382,18 @@ export const useController = (): MonitorControllerExposes => {
 	 * @description 显示删除确认对话框
 	 * @param {SiteMonitorItem} row - 要删除的监控项
 	 */
-	const confirmDelete = (row: SiteMonitorItem): void => {
+	const confirmDelete = (row?: SiteMonitorItem): void => {
+		const ids = row ? [row.id.toString()] : [...checkedRowKeysRef.value]
+		if (ids.length === 0) return
 		useDialog({
-			title: $t('t_0_1745294710530'),
-			content: $t('t_22_1745289359036'),
+			title: row ? $t('t_0_1745294710530') : '批量删除监控',
+			content: row ? $t('t_22_1745289359036') : `确定要删除选中的 ${ids.length} 个监控及其错误记录吗？此操作不可恢复。`,
 			confirmText: $t('t_5_1744870862719'),
 			cancelText: $t('t_4_1744870861589'),
 			onPositiveClick: async () => {
-				await deleteExistingMonitor(row)
-				fetch()
+				if (!(await deleteExistingMonitor({ id: ids.join(',') }))) return false
+				checkedRowKeysRef.value = checkedRowKeysRef.value.filter((id) => !ids.includes(id))
+				await fetch()
 			},
 		})
 	}
@@ -413,6 +426,8 @@ export const useController = (): MonitorControllerExposes => {
 		PageComponent,
 		ColumnSettingsComponent,
 		SearchComponent,
+		checkedRowKeysRef,
+		handleBatchDelete: () => confirmDelete(),
 		loading,
 		fetch,
 		// 表单和操作相关
@@ -500,10 +515,9 @@ export const useMonitorFormController = (data: UpdateSiteMonitorParams | null = 
 					path="report_types"
 					isAddMode={true}
 					value={currentValue}
-					valueType="type"
+					valueType="value"
 					onUpdate:value={(items) => {
-						// 将选中的多个值转换为数组格式，存储类型值
-						monitorForm.value.report_types = items.map((item) => item.type || item.value)
+						monitorForm.value.report_types = items.map((item) => item.value)
 					}}
 				/>
 			)
@@ -664,6 +678,7 @@ export const useMonitorFormController = (data: UpdateSiteMonitorParams | null = 
 
 	// 组件挂载时更新表单数据
 	onMounted(() => {
+		fetchNotifyProvider()
 		updateMonitorForm(data)
 	})
 

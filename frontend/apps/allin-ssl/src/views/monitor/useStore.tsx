@@ -138,8 +138,8 @@ export const useMonitorStore = defineStore('monitor-store', (): MonitorStoreExpo
 		try {
 			const { fetch, message } = deleteSiteMonitor(params)
 			message.value = true
-			await fetch()
-			return true
+			const result = await fetch()
+			return result?.status === true
 		} catch (error) {
 			if (handleError(error)) message.error($t('t_40_1745227838872'))
 			return false

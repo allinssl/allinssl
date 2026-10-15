@@ -144,8 +144,9 @@ nodeOptions[UPLOAD] = () =>
       type: UPLOAD,
       config: {
         cert_id: "",
-        cert: "",
-        key: "",
+        domains: "",
+        use_local_cert: false,
+        end_day: 30,
       },
       childNode: null,
     },

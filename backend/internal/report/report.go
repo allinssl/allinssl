@@ -4,6 +4,7 @@ import (
 	"ALLinSSL/backend/public"
 	"crypto/tls"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"github.com/jordan-wright/email"
 	"net/smtp"
@@ -162,6 +163,55 @@ func Notify(params map[string]any) error {
 	}
 }
 
+// 新监控按账号 ID 发送，旧监控按渠道类型保留原来的首个账号。
+func NotifyMonitor(reportTypes, subject, body string) error {
+	s, err := GetSqlite()
+	if err != nil {
+		return err
+	}
+	defer s.Close()
+	var notifyErrors []error
+	sent := make(map[int64]bool)
+	for _, account := range strings.Split(reportTypes, ",") {
+		if account == "" {
+			continue
+		}
+		data, err := s.Where("id=? OR type=?", []any{account, account}).Order("id", "asc").Limit([]int64{0, 1}).Select()
+		if err != nil {
+			notifyErrors = append(notifyErrors, err)
+			continue
+		}
+		if len(data) == 0 {
+			notifyErrors = append(notifyErrors, fmt.Errorf("没有找到通知账号：%s", account))
+			continue
+		}
+		provider := data[0]
+		id := provider["id"].(int64)
+		if sent[id] {
+			continue
+		}
+		sent[id] = true
+		var config struct {
+			Enabled string `json:"enabled"`
+		}
+		if err := json.Unmarshal([]byte(provider["config"].(string)), &config); err != nil {
+			notifyErrors = append(notifyErrors, fmt.Errorf("解析通知账号 %s 配置失败：%w", provider["name"], err))
+			continue
+		}
+		if config.Enabled == "0" {
+			continue
+		}
+		err = Notify(map[string]any{
+			"provider": provider["type"], "provider_id": fmt.Sprint(id),
+			"subject": subject, "body": body,
+		})
+		if err != nil {
+			notifyErrors = append(notifyErrors, fmt.Errorf("通知账号 %s 发送失败：%w", provider["name"], err))
+		}
+	}
+	return errors.Join(notifyErrors...)
+}
+
 func NotifyMail(params map[string]any) error {
 
 	if params == nil {
@@ -174,28 +224,34 @@ func NotifyMail(params map[string]any) error {
 		return err
 	}
 	configStr := providerData["config"].(string)
-	var config map[string]string
+	var config struct {
+		Sender   string `json:"sender"`
+		Receiver string `json:"receiver"`
+		Password string `json:"password"`
+		SMTPHost string `json:"smtpHost"`
+		SMTPPort string `json:"smtpPort"`
+	}
 	err = json.Unmarshal([]byte(configStr), &config)
 	if err != nil {
 		return fmt.Errorf("解析配置失败: %v", err)
 	}
 
 	e := email.NewEmail()
-	e.From = config["sender"]
-	e.To = []string{config["receiver"]}
+	e.From = config.Sender
+	e.To = []string{config.Receiver}
 	e.Subject = params["subject"].(string)
 
 	e.Text = []byte(params["body"].(string))
 
-	addr := fmt.Sprintf("%s:%s", config["smtpHost"], config["smtpPort"])
+	addr := fmt.Sprintf("%s:%s", config.SMTPHost, config.SMTPPort)
 
-	auth := smtp.PlainAuth("", config["sender"], config["password"], config["smtpHost"])
+	auth := smtp.PlainAuth("", config.Sender, config.Password, config.SMTPHost)
 
 	// 使用 SSL（通常是 465）
-	if config["smtpPort"] == "465" {
+	if config.SMTPPort == "465" {
 		tlsConfig := &tls.Config{
 			InsecureSkipVerify: true, // 开发阶段跳过证书验证，生产建议关闭
-			ServerName:         config["smtpHost"],
+			ServerName:         config.SMTPHost,
 		}
 		err = e.SendWithTLS(addr, auth, tlsConfig)
 		if err != nil {

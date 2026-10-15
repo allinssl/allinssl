@@ -38,7 +38,7 @@ export const useController = () => {
   const { intermediateCaList, fetchLeafCertList, getIntermediateCaList } =
     useStore();
 
-  const message = useMessage();
+  const checkedRowKeysRef = ref<string[]>([]);
 
   // 获取状态标签类型和文本
   const getStatusInfo = (notAfter: string) => {
@@ -65,6 +65,7 @@ export const useController = () => {
 
   // 创建表格列
   const createColumns = (): DataTableColumns<CertItem> => [
+    { type: 'selection' },
     {
       title: "名称",
       key: "cn",
@@ -273,34 +274,33 @@ export const useController = () => {
   };
 
   // 删除证书
-	const handleDelete = async (cert: CertItem) => {
+	const handleDelete = async (cert?: CertItem) => {
+		const ids = cert ? [cert.id.toString()] : [...checkedRowKeysRef.value];
+		if (ids.length === 0) return;
 		const { open: openLoad, close: close } = useLoadingMask({
 			text: "正在删除，请稍后...",
 			zIndex: 3000,
     });
     useDialog({
-      title: "确认删除",
-      content: `确定要删除证书 "${cert.cn}" 吗？此操作不可恢复。`,
+      title: cert ? '确认删除' : '批量删除私有证书',
+      content: cert ? `确定要删除证书 "${cert.cn}" 吗？此操作不可恢复。` : `确定要删除选中的 ${ids.length} 个私有证书吗？此操作不可恢复。`,
       onPositiveClick: async () => {
         try {
           openLoad();
           const {
             message,
             fetch: deleteFetch,
-            data,
           } = deleteLeafCert({
-            id: cert.id.toString(),
+            id: ids.join(','),
           } as DeleteLeafCertParams);
           message.value = true;
-          await deleteFetch();
-          if (data.value.status) {
-            useMessage().success(data.value.message);
-            await fetch();
-          } else {
-            useMessage().error(data.value?.message || "删除失败");
-          }
+          const result = await deleteFetch();
+          if (!result?.status) return false;
+          checkedRowKeysRef.value = checkedRowKeysRef.value.filter((id) => !ids.includes(id));
+          await fetch();
         } catch (error) {
           handleError(error);
+          return false;
         } finally {
           close();
         }
@@ -339,6 +339,8 @@ export const useController = () => {
     TableComponent,
     PageComponent,
     SearchComponent,
+    checkedRowKeysRef,
+    handleBatchDelete: () => handleDelete(),
     getRowClassName,
     handleDownload,
     handleDelete,

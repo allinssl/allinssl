@@ -64,14 +64,14 @@ func GetCAList(c *gin.Context) {
 
 func DeleteCA(c *gin.Context) {
 	var form struct {
-		Id int64 `form:"id"`
+		Id string `form:"id"`
 	}
 	err := c.Bind(&form)
 	if err != nil {
 		public.FailMsg(c, err.Error())
 		return
 	}
-	if form.Id <= 0 {
+	if strings.TrimSpace(form.Id) == "" {
 		public.FailMsg(c, "ID不能为空")
 		return
 	}
@@ -123,14 +123,14 @@ func GetLeafCertList(c *gin.Context) {
 
 func DeleteLeafCert(c *gin.Context) {
 	var form struct {
-		Id int64 `form:"id"`
+		Id string `form:"id"`
 	}
 	err := c.Bind(&form)
 	if err != nil {
 		public.FailMsg(c, err.Error())
 		return
 	}
-	if form.Id <= 0 {
+	if strings.TrimSpace(form.Id) == "" {
 		public.FailMsg(c, "ID不能为空")
 		return
 	}

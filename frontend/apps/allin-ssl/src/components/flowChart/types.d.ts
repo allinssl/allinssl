@@ -402,8 +402,11 @@ interface NotifyNodeConfig {
 // 定义上传节点配置类型
 interface UploadNodeConfig {
   cert_id: string;
-  cert: string;
-  key: string;
+  domains?: string;
+  use_local_cert?: boolean;
+  end_day?: number;
+  cert?: string; // 仅用于自定义上传和旧配置兼容，不随证书引用保存
+  key?: string;
 }
 
   // 定义私有CA节点配置类型

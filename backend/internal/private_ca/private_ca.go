@@ -4,6 +4,7 @@ import (
 	"ALLinSSL/backend/public"
 	"encoding/json"
 	"fmt"
+	"strings"
 	"time"
 )
 
@@ -81,26 +82,41 @@ func CreateIntermediateCA(name, commonName, organization, organizationalUnit, co
 	return nil
 }
 
-func DeleteCA(id int64) error {
+func DeleteCA(id string) error {
+	if strings.TrimSpace(id) == "" {
+		return fmt.Errorf("ID不能为空")
+	}
 	s, err := GetSqlite()
 	if err != nil {
 		return err
 	}
 	defer s.Close()
-	// 检查是否有子证书
-	children, err := s.Where("root_id=?", []interface{}{id}).Select()
+	ids := strings.Split(id, ",")
+	params := make([]interface{}, len(ids))
+	for i, value := range ids {
+		params[i] = strings.TrimSpace(value)
+	}
+	placeholders := strings.TrimSuffix(strings.Repeat("?,", len(ids)), ",")
+	tx, err := s.Conn.Begin()
 	if err != nil {
 		return err
 	}
-	if len(children) > 0 {
-		return fmt.Errorf("cannot delete CA with id %d: it has child CAs", id)
+	defer tx.Rollback()
+	// 同时选中的父子CA可以一起删除，未选中的下级CA仍受保护。
+	var count int
+	err = tx.QueryRow("SELECT COUNT(*) FROM ca WHERE root_id IN ("+placeholders+") AND id NOT IN ("+placeholders+")", append(params, params...)...).Scan(&count)
+	if err != nil {
+		return err
+	}
+	if count > 0 {
+		return fmt.Errorf("所选CA存在未选中的下级CA，请先删除或同时选择下级CA")
 	}
 
-	_, err = s.Where("id=?", []interface{}{id}).Delete()
+	_, err = tx.Exec("DELETE FROM ca WHERE id IN ("+placeholders+")", params...)
 	if err != nil {
 		return err
 	}
-	return nil
+	return tx.Commit()
 }
 
 func ListCAs(search, level string, p, limit int64) ([]map[string]interface{}, int, error) {
@@ -262,7 +278,10 @@ func ListLeafCerts(caId int64, search string, p, limit int64) ([]map[string]inte
 	return data, int(count), nil
 }
 
-func DeleteLeafCert(id int64) error {
+func DeleteLeafCert(id string) error {
+	if strings.TrimSpace(id) == "" {
+		return fmt.Errorf("ID不能为空")
+	}
 	s, err := GetSqlite()
 	if err != nil {
 		return err
@@ -270,7 +289,12 @@ func DeleteLeafCert(id int64) error {
 	defer s.Close()
 	s.TableName = "leaf"
 
-	_, err = s.Where("id=?", []interface{}{id}).Delete()
+	ids := strings.Split(id, ",")
+	params := make([]interface{}, len(ids))
+	for i, value := range ids {
+		params[i] = strings.TrimSpace(value)
+	}
+	_, err = s.Where("id IN ("+strings.TrimSuffix(strings.Repeat("?,", len(ids)), ",")+")", params).Delete()
 	if err != nil {
 		return err
 	}

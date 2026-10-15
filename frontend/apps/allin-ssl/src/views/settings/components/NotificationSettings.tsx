@@ -46,19 +46,19 @@ export default defineComponent({
 			// 根据类型返回对应的按钮
 			if (type === 'mail') {
 				return (
-					<NButton strong secondary type="primary" class="gradient-primary-btn" onClick={() => openAddEmailChannelModal(getConfiguredCount(type))}>
+					<NButton strong secondary type="primary" class="gradient-primary-btn" onClick={() => openAddEmailChannelModal()}>
 						{$t('t_1_1746676859550')}
 					</NButton>
 				)
 			} else if (type === 'feishu') {
 				return (
-					<NButton strong secondary type="primary" class="gradient-primary-btn" onClick={() => openAddFeishuChannelModal(getConfiguredCount(type))}>
+					<NButton strong secondary type="primary" class="gradient-primary-btn" onClick={() => openAddFeishuChannelModal()}>
 						{$t('t_1_1746676859550')}
 					</NButton>
 				)
 			} else if (type === 'webhook') {
 				return (
-					<NButton strong secondary type="primary" class="gradient-primary-btn" onClick={() => openAddWebhookChannelModal(getConfiguredCount(type))}>
+					<NButton strong secondary type="primary" class="gradient-primary-btn" onClick={() => openAddWebhookChannelModal()}>
 						{$t('t_1_1746676859550')}
 					</NButton>
 				)
@@ -69,14 +69,14 @@ export default defineComponent({
 						secondary
 						type="primary"
 						class="gradient-primary-btn"
-						onClick={() => openAddDingtalkChannelModal(getConfiguredCount(type))}
+						onClick={() => openAddDingtalkChannelModal()}
 					>
 						{$t('t_1_1746676859550')}
 					</NButton>
 				)
 			} else if (type === 'workwx') {
 				return (
-					<NButton strong secondary type="primary" class="gradient-primary-btn" onClick={() => openAddWecomChannelModal(getConfiguredCount(type))}>
+					<NButton strong secondary type="primary" class="gradient-primary-btn" onClick={() => openAddWecomChannelModal()}>
 						{$t('t_1_1746676859550')}
 					</NButton>
 				)

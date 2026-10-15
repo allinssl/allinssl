@@ -144,11 +144,7 @@ export const useController = () => {
    * @description 打开添加邮箱通知渠道的模态框，并在关闭后刷新通知渠道列表
    * @returns {void} 无返回值
    */
-  const openAddEmailChannelModal = (limit: number = 1) => {
-    if (limit >= 1) {
-      message.warning($t("t_16_1746773356568"));
-      return;
-    }
+  const openAddEmailChannelModal = () => {
     useModal({
       title: $t("t_18_1745457490931"),
       area: 650,
@@ -163,11 +159,7 @@ export const useController = () => {
    * @description 打开添加飞书通知渠道的模态框，并在关闭后刷新通知渠道列表
    * @returns {void} 无返回值
    */
-  const openAddFeishuChannelModal = (limit: number = 1) => {
-    if (limit >= 1) {
-      message.warning($t("t_0_1748591495320"));
-      return;
-    }
+  const openAddFeishuChannelModal = () => {
     useModal({
       title: $t("t_9_1746676857164"),
       area: 650,
@@ -182,11 +174,7 @@ export const useController = () => {
    * @description 打开添加Webhook通知渠道的模态框，并在关闭后刷新通知渠道列表
    * @returns {void} 无返回值
    */
-  const openAddWebhookChannelModal = (limit: number = 1) => {
-    if (limit >= 1) {
-      message.warning($t("t_1_1748591498948"));
-      return;
-    }
+  const openAddWebhookChannelModal = () => {
     useModal({
       title: $t("t_11_1746676859158"),
       area: 650,
@@ -201,11 +189,7 @@ export const useController = () => {
    * @description 打开添加钉钉通知渠道的模态框，并在关闭后刷新通知渠道列表
    * @returns {void} 无返回值
    */
-  const openAddDingtalkChannelModal = (limit: number = 1) => {
-    if (limit >= 1) {
-      message.warning($t("t_2_1748591495339"));
-      return;
-    }
+  const openAddDingtalkChannelModal = () => {
     useModal({
       title: "添加钉钉通知",
       area: 650,
@@ -220,11 +204,7 @@ export const useController = () => {
    * @description 打开添加企业微信通知渠道的模态框，并在关闭后刷新通知渠道列表
    * @returns {void} 无返回值
    */
-  const openAddWecomChannelModal = (limit: number = 1) => {
-    if (limit >= 1) {
-      message.warning("企业微信通知渠道已达到上限");
-      return;
-    }
+  const openAddWecomChannelModal = () => {
     useModal({
       title: "添加企业微信通知",
       area: 650,

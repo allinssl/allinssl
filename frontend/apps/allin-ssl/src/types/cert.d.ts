@@ -48,7 +48,6 @@ export interface ApplyCertResponse extends AxiosResponseData {
 
 /** 上传证书请求参数 */
 export interface UploadCertParams {
-	cert_id: string
 	cert: string
 	key: string
 }

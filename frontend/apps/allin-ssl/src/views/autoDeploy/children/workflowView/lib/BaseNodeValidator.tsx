@@ -1,7 +1,7 @@
 import { useNodeValidator } from '@components/FlowChart/lib/verify'
 import { useStore } from '@components/FlowChart/useStore'
 import { useThemeCssVar } from '@baota/naive-ui/theme'
-import { PropType, computed, onUnmounted, watch } from 'vue'
+import { PropType, computed, onUnmounted, watch, unref } from 'vue'
 
 export interface BaseNodeProps<T = Record<string, any>> {
 	node: {
@@ -32,7 +32,7 @@ export function useBaseNodeValidator<T extends Record<string, any>>(
 		() => isRefreshNode.value,
 		(newVal) => {
 			useTimeoutFn(() => {
-				registerCompatValidator(props.node.id, rules, props.node.config)
+				registerCompatValidator(props.node.id, unref(rules), props.node.config)
 				validate(props.node.id)
 				isRefreshNode.value = null
 			}, 500)

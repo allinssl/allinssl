@@ -4,6 +4,7 @@ import (
 	"ALLinSSL/backend/public"
 	"encoding/json"
 	"fmt"
+	"strings"
 	"time"
 )
 
@@ -173,21 +174,34 @@ func UpdMonitor(id, name, target, reportTypes, cycle, repeatSendGap, active, adv
 }
 
 func DelMonitor(id string) error {
+	if strings.TrimSpace(id) == "" {
+		return fmt.Errorf("ID不能为空")
+	}
 	s, err := GetSqlite()
 	if err != nil {
 		return err
 	}
 	defer s.Close()
-	_, err = s.Where("id=?", []interface{}{id}).Delete()
+	ids := strings.Split(id, ",")
+	params := make([]interface{}, len(ids))
+	for i, value := range ids {
+		params[i] = strings.TrimSpace(value)
+	}
+	placeholders := strings.TrimSuffix(strings.Repeat("?,", len(ids)), ",")
+	tx, err := s.Conn.Begin()
 	if err != nil {
 		return err
 	}
-	s.TableName = "err_record"
-	_, err = s.Where("monitor_id=?", []interface{}{id}).Delete()
+	defer tx.Rollback()
+	_, err = tx.Exec("DELETE FROM monitor WHERE id IN ("+placeholders+")", params...)
 	if err != nil {
 		return err
 	}
-	return nil
+	_, err = tx.Exec("DELETE FROM err_record WHERE monitor_id IN ("+placeholders+")", params...)
+	if err != nil {
+		return err
+	}
+	return tx.Commit()
 }
 
 func SetMonitor(id string, active int) error {

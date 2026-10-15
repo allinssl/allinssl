@@ -86,7 +86,11 @@ export const useController = (props: FlowNodeProps = { type: 'quick', node: flow
         const param = {
           name,
           active,
-          content: JSON.stringify(processedChildNode),
+          content: JSON.stringify(processedChildNode, (_key, value) => {
+            if (value?.type !== 'upload' || !value.config?.cert_id) return value;
+            const { cert, key, ...config } = value.config;
+            return { ...value, config };
+          }),
           exec_type,
           exec_time: JSON.stringify(exec_time || {}),
         };

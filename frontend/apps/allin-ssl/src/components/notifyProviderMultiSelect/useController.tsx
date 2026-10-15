@@ -127,6 +127,10 @@ export function useNotifyProviderMultiSelectController(
 					// `type` 字段始终为原始提供商的 type，用于 SvgIcon
 					type: item.type,
 				}))
+				// 保留旧监控保存的渠道类型，重新保存时不改变原来的通知对象。
+				if (props.valueType === 'value') {
+					selectOptions.value.push(...fallbackOptions.value.filter((item) => props.value.includes(item.value)))
+				}
 			} else {
 				// 如果 Store 中没有数据，使用备用数据源
 				selectOptions.value = fallbackOptions.value

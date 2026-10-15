@@ -22,13 +22,6 @@ export default defineComponent({
 		const { fetchNotifyChannels } = useStore()
 		const { config, rules, feishuChannelForm, submitForm } = useFeishuChannelFormController()
 
-		if (props.data) {
-			const { name, config } = props.data
-			feishuChannelForm.value = {
-				name,
-				...config,
-			}
-		}
 		// 使用表单hooks
 		const {
 			component: FeishuForm,
@@ -36,7 +29,7 @@ export default defineComponent({
 			data,
 		} = useForm({
 			config,
-			defaultValue: feishuChannelForm,
+			defaultValue: { ...feishuChannelForm.value, ...props.data?.config, name: props.data?.name || '' },
 			rules,
 		})
 

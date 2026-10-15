@@ -22,13 +22,6 @@ export default defineComponent({
 		const { fetchNotifyChannels } = useStore()
 		const { config, rules, dingtalkChannelForm, submitForm } = useDingtalkChannelFormController()
 
-		if (props.data) {
-			const { name, config } = props.data
-			dingtalkChannelForm.value = {
-				name,
-				...config,
-			}
-		}
 		// 使用表单hooks
 		const {
 			component: DingtalkForm,
@@ -36,7 +29,7 @@ export default defineComponent({
 			data,
 		} = useForm({
 			config,
-			defaultValue: dingtalkChannelForm,
+			defaultValue: { ...dingtalkChannelForm.value, ...props.data?.config, name: props.data?.name || '' },
 			rules,
 		})
 

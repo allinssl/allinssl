@@ -1,10 +1,10 @@
 import { useBaseNodeValidator } from '@workflowView/lib/BaseNodeValidator'
-import rules from './verify'
+import uploadRules from './verify'
 import { $t } from '@locales/index'
 import { UploadNodeConfig } from '@components/FlowChart/types'
 import { useNodeHandler } from '@workflowView/lib/NodeHandler'
 import Drawer from './model'
-import { Ref } from 'vue'
+import { Ref, reactive } from 'vue'
 
 export default defineComponent({
 	name: 'UploadNode',
@@ -20,7 +20,13 @@ export default defineComponent({
 			return valid ? $t('t_8_1745735765753') : $t('t_9_1745735765287')
 		}
 
-		const { renderNode } = useBaseNodeValidator(props, rules, renderContent)
+		const rules = computed(() => uploadRules(props.node.config))
+		// 通用校验器会跳过不存在的字段，上传节点的缺失字段也必须参与必填校验。
+		const validationNode = computed(() => ({
+			...props.node,
+			config: { cert_id: '', cert: '', key: '', domains: '', end_day: undefined, ...props.node.config },
+		}))
+		const { renderNode } = useBaseNodeValidator(reactive({ node: validationNode }), rules, renderContent)
 
 		// 使用通用节点处理器
 		const { handleNodeClick } = useNodeHandler<UploadNodeConfig>()

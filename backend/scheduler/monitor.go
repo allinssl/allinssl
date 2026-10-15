@@ -7,7 +7,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"runtime"
-	"strconv"
 	"strings"
 	"sync"
 	"time"
@@ -33,14 +32,6 @@ func Monitor() {
 		fmt.Println(err)
 	}
 	defer s.Close()
-	s1, err := report.GetSqlite()
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-	defer s1.Close()
-	s1.TableName = "report"
-
 	data, err := s.Select()
 	if err != nil {
 		fmt.Println(err)
@@ -150,24 +141,9 @@ func Monitor() {
 						}
 						reportTypes, ok := v["report_types"].(string)
 						if ok && errCount == 1 {
-							reportTypeArr := strings.Split(reportTypes, ",")
-							for _, reportType := range reportTypeArr {
-								if reportType == "" {
-									continue
-								}
-								rdata, err := s1.Where("type=?", []interface{}{reportType}).Select()
-								if err != nil {
-									return
-								}
-								if len(rdata) <= 0 {
-									return
-								}
-								report.Notify(map[string]any{
-									"provider":    reportType,
-									"provider_id": strconv.FormatInt(rdata[0]["id"].(int64), 10),
-									"subject":     "ALLinSSL 监控通知",
-									"body":        fmt.Sprintf(MonitorErrTemplate, v["name"], monitorType, v["target"], strings.Split(checkErr, "：")[0], now.Format("2006-01-02 15:04:05")),
-								})
+							err := report.NotifyMonitor(reportTypes, "ALLinSSL 监控通知", fmt.Sprintf(MonitorErrTemplate, v["name"], monitorType, v["target"], strings.Split(checkErr, "：")[0], now.Format("2006-01-02 15:04:05")))
+							if err != nil {
+								fmt.Println(err)
 							}
 						}
 						monitorErrCountMu.Lock()
