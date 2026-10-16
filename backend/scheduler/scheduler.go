@@ -1,15 +1,20 @@
 package scheduler
 
 import (
+	"ALLinSSL/backend/internal/module"
 	"context"
+	"log"
 	"sync"
 	"time"
 )
 
 // 你的任务列表
-var funcs = []func(){
-	Monitor,
-	RunWorkflows,
+var funcs = []struct {
+	name string
+	run  func(context.Context)
+}{
+	{"monitor", func(_ context.Context) { Monitor() }},
+	{"workflow", runWorkflows},
 }
 
 // Scheduler 控制器
@@ -74,10 +79,17 @@ func (s *Scheduler) loop() {
 			taskWg.Add(len(funcs))
 
 			for _, f := range funcs {
-				go func(fn func()) {
+				go func(name string, fn func(context.Context)) {
 					defer taskWg.Done()
-					fn()
-				}(f)
+					if module.Default != nil {
+						_, err := module.Default.Execute(s.ctx, "scheduler", name, map[string]any{}, func(_ map[string]any) (any, error) { fn(s.ctx); return nil, nil })
+						if err != nil {
+							log.Printf("模块调度 %s 失败: %v", name, err)
+						}
+						return
+					}
+					fn(s.ctx)
+				}(f.name, f.run)
 			}
 			taskWg.Wait()
 

@@ -7,3 +7,5 @@
 *_test.go
 *.exe
 *.syso
+/plugins
+/docs

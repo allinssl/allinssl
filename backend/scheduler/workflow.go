@@ -2,6 +2,7 @@ package scheduler
 
 import (
 	wf "ALLinSSL/backend/internal/workflow"
+	"context"
 	"encoding/json"
 	"fmt"
 	"strconv"
@@ -18,6 +19,13 @@ type ExecTime struct {
 }
 
 func RunWorkflows() {
+	runWorkflows(context.Background())
+}
+
+func runWorkflows(runCtx context.Context) {
+	if runCtx.Err() != nil {
+		return
+	}
 	s, err := wf.GetSqlite()
 	if err != nil {
 		fmt.Println(err)
@@ -33,6 +41,9 @@ func RunWorkflows() {
 	// 遍历工作流
 	var wg sync.WaitGroup
 	for _, workflow := range data {
+		if runCtx.Err() != nil {
+			break
+		}
 		if workflow["exec_type"].(string) != "auto" {
 			// fmt.Println("不是自动执行的工作流")
 			continue
@@ -89,6 +100,7 @@ func RunWorkflows() {
 					return
 				}
 				ctx := wf.NewExecutionContext(RunID)
+				ctx.Context = runCtx
 				defer ctx.Logger.Close()
 				err = wf.RunWorkflow(c, ctx)
 				if err != nil {

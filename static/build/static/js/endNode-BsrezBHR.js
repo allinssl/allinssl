@@ -1,0 +1,1 @@
+import{s}from"./index.module-DOa7c3n6.js";import{ax as e,as as a,ar as d}from"./main-B4wB_jMQ.js";const o=e({name:"EndNode",setup:()=>()=>a("div",{class:"flex flex-col items-center justify-center"},[a("div",{class:s.endNode},null),a("div",{class:s.endNodeTxt},[d("流程结束")])])});export{o as default};

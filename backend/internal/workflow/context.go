@@ -1,14 +1,18 @@
 package workflow
 
-import "ALLinSSL/backend/public"
+import (
+	"ALLinSSL/backend/public"
+	"context"
+)
 
 func NewExecutionContext(RunID string) *ExecutionContext {
 	Logger, _ := public.NewLogger(public.GetSettingIgnoreError("workflow_log_path") + RunID + ".log")
 	return &ExecutionContext{
-		Data:   make(map[string]any),
-		Status: make(map[string]ExecutionStatus),
-		RunID:  RunID,
-		Logger: Logger,
+		Context: context.Background(),
+		Data:    make(map[string]any),
+		Status:  make(map[string]ExecutionStatus),
+		RunID:   RunID,
+		Logger:  Logger,
 	}
 }
 

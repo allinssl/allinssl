@@ -10,6 +10,7 @@ export default {
     { name: "privateCaCert", title: "私有证书" },
     { name: "authApiManage", title: $t("t_4_1744258111238") },
     { name: "monitor", title: $t("t_5_1744258110516") },
+    { name: "plugins", title: "插件管理" },
     { name: "settings", title: $t("t_6_1744258111153") },
   ], // 路由排序
   frameworkRoute: ["layout"], // 框架路由

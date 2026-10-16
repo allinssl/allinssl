@@ -2,12 +2,15 @@ package main
 
 import (
 	_ "ALLinSSL/backend/migrations"
+	"ALLinSSL/backend/modules"
 	"ALLinSSL/backend/public"
+	"ALLinSSL/backend/route"
 	"ALLinSSL/backend/scheduler"
 	"ALLinSSL/backend/server"
 	"crypto/md5"
 	"encoding/hex"
 	"fmt"
+	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 	ps "github.com/mitchellh/go-ps"
 	"os"
@@ -86,11 +89,22 @@ func main() {
 
 	cmd := os.Args[1]
 	switch cmd {
+	case "plugin":
+		if len(os.Args) != 4 || os.Args[2] != "disable" {
+			fmt.Println("用法: plugin disable <插件标识>")
+			return
+		}
+		if err := modules.Disable("data", os.Args[3]); err != nil {
+			fmt.Println("停用模块失败:", err)
+			os.Exit(1)
+		}
+		fmt.Println("模块已停用，请重启 ALLinSSL 使配置生效")
 	case "start":
 		mainRun()
 	case "help":
 		fmt.Println(`
 ALLinSSL 管理命令:
+plugin disable <插件标识> - 本机停用模块，重启后生效
 start - 启动 ALLinSSL
 1 - 后台运行 ALLinSSL（仅支持linux）
 2 - 停止 ALLinSSL
@@ -380,6 +394,19 @@ func control() (err error) {
 
 func mainRun() {
 	if checkRun() {
+		manager, err := modules.Initialize(public.GetSettingIgnoreError("plugin_dir"), "data")
+		if err != nil {
+			fmt.Println("初始化模块插件失败:", err)
+			return
+		}
+		// 在模块启动前登记原始业务接口，模块初始化时即可调用主服务。
+		route.Register(gin.New())
+		if err := manager.Start(); err != nil {
+			fmt.Println("发现模块插件失败:", err)
+			manager.Close()
+			return
+		}
+		defer manager.Close()
 		pid := os.Getpid()
 		os.WriteFile(pidPath, []byte(fmt.Sprintf("%d", pid)), 0644)
 		defer os.Remove(pidPath)
@@ -396,9 +423,17 @@ func mainRun() {
 		fmt.Println("调度器启动成功")
 
 		c := make(chan os.Signal, 1)
-		signal.Notify(c, syscall.SIGHUP)
+		signal.Notify(c, syscall.SIGHUP, os.Interrupt, syscall.SIGTERM)
+		defer signal.Stop(c)
 		for {
-			<-c
+			if sig := <-c; sig != syscall.SIGHUP {
+				manager.Close()
+				s.Stop()
+				if public.ShutdownFunc != nil {
+					public.ShutdownFunc()
+				}
+				return
+			}
 			run()
 		}
 	} else {

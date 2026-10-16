@@ -1,6 +1,7 @@
 package server
 
 import (
+	"ALLinSSL/backend/internal/module"
 	"ALLinSSL/backend/middleware"
 	"ALLinSSL/backend/public"
 	"ALLinSSL/backend/route"
@@ -30,6 +31,9 @@ func Run() error {
 	r.Use(gzip.Gzip(gzip.DefaultCompression))
 	gob.Register(time.Time{})
 	r.Use(middleware.SessionAuthMiddleware())
+	if module.Default != nil {
+		r.Use(module.Default.Middleware)
+	}
 	// r.Use(middleware.OpLoggerMiddleware())
 	route.Register(r)
 	ctx, cancel := context.WithCancel(context.Background())

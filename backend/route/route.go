@@ -4,6 +4,7 @@ import (
 	"ALLinSSL/backend/app/api"
 	"ALLinSSL/backend/app/api/monitor"
 	"ALLinSSL/backend/app/api/private_ca"
+	"ALLinSSL/backend/internal/module"
 	"ALLinSSL/backend/public"
 	"ALLinSSL/static"
 	"github.com/gin-gonic/gin"
@@ -119,6 +120,11 @@ func Register(r *gin.Engine) {
 		privateCa.POST("/get_leaf_cert_list", private_ca.GetLeafCertList)
 		privateCa.POST("/del_leaf_cert", private_ca.DeleteLeafCert)
 		privateCa.GET("/download_cert", private_ca.DownloadCert)
+	}
+
+	if module.Default != nil {
+		module.Default.RegisterBusiness(r.Routes())
+		module.Default.RegisterHTTP(r)
 	}
 
 	// 静态资源：/static -> build/static

@@ -2,6 +2,7 @@ package workflow
 
 import (
 	"ALLinSSL/backend/public"
+	"context"
 	"encoding/json"
 	"fmt"
 	"strings"
@@ -215,6 +216,14 @@ func resolveInputs(inputs []WorkflowNodeParams, ctx *ExecutionContext) map[strin
 }
 
 func RunNode(node *WorkflowNode, ctx *ExecutionContext) error {
+	executionCtx := ctx.Context
+	// 兼容直接构造执行上下文、未指定取消上下文的现有调用。
+	if executionCtx == nil {
+		executionCtx = context.Background()
+	}
+	if err := executionCtx.Err(); err != nil {
+		return err
+	}
 	// 获取上下文
 	inputs := resolveInputs(node.Inputs, ctx)
 	// 组装参数
@@ -229,7 +238,11 @@ func RunNode(node *WorkflowNode, ctx *ExecutionContext) error {
 	node.Config["NodeId"] = node.Id
 
 	// 执行当前节点
-	result, err := Executors(node.Type, node.Config)
+	result, err := executeWithContext(executionCtx, node.Type, node.Config)
+	// 取消不属于业务失败，不能继续进入结果分支或后续节点。
+	if cancelErr := executionCtx.Err(); cancelErr != nil {
+		return cancelErr
+	}
 
 	var status ExecutionStatus
 	if err != nil {

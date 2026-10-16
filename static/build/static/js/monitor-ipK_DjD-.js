@@ -1,0 +1,1 @@
+import{b9 as o}from"./main-B4wB_jMQ.js";const t=t=>o("/v1/monitor/get_list",t),r=t=>o("/v1/monitor/add_monitor",t),i=t=>o("/v1/monitor/upd_monitor",t),m=t=>o("/v1/monitor/del_monitor",t),n=t=>o("/v1/monitor/set_monitor",t),s=t=>o("/v1/monitor/get_monitor_info",t),a=t=>o("/v1/monitor/get_err_record",t);export{r as a,a as b,t as c,m as d,s as g,n as s,i as u};

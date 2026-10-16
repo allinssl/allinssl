@@ -1,12 +1,15 @@
 package middleware
 
 import (
+	"ALLinSSL/backend/internal/module"
 	"ALLinSSL/backend/public"
+	"bytes"
 	"crypto/md5"
 	"encoding/gob"
 	"encoding/hex"
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
+	"io"
 	"net/http"
 	"strconv"
 	"strings"
@@ -23,7 +26,20 @@ var Html404 = []byte(`<html>
 
 func SessionAuthMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		if checkApiKey(c) {
+		if module.Default != nil && module.Default.HandleAuth(c) {
+			return
+		}
+		// 内置认证会解析表单，保留已读取的正文供模块扩展及代理继续使用。
+		body := c.Request.Body
+		var consumed bytes.Buffer
+		if module.Default != nil && body != nil {
+			c.Request.Body = io.NopCloser(io.TeeReader(body, &consumed))
+		}
+		apiKey := checkApiKey(c)
+		if module.Default != nil && body != nil {
+			c.Request.Body = io.NopCloser(io.MultiReader(&consumed, body))
+		}
+		if apiKey {
 			return
 		}
 

@@ -1,5 +1,5 @@
 import { Transition, type Component as ComponentType, h } from 'vue'
-import { RouterView } from 'vue-router'
+import { ModuleRouterView as RouterView } from '@/modules'
 import AllinSslThemeProvider from '@/components/AllinSslThemeProvider'
  
 

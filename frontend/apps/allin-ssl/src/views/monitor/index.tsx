@@ -4,7 +4,7 @@ import { Search } from '@vicons/carbon'
 
 import { $t } from '@locales/index'
 import { useThemeCssVar } from '@baota/naive-ui/theme'
-import { RouterView } from '@baota/router'
+import { ModuleRouterView as RouterView } from '@/modules'
 
 import { useController } from './useController'
 

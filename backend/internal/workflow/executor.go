@@ -4,9 +4,11 @@ import (
 	"ALLinSSL/backend/internal/cert"
 	certApply "ALLinSSL/backend/internal/cert/apply"
 	certDeploy "ALLinSSL/backend/internal/cert/deploy"
+	"ALLinSSL/backend/internal/module"
 	"ALLinSSL/backend/internal/private_ca"
 	"ALLinSSL/backend/internal/report"
 	"ALLinSSL/backend/public"
+	"context"
 	"errors"
 	"fmt"
 	"strconv"
@@ -21,6 +23,17 @@ import (
 // }
 
 func Executors(exec string, params map[string]any) (any, error) {
+	return executeWithContext(context.Background(), exec, params)
+}
+
+func executeWithContext(ctx context.Context, exec string, params map[string]any) (any, error) {
+	if module.Default != nil {
+		return module.Default.Execute(ctx, "workflow", exec, params, func(values map[string]any) (any, error) { return executeBuiltin(exec, values) })
+	}
+	return executeBuiltin(exec, params)
+}
+
+func executeBuiltin(exec string, params map[string]any) (any, error) {
 	switch exec {
 	case "apply":
 		return apply(params)

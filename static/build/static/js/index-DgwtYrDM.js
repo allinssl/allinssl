@@ -1,0 +1,1 @@
+import{ax as a,as as e,ar as s}from"./main-B4wB_jMQ.js";const t=a({name:"BranchNode",props:{node:{type:Object,default:()=>({})}},setup:()=>()=>e("div",null,[s("渲染节点失败，请检查类型是否支持")])});export{t as default};

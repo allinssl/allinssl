@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"io"
 	"io/fs"
+	"os"
 	"os/exec"
 	"path/filepath"
 )
@@ -57,6 +58,11 @@ func scanPlugins(dir string) ([]PluginMetadata, error) {
 	pluginRegistry = map[string]PluginMetadata{} // 清空旧的
 	var plugins []PluginMetadata
 	_ = filepath.WalkDir(dir, func(path string, d fs.DirEntry, err error) error {
+		if err == nil && d.IsDir() {
+			if _, err := os.Stat(filepath.Join(path, "plugin.json")); err == nil {
+				return filepath.SkipDir
+			}
+		}
 		if err != nil || d.IsDir() {
 			return nil
 		}

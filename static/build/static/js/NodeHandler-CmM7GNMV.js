@@ -1,0 +1,1 @@
+import{bi as e,$ as o}from"./main-B4wB_jMQ.js";function t(){return{handleNodeClick:(t,a,n,r="60rem",i=!0)=>{var l;e({title:`${null==(l=t.value)?void 0:l.name}${n||o("t_1_1745490731990")}`,area:r,component:()=>a(t.value),confirmText:o("t_2_1744861190040"),footer:i})}}}export{t as useNodeHandler};

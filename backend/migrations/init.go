@@ -35,6 +35,10 @@ func init() {
 		fmt.Fprintf(os.Stderr, "切换目录失败: %v\n", err)
 		os.Exit(1)
 	}
+	// 本机恢复命令只修改模块启用配置，不能触发主库初始化或迁移。
+	if len(os.Args) > 1 && os.Args[1] == "plugin" {
+		return
+	}
 
 	os.MkdirAll("data", os.ModePerm)
 

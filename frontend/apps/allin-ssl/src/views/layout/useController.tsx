@@ -20,6 +20,7 @@ import { signOut } from '@api/public'
 import { useStore } from './useStore'
 // 内部模块导入 - 配置
 import { routes } from '@router/index' // 假设 routes 是 RouteRecordRaw[]
+import { applyModuleMenus } from '@/modules'
 // 内部模块导入 - 工具函数
 import { $t } from '@locales/index'
 
@@ -90,6 +91,7 @@ export const useController = (): LayoutControllerExposes => {
       privateCaCert: AddSquare24Regular,
       monitor: CloudMonitoring,
       settings: SettingsOutline,
+      plugins: ApiOutlined,
       logout: LogOutOutline,
       authApiManage: ApiOutlined,
     };
@@ -151,7 +153,7 @@ export const useController = (): LayoutControllerExposes => {
     }
 
     return [
-      ...finalMenuItems,
+      ...applyModuleMenus(finalMenuItems, router),
       {
         key: "logout",
         label: () => <a onClick={handleLogout}>{$t("t_15_1745457484292")}</a>,

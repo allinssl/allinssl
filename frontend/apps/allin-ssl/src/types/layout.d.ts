@@ -104,6 +104,7 @@ export interface MenuItem {
  */
 export type RouteName =
   | "logout"
+  | "plugins"
   | "settings"
   | "home"
   | "monitor"

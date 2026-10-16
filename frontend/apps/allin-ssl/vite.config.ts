@@ -22,7 +22,7 @@ const isDev = process.env.NODE_ENV === 'development' // 开发环境
 /// <reference types="vitest" />
 export default defineConfig({
   mode: isDev ? "development" : "production",
-  base: "./",
+  base: "/",
   // 插件配置
   plugins: [
     // vue处理

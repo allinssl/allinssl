@@ -22,7 +22,7 @@ import {
   NTooltip,
   type DropdownOption,
 } from "naive-ui";
-import { RouterView } from 'vue-router'
+import { ModuleSlot, ModuleRouterView as RouterView } from '@/modules'
 import { MenuFoldOutlined, MenuUnfoldOutlined } from '@vicons/antd'
 import { ChevronDown, MoonOutline, SunnyOutline } from "@vicons/ionicons5";
 import { useMediaQuery } from '@vueuse/core' // 引入 useMediaQuery
@@ -307,6 +307,7 @@ export default defineComponent({
 
           <NLayout>
             <NLayoutHeader class={styles.header}>
+              <ModuleSlot target="layout:header" />
               {/* 移动端或桌面端侧边栏折叠时，在头部左侧显示展开/收起按钮 */}
               {(isMobile.value || (!isMobile.value && isCollapsed.value)) && (
                 <div class="mr-auto">

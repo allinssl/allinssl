@@ -1,7 +1,7 @@
 import { NInput, NButton, NSpace, NSelect } from 'naive-ui'
 import { $t } from '@/locales'
 import { useThemeCssVar } from '@baota/naive-ui/theme'
-import { RouterView } from '@baota/router'
+import { ModuleRouterView as RouterView } from '@/modules'
 import { Search } from '@vicons/carbon'
 import { useController } from './useController'
 import { useRouter } from 'vue-router'

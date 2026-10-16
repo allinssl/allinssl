@@ -2,6 +2,7 @@ package workflow
 
 import (
 	"ALLinSSL/backend/public"
+	"context"
 	"sync"
 )
 
@@ -33,11 +34,12 @@ type WorkflowNode struct {
 }
 
 type ExecutionContext struct {
-	Data   map[string]any
-	Status map[string]ExecutionStatus
-	mu     sync.RWMutex
-	RunID  string
-	Logger *public.Logger
+	Context context.Context
+	Data    map[string]any
+	Status  map[string]ExecutionStatus
+	mu      sync.RWMutex
+	RunID   string
+	Logger  *public.Logger
 }
 
 type ExecTime struct {
