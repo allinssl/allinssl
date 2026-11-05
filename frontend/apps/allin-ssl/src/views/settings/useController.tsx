@@ -484,6 +484,9 @@ export const useGeneralSettingsController = () => {
         showPasswordOn: "click",
       }),
       useFormInput("插件目录", "plugin_path"),
+	      useFormInput("公网基址 (CRL/OCSP)", "public_base_url", {
+	        placeholder: "https://ca.example.com",
+	      }),
       useFormSwitch("启用SSL", "https", {
         checkedValue: "1",
         uncheckedValue: "0",

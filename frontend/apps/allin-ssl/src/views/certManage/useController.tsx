@@ -1,4 +1,4 @@
-import { NButton, NSpace, NTag, type DataTableColumns } from 'naive-ui'
+import { NButton, NSpace, NTag, NSelect, type DataTableColumns } from 'naive-ui'
 import {
 	useModal,
 	useTable,
@@ -18,9 +18,22 @@ import { useStore } from './useStore'
 
 import type { CertItem, CertListParams } from '@/types/cert'
 
+
+const REVOKE_REASON_OPTIONS = [
+  { label: '未指定 (unspecified)', value: 0 },
+  { label: '密钥泄露 (keyCompromise)', value: 1 },
+  { label: 'CA 泄露 (cACompromise)', value: 2 },
+  { label: '从属关系变更 (affiliationChanged)', value: 3 },
+  { label: '被取代 (superseded)', value: 4 },
+  { label: '停止运营 (cessationOfOperation)', value: 5 },
+  { label: '证书挂起 (certificateHold)', value: 6 },
+  { label: '权限撤销 (privilegeWithdrawn)', value: 9 },
+  { label: 'AA 泄露 (aACompromise)', value: 10 },
+]
+
 const { handleError } = useError()
 const { useFormTextarea } = useFormHooks()
-const { fetchCertList, downloadExistingCert, deleteExistingCert, uploadNewCert, uploadForm, resetUploadForm, deleteBatchCerts } =
+const { fetchCertList, downloadExistingCert, deleteExistingCert, revokeExistingCert, revokeBatchCerts, uploadNewCert, uploadForm, resetUploadForm, deleteBatchCerts } =
 	useStore()
 const { confirm } = useModalHooks()
 /**
@@ -79,11 +92,44 @@ export const useController = () => {
 		if (batchActionRef.value === 'delete') {
 			useDialog({
 				title: '批量删除证书',
-				content: `确定要删除选中的 ${checkedRowKeysRef.value.length} 个证书吗？`,
+				content: `确定要删除选中的 ${checkedRowKeysRef.value.length} 个证书吗？此操作不可恢复。`,
 				onPositiveClick: async () => {
 					try {
 						await deleteBatchCerts(checkedRowKeysRef.value)
 						checkedRowKeysRef.value = []
+						useMessage().success('批量删除成功')
+						await fetch()
+					} catch (error) {
+						handleError(error)
+					}
+				},
+			})
+			return
+		}
+		if (batchActionRef.value === 'revoke') {
+			const reasonRef = ref<number>(0)
+			useDialog({
+				title: '批量吊销证书',
+				content: () => (
+					<div class="flex flex-col gap-3">
+						<div>确定要向 CA 吊销选中的 {checkedRowKeysRef.value.length} 个证书吗？上传证书会失败并跳过，此操作不可恢复。</div>
+						<div>
+							<div class="mb-1 text-sm text-gray-500">吊销原因</div>
+							<NSelect
+								value={reasonRef.value}
+								options={REVOKE_REASON_OPTIONS}
+								onUpdateValue={(v: number) => {
+									reasonRef.value = v
+								}}
+							/>
+						</div>
+					</div>
+				),
+				onPositiveClick: async () => {
+					try {
+						await revokeBatchCerts(checkedRowKeysRef.value, reasonRef.value)
+						checkedRowKeysRef.value = []
+						useMessage().success('批量吊销完成')
 						await fetch()
 					} catch (error) {
 						handleError(error)
@@ -93,11 +139,7 @@ export const useController = () => {
 		}
 	}
 
-	/**
-	 * @description 创建表格列配置
-	 * @returns {DataTableColumns<CertItem>} 返回表格列配置数组
-	 */
-	const createColumns = (): DataTableColumns<CertItem> => [
+		const createColumns = (): DataTableColumns<CertItem> => [
 		{
 			type: 'selection',
 		},
@@ -142,7 +184,14 @@ export const useController = () => {
 				return true
 			},
 			render: (row: CertItem) => {
-				const endDay = calculateRemainingDays(row)
+				if (row.status === 'revoked') {
+						return (
+							<NTag round type="error" size="small">
+								已吊销
+							</NTag>
+						)
+					}
+					const endDay = calculateRemainingDays(row)
 
 				// 如果无法计算剩余天数，显示获取失败
 				if (endDay === null) {
@@ -195,7 +244,12 @@ export const useController = () => {
 					<NButton size="tiny" strong secondary type="primary" class="table-action-btn" onClick={() => downloadExistingCert(row.id.toString())}>
 						{$t('t_25_1745227838080')}
 					</NButton>
-					<NButton size="tiny" strong secondary type="error" class="table-action-btn-danger" onClick={() => handleDeleteCert(row)}>
+					{row.source !== 'upload' && row.status !== 'revoked' && (
+							<NButton size="tiny" strong secondary type="warning" class="table-action-btn" onClick={() => handleRevokeCert(row)}>
+								吊销
+							</NButton>
+						)}
+						<NButton size="tiny" strong secondary type="error" class="table-action-btn-danger" onClick={() => handleDeleteCert(row)}>
 						{$t('t_12_1745215914312')}
 					</NButton>
 				</NSpace>
@@ -297,7 +351,50 @@ export const useController = () => {
 	 * @description 打开查看证书弹窗
 	 * @param {CertItem} cert - 证书对象
 	 */
-	const openViewModal = (cert: CertItem) => {
+	
+		/**
+		 * @description 吊销证书（ACME）
+		 */
+		const handleRevokeCert = async (cert: CertItem) => {
+			if (cert.source === 'upload') {
+				useMessage().warning('上传证书无法通过 ACME 吊销')
+				return
+			}
+			if (cert.status === 'revoked') {
+				useMessage().warning('证书已吊销')
+				return
+			}
+			const reasonRef = ref<number>(0)
+			useDialog({
+				title: '确认吊销',
+				content: () => (
+					<div class="flex flex-col gap-3">
+						<div>确定要向 CA 吊销证书 "{cert.domains}" 吗？吊销后证书将立即失效，此操作不可恢复。</div>
+						<div>
+							<div class="mb-1 text-sm text-gray-500">吊销原因</div>
+							<NSelect
+								value={reasonRef.value}
+								options={REVOKE_REASON_OPTIONS}
+								onUpdateValue={(v: number) => {
+									reasonRef.value = v
+								}}
+							/>
+						</div>
+					</div>
+				),
+				onPositiveClick: async () => {
+					try {
+						await revokeExistingCert(cert.id.toString(), reasonRef.value)
+						useMessage().success('吊销成功')
+						await fetch()
+					} catch (error) {
+						handleError(error)
+					}
+				},
+			})
+		}
+
+		const openViewModal = (cert: CertItem) => {
 		useModal({
 			title: '查看证书信息',
 			area: 600,

@@ -123,6 +123,52 @@ func GetLeafCertList(c *gin.Context) {
 
 func DeleteLeafCert(c *gin.Context) {
 	var form struct {
+		Id string `form:"id"`
+	}
+	err := c.Bind(&form)
+	if err != nil {
+		public.FailMsg(c, err.Error())
+		return
+	}
+	if strings.TrimSpace(form.Id) == "" {
+		public.FailMsg(c, "ID不能为空")
+		return
+	}
+	err = private_ca.DeleteLeafCerts(form.Id)
+	if err != nil {
+		public.FailMsg(c, err.Error())
+		return
+	}
+	public.SuccessMsg(c, "删除成功")
+	return
+}
+
+func RevokeLeafCert(c *gin.Context) {
+	var form struct {
+		Id         string `form:"id"`
+		Reason     int    `form:"reason"`
+		ReasonNote string `form:"reason_note"`
+	}
+	err := c.Bind(&form)
+	if err != nil {
+		public.FailMsg(c, err.Error())
+		return
+	}
+	if strings.TrimSpace(form.Id) == "" {
+		public.FailMsg(c, "ID不能为空")
+		return
+	}
+	err = private_ca.RevokeLeafCerts(form.Id, form.Reason, strings.TrimSpace(form.ReasonNote))
+	if err != nil {
+		public.FailMsg(c, err.Error())
+		return
+	}
+	public.SuccessMsg(c, "吊销成功")
+	return
+}
+
+func DownloadCRL(c *gin.Context) {
+	var form struct {
 		Id int64 `form:"id"`
 	}
 	err := c.Bind(&form)
@@ -131,16 +177,53 @@ func DeleteLeafCert(c *gin.Context) {
 		return
 	}
 	if form.Id <= 0 {
-		public.FailMsg(c, "ID不能为空")
+		public.FailMsg(c, "CA ID不能为空")
 		return
 	}
-	err = private_ca.DeleteLeafCert(form.Id)
+	crlPEM, filename, err := private_ca.GenerateCRL(form.Id)
 	if err != nil {
 		public.FailMsg(c, err.Error())
 		return
 	}
-	public.SuccessMsg(c, "删除成功")
+	c.Header("Content-Type", "application/pkix-crl")
+	c.Header("Content-Disposition", "attachment; filename="+filename)
+	c.Data(200, "application/pkix-crl", crlPEM)
 	return
+}
+
+// DownloadCRLPublic 公开 CRL 下载，供证书 CDP 扩展引用（无需登录）。
+// 参数：ca_id
+func DownloadCRLPublic(c *gin.Context) {
+	var form struct {
+		CaId int64 `form:"ca_id"`
+	}
+	_ = c.Bind(&form)
+	if form.CaId <= 0 {
+		// 兼容 id
+		var alt struct {
+			Id int64 `form:"id"`
+		}
+		_ = c.Bind(&alt)
+		form.CaId = alt.Id
+	}
+	if form.CaId <= 0 {
+		public.FailMsg(c, "ca_id不能为空")
+		return
+	}
+	crlPEM, filename, err := private_ca.GenerateCRL(form.CaId)
+	if err != nil {
+		public.FailMsg(c, err.Error())
+		return
+	}
+	c.Header("Content-Type", "application/pkix-crl")
+	c.Header("Content-Disposition", "attachment; filename="+filename)
+	c.Header("Cache-Control", "public, max-age=3600")
+	c.Data(200, "application/pkix-crl", crlPEM)
+}
+
+// HandleOCSP 公开 OCSP 应答（无需登录）
+func HandleOCSP(c *gin.Context) {
+	private_ca.HandleOCSP(c)
 }
 
 func DownloadCert(c *gin.Context) {

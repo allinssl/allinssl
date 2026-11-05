@@ -248,3 +248,24 @@ export interface DeleteLeafCertResponse {
 	message: string;
 	status: boolean;
 }
+
+/**
+ * 吊销叶子证书请求参数
+ */
+export interface RevokeLeafCertParams {
+	/** 叶子证书ID */
+	id: string;
+	/** RFC 5280 吊销原因码，默认 0 (unspecified) */
+	reason?: number | string;
+	/** 可选备注 */
+	reason_note?: string;
+}
+
+/**
+ * 吊销叶子证书响应
+ */
+export interface RevokeLeafCertResponse {
+	code: number;
+	message: string;
+	status: boolean;
+}
