@@ -5,18 +5,24 @@ import (
 	"net/http"
 )
 
-// Manifest 是模块包的公开声明，主库操作只能使用 Permissions 中的业务操作。
+// Manifest 是模块包的公开声明，主库业务操作和数据写入分别使用 Permissions 和 DataPermissions。
 type Manifest struct {
-	Type         string        `json:"type"`
-	ID           string        `json:"id"`
-	Name         string        `json:"name"`
-	Version      string        `json:"version"`
-	Protocol     int           `json:"protocol"`
-	Backend      string        `json:"backend,omitempty"`
-	Permissions  []string      `json:"permissions,omitempty"`
-	Hooks        []Hook        `json:"hooks,omitempty"`
-	PublicRoutes []PublicRoute `json:"public_routes,omitempty"`
-	Frontend     Frontend      `json:"frontend"`
+	Type            string           `json:"type"`
+	ID              string           `json:"id"`
+	Name            string           `json:"name"`
+	Version         string           `json:"version"`
+	Protocol        int              `json:"protocol"`
+	Backend         string           `json:"backend,omitempty"`
+	Permissions     []string         `json:"permissions,omitempty"`
+	DataPermissions []DataPermission `json:"data_permissions,omitempty"`
+	Hooks           []Hook           `json:"hooks,omitempty"`
+	Frontend        Frontend         `json:"frontend"`
+}
+
+// DataPermission 只授权表数据写入，不能执行建表、改表或删表。
+type DataPermission struct {
+	Table   string   `json:"table"`
+	Actions []string `json:"actions"`
 }
 
 type Hook struct {
@@ -26,16 +32,10 @@ type Hook struct {
 	Handler string `json:"handler"`
 }
 
-type PublicRoute struct {
-	Method string `json:"method"`
-	Path   string `json:"path"`
-}
-
 type Frontend struct {
 	Root   string   `json:"root,omitempty"`
 	Entry  string   `json:"entry,omitempty"`
 	Styles []string `json:"styles,omitempty"`
-	Login  string   `json:"login,omitempty"`
 	Pages  []Page   `json:"pages,omitempty"`
 	Menus  []Menu   `json:"menus,omitempty"`
 	Slots  []Slot   `json:"slots,omitempty"`
@@ -69,6 +69,8 @@ type Info struct {
 	Enabled bool   `json:"enabled"`
 	Status  string `json:"status"`
 	Error   string `json:"error,omitempty"`
+	// WorkflowError 记录节点注册表读取失败，不影响插件其他能力。
+	WorkflowError string `json:"workflow_error,omitempty"`
 }
 
 type HTTPRequest struct {
@@ -99,7 +101,6 @@ type Invoke struct {
 }
 
 type Reply struct {
-	Allow    bool           `json:"allow"`
 	Stream   bool           `json:"stream,omitempty"`
 	Request  *HTTPRequest   `json:"request,omitempty"`
 	Response *HTTPResponse  `json:"response,omitempty"`

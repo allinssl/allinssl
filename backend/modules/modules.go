@@ -13,7 +13,10 @@ type Frontend = module.Frontend
 type Page = module.Page
 type Menu = module.Menu
 type Slot = module.Slot
-type PublicRoute = module.PublicRoute
+type WorkflowRegistration = module.WorkflowRegistration
+type WorkflowNode = module.WorkflowNode
+type DataChange = module.DataChange
+type DataResult = module.DataResult
 
 func Initialize(dir, dataDir string) (*module.Manager, error) {
 	manager, err := module.New(dir, dataDir)

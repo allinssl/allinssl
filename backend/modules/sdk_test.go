@@ -6,8 +6,10 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"net"
 	"net/http"
 	"os"
+	"path/filepath"
 	"strings"
 	"sync"
 	"testing"
@@ -117,5 +119,29 @@ func TestServeWaitsForShutdown(t *testing.T) {
 				t.Fatal(err)
 			}
 		})
+	}
+}
+
+func TestCallUsesHostSocket(t *testing.T) {
+	socket := filepath.Join(t.TempDir(), "host.sock")
+	listener, err := net.Listen("unix", socket)
+	if err != nil {
+		t.Skip("当前平台不支持本地 Unix socket")
+	}
+	defer listener.Close()
+	server := &http.Server{Handler: http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path != "/call" || r.Header.Get("Authorization") != "Bearer test-token" {
+			w.WriteHeader(http.StatusUnauthorized)
+			return
+		}
+		_ = json.NewEncoder(w).Encode(HTTPResponse{Status: 200, Body: []byte("{\"status\":true}")})
+	})}
+	go func() { _ = server.Serve(listener) }()
+	t.Cleanup(func() { _ = server.Close() })
+	t.Setenv("ALLINSSL_HOST_SOCKET", socket)
+	t.Setenv("ALLINSSL_MODULE_TOKEN", "test-token")
+	response, err := Call(context.Background(), "POST /v1/monitor/get_list", nil)
+	if err != nil || response.Status != 200 {
+		t.Fatalf("本地 socket 调用失败: %+v %v", response, err)
 	}
 }

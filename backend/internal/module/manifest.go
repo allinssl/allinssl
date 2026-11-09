@@ -10,6 +10,7 @@ import (
 )
 
 var identifier = regexp.MustCompile(`^[a-z][a-z0-9_-]*$`)
+var tableIdentifier = regexp.MustCompile(`^[a-z][a-z0-9_]*$`)
 
 // PackagePath 同时限制相对路径和符号链接，禁止包资源越过模块目录。
 func PackagePath(root, name string) (string, error) {
@@ -53,24 +54,18 @@ func readManifest(root, id string) (Manifest, error) {
 	paths := []string{}
 	if manifest.Backend != "" {
 		paths = append(paths, manifest.Backend)
-	} else if len(manifest.Hooks)+len(manifest.Permissions)+len(manifest.PublicRoutes) != 0 {
-		return manifest, fmt.Errorf("纯前端模块不能声明后端扩展、业务权限或认证回调")
+	} else if len(manifest.Hooks)+len(manifest.Permissions)+len(manifest.DataPermissions) != 0 {
+		return manifest, fmt.Errorf("纯前端模块不能声明后端扩展或数据权限")
 	} else if manifest.Frontend.Entry == "" && len(manifest.Frontend.Styles) == 0 {
 		return manifest, fmt.Errorf("纯前端模块需要前端入口或样式")
 	}
 	if manifest.Frontend.Entry != "" {
 		paths = append(paths, manifest.Frontend.Entry)
 	}
-	if manifest.Frontend.Login != "" {
-		paths = append(paths, manifest.Frontend.Login)
-	}
 	paths = append(paths, manifest.Frontend.Styles...)
 	frontendPaths := append([]string{}, manifest.Frontend.Styles...)
 	if manifest.Frontend.Entry != "" {
 		frontendPaths = append(frontendPaths, manifest.Frontend.Entry)
-	}
-	if manifest.Frontend.Login != "" {
-		frontendPaths = append(frontendPaths, manifest.Frontend.Login)
 	}
 	for _, name := range frontendPaths {
 		if !strings.HasPrefix(name, "frontend/") {
@@ -98,9 +93,22 @@ func readManifest(root, id string) (Manifest, error) {
 			return manifest, err
 		}
 	}
-	for _, route := range manifest.PublicRoutes {
-		if route.Method == "" || !strings.HasPrefix(route.Path, "/v1/plugins/"+id+"/api/") || strings.Contains(route.Path, "..") {
-			return manifest, fmt.Errorf("公开路由必须位于本模块 API 命名空间")
+	tables := map[string]bool{}
+	for _, permission := range manifest.DataPermissions {
+		if !tableIdentifier.MatchString(permission.Table) {
+			return manifest, fmt.Errorf("数据权限表名无效: %s", permission.Table)
+		}
+		if tables[permission.Table] {
+			return manifest, fmt.Errorf("数据权限表重复: %s", permission.Table)
+		}
+		tables[permission.Table] = true
+		if len(permission.Actions) == 0 {
+			return manifest, fmt.Errorf("数据权限动作不能为空: %s", permission.Table)
+		}
+		for _, action := range permission.Actions {
+			if action != "insert" && action != "update" && action != "delete" {
+				return manifest, fmt.Errorf("不支持的数据权限动作: %s", action)
+			}
 		}
 	}
 	for _, page := range manifest.Frontend.Pages {
@@ -123,12 +131,6 @@ func validateHook(hook Hook) error {
 	if hook.Handler == "" {
 		return fmt.Errorf("扩展处理器不能为空")
 	}
-	if hook.Kind == "auth" {
-		if hook.Target != "request" || hook.Stage != "replace" {
-			return fmt.Errorf("认证只支持 request 的 replace 扩展")
-		}
-		return nil
-	}
 	if hook.Stage != "before" && hook.Stage != "replace" && hook.Stage != "after" {
 		return fmt.Errorf("扩展阶段无效")
 	}
@@ -142,9 +144,7 @@ func validateHook(hook Hook) error {
 			return fmt.Errorf("响应后置扩展仅支持普通 POST 业务接口")
 		}
 	case "workflow":
-		if !strings.Contains("|apply|deploy|upload|notify|private_ca|", "|"+hook.Target+"|") {
-			return fmt.Errorf("不支持的工作流扩展: %s", hook.Target)
-		}
+		return fmt.Errorf("工作流节点改由插件后端注册表声明")
 	case "scheduler":
 		if hook.Target != "monitor" && hook.Target != "workflow" {
 			return fmt.Errorf("不支持的调度扩展")

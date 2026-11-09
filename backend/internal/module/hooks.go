@@ -3,7 +3,6 @@ package module
 import (
 	"ALLinSSL/backend/public"
 	"context"
-	"fmt"
 	"sort"
 )
 
@@ -95,25 +94,4 @@ func (m *Manager) Execute(ctx context.Context, kind, target string, params map[s
 		result = reply.Result
 	}
 	return result, nil
-}
-
-func (m *Manager) authID() string {
-	hooks := m.bindings("auth", "request", "replace")
-	if len(hooks) == 0 {
-		return ""
-	}
-	return hooks[0].ID
-}
-
-func (m *Manager) Authentication(ctx context.Context, request *HTTPRequest) (Reply, bool, error) {
-	hooks := m.bindings("auth", "request", "replace")
-	if len(hooks) == 0 {
-		return Reply{}, false, nil
-	}
-	if len(hooks) != 1 {
-		return Reply{}, true, fmt.Errorf("认证模块配置冲突")
-	}
-	hook := hooks[0]
-	reply, err := m.Call(ctx, hook.ID, Invoke{Kind: "auth", Target: "request", Stage: "replace", Handler: hook.Handler, Request: request})
-	return reply, true, err
 }

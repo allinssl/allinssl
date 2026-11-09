@@ -5,6 +5,7 @@ import FlowChart from "@components/FlowChart";
 import { useStore } from "@autoDeploy/children/workflowView/useStore";
 import { useController } from "./useController";
 import { useStore as useFlowStore } from "@components/FlowChart/useStore";
+import PluginNode from "@workflowView/lib/PluginNode";
 /**
  * @description 工作流视图主组件，负责加载和渲染流程图。
  */
@@ -35,6 +36,7 @@ export default defineComponent({
           componentsMap[componentKey] = module.default || module;
         }
       });
+      componentsMap["pluginNode"] = PluginNode;
       taskComponents.value = componentsMap;
       console.log("已加载节点组件:", Object.keys(componentsMap));
     };

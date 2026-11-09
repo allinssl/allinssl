@@ -36,7 +36,7 @@ export default defineComponent({
     const { validator, validate } = useNodeValidator(); // 验证器
     const tempNodeId = ref(props.node.id || uuidv4()); // 节点id
     const config = ref<BaseRenderNodeOptions<BaseNodeData>>(
-      nodeOptions[props.node.type]() || {}
+      (nodeOptions[props.node.type]?.() || { title: { name: props.node.name } }) as BaseRenderNodeOptions<BaseNodeData>
     ); // 节点配置
     const nodeNameRef = ref<HTMLInputElement | null>(null); // 节点名称输入框
     const isShowEditNodeName = ref(false); // 是否显示编辑节点名称
@@ -117,7 +117,7 @@ export default defineComponent({
     watch(
       () => props.node,
       () => {
-        config.value = nodeOptions[props.node.type as NodeNum](); // 更新节点配置
+        config.value = nodeOptions[props.node.type]?.() || config.value; // 更新节点配置
         inputValue.value = props.node.name; // 更新节点名称
         tempNodeId.value = props.node.id || uuidv4(); // 更新节点id
         validator.validateAll(); // 验证器验证
@@ -126,8 +126,9 @@ export default defineComponent({
         const nodeType = props.node.type;
         const nodeComponentKey = `${nodeType}Node`;
         // 如果taskComponents中有对应的组件就使用，否则使用ErrorNode
-        if (taskComponents && taskComponents[nodeComponentKey]) {
-          renderNodeContent.value = markRaw(taskComponents[nodeComponentKey]);
+        const component = taskComponents?.[nodeComponentKey] || (nodeType.startsWith("plugin:") ? taskComponents?.pluginNode : undefined);
+        if (component) {
+          renderNodeContent.value = markRaw(component);
         } else {
           renderNodeContent.value = markRaw(
             defineAsyncComponent({

@@ -46,7 +46,7 @@ export default defineComponent({
 		watch(
 			() => props.node.type,
 			(newVal) => {
-				config.value = nodeOptions[newVal]() || {}
+				config.value = (nodeOptions[newVal]?.() || {}) as BaseRenderNodeOptions<BaseNodeData | BranchNodeData>
 			},
 		)
 

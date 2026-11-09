@@ -1,6 +1,6 @@
 import { formatDate } from '@baota/utils/date'
 import { deepMerge } from '@baota/utils/data'
-import nodeOptions from '@components/FlowChart/lib/config'
+import nodeOptions, { isPluginNodeHidden } from '@components/FlowChart/lib/config'
 import MockData from '@components/FlowChart/mock'
 import type {
 	NodeIcon,
@@ -77,7 +77,9 @@ export const useFlowStore = defineStore('flow-store', () => {
   const getAddNodeSelect = () => {
     addNodeSelectList.value = [];
     Object.keys(nodeOptions).forEach((key) => {
-      const item = nodeOptions[key as NodeNum]();
+      if (isPluginNodeHidden(key)) return;
+      const item = nodeOptions[key as NodeNum]?.();
+      if (!item) return;
       if (item.operateNode?.add) {
         addNodeSelectList.value.push({
           title: { name: item.title.name } as NodeTitle,
@@ -111,7 +113,7 @@ export const useFlowStore = defineStore('flow-store', () => {
   const setShowAddNodeSelect = (flag: boolean, nodeType: NodeNum) => {
     // 设置排除的节点选项列表
     excludeNodeSelectList.value =
-      nodeOptions[nodeType]().operateNode?.onSupportNode || [];
+      nodeOptions[nodeType]?.().operateNode?.onSupportNode || [];
     // 设置添加节点选择框位置
     if (flag && addNodeSelectRef.value && addNodeBtnRef.value) {
       const box = addNodeSelectRef.value.getBoundingClientRect(); // 添加节点选择框
@@ -235,8 +237,10 @@ export const useFlowStore = defineStore('flow-store', () => {
       return;
     }
     // 获取支持的节点默认配置
+    const option = nodeOptions[nodeType]?.();
+    if (!option) return;
     let newNodeData = deepMerge(
-      nodeOptions[nodeType]().defaultNode as BaseNodeData,
+      option.defaultNode as BaseNodeData,
       nodeData
     ) as BaseNodeData | BranchNodeData; // 获取支持的节点默认配置
 

@@ -9,12 +9,40 @@ import (
 	"net"
 	"net/http"
 	"os"
+	"sync"
 	"time"
 )
 
 var hostClient = &http.Client{Transport: &http.Transport{Proxy: nil}, CheckRedirect: rejectRedirect}
+var socketClients sync.Map
 
 func rejectRedirect(_ *http.Request, _ []*http.Request) error { return http.ErrUseLastResponse }
+
+// 宿主提供 Unix socket 时优先走本地 socket，未提供时继续使用回环 HTTP。
+func callClient() *http.Client {
+	socket := os.Getenv("ALLINSSL_HOST_SOCKET")
+	if socket == "" {
+		return hostClient
+	}
+	if client, ok := socketClients.Load(socket); ok {
+		return client.(*http.Client)
+	}
+	client := &http.Client{
+		Transport: &http.Transport{Proxy: nil, DialContext: func(ctx context.Context, _, _ string) (net.Conn, error) {
+			return (&net.Dialer{}).DialContext(ctx, "unix", socket)
+		}},
+		CheckRedirect: rejectRedirect,
+	}
+	actual, _ := socketClients.LoadOrStore(socket, client)
+	return actual.(*http.Client)
+}
+
+func hostBase() string {
+	if base := os.Getenv("ALLINSSL_HOST_URL"); base != "" {
+		return base
+	}
+	return "http://unix"
+}
 
 // Serve 启动协议 1 模块，宿主关闭标准输入时退出；标准输出只用于就绪消息。
 func Serve(ctx context.Context, invoke func(context.Context, Invoke) Reply, api http.Handler) error {
@@ -85,13 +113,13 @@ func Call(ctx context.Context, operation string, params map[string]any) (*HTTPRe
 	if err != nil {
 		return nil, err
 	}
-	request, err := http.NewRequestWithContext(ctx, "POST", os.Getenv("ALLINSSL_HOST_URL")+"/call", bytes.NewReader(data))
+	request, err := http.NewRequestWithContext(ctx, "POST", hostBase()+"/call", bytes.NewReader(data))
 	if err != nil {
 		return nil, err
 	}
 	request.Header.Set("Authorization", "Bearer "+os.Getenv("ALLINSSL_MODULE_TOKEN"))
 	request.Header.Set("Content-Type", "application/json")
-	response, err := hostClient.Do(request)
+	response, err := callClient().Do(request)
 	if err != nil {
 		return nil, err
 	}
@@ -100,6 +128,33 @@ func Call(ctx context.Context, operation string, params map[string]any) (*HTTPRe
 		return nil, fmt.Errorf("主服务业务调用失败: HTTP %d", response.StatusCode)
 	}
 	var result HTTPResponse
+	if err := json.NewDecoder(response.Body).Decode(&result); err != nil {
+		return nil, err
+	}
+	return &result, nil
+}
+
+// ChangeData 修改宿主主库的表数据，表名、动作和字段由插件清单授权。
+func ChangeData(ctx context.Context, change DataChange) (*DataResult, error) {
+	data, err := json.Marshal(change)
+	if err != nil {
+		return nil, err
+	}
+	request, err := http.NewRequestWithContext(ctx, "POST", hostBase()+"/data", bytes.NewReader(data))
+	if err != nil {
+		return nil, err
+	}
+	request.Header.Set("Authorization", "Bearer "+os.Getenv("ALLINSSL_MODULE_TOKEN"))
+	request.Header.Set("Content-Type", "application/json")
+	response, err := callClient().Do(request)
+	if err != nil {
+		return nil, err
+	}
+	defer response.Body.Close()
+	if response.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("主服务数据写入失败: HTTP %d", response.StatusCode)
+	}
+	var result DataResult
 	if err := json.NewDecoder(response.Body).Decode(&result); err != nil {
 		return nil, err
 	}

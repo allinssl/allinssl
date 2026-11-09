@@ -48,6 +48,20 @@ func runHelper() {
 	}
 	mux := http.NewServeMux()
 	mux.HandleFunc("/invoke", helperInvoke)
+	mux.HandleFunc("/api/workflow", func(w http.ResponseWriter, r *http.Request) {
+		if r.Header.Get("Authorization") != "Bearer "+os.Getenv("ALLINSSL_MODULE_TOKEN") {
+			w.WriteHeader(401)
+			return
+		}
+		if !strings.HasPrefix(os.Getenv("ALLINSSL_MODULE_ID"), "workflow") {
+			w.WriteHeader(404)
+			return
+		}
+		_ = json.NewEncoder(w).Encode(WorkflowRegistration{
+			Nodes:     []WorkflowNode{{Name: "pause", Handler: "pause"}},
+			Overrides: map[string]string{"apply": "workflow_apply"},
+		})
+	})
 	mux.HandleFunc("/api/echo", func(w http.ResponseWriter, r *http.Request) {
 		if r.Header.Get("Authorization") != "Bearer "+os.Getenv("ALLINSSL_MODULE_TOKEN") {
 			w.WriteHeader(401)
@@ -79,8 +93,6 @@ func helperInvoke(w http.ResponseWriter, r *http.Request) {
 	case "wait":
 		time.Sleep(150 * time.Millisecond)
 		reply.Result = "已完成"
-	case "auth":
-		reply.Allow = call.Request.Header.Get("X-Test-Login") == "yes"
 	case "before":
 		call.Params["order"] = fmt.Sprint(call.Params["order"]) + os.Getenv("ALLINSSL_MODULE_ID")
 		reply.Params = call.Params
@@ -101,6 +113,8 @@ func helperInvoke(w http.ResponseWriter, r *http.Request) {
 		reply.Response = &HTTPResponse{Status: 201, Body: []byte("插件响应")}
 	case "fail":
 		reply.Error = "测试失败"
+	case "workflow_apply":
+		reply.Result = map[string]any{"plugin": os.Getenv("ALLINSSL_MODULE_ID")}
 	default:
 		reply.Result = call.Params
 	}
@@ -156,7 +170,7 @@ func testManager(t *testing.T, root, data string) *Manager {
 
 func TestLifecyclePermissionsAndRecovery(t *testing.T) {
 	root, data := t.TempDir(), t.TempDir()
-	manifest := fixture(t, root, "example", Hook{Kind: "workflow", Target: "notify", Stage: "replace", Handler: "replace"})
+	manifest := fixture(t, root, "example")
 	manifest.Permissions = []string{"POST /v1/monitor/get_list"}
 	writeManifest(t, filepath.Join(root, "example"), manifest)
 	m := testManager(t, root, data)
@@ -181,11 +195,6 @@ func TestLifecyclePermissionsAndRecovery(t *testing.T) {
 	}
 	if m.plugins["example"].proc.cmd.Process.Pid != pid {
 		t.Fatal("不应重复启动")
-	}
-	ctx := context.Background()
-	result, err := m.Execute(ctx, "workflow", "notify", map[string]any{"value": "ok", "logger": make(chan bool)}, func(_ map[string]any) (any, error) { t.Fatal("不能执行原实现"); return nil, nil })
-	if err != nil || result.(map[string]any)["value"] != "ok" {
-		t.Fatalf("替换失败: %v %v", result, err)
 	}
 	p := m.plugins["example"].proc
 	for _, tc := range []struct {
@@ -219,10 +228,6 @@ func TestLifecyclePermissionsAndRecovery(t *testing.T) {
 	if err := m.Disable("example"); err != nil {
 		t.Fatal(err)
 	}
-	result, err = m.Execute(ctx, "workflow", "notify", nil, func(_ map[string]any) (any, error) { return "原实现", nil })
-	if err != nil || result != "原实现" {
-		t.Fatal("停用后应恢复原实现")
-	}
 	if err := m.Enable("example"); err != nil {
 		t.Fatal(err)
 	}
@@ -241,21 +246,23 @@ func TestLifecyclePermissionsAndRecovery(t *testing.T) {
 
 func TestHookOrderConflictCrashAndDrain(t *testing.T) {
 	root := t.TempDir()
-	fixture(t, root, "alpha", Hook{Kind: "workflow", Target: "notify", Stage: "before", Handler: "before"}, Hook{Kind: "workflow", Target: "notify", Stage: "after", Handler: "after"})
-	fixture(t, root, "beta", Hook{Kind: "workflow", Target: "notify", Stage: "before", Handler: "before"}, Hook{Kind: "workflow", Target: "notify", Stage: "after", Handler: "after"})
+	target := "POST /v1/monitor/get_list"
+	fixture(t, root, "alpha", Hook{Kind: "http", Target: target, Stage: "before", Handler: "before"}, Hook{Kind: "http", Target: target, Stage: "after", Handler: "after"})
+	fixture(t, root, "beta", Hook{Kind: "http", Target: target, Stage: "before", Handler: "before"}, Hook{Kind: "http", Target: target, Stage: "after", Handler: "after"})
 	m := testManager(t, root, t.TempDir())
+	m.RegisterOperation(target, func(context.Context, map[string]any) (*HTTPResponse, error) { return &HTTPResponse{Status: 200}, nil })
 	if err := m.Enable("beta"); err != nil {
 		t.Fatal(err)
 	}
 	if err := m.Enable("alpha"); err != nil {
 		t.Fatal(err)
 	}
-	result, err := m.Execute(context.Background(), "workflow", "notify", map[string]any{"order": ""}, func(params map[string]any) (any, error) { return params["order"], nil })
+	result, err := m.Execute(context.Background(), "http", target, map[string]any{"order": ""}, func(params map[string]any) (any, error) { return params["order"], nil })
 	if err != nil || result != "alphabeta"+"betaalpha" {
 		t.Fatalf("扩展顺序错误: %v %v", result, err)
 	}
-	fixture(t, root, "replace", Hook{Kind: "workflow", Target: "apply", Stage: "replace", Handler: "replace"})
-	fixture(t, root, "conflict", Hook{Kind: "workflow", Target: "apply", Stage: "replace", Handler: "replace"})
+	fixture(t, root, "replace", Hook{Kind: "http", Target: target, Stage: "replace", Handler: "replace"})
+	fixture(t, root, "conflict", Hook{Kind: "http", Target: target, Stage: "replace", Handler: "replace"})
 	if err := m.Enable("replace"); err != nil {
 		t.Fatal(err)
 	}
@@ -281,39 +288,9 @@ func TestHookOrderConflictCrashAndDrain(t *testing.T) {
 	if _, err := m.Call(context.Background(), "replace", Invoke{Handler: "crash"}); err == nil {
 		t.Fatal("进程崩溃应报错")
 	}
-	_, err = m.Execute(context.Background(), "workflow", "apply", nil, func(_ map[string]any) (any, error) { t.Fatal("崩溃不能回退"); return nil, nil })
+	_, err = m.Execute(context.Background(), "http", target, nil, func(_ map[string]any) (any, error) { t.Fatal("崩溃不能回退"); return nil, nil })
 	if err == nil {
 		t.Fatal("崩溃后应继续报错")
-	}
-}
-
-func TestMissingAuthenticationFailsClosed(t *testing.T) {
-	root, data := t.TempDir(), t.TempDir()
-	fixture(t, root, "auth", Hook{Kind: "auth", Target: "request", Stage: "replace", Handler: "auth"})
-	m := testManager(t, root, data)
-	if err := m.Enable("auth"); err != nil {
-		t.Fatal(err)
-	}
-	if _, active, err := m.Authentication(context.Background(), &HTTPRequest{Header: http.Header{"X-Test-Login": {"yes"}}}); !active || err != nil {
-		t.Fatal(err)
-	}
-	m.Close()
-	// 关闭一次后不再通过清理重复关闭，Close 本身应可安全重入。
-	if err := os.Remove(filepath.Join(root, "auth", "plugin.json")); err != nil {
-		t.Fatal(err)
-	}
-	next := testManager(t, root, data)
-	if err := next.Start(); err != nil {
-		t.Fatal(err)
-	}
-	if _, active, err := next.Authentication(context.Background(), &HTTPRequest{}); !active || err == nil {
-		t.Fatal("认证模块缺失时不能恢复内置认证")
-	}
-	if err := next.Disable("auth"); err != nil {
-		t.Fatal(err)
-	}
-	if _, active, _ := next.Authentication(context.Background(), &HTTPRequest{}); active {
-		t.Fatal("手动停用后应恢复内置认证")
 	}
 }
 
@@ -385,12 +362,9 @@ func TestHTTPOrderTerminationAndFailure(t *testing.T) {
 	}
 }
 
-func TestWorkflowAndSchedulerReplacementTargets(t *testing.T) {
+func TestSchedulerReplacementTargets(t *testing.T) {
 	root := t.TempDir()
 	hooks := []Hook{}
-	for _, target := range []string{"apply", "deploy", "upload", "notify", "private_ca"} {
-		hooks = append(hooks, Hook{Kind: "workflow", Target: target, Stage: "replace", Handler: "replace"})
-	}
 	for _, target := range []string{"monitor", "workflow"} {
 		hooks = append(hooks, Hook{Kind: "scheduler", Target: target, Stage: "replace", Handler: "replace"})
 	}
@@ -414,15 +388,13 @@ func TestWorkflowAndSchedulerReplacementTargets(t *testing.T) {
 	}
 }
 
-func TestBootstrapAuthenticationAndAssetBoundary(t *testing.T) {
+func TestBootstrapAndAssetBoundary(t *testing.T) {
 	root := t.TempDir()
-	manifest := fixture(t, root, "auth", Hook{Kind: "auth", Target: "request", Stage: "replace", Handler: "auth"})
-	manifest.Frontend.Login = manifest.Frontend.Entry
-	manifest.Permissions = []string{"POST /v1/monitor/get_list"}
-	writeManifest(t, filepath.Join(root, "auth"), manifest)
+	manifest := fixture(t, root, "theme")
+	manifest.Backend = ""
+	writeManifest(t, filepath.Join(root, "theme"), manifest)
 	m := testManager(t, root, t.TempDir())
-	m.RegisterOperation(manifest.Permissions[0], func(context.Context, map[string]any) (*HTTPResponse, error) { return nil, nil })
-	if err := m.Enable("auth"); err != nil {
+	if err := m.Enable("theme"); err != nil {
 		t.Fatal(err)
 	}
 	secure := public.Secure
@@ -437,12 +409,7 @@ func TestBootstrapAuthenticationAndAssetBoundary(t *testing.T) {
 	if w.Code != 200 || strings.Contains(w.Body.String(), "permissions") || strings.Contains(w.Body.String(), "backend") || strings.Contains(w.Body.String(), "MODULE_TOKEN") {
 		t.Fatalf("启动信息泄露私有清单: %s", w.Body.String())
 	}
-	w = httptest.NewRecorder()
-	router.ServeHTTP(w, httptest.NewRequest("POST", "/v1/plugins/list", nil))
-	if w.Code != 401 {
-		t.Fatalf("管理接口必须认证: %d", w.Code)
-	}
-	for _, path := range []string{"/plugins/auth/static/plugin.json", "/plugins/auth/static/backend.exe", "/plugins/auth/static/frontend/../../../plugins.json"} {
+	for _, path := range []string{"/plugins/theme/static/plugin.json", "/plugins/theme/static/backend.exe", "/plugins/theme/static/frontend/../../../plugins.json"} {
 		w = httptest.NewRecorder()
 		req := httptest.NewRequest("GET", path, nil)
 		req.Header.Set("X-Test-Login", "yes")
@@ -452,36 +419,15 @@ func TestBootstrapAuthenticationAndAssetBoundary(t *testing.T) {
 		}
 	}
 	w = httptest.NewRecorder()
-	router.ServeHTTP(w, httptest.NewRequest("GET", "/plugins/auth/static/frontend/index.js", nil))
+	router.ServeHTTP(w, httptest.NewRequest("GET", "/plugins/theme/static/frontend/index.js", nil))
 	if w.Code != 200 {
-		t.Fatalf("登录资源应可公开加载: %d", w.Code)
+		t.Fatalf("主题资源应可匿名加载: %d", w.Code)
 	}
 }
 
-func TestAuthenticationPublication(t *testing.T) {
-	for _, tc := range []struct {
-		status                     string
-		enabled, published, active bool
-	}{
-		{"starting", true, false, false},
-		{"error", false, false, false},
-		{"starting", true, true, true},
-		{"stopping", true, true, true},
-		{"error", true, true, true},
-		{"disabled", false, false, false},
-	} {
-		item := &installed{Info: Info{Manifest: Manifest{ID: "auth", Hooks: []Hook{{Kind: "auth", Target: "request", Stage: "replace", Handler: "auth"}}}, Enabled: tc.enabled, Status: tc.status}, published: tc.published}
-		m := &Manager{plugins: map[string]*installed{"auth": item}}
-		_, active, err := m.Authentication(context.Background(), &HTTPRequest{})
-		if active != tc.active || (active && err == nil) {
-			t.Fatalf("接管状态错误: %+v active=%v err=%v", tc, active, err)
-		}
-	}
-}
-
-func TestAuthenticationRestartKeepsPublishedClaims(t *testing.T) {
+func TestRestartTokenRotationAndFailure(t *testing.T) {
 	root := t.TempDir()
-	manifest := fixture(t, root, "auth", Hook{Kind: "auth", Target: "request", Stage: "replace", Handler: "auth"})
+	manifest := fixture(t, root, "auth")
 	manifest.Permissions = []string{"POST /v1/monitor/get_list"}
 	writeManifest(t, filepath.Join(root, "auth"), manifest)
 	m := testManager(t, root, t.TempDir())
@@ -517,9 +463,6 @@ func TestAuthenticationRestartKeepsPublishedClaims(t *testing.T) {
 		m.actions.Unlock()
 		t.Fatal("重启必须全程持有生命周期锁")
 	}
-	if _, active, err := m.Authentication(context.Background(), &HTTPRequest{}); !active || err == nil {
-		t.Fatal("重启启动期间不能恢复内置认证")
-	}
 	finish()
 	if err := <-done; err != nil {
 		t.Fatal(err)
@@ -545,18 +488,12 @@ func TestAuthenticationRestartKeepsPublishedClaims(t *testing.T) {
 	if err := m.Restart("auth"); err == nil {
 		t.Fatal("启动失败必须报错")
 	}
-	if _, active, err := m.Authentication(context.Background(), &HTTPRequest{}); !active || err == nil {
-		t.Fatal("故障重启不能恢复内置认证")
-	}
 	t.Setenv("ALLINSSL_MODULE_TEST_FAIL_START", "0")
 	manifest.Hooks = nil
 	manifest.Version = "2"
 	writeManifest(t, filepath.Join(root, "auth"), manifest)
 	if err := m.Restart("auth"); err == nil {
 		t.Fatal("重启不能接纳修改后的清单")
-	}
-	if _, active, err := m.Authentication(context.Background(), &HTTPRequest{}); !active || err == nil {
-		t.Fatal("清单变化后必须保留原认证接管")
 	}
 	current, err := os.ReadFile(m.stateFile)
 	if err != nil || string(current) != string(state) || !m.plugins["auth"].Enabled || !m.plugins["auth"].published {
@@ -635,5 +572,35 @@ func TestHostOperationCancelledWithProcess(t *testing.T) {
 	}
 	if response.Code != 500 {
 		t.Fatalf("取消的业务应返回失败: %d", response.Code)
+	}
+}
+
+func TestHostUnixSocketOperation(t *testing.T) {
+	root, data := t.TempDir(), t.TempDir()
+	manifest := fixture(t, root, "socket")
+	manifest.Permissions = []string{"POST /v1/monitor/get_list"}
+	writeManifest(t, filepath.Join(root, "socket"), manifest)
+	m := testManager(t, root, data)
+	if m.hostSocket == "" {
+		t.Skip("当前平台不支持本地 Unix socket")
+	}
+	m.RegisterOperation(manifest.Permissions[0], func(context.Context, map[string]any) (*HTTPResponse, error) {
+		return &HTTPResponse{Status: 200, Body: []byte("{\"status\":true}")}, nil
+	})
+	if err := m.Enable("socket"); err != nil {
+		t.Fatal(err)
+	}
+	client := &http.Client{Transport: &http.Transport{Proxy: nil, DialContext: func(ctx context.Context, _, _ string) (net.Conn, error) {
+		return (&net.Dialer{}).DialContext(ctx, "unix", m.hostSocket)
+	}}}
+	request, _ := http.NewRequest("POST", "http://unix/call", strings.NewReader(fmt.Sprintf("{\"operation\":%q,\"params\":{}}", manifest.Permissions[0])))
+	request.Header.Set("Authorization", "Bearer "+m.plugins["socket"].proc.token)
+	response, err := client.Do(request)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer response.Body.Close()
+	if response.StatusCode != 200 {
+		t.Fatalf("本地 socket 业务调用失败: %d", response.StatusCode)
 	}
 }

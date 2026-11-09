@@ -20,6 +20,20 @@ func TestManifestMenuIcon(t *testing.T) {
 	}
 }
 
+func TestManifestDataPermissions(t *testing.T) {
+	root := t.TempDir()
+	manifest := fixture(t, root, "writer")
+	manifest.DataPermissions = []DataPermission{{Table: "workflow", Actions: []string{"insert", "update", "delete"}}}
+	writeManifest(t, filepath.Join(root, "writer"), manifest)
+	loaded, err := readManifest(filepath.Join(root, "writer"), "writer")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(loaded.DataPermissions) != 1 || loaded.DataPermissions[0].Table != "workflow" {
+		t.Fatalf("数据权限未保留: %+v", loaded.DataPermissions)
+	}
+}
+
 func TestManifestValidation(t *testing.T) {
 	root := t.TempDir()
 	valid := fixture(t, root, "example")
@@ -36,6 +50,21 @@ func TestManifestValidation(t *testing.T) {
 		}},
 		{"下载后置", func(m *Manifest) {
 			m.Hooks = []Hook{{Kind: "http", Target: "GET /v1/cert/download", Stage: "after", Handler: "x"}}
+		}},
+		{"认证扩展", func(m *Manifest) {
+			m.Hooks = []Hook{{Kind: "auth", Target: "request", Stage: "replace", Handler: "x"}}
+		}},
+		{"工作流扩展", func(m *Manifest) {
+			m.Hooks = []Hook{{Kind: "workflow", Target: "apply", Stage: "replace", Handler: "x"}}
+		}},
+		{"数据权限动作", func(m *Manifest) {
+			m.DataPermissions = []DataPermission{{Table: "workflow", Actions: []string{"alter"}}}
+		}},
+		{"数据权限表名", func(m *Manifest) {
+			m.DataPermissions = []DataPermission{{Table: "workflow;drop", Actions: []string{"insert"}}}
+		}},
+		{"数据权限重复表", func(m *Manifest) {
+			m.DataPermissions = []DataPermission{{Table: "workflow", Actions: []string{"insert"}}, {Table: "workflow", Actions: []string{"update"}}}
 		}},
 		{"前端目录", func(m *Manifest) { m.Frontend.Entry = "backend.exe" }},
 		{"图标缺少入口", func(m *Manifest) {

@@ -25,7 +25,6 @@ export interface ModuleMenu {
 export interface ModuleFrontend {
   root?: string
   entry?: string
-  login?: string
   styles?: string[]
   pages?: ModulePage[]
   menus?: ModuleMenu[]
@@ -42,6 +41,7 @@ export interface ModuleInfo {
   enabled: boolean
   status: string
   error?: string
+  workflow_error?: string
   frontend: ModuleFrontend
 }
 
@@ -57,12 +57,29 @@ export interface ModuleHost {
   routing: typeof Routing
   views: Record<string, Vue.Component>
   load: (path: string) => Promise<Record<string, unknown>>
+  workflow: ModuleWorkflowApi
 }
 
 export type ModuleEntry = (host: ModuleHost) => Record<string, Vue.Component> | Promise<Record<string, Vue.Component>>
 
 export interface Bootstrap {
   authenticated: boolean
-  authentication: null | { id: string; entry: string; styles?: string[]; status: string; error?: string; version: string }
   modules: Pick<ModuleInfo, 'id' | 'version' | 'status' | 'error' | 'frontend'>[]
+}
+
+export interface PluginWorkflowNode {
+  name: string
+  title: string
+  summary: (config: Record<string, any>) => string
+  validate?: (config: Record<string, any>) => string
+  order?: number
+  icon?: string
+  defaultConfig?: Record<string, any>
+  form?: Vue.Component
+}
+
+export interface ModuleWorkflowApi {
+  addNode: (node: PluginWorkflowNode) => void
+  hideNode: (name: string) => void
+  replaceForm: (name: string, form: Vue.Component) => void
 }

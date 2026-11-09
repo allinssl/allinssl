@@ -37,7 +37,7 @@ export default defineComponent({
       { title: '版本', key: 'version' },
       { title: '启用', key: 'enabled', render: item => item.enabled ? '已启用' : '已停用' },
       { title: '运行状态', key: 'status', render: item => <NTag type={item.status === 'running' ? 'success' : item.error ? 'error' : 'default'}>{item.status === 'running' && !item.backend ? '已加载' : statusNames[item.status] || item.status}</NTag> },
-      { title: '最近错误', key: 'error', render: item => item.error || frontendErrors[item.id] || '—' },
+      { title: '最近错误', key: 'error', render: item => item.workflow_error || item.error || frontendErrors[item.id] || '—' },
       { title: '操作', key: 'actions', render: item => <NSpace>
         <NButton size="small" disabled={loading.value || item.status === 'invalid'} onClick={() => change(item.id, item.enabled ? 'disable' : 'enable')}>{item.enabled ? '停用' : '启用'}</NButton>
         <NButton size="small" disabled={loading.value || !item.enabled} onClick={() => change(item.id, 'restart')}>重启</NButton>

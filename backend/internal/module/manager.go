@@ -5,6 +5,7 @@ import (
 	"bytes"
 	"context"
 	"crypto/rand"
+	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
 	"errors"
@@ -38,6 +39,7 @@ type installed struct {
 	Info
 	root      string
 	proc      *process
+	workflow  WorkflowRegistration
 	published bool // 已发布的接管关系在重启和故障期间继续保留。
 }
 
@@ -57,6 +59,8 @@ type Manager struct {
 	operations map[string]Operation
 	server     *http.Server
 	hostURL    string
+	hostSocket string
+	database   string
 	client     *http.Client
 	closed     bool
 }
@@ -73,7 +77,7 @@ func New(dir, dataDir string) (*Manager, error) {
 	if err := os.MkdirAll(dataDir, 0700); err != nil {
 		return nil, err
 	}
-	m := &Manager{dir: dir, dataDir: dataDir, stateFile: filepath.Join(dataDir, "plugins.json"), plugins: map[string]*installed{}, enabled: map[string]storedPlugin{}, operations: map[string]Operation{}}
+	m := &Manager{dir: dir, dataDir: dataDir, stateFile: filepath.Join(dataDir, "plugins.json"), database: filepath.Join("data", "data.db"), plugins: map[string]*installed{}, enabled: map[string]storedPlugin{}, operations: map[string]Operation{}}
 	if data, err := os.ReadFile(m.stateFile); err == nil {
 		if err := json.Unmarshal(data, &m.enabled); err != nil {
 			return nil, fmt.Errorf("读取插件启用配置失败: %w", err)
@@ -87,8 +91,17 @@ func New(dir, dataDir string) (*Manager, error) {
 		return nil, err
 	}
 	m.hostURL = "http://" + listener.Addr().String()
-	m.server = &http.Server{Handler: http.HandlerFunc(m.serveOperation), ReadHeaderTimeout: 10 * time.Second}
+	m.server = &http.Server{Handler: http.HandlerFunc(m.serveHost), ReadHeaderTimeout: 10 * time.Second}
 	go m.server.Serve(listener)
+	// 带后端的插件同时可用本地 Unix socket 调用宿主，回环 HTTP 继续保留。
+	sum := sha256.Sum256([]byte(dataDir))
+	socketPath := filepath.Join(os.TempDir(), fmt.Sprintf("allinssl-%x-%d.sock", sum[:6], os.Getpid()))
+	_ = os.Remove(socketPath)
+	if socketListener, socketErr := net.Listen("unix", socketPath); socketErr == nil {
+		m.hostSocket = socketPath
+		_ = os.Chmod(socketPath, 0600)
+		go m.server.Serve(socketListener)
+	}
 	return m, nil
 }
 
@@ -266,6 +279,14 @@ func (m *Manager) enable(id string, persist bool) error {
 	var err error
 	if item.Backend != "" {
 		err = m.launch(item)
+		if err == nil {
+			if workflowErr := m.loadWorkflow(item); workflowErr != nil {
+				item.WorkflowError = workflowErr.Error()
+			} else if conflictErr := m.workflowConflict(item); conflictErr != nil {
+				item.workflow = WorkflowRegistration{}
+				err = conflictErr
+			}
+		}
 	}
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -273,6 +294,14 @@ func (m *Manager) enable(id string, persist bool) error {
 		err = fmt.Errorf("模块就绪后退出")
 	}
 	if err != nil {
+		if item.proc != nil {
+			item.proc.cancel()
+			item.proc.input.Close()
+			if item.proc.cmd.Process != nil {
+				_ = item.proc.cmd.Process.Kill()
+			}
+			item.proc = nil
+		}
 		item.Status = "error"
 		item.Error = err.Error()
 		item.Enabled = !persist
@@ -328,15 +357,6 @@ func (m *Manager) checkConflicts(item *installed) error {
 		}
 		claims[key] = true
 	}
-	if item.Frontend.Login != "" && !claims["auth:request"] {
-		return fmt.Errorf("登录入口需要认证扩展")
-	}
-	if item.Frontend.Login != "" {
-		if claims["page:login"] {
-			return fmt.Errorf("模块重复声明登录页替换")
-		}
-		claims["page:login"] = true
-	}
 	for id, other := range m.plugins {
 		if id == item.ID || !other.Enabled {
 			continue
@@ -351,9 +371,6 @@ func (m *Manager) checkConflicts(item *installed) error {
 func conflictsWith(claims map[string]bool, other Manifest) error {
 	if other.Frontend.Root != "" && claims["frontend:root"] {
 		return fmt.Errorf("frontend:root")
-	}
-	if other.Frontend.Login != "" && claims["page:login"] {
-		return fmt.Errorf("page:login")
 	}
 	for _, hook := range other.Hooks {
 		if hook.Stage == "replace" && claims[hook.Kind+":"+hook.Target] {
@@ -389,6 +406,9 @@ func (m *Manager) launch(item *installed) error {
 	p := &process{cmd: exec.Command(path), token: hex.EncodeToString(secret), done: make(chan struct{}), ctx: ctx, cancel: cancel}
 	p.cmd.Dir = item.root
 	p.cmd.Env = append(os.Environ(), "ALLINSSL_HOST_URL="+m.hostURL, "ALLINSSL_MODULE_TOKEN="+p.token, "ALLINSSL_MODULE_ID="+item.ID, "ALLINSSL_MODULE_DATA="+dataDir)
+	if m.hostSocket != "" {
+		p.cmd.Env = append(p.cmd.Env, "ALLINSSL_HOST_SOCKET="+m.hostSocket)
+	}
 	p.cmd.Stderr = os.Stderr
 	stdout, err := p.cmd.StdoutPipe()
 	if err != nil {
@@ -500,6 +520,8 @@ func (m *Manager) Disable(id string) error {
 	item.published = false
 	item.Status = "disabled"
 	item.Error = ""
+	item.WorkflowError = ""
+	item.workflow = WorkflowRegistration{}
 	item.proc = nil
 	m.mu.Unlock()
 	return nil
@@ -578,6 +600,9 @@ func (m *Manager) Close() {
 		stopProcess(p)
 	}
 	_ = m.server.Close()
+	if m.hostSocket != "" {
+		_ = os.Remove(m.hostSocket)
+	}
 	m.client.CloseIdleConnections()
 }
 
@@ -688,38 +713,51 @@ func (m *Manager) Call(ctx context.Context, id string, call Invoke) (Reply, erro
 	return reply, nil
 }
 
-func (m *Manager) serveOperation(w http.ResponseWriter, r *http.Request) {
-	if r.Method != "POST" || r.URL.Path != "/call" {
+func (m *Manager) serveHost(w http.ResponseWriter, r *http.Request) {
+	if r.Method != "POST" {
 		http.NotFound(w, r)
 		return
 	}
+	switch r.URL.Path {
+	case "/call":
+		m.serveOperation(w, r)
+	case "/data":
+		m.serveData(w, r)
+	default:
+		http.NotFound(w, r)
+	}
+}
+
+func (m *Manager) usePlugin(w http.ResponseWriter, r *http.Request) (*installed, *process, bool) {
 	token := strings.TrimPrefix(r.Header.Get("Authorization"), "Bearer ")
+	if token == "" {
+		http.Error(w, "插件凭据无效", http.StatusUnauthorized)
+		return nil, nil, false
+	}
 	m.mu.RLock()
-	var item *installed
+	defer m.mu.RUnlock()
 	for _, candidate := range m.plugins {
 		if candidate.Enabled && candidate.proc != nil && candidate.proc.token == token && (candidate.Status == "running" || candidate.Status == "starting") {
-			item = candidate
-			break
+			candidate.proc.active.Add(1)
+			return candidate, candidate.proc, true
 		}
 	}
-	if item == nil {
-		m.mu.RUnlock()
-		http.Error(w, "插件凭据无效", http.StatusUnauthorized)
+	http.Error(w, "插件凭据无效", http.StatusUnauthorized)
+	return nil, nil, false
+}
+
+func (m *Manager) serveOperation(w http.ResponseWriter, r *http.Request) {
+	item, p, ok := m.usePlugin(w, r)
+	if !ok {
 		return
 	}
+	defer p.active.Done()
 	var call struct {
 		Operation string         `json:"operation"`
 		Params    map[string]any `json:"params"`
 	}
-	m.mu.RUnlock()
 	if err := json.NewDecoder(r.Body).Decode(&call); err != nil {
 		http.Error(w, "业务请求无效", http.StatusBadRequest)
-		return
-	}
-	m.mu.RLock()
-	if item.proc == nil || item.proc.token != token || (item.Status != "running" && item.Status != "starting") {
-		m.mu.RUnlock()
-		http.Error(w, "插件凭据已失效", http.StatusUnauthorized)
 		return
 	}
 	allowed := false
@@ -731,14 +769,9 @@ func (m *Manager) serveOperation(w http.ResponseWriter, r *http.Request) {
 	}
 	operation := m.operations[call.Operation]
 	if !allowed || operation == nil {
-		m.mu.RUnlock()
 		http.Error(w, "没有此业务操作权限", http.StatusForbidden)
 		return
 	}
-	p := item.proc
-	p.active.Add(1)
-	m.mu.RUnlock()
-	defer p.active.Done()
 	ctx, cancel := context.WithCancel(r.Context())
 	defer cancel()
 	stop := context.AfterFunc(p.ctx, cancel)

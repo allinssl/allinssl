@@ -111,7 +111,7 @@ export interface ExecuteResultConditionNodeData
 }
 
 // 节点类型
-export type NodeNum =
+type BuiltinNodeNum =
   | typeof START // 开始节点
   | typeof DEFAULT // 默认节点
   | typeof END // 结束节点
@@ -125,8 +125,13 @@ export type NodeNum =
   | typeof PRIVATE_CA // 私有CA节点（业务）
   | typeof DEPLOY; // 部署节点（业务）
 
+// 插件节点类型由宿主生成，格式固定为 plugin:<模块标识>:<节点名>
+export type NodeNum = BuiltinNodeNum | `plugin:${string}:${string}`;
+
 // 节点配置映射
 export type NodeOptions = {
+  [key: string]: () => BaseRenderNodeOptions<BaseNodeData>;
+} & {
   [START]: () => BaseRenderNodeOptions<BaseNodeData & { type: typeof START }>;
   [END]: () => BaseRenderNodeOptions<BaseNodeData & { type: typeof END }>;
   [DEFAULT]: () => BaseRenderNodeOptions<

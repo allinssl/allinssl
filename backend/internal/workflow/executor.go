@@ -28,7 +28,7 @@ func Executors(exec string, params map[string]any) (any, error) {
 
 func executeWithContext(ctx context.Context, exec string, params map[string]any) (any, error) {
 	if module.Default != nil {
-		return module.Default.Execute(ctx, "workflow", exec, params, func(values map[string]any) (any, error) { return executeBuiltin(exec, values) })
+		return module.Default.ExecuteWorkflow(ctx, exec, params, func(values map[string]any) (any, error) { return executeBuiltin(exec, values) })
 	}
 	return executeBuiltin(exec, params)
 }

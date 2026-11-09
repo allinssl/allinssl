@@ -11,7 +11,6 @@ import (
 	"net/url"
 	"os"
 	"strings"
-	"time"
 
 	"ALLinSSL/backend/public"
 	"github.com/gin-contrib/sessions"
@@ -105,104 +104,27 @@ func writeResponse(c *gin.Context, response *HTTPResponse) {
 	c.Abort()
 }
 
-// HandleAuth 返回 true 时，宿主无需再执行内置 Session/API Key 认证。
+// HandleAuth 只放行启动清单和纯前端主题资源，登录仍完全由宿主判定。
 func (m *Manager) HandleAuth(c *gin.Context) bool {
-	path := c.Request.URL.Path
-	authID := m.authID()
-	bootstrap := path == "/v1/plugins/bootstrap" && c.Request.Method == "GET"
-	loginAsset := c.Request.Method == "GET" && m.isLoginAsset(authID, path)
-	if authID == "" && !bootstrap && !loginAsset {
+	if c.Request.Method != "GET" || (c.Request.URL.Path != "/v1/plugins/bootstrap" && !m.isThemeAsset(c.Request.URL.Path)) {
 		return false
 	}
-	session := sessions.Default(c)
-	secure := public.Secure
-	if secure != "" && secure != "/" && secure != "/login" {
-		if path == secure {
-			session.Set("secure", true)
-			_ = session.Save()
-			c.Redirect(http.StatusFound, "/login")
-			c.Abort()
-			return true
-		}
-		if session.Get("secure") != true {
-			c.Data(http.StatusNotFound, "text/html; charset=utf-8", []byte("页面不存在"))
-			c.Abort()
-			return true
-		}
-	}
-	if bootstrap {
+	// 匿名放行只覆盖启动清单和主题资源，安全入口仍按宿主规则校验。
+	if secure := public.Secure; secure != "" && secure != "/" && secure != "/login" && sessions.Default(c).Get("secure") != true {
+		c.Data(http.StatusNotFound, "text/html; charset=utf-8", []byte("页面不存在"))
+		c.Abort()
 		return true
 	}
-	if c.Request.Method == "GET" && (path == "/login" || path == "/favicon.ico" || strings.HasPrefix(path, "/static/") || loginAsset) {
-		return true
-	}
-	if m.isPublicRoute(authID, c.Request.Method, path) {
-		return true
-	}
-	request, err := ReadRequest(c.Request)
-	if err != nil {
-		public.FailMsg(c, err.Error())
-		return true
-	}
-	ctx, cancel := context.WithTimeout(c.Request.Context(), 30*time.Second)
-	defer cancel()
-	reply, _, err := m.Authentication(ctx, request)
-	if err != nil {
-		public.FailMsg(c, err.Error())
-		return true
-	}
-	if reply.Allow {
-		return true
-	}
-	if reply.Response != nil {
-		writeResponse(c, reply.Response)
-		return true
-	}
-	c.AbortWithStatusJSON(http.StatusUnauthorized, public.Response{Code: 401, Message: "认证模块拒绝访问"})
 	return true
 }
 
-func (m *Manager) isLoginAsset(id, path string) bool {
+func (m *Manager) isThemeAsset(path string) bool {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 	parts := strings.SplitN(strings.TrimPrefix(path, "/plugins/"), "/static/", 2)
 	if strings.HasPrefix(path, "/plugins/") && len(parts) == 2 && strings.HasPrefix(parts[1], "frontend/") {
 		theme := m.plugins[parts[0]]
-		if theme != nil && theme.Enabled && theme.published && theme.Backend == "" {
-			return true
-		}
-	}
-	item := m.plugins[id]
-	if item == nil {
-		return false
-	}
-	prefix := "/plugins/" + id + "/static/"
-	name := strings.TrimPrefix(path, prefix)
-	if name == path {
-		return false
-	}
-	if name == item.Frontend.Login {
-		return true
-	}
-	for _, style := range item.Frontend.Styles {
-		if name == style {
-			return true
-		}
-	}
-	return false
-}
-
-func (m *Manager) isPublicRoute(id, method, path string) bool {
-	m.mu.RLock()
-	defer m.mu.RUnlock()
-	item := m.plugins[id]
-	if item == nil {
-		return false
-	}
-	for _, route := range item.PublicRoutes {
-		if route.Method == method && route.Path == path {
-			return true
-		}
+		return theme != nil && theme.Enabled && theme.published && theme.Backend == ""
 	}
 	return false
 }
@@ -216,30 +138,8 @@ type frontendModule struct {
 }
 
 func (m *Manager) Bootstrap(c *gin.Context) {
-	authID := m.authID()
-	authenticated := false
-	var login any
-	if authID == "" {
-		session := sessions.Default(c)
-		authenticated = session.Get("login") == true && session.Get("__login_key") == public.LoginKey
-	} else {
-		request, err := ReadRequest(c.Request)
-		if err != nil {
-			public.FailMsg(c, err.Error())
-			return
-		}
-		ctx, cancel := context.WithTimeout(c.Request.Context(), 30*time.Second)
-		defer cancel()
-		reply, _, authErr := m.Authentication(ctx, request)
-		authenticated = authErr == nil && reply.Allow
-		m.mu.RLock()
-		item := m.plugins[authID]
-		login = map[string]any{"id": authID, "entry": item.Frontend.Login, "styles": item.Frontend.Styles, "status": item.Status, "error": item.Error, "version": item.Version}
-		m.mu.RUnlock()
-		if authErr != nil {
-			login.(map[string]any)["error"] = authErr.Error()
-		}
-	}
+	session := sessions.Default(c)
+	authenticated := session.Get("login") == true && session.Get("__login_key") == public.LoginKey
 	items := []frontendModule{}
 	m.mu.RLock()
 	for id, item := range m.plugins {
@@ -248,7 +148,7 @@ func (m *Manager) Bootstrap(c *gin.Context) {
 		}
 	}
 	m.mu.RUnlock()
-	public.SuccessData(c, map[string]any{"authentication": login, "authenticated": authenticated, "modules": items}, len(items))
+	public.SuccessData(c, map[string]any{"authenticated": authenticated, "modules": items}, len(items))
 }
 
 func (m *Manager) RegisterHTTP(r *gin.Engine) {

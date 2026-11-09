@@ -5,12 +5,12 @@ import * as routing from 'vue-router'
 import { instance } from '@/api'
 import type { MenuOption } from 'naive-ui'
 import type { Bootstrap, ModuleEntry, ModuleFrontend, ModuleHost, ModuleMenu } from './types'
+import { createWorkflowApi } from './workflow'
 
 const replacements = new Map<string, vue.Component>()
 const slots = vue.shallowReactive<{ target: string; component: vue.Component }[]>([])
 const menus = vue.shallowReactive<(ModuleMenu & { iconComponent?: vue.Component })[]>([])
 export const frontendErrors = vue.reactive<Record<string, string>>({})
-let loginComponent: vue.Component | undefined
 let rootComponent: vue.Component | undefined
 const sources = import.meta.glob(['../{views,components}/**/*.{ts,tsx,vue}', '!../**/*.{spec,test}.{ts,tsx}', '!../**/*.d.ts'])
 
@@ -37,7 +37,7 @@ function loadStyles(id: string, styles: string[] = []) {
 async function loadEntry(id: string, entry: string, version: string, host: ModuleHost) {
   const url = `/plugins/${id}/static/${entry}?v=${encodeURIComponent(version)}`
   const source = await import(/* @vite-ignore */ url) as { default: ModuleEntry }
-  return source.default({ ...host, api: `/v1/plugins/${id}/api` })
+  return source.default({ ...host, api: `/v1/plugins/${id}/api`, workflow: createWorkflowApi(id) })
 }
 
 function registerFrontend(id: string, frontend: ModuleFrontend, components: Record<string, vue.Component>, router: Router) {
@@ -73,22 +73,10 @@ export async function initializeModules(router: Router, app?: vue.App, Root?: vu
     const component = route.components?.default
     if (route.name && component) views[String(route.name)] = typeof component === 'function' ? vue.defineAsyncComponent(component as () => Promise<vue.Component>) : component
   }
-  const host: ModuleHost = { vue, ui, router, http: instance, api: '', app, Root, RouterView: ModuleRouterView, routing, views, load: loadHostModule }
+  const host: ModuleHost = { vue, ui, router, http: instance, api: '', app, Root, RouterView: ModuleRouterView, routing, views, load: loadHostModule, workflow: createWorkflowApi('') }
   const { data } = await instance.get<{ data: Bootstrap; status: boolean; message: string }>('/v1/plugins/bootstrap')
   if (!data.status) throw new Error(data.message)
   const bootstrap = data.data
-  const authentication = bootstrap.authentication
-  if (authentication) {
-    loginComponent = moduleError(authentication.error || '认证模块没有可用的登录入口，请使用本机命令停用模块后重启')
-    if (authentication.status === 'running' && authentication.entry) {
-      try {
-        const components = await loadEntry(authentication.id, authentication.entry, authentication.version, host)
-        if (!components.Login) throw new Error('认证入口必须导出 Login 组件')
-        loginComponent = vue.markRaw(components.Login)
-        loadStyles(authentication.id, authentication.styles)
-      } catch (error) { loginComponent = moduleError(String(error)) }
-    }
-  }
   const modules = [...bootstrap.modules].sort((a, b) => a.id.localeCompare(b.id))
   for (const item of modules) {
     let components: Record<string, vue.Component> = {}
@@ -123,7 +111,7 @@ export const ModuleContent = vue.defineComponent({
     const route = useRoute()
     return () => {
       const name = String(props.name ?? route.name)
-      const component = name === 'login' && loginComponent ? loginComponent : replacements.get(name) || props.view
+      const component = replacements.get(name) || props.view
       return vue.h('div', { class: 'module-page-content h-full' }, [
         vue.h(ModuleSlot, { target: `page:${name}:before` }),
         component && vue.h(component, props.view?.props),

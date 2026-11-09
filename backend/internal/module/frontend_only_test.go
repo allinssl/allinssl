@@ -46,7 +46,7 @@ func TestFrontendOnlyLifecycleAndPublicAssets(t *testing.T) {
 	if m.plugins["theme"].proc != nil || !m.plugins["theme"].published {
 		t.Fatal("主服务重启应恢复纯前端扩展且不启动进程")
 	}
-	fixture(t, root, "private", Hook{Kind: "auth", Target: "request", Stage: "replace", Handler: "auth"})
+	fixture(t, root, "private")
 	if err := m.Enable("private"); err != nil {
 		t.Fatal(err)
 	}
@@ -90,7 +90,7 @@ func TestFrontendOnlyLifecycleAndPublicAssets(t *testing.T) {
 	if err := m.Disable("theme"); err != nil {
 		t.Fatal(err)
 	}
-	if m.isLoginAsset("", "/plugins/theme/static/frontend/index.js") {
+	if m.isThemeAsset("/plugins/theme/static/frontend/index.js") {
 		t.Fatal("停用后不能匿名访问主题资源")
 	}
 }
@@ -101,11 +101,11 @@ func TestFrontendOnlyRestrictionsAndConflicts(t *testing.T) {
 	manifest.Backend = ""
 	for _, change := range []func(*Manifest){
 		func(m *Manifest) {
-			m.Hooks = []Hook{{Kind: "auth", Target: "request", Stage: "replace", Handler: "auth"}}
+			m.Hooks = []Hook{{Kind: "http", Target: "POST /v1/monitor/get_list", Stage: "before", Handler: "x"}}
 		},
 		func(m *Manifest) { m.Permissions = []string{"POST /v1/monitor/get_list"} },
 		func(m *Manifest) {
-			m.PublicRoutes = []PublicRoute{{Method: "POST", Path: "/v1/plugins/theme/api/login"}}
+			m.DataPermissions = []DataPermission{{Table: "workflow", Actions: []string{"update"}}}
 		},
 		func(m *Manifest) { m.Frontend = Frontend{} },
 		func(m *Manifest) { m.Frontend = Frontend{Root: "Root"} },

@@ -19,8 +19,13 @@ import {
   ExecuteResultConditionNodeData,
   ExecuteResultBranchNodeData,
 } from "../types";
+import type { Component } from "vue";
+import type { PluginWorkflowNode } from "@/modules/types";
 
 const nodeOptions = {} as NodeOptions;
+const pluginNodes = new Map<string, PluginWorkflowNode>();
+const pluginForms = new Map<string, Component>();
+const hiddenNodes = new Set<string>();
 
 // 基础节点配置
 const baseOptions = <T extends BaseNodeData>(
@@ -49,6 +54,46 @@ const baseOptions = <T extends BaseNodeData>(
   };
   return deepMerge(defaultOptions, options) as BaseRenderNodeOptions<T>;
 };
+
+// 插件节点由后端注册表声明执行器，由前端入口声明界面。
+export function registerPluginNode(type: string, node: PluginWorkflowNode) {
+  if (nodeOptions[type]) throw new Error(`插件工作流节点重复: ${type}`);
+  pluginNodes.set(type, node);
+  nodeOptions[type] = () =>
+    baseOptions({
+      title: { name: node.title },
+      icon: { name: node.icon || "apply" },
+      operateNode: { sort: node.order ?? 6 },
+      defaultNode: {
+        id: uuidv4(),
+        name: node.title,
+        type,
+        config: { ...(node.defaultConfig || {}) },
+        childNode: null,
+      } as BaseNodeData,
+    });
+}
+
+export function hidePluginNode(type: string) {
+  hiddenNodes.add(type);
+}
+
+export function replacePluginForm(type: string, form: Component) {
+  if (pluginForms.has(type)) throw new Error(`插件工作流表单重复替换: ${type}`);
+  pluginForms.set(type, form);
+}
+
+export function getPluginWorkflowNode(type: string) {
+  return pluginNodes.get(type);
+}
+
+export function getPluginWorkflowForm(type: string) {
+  return pluginForms.get(type);
+}
+
+export function isPluginNodeHidden(type: string) {
+  return hiddenNodes.has(type);
+}
 
 // ------------------------------ 基础节点配置 ------------------------------
 
