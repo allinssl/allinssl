@@ -10,13 +10,12 @@
   content: "";
   position: absolute;
   top: 0;
-  left: 0;
-  right: 0;
   bottom: 0;
+  left: 50%;
   z-index: -1;
-  margin: auto;
   width: 0.2rem;
   height: 100%;
+  margin-left: -0.1rem;
   background-color: #cacaca;
 }
 
@@ -25,7 +24,7 @@
   left: 50%;
   top: 50%;
   margin-left: -1.2rem;
-	margin-top: -2rem;
+	margin-top: -1.2rem;
   display: flex;
   justify-content: center;
   align-items: center;

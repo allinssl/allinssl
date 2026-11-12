@@ -9,11 +9,10 @@
   left: 50%;
   transform: translateX(-50%);
   width: 0;
-  height: 0.4rem;
+  height: 0;
   border-style: solid;
-  border-width: 0.8rem 0.6rem 0.4rem;
+  border-width: 1.2rem 0.6rem 0;
   border-color: #cacaca transparent transparent;
-  background-color: #f5f5f7;
 }
 
 .nodeContent {
