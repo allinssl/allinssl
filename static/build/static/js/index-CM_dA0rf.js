@@ -1,0 +1,1 @@
+import{ap as a,ak as e,aj as s}from"./main-CZA9pdUx.js";const t=a({name:"BranchNode",props:{node:{type:Object,default:()=>({})}},setup:()=>()=>e("div",null,[s("渲染节点失败，请检查类型是否支持")])});export{t as default};

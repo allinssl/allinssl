@@ -1,1 +1,0 @@
-import{s as e}from"./index.module-DOa7c3n6.js";import{ap as s,ak as a,aj as d}from"./main-B3Z-Grol.js";const o=s({name:"EndNode",setup:()=>()=>a("div",{class:"flex flex-col items-center justify-center"},[a("div",{class:e.endNode},null),a("div",{class:e.endNodeTxt},[d("流程结束")])])});export{o as default};
