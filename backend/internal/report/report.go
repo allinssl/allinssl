@@ -212,6 +212,13 @@ func NotifyMonitor(reportTypes, subject, body string) error {
 	return errors.Join(notifyErrors...)
 }
 
+func smtpAuthUsername(username, sender string) string {
+	if username == "" {
+		return sender
+	}
+	return username
+}
+
 func NotifyMail(params map[string]any) error {
 
 	if params == nil {
@@ -226,6 +233,7 @@ func NotifyMail(params map[string]any) error {
 	configStr := providerData["config"].(string)
 	var config struct {
 		Sender   string `json:"sender"`
+		Username string `json:"username"`
 		Receiver string `json:"receiver"`
 		Password string `json:"password"`
 		SMTPHost string `json:"smtpHost"`
@@ -245,7 +253,7 @@ func NotifyMail(params map[string]any) error {
 
 	addr := fmt.Sprintf("%s:%s", config.SMTPHost, config.SMTPPort)
 
-	auth := smtp.PlainAuth("", config.Sender, config.Password, config.SMTPHost)
+	auth := smtp.PlainAuth("", smtpAuthUsername(config.Username, config.Sender), config.Password, config.SMTPHost)
 
 	// 使用 SSL（通常是 465）
 	if config.SMTPPort == "465" {

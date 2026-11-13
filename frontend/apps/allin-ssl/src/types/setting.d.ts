@@ -54,10 +54,10 @@ export interface ReportMail {
 	password: string
 	receiver: string
 	sender: string
+	username?: string
 	smtpHost: string
 	smtpPort: string
 	smtpTLS: true | false
-	// username: string
 }
 
 /** 飞书通知配置 */

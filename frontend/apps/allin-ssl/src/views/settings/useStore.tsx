@@ -75,6 +75,7 @@ export const useSettingsStore = defineStore('settings-store', () => {
 		enabled: '1',
 		receiver: '', // 接受邮箱
 		sender: '', // 发送邮箱
+		username: '', // SMTP登录用户名，默认使用发送邮箱
 		smtpHost: '', // SMTP服务器
 		smtpPort: '465', //SMTP端口
 		smtpTLS: false, // TLS协议，加密

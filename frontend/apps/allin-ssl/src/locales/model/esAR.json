@@ -196,6 +196,7 @@
   "t_46_1745289355723": "Autenticación por contraseña",
   "t_47_1745289355715": "Autenticación de clave",
   "t_48_1745289355714": "Contraseña",
+  "t_0_1792893600000": "Nombre de usuario SMTP (opcional; usa el correo del remitente de forma predeterminada)",
   "t_49_1745289355714": "Llave privada SSH",
   "t_50_1745289355715": "Por favor, ingrese la clave privada SSH",
   "t_51_1745289355714": "Contraseña de la clave privada",

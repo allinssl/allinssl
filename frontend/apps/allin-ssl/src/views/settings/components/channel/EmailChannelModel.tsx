@@ -104,6 +104,9 @@ export default defineComponent({
 						'username-template': (formData: Ref<ReportMail>) => {
 							return (
 								<NGrid cols="24" xGap="24">
+									<NFormItemGi span="24" label={$t('t_0_1792893600000')} path="username">
+										<NInput v-model:value={formData.value.username} />
+									</NFormItemGi>
 									<NFormItemGi span="24" label={$t('t_48_1745289355714')} path="password">
 										<NInput
 											v-model:value={formData.value.password}

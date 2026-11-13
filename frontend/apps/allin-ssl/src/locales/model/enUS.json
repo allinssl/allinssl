@@ -196,6 +196,7 @@
   "t_46_1745289355723": "Password authentication",
   "t_47_1745289355715": "Key authentication",
   "t_48_1745289355714": "Password",
+  "t_0_1792893600000": "SMTP username (optional; defaults to sender email)",
   "t_49_1745289355714": "SSH private key",
   "t_50_1745289355715": "Please enter the SSH private key",
   "t_51_1745289355714": "Private key password",

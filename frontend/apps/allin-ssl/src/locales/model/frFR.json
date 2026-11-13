@@ -196,6 +196,7 @@
   "t_46_1745289355723": "Authentification par mot de passe",
   "t_47_1745289355715": "Authentification par clé",
   "t_48_1745289355714": "Mot de passe",
+  "t_0_1792893600000": "Nom d'utilisateur SMTP (facultatif ; utilise l'e-mail de l'expéditeur par défaut)",
   "t_49_1745289355714": "Clé privée SSH",
   "t_50_1745289355715": "Veuillez saisir la clé privée SSH",
   "t_51_1745289355714": "Mot de passe de la clé privée",

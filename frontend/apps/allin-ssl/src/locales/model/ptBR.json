@@ -196,6 +196,7 @@
   "t_46_1745289355723": "Autenticação por senha",
   "t_47_1745289355715": "Autenticação de chave",
   "t_48_1745289355714": "Senha",
+  "t_0_1792893600000": "Usuário SMTP (opcional; usa o e-mail do remetente por padrão)",
   "t_49_1745289355714": "Chave privada SSH",
   "t_50_1745289355715": "Por favor, insira a chave privada SSH",
   "t_51_1745289355714": "Senha da chave privada",
