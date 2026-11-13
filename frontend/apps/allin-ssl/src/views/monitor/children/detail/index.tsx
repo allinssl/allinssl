@@ -248,7 +248,7 @@ export default defineComponent({
 		const getDaysLeftColor = (daysLeft: number): string => {
 			if (daysLeft <= 7) return 'var(--n-error-primary-color)'
 			if (daysLeft <= 30) return 'var(--n-warning-primary-color)'
-			return 'var(--n-success-primary-color)'
+			return 'var(--n-success-color)'
 		}
 
 		/**
@@ -260,7 +260,7 @@ export default defineComponent({
 					iconBgClass: 'bg-[#D8FFE4]',
 					style: {
 						backgroundColor: 'var(--n-success-bg-color-light)',
-						color: 'var(--n-success-primary-color)',
+						color: 'var(--n-success-color)',
 						borderColor: 'var(--n-success-border-color)',
 					},
 					labelStyle: { color: 'var(--n-success-text-color)' },
@@ -486,7 +486,7 @@ export default defineComponent({
                     <div class="space-y-6">
                       {/* 核心状态信息 - 最重要 */}
                       <div class="pb-6">
-                        <h4 class="font-semibold mb-6 text-primary text-[1.6rem] sm:text-[1.7rem] border-b border-[var(--n-border-color)] pb-4">
+                        <h4 class="font-semibold mb-6 text-[var(--n-primary-color)] text-[1.6rem] sm:text-[1.7rem] border-b border-[var(--n-border-color)] pb-4">
                           核心状态
                         </h4>
                         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -569,7 +569,7 @@ export default defineComponent({
 
 											{/* 监控配置信息 */}
 											<div class="pb-6">
-												<h4 class="font-semibold mb-6 text-primary text-[1.6rem] sm:text-[1.7rem] border-b border-[var(--n-border-color)] pb-4">
+												<h4 class="font-semibold mb-6 text-[var(--n-primary-color)] text-[1.6rem] sm:text-[1.7rem] border-b border-[var(--n-border-color)] pb-4">
 													监控配置
 												</h4>
 												<div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
@@ -631,7 +631,7 @@ export default defineComponent({
 
 											{/* 证书基本信息 */}
 											<div class="pb-6">
-												<h4 class="font-semibold mb-6 text-success text-[1.6rem] sm:text-[1.7rem] border-b border-[var(--n-border-color)] pb-4">
+												<h4 class="font-semibold mb-6 text-[var(--n-primary-color)] text-[1.6rem] sm:text-[1.7rem] border-b border-[var(--n-border-color)] pb-4">
 													证书基本信息
 												</h4>
 												<div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
@@ -662,7 +662,7 @@ export default defineComponent({
 
 											{/* 有效期详情 */}
 											<div class="pb-6">
-												<h4 class="font-semibold mb-6 text-success text-[1.6rem] sm:text-[1.7rem] border-b border-[var(--n-border-color)] pb-4">
+												<h4 class="font-semibold mb-6 text-[var(--n-primary-color)] text-[1.6rem] sm:text-[1.7rem] border-b border-[var(--n-border-color)] pb-4">
 													有效期详情
 												</h4>
 												<div class="flex flex-wrap gap-4">
@@ -689,7 +689,7 @@ export default defineComponent({
 											{/* 证书链路信息 - 视觉增强 */}
 											{detailData.value?.cert_chain && (
 												<div>
-													<h4 class="font-semibold mb-6 text-success text-[1.6rem] sm:text-[1.7rem] border-b border-[var(--n-border-color)] pb-4">
+													<h4 class="font-semibold mb-6 text-[var(--n-primary-color)] text-[1.6rem] sm:text-[1.7rem] border-b border-[var(--n-border-color)] pb-4">
 														证书链路信息
 													</h4>
 													<div class="">
@@ -701,7 +701,7 @@ export default defineComponent({
 											{/* 验证错误信息 */}
 											{detailData.value?.verify_error && (
 												<div>
-													<h4 class="font-semibold mb-6 text-error text-[1.6rem] border-[var(--n-border-color)] border-b border-error/20 pb-4">
+													<h4 class="font-semibold mb-6 text-[var(--n-error-primary-color)] text-[1.6rem] border-b border-[var(--n-border-color)] pb-4">
 														验证错误信息
 													</h4>
 													<div class="">

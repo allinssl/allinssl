@@ -1,1 +1,0 @@
-import{b6 as t}from"./main-CZA9pdUx.js";const e=e=>t("/v1/cert/get_list",e),r=e=>t("/v1/cert/upload_cert",e),s=e=>t("/v1/cert/del_cert",e);export{s as d,e as g,r as u};

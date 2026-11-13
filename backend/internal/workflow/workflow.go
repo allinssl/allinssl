@@ -135,13 +135,38 @@ func UpdWorkflow(id, name, content, execType, active, execTime string) error {
 }
 
 func UpdExecType(id, execType string) error {
-	err := UpdDb(id, map[string]interface{}{
-		"exec_type": execType,
-	})
+	s, err := GetSqlite()
 	if err != nil {
 		return err
 	}
-	return nil
+	data, err := s.Where("id=?", []interface{}{id}).Select()
+	s.Close()
+	if err != nil {
+		return err
+	}
+	if len(data) == 0 {
+		return fmt.Errorf("工作流不存在")
+	}
+	// 内容里的开始节点也保存了触发方式，需与列表同步，否则编辑时仍显示旧值
+	var node map[string]any
+	content, _ := data[0]["content"].(string)
+	if err = json.Unmarshal([]byte(content), &node); err != nil {
+		return fmt.Errorf("检测到工作流配置有问题：%v", err)
+	}
+	config, ok := node["config"].(map[string]any)
+	if !ok {
+		config = map[string]any{}
+		node["config"] = config
+	}
+	config["exec_type"] = execType
+	body, err := json.Marshal(node)
+	if err != nil {
+		return err
+	}
+	return UpdDb(id, map[string]interface{}{
+		"exec_type": execType,
+		"content":   string(body),
+	})
 }
 
 func UpdActive(id, active string) error {
